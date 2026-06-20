@@ -11,14 +11,14 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class Inventory
 {
-    private const string LocaleKeyPre = "log.inventory.";
+    private const string LocaleKeyPre = "tool_inventory_";
 
     private static Body GetBody()
     {
         World.CheckForWorld();
 
         return PlayerCamera.main.body == null
-            ? throw new InvalidOperationException(Locale("body_null"))
+            ? throw new InvalidOperationException(Locale("bodynull"))
             : PlayerCamera.main.body;
     }
 
@@ -53,7 +53,7 @@ public static class Inventory
     public static bool HasItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id.null_ore_mpty"), nameof(id));
+            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
 
         var body = GetBody();
         return body.HoldingItem(id);
@@ -62,7 +62,7 @@ public static class Inventory
     public static bool HasItemThorough(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
 
         var body = GetBody();
         return body.FindByIdThorough(id, out _);
@@ -229,7 +229,7 @@ public static class Inventory
     public static bool HasWearable(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
 
         var body = GetBody();
         return body.HasWearable(id);

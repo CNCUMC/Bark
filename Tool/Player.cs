@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using CUCoreLib.Registries;
 using UnityEngine;
@@ -10,7 +10,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class Player
 {
-    private const string LocaleKeyPre = "log.player.";
+    private const string LocaleKeyPre = "tool_player_";
 
     public const int MaxInventorySlots = 8;
 
@@ -42,12 +42,18 @@ public static class Player
     {
         World.CheckForWorld();
 
+        if (Multiplayer.IsNetworkRunning)
+        {
+            Multiplayer.Tp(vector2);
+        }
+        else
+        {
+            if (PlayerCamera.main.body == null)
+                throw new InvalidOperationException(Locale("bodynull"));
 
-        if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(Locale("bodynull"));
-
-        PlayerCamera.main.body.transform.position = vector2;
-        PlayerCamera.main.transform.position = vector2;
+            PlayerCamera.main.body.transform.position = vector2;
+            PlayerCamera.main.transform.position = vector2;
+        }
     }
 
     public static void Tp(float x, float y)
@@ -61,16 +67,16 @@ public static class Player
 
         if (string.IsNullOrWhiteSpace(item))
             throw new ArgumentException(
-                Locale("item.null_or_empty"), nameof(item));
+                Locale("item_nullorempty"), nameof(item));
 
         if (slot
             is < 0
             or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
-                Locale("slot.out_of_range", MaxInventorySlots));
+                Locale("slot_outofrange", MaxInventorySlots));
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(Locale("body_null"));
+            throw new InvalidOperationException(Locale("bodynull"));
 
         var body = PlayerCamera.main.body;
         var position = body.transform.position;
@@ -78,14 +84,14 @@ public static class Player
         var createdObject = Utils.Create(item, position, 0.0f);
         if (createdObject == null)
             throw new InvalidOperationException(
-                Locale("load_item.fail", item));
+                Locale("loaditem_fail", item));
 
         var itemComponent = createdObject.GetComponent<Item>();
         if (itemComponent == null)
         {
             Object.Destroy(createdObject);
             throw new InvalidOperationException(
-                Locale("load_item.missing_component", item));
+                Locale("loaditem_missingcomponent", item));
         }
 
         body.PickUpItem(itemComponent, slot, force);

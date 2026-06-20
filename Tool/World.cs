@@ -11,7 +11,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class World
 {
-    private const string LocaleKeyPre = "log.world.";
+    private const string LocaleKeyPre = "tool_world_";
     private static GameObject _cachedBgTemplate;
 
     private static readonly Dictionary<string, Sprite> SpriteCache =
@@ -36,7 +36,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("place_block", vector2, block, ex);
+            Error("placeblock", vector2, block, ex);
         }
     }
 
@@ -67,7 +67,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("fill_blocks", startX, startY, endX, endY, block, ex);
+            Error("fillblocks", startX, startY, endX, endY, block, ex);
         }
     }
 
@@ -101,7 +101,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("fill_blocks", startX, startY, blocks, ex);
+            Error("fillblocks", startX, startY, blocks, ex);
         }
     }
 
@@ -115,7 +115,7 @@ public static class World
         CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(item))
-            throw new ArgumentException(Locale("place_item.null_or_empty"), nameof(item));
+            throw new ArgumentException(Locale("placeitem_nullorempty"), nameof(item));
 
         try
         {
@@ -123,7 +123,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("place_item", vector2, item, ex);
+            Error("placeitem", vector2, item, ex);
         }
     }
 
@@ -192,7 +192,7 @@ public static class World
         if (u < 0) u += tileCount;
         if (v < 0) v += tileCount;
 
-        const float step = 1f / tileCount;
+        var step = 1f / tileCount;
         var u0 = u * step;
         var u1 = (u + 1) * step;
         var v0 = v * step;
@@ -242,7 +242,7 @@ public static class World
         if (sprite == null)
         {
             if (MissingSpriteWarnings.Add(backgroundId))
-                Warning("try_get_sprite", backgroundId);
+                Warning("trygetsprite", backgroundId);
             return false;
         }
 
@@ -253,7 +253,7 @@ public static class World
     public static void CheckForWorld()
     {
         if (PlayerCamera.main == null)
-            throw new InvalidOperationException(Locale("check_for_world"));
+            throw new InvalidOperationException(Locale("checkforworld"));
     }
 
     public static void ClearCache()
@@ -267,9 +267,11 @@ public static class World
             _cachedBgTemplate = null;
         }
 
-        if (_cachedBgMaterial == null) return;
-        Object.Destroy(_cachedBgMaterial);
-        _cachedBgMaterial = null;
+        if (_cachedBgMaterial != null)
+        {
+            Object.Destroy(_cachedBgMaterial);
+            _cachedBgMaterial = null;
+        }
     }
 
     private static void Warning(string key, params object[] args)

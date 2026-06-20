@@ -12,7 +12,16 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class Config
 {
-    private const string LocaleKeyPre = "log.config.";
+    private const string LocaleKeyPre = "tool_config_";
+
+    public static ConfigEntry<T> Register<T>(ConfigFile configFile, string section, string key, T defaultValue,
+        Func<string, string> getLocale, Dictionary<string, ConfigEntryBase> registry)
+    {
+        var entry = configFile.Bind(section, key, defaultValue,
+            getLocale($"config_{key}_description"));
+        registry[key] = entry;
+        return entry;
+    }
 
     public static bool HasConfig(string config, Dictionary<string, ConfigEntryBase> registry)
     {
@@ -24,7 +33,7 @@ public static class Config
         var hasConfig = registry.TryGetValue(config, out var entry);
         if (hasConfig) return entry;
 
-        Error("get_config.not_exist_config", config);
+        Error("getconfig_notexistconfig", config);
         return null;
     }
 
@@ -32,7 +41,7 @@ public static class Config
     {
         if (registry.TryGetValue(config, out var entry)) return entry.BoxedValue;
 
-        Error("get_config.not_exist_config", config);
+        Error("getconfig_notexistconfig", config);
         return null;
     }
 
@@ -44,7 +53,7 @@ public static class Config
         if (!string.IsNullOrEmpty(entry))
             return entry;
 
-        Error("get_config.not_exist_key", configEntry, entry);
+        Error("getconfig_notexistkey", configEntry, entry);
         return null;
     }
 

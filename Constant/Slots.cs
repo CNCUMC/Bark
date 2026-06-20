@@ -33,7 +33,7 @@ public sealed class Slots
         return LocaleKey;
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         return obj is Slots other && Id == other.Id;
     }
