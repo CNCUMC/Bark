@@ -1,10 +1,12 @@
 [中文指南](README_ZH.md)
 
-# Bark
+## Bark
 
 [GitHub](https://github.com/CNCUMC/Bark) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
 _A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/), built on top of [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)._
+
+_Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 
 ---
 
