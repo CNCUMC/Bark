@@ -1,0 +1,10 @@
+/logs/
+/obj/
+/bin/
+*.DotSettings.user
+*.DotSettings
+.run/
+.idea/
+.vs/
+*.suo
+*.user
