@@ -11,7 +11,6 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class World
 {
-    private const string LocaleKeyPre = "tool_world_";
     private static GameObject _cachedBgTemplate;
 
     private static readonly Dictionary<string, Sprite> SpriteCache =
@@ -36,7 +35,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("placeblock", vector2, block, ex);
+            Error("tool.world.place_block", vector2, block, ex);
         }
     }
 
@@ -67,7 +66,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("fillblocks", startX, startY, endX, endY, block, ex);
+            Error("tool.world.place_block", startX, startY, endX, endY, block, ex);
         }
     }
 
@@ -101,7 +100,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("fillblocks", startX, startY, blocks, ex);
+            Error("tool.world.place_block", startX, startY, blocks, ex);
         }
     }
 
@@ -115,7 +114,7 @@ public static class World
         CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(item))
-            throw new ArgumentException(Locale("placeitem_nullorempty"), nameof(item));
+            throw new ArgumentException(Locale("tool.world.place_item.null_or_empty"), nameof(item));
 
         try
         {
@@ -123,7 +122,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("placeitem", vector2, item, ex);
+            Error("tool.world.place_item", vector2, item, ex);
         }
     }
 
@@ -242,7 +241,7 @@ public static class World
         if (sprite == null)
         {
             if (MissingSpriteWarnings.Add(backgroundId))
-                Warning("trygetsprite", backgroundId);
+                Warning("tool.world.try_get_sprite", backgroundId);
             return false;
         }
 
@@ -253,7 +252,7 @@ public static class World
     public static void CheckForWorld()
     {
         if (PlayerCamera.main == null)
-            throw new InvalidOperationException(Locale("checkforworld"));
+            throw new InvalidOperationException(Locale("tool.world.check_for_world"));
     }
 
     public static void ClearCache()
@@ -288,8 +287,7 @@ public static class World
 
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
+        var text = LocaleRegistry.Get("other", key, key);
         return args.Length > 0 ? string.Format(text, args) : text;
     }
 }

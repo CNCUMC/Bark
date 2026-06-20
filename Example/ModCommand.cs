@@ -20,14 +20,14 @@ public class ModCommand
     {
         ConsoleScript.Commands.Add(new Command(
             "testhello",
-            Locale("testhello_description"),
-            _ => Info("testhello_text", TestHello()),
+            Locale("command.test_hello.description"),
+            _ => Info("command.test_hello.text", TestHello()),
             null)
         );
 
         ConsoleScript.Commands.Add(new Command(
             "spawnblock",
-            Locale("spawnblock_description"),
+            Locale("command.spawn_block.description"),
             args =>
             {
                 World.CheckForWorld();
@@ -35,23 +35,23 @@ public class ModCommand
 
                 if (!ushort.TryParse(args[1], out var blockId))
                 {
-                    Log.Error(Locale("spawnblock_invalidblockid", args[1]), Logger);
+                    Log.Error(Locale("command.spawn_block.invalid_block_id", args[1]), Logger);
                     return;
                 }
 
                 World.PlaceBlock(Key.MouseWorldPosition(), blockId);
-                Log.Info(Locale("spawnblock_success", blockId), Logger);
+                Log.Info(Locale("command.spawn_block.success", blockId), Logger);
             },
             new Dictionary<int, List<string>>
             {
-                { 0, ["blockid"] }
+                { 0, ["block_id"] }
             },
-            ("blockid", Locale("spawnblock_blockid")))
+            ("block_id", Locale("command.spawn_block.block_id")))
         );
 
         ConsoleScript.Commands.Add(new Command(
             "spawnbackground",
-            Locale("spawnbackground_description"),
+            Locale("command.spawn_background.description"),
             args =>
             {
                 World.CheckForWorld();
@@ -60,23 +60,23 @@ public class ModCommand
                 var backgroundId = args[1];
                 if (string.IsNullOrWhiteSpace(backgroundId))
                 {
-                    Log.Error(Locale("spawnbackground_invalidbackgroundid"), Logger);
+                    Log.Error(Locale("command.spawn_background.invalid_background_id"), Logger);
                     return;
                 }
 
                 World.PlaceBackground(Key.MouseWorldPosition(), backgroundId);
-                Log.Info(Locale("spawnbackground_success", backgroundId), Logger);
+                Log.Info(Locale("command.spawn_background.success", backgroundId), Logger);
             },
             new Dictionary<int, List<string>>
             {
-                { 0, ["backgroundid"] }
+                { 0, ["background_id"] }
             },
-            ("backgroundid", Locale("spawnbackground_backgroundid")))
+            ("background_id", Locale("command.spawn_background.background_id")))
         );
 
         ConsoleScript.Commands.Add(new Command(
             "listbackground",
-            Locale("listbackground_description"),
+            Locale("command.list_background.description"),
             _ =>
             {
                 World.CheckForWorld();
@@ -88,12 +88,12 @@ public class ModCommand
 
                 if (backgroundList.Count == 0)
                 {
-                    Log.Info(Locale("listbackground_none"), Logger);
+                    Log.Info(Locale("command.list_background.none"), Logger);
                     return;
                 }
 
                 var message = string.Join("\n", backgroundList);
-                Log.Info(Locale("listbackground_header", backgroundList.Count) + "\n" + message, Logger);
+                Log.Info(Locale("command.list_background.header", backgroundList.Count) + "\n" + message, Logger);
             },
             null)
         );
@@ -101,7 +101,7 @@ public class ModCommand
 
     private static string TestHello()
     {
-        var text = Locale("testhello_description");
+        var text = Locale("command.test_hello.description");
         var result = "";
         for (var i = 0; i < text.Length; i++) result += RichText.Size(text[i].ToString(), (i + 3) * 9);
 
@@ -110,8 +110,7 @@ public class ModCommand
 
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"command_{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
+        var text = LocaleRegistry.Get("other", key, key);
         return args.Length > 0 ? string.Format(text, args) : text;
     }
 

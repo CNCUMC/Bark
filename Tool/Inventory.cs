@@ -11,14 +11,12 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class Inventory
 {
-    private const string LocaleKeyPre = "tool_inventory_";
-
     private static Body GetBody()
     {
         World.CheckForWorld();
 
         return PlayerCamera.main.body == null
-            ? throw new InvalidOperationException(Locale("bodynull"))
+            ? throw new InvalidOperationException(Locale("tool.inventory.body_null"))
             : PlayerCamera.main.body;
     }
 
@@ -53,7 +51,7 @@ public static class Inventory
     public static bool HasItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
+            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HoldingItem(id);
@@ -62,7 +60,7 @@ public static class Inventory
     public static bool HasItemThorough(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
+            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.FindByIdThorough(id, out _);
@@ -229,7 +227,7 @@ public static class Inventory
     public static bool HasWearable(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("id_nullorempty"), nameof(id));
+            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HasWearable(id);
@@ -381,13 +379,12 @@ public static class Inventory
     public static string GetItemIdsString()
     {
         var ids = GetAllItemIds();
-        return ids.Count > 0 ? string.Join(", ", ids) : Locale("empty");
+        return ids.Count > 0 ? string.Join(", ", ids) : Locale("tool.inventory.empty");
     }
     
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
+        var text = LocaleRegistry.Get("other", key, key);
         return args.Length > 0 ? string.Format(text, args) : text;
     }
 }

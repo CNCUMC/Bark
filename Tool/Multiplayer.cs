@@ -11,8 +11,6 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class Multiplayer
 {
-    private const string LocaleKeyPre = "tool_multiplayer_";
-
     private static Type _krokoshaType;
     private static bool _initialized;
 
@@ -62,7 +60,7 @@ public static class Multiplayer
         }
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(LocaleRegistry.Get("other", "tool_player_bodynull", "Player body is null"));
+            throw new InvalidOperationException(Locale("tool.player.body_null"));
 
         PlayerCamera.main.body.transform.position = vector2;
         PlayerCamera.main.transform.position = vector2;
@@ -78,7 +76,7 @@ public static class Multiplayer
         World.CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(playerName))
-            throw new ArgumentException(Locale("playername_nullorempty"), nameof(playerName));
+            throw new ArgumentException(Locale("tool.multiplayer.player_name.null_or_empty"), nameof(playerName));
 
         if (!IsNetworkRunning)
         {
@@ -87,7 +85,7 @@ public static class Multiplayer
         }
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(LocaleRegistry.Get("other", "tool_player_bodynull", "Player body is null"));
+            throw new InvalidOperationException(Locale("tool.player.body_null"));
 
         bool success;
         var actualName = playerName;
@@ -107,8 +105,8 @@ public static class Multiplayer
         }
 
         LogToConsole(success
-            ? Locale("teleport_success", actualName, vector2)
-            : Locale("teleport_fail", actualName));
+            ? Locale("tool.multiplayer.teleport.success", actualName, vector2)
+            : Locale("tool.multiplayer.teleport.fail", actualName));
     }
 
     public static void Tp(string playerName, float x, float y)
@@ -234,8 +232,7 @@ public static class Multiplayer
 
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
+        var text = LocaleRegistry.Get("other", key, key);
         return args.Length > 0 ? string.Format(text, args) : text;
     }
 }

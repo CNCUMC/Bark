@@ -12,13 +12,11 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class Config
 {
-    private const string LocaleKeyPre = "tool_config_";
-
     public static ConfigEntry<T> Register<T>(ConfigFile configFile, string section, string key, T defaultValue,
         Func<string, string> getLocale, Dictionary<string, ConfigEntryBase> registry)
     {
         var entry = configFile.Bind(section, key, defaultValue,
-            getLocale($"config_{key}_description"));
+            getLocale($"tool.config.{key.ToLower()}.description"));
         registry[key] = entry;
         return entry;
     }
@@ -33,7 +31,7 @@ public static class Config
         var hasConfig = registry.TryGetValue(config, out var entry);
         if (hasConfig) return entry;
 
-        Error("getconfig_notexistconfig", config);
+        Error("tool.config.get_config.not_exist_config", config);
         return null;
     }
 
@@ -41,7 +39,7 @@ public static class Config
     {
         if (registry.TryGetValue(config, out var entry)) return entry.BoxedValue;
 
-        Error("getconfig_notexistconfig", config);
+        Error("tool.config.get_config.not_exist_config", config);
         return null;
     }
 
@@ -53,19 +51,14 @@ public static class Config
         if (!string.IsNullOrEmpty(entry))
             return entry;
 
-        Error("getconfig_notexistkey", configEntry, entry);
+        Error("tool.config.get_config.not_exist_key", configEntry, entry);
         return null;
     }
 
     private static void Error(string key, params object[] args)
     {
-        Log.Error(Locale(key, args), Plugin.Logger);
-    }
-
-    private static string Locale(string key, params object[] args)
-    {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
-        return args.Length > 0 ? string.Format(text, args) : text;
+        var text = LocaleRegistry.Get("other", key, key);
+        var message = args.Length > 0 ? string.Format(text, args) : text;
+        Log.Error(message, Plugin.Logger);
     }
 }

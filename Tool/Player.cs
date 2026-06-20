@@ -10,8 +10,6 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class Player
 {
-    private const string LocaleKeyPre = "tool_player_";
-
     public const int MaxInventorySlots = 8;
 
     public static void Alert(string text, bool important)
@@ -49,7 +47,7 @@ public static class Player
         else
         {
             if (PlayerCamera.main.body == null)
-                throw new InvalidOperationException(Locale("bodynull"));
+                throw new InvalidOperationException(Locale("tool.player.body_null"));
 
             PlayerCamera.main.body.transform.position = vector2;
             PlayerCamera.main.transform.position = vector2;
@@ -67,16 +65,16 @@ public static class Player
 
         if (string.IsNullOrWhiteSpace(item))
             throw new ArgumentException(
-                Locale("item_nullorempty"), nameof(item));
+                Locale("tool.player.item.null_or_empty"), nameof(item));
 
         if (slot
             is < 0
             or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
-                Locale("slot_outofrange", MaxInventorySlots));
+                Locale("tool.player.slot.out_of_range", MaxInventorySlots));
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(Locale("bodynull"));
+            throw new InvalidOperationException(Locale("tool.player.body_null"));
 
         var body = PlayerCamera.main.body;
         var position = body.transform.position;
@@ -84,14 +82,14 @@ public static class Player
         var createdObject = Utils.Create(item, position, 0.0f);
         if (createdObject == null)
             throw new InvalidOperationException(
-                Locale("loaditem_fail", item));
+                Locale("tool.player.load_item.fail", item));
 
         var itemComponent = createdObject.GetComponent<Item>();
         if (itemComponent == null)
         {
             Object.Destroy(createdObject);
             throw new InvalidOperationException(
-                Locale("loaditem_missingcomponent", item));
+                Locale("tool.player.load_item.missing_component", item));
         }
 
         body.PickUpItem(itemComponent, slot, force);
@@ -99,8 +97,7 @@ public static class Player
 
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
+        var text = LocaleRegistry.Get("other", key, key);
         return args.Length > 0 ? string.Format(text, args) : text;
     }
 }
