@@ -1,7 +1,7 @@
-using BepInEx;
-using BepInEx.Logging;
 using Bark.Example.Lang;
 using Bark.Tool;
+using BepInEx;
+using BepInEx.Logging;
 using HarmonyLib;
 
 namespace Bark;

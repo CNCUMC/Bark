@@ -54,7 +54,7 @@
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="CUCoreLib">
-          <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUCoreLib\CUCoreLib.dll</HintPath>
+            <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUCoreLib\CUCoreLib.dll</HintPath>
         </Reference>
 
         <!-- Unity 引擎核心 (必须) -->

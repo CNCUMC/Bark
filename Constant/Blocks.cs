@@ -17,7 +17,10 @@ public sealed class Blocks
     public static readonly Blocks Glass = new(7, "glass", 30f, "glass", "Glass", "Mediocre", noVariation: true);
     public static readonly Blocks Rubber = new(8, "rubber", 60f, "rubber", "Rubber", "Good");
     public static readonly Blocks Plastic = new(9, "plastic", 150f, "rubber", "Plastic");
-    public static readonly Blocks HeatResistantAlloy = new(10, "heatresistantalloy", 15000f, "steel", "Steel", "Mediocre", true);
+
+    public static readonly Blocks HeatResistantAlloy =
+        new(10, "heatresistantalloy", 15000f, "steel", "Steel", "Mediocre", true);
+
     public static readonly Blocks Wood = new(11, "wood", 150f, "wood", "Wood", noVariation: true);
     public static readonly Blocks Sand = new(12, "sand", 15f, "sand", "Sand", "Good");
     public static readonly Blocks Sandstone = new(13, "sandstone", 90f, "rock", "Rock", "Bad");

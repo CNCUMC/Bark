@@ -2,7 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres
+to [Semantic Versioning](https://semver.org/).
 
 ---
 
@@ -17,7 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - CUCoreLib (CCL) integration as hard dependency (`[BepInDependency("net.cucorelib")]`)
-- [`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) for all localization, replacing the old `ModLocaleBase` / `ModLangGenBase` / `ModLangGen` system
+- [`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) for all localization, replacing the old
+  `ModLocaleBase` / `ModLangGenBase` / `ModLangGen` system
 - `Bark.Core` base classes: `ModLocaleBase`, `ModLangGenBase`, `ModLocale`, `ModCommandBase`
 - CCL locale support via `LocaleRegistry.Get("category", "key", "fallback")`
 - `createLocale` console command support (via CCL) for generating EN.json baseline files

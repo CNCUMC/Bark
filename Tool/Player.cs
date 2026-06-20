@@ -40,18 +40,11 @@ public static class Player
     {
         World.CheckForWorld();
 
-        if (Multiplayer.IsNetworkRunning)
-        {
-            Multiplayer.Tp(vector2);
-        }
-        else
-        {
-            if (PlayerCamera.main.body == null)
-                throw new InvalidOperationException(Locale("tool.player.body_null"));
+        if (PlayerCamera.main.body == null)
+            throw new InvalidOperationException(Locale("tool.player.body_null"));
 
-            PlayerCamera.main.body.transform.position = vector2;
-            PlayerCamera.main.transform.position = vector2;
-        }
+        PlayerCamera.main.body.transform.position = vector2;
+        PlayerCamera.main.transform.position = vector2;
     }
 
     public static void Tp(float x, float y)

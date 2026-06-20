@@ -87,6 +87,7 @@ public static class Inventory
             if (info != null && predicate(info))
                 return true;
         }
+
         return false;
     }
 
@@ -102,13 +103,13 @@ public static class Inventory
 
     public static bool HasItemByTag(string tag)
     {
-        return !string.IsNullOrWhiteSpace(tag) 
+        return !string.IsNullOrWhiteSpace(tag)
                && HasItem(info => info.HasTag(tag));
     }
 
     public static bool HasItemByCategory(string category)
     {
-        return !string.IsNullOrWhiteSpace(category) 
+        return !string.IsNullOrWhiteSpace(category)
                && HasItem(info => info.category == category);
     }
 
@@ -116,7 +117,7 @@ public static class Inventory
     {
         return HasItem(info => info.wearable);
     }
-    
+
     public static int CountItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -172,7 +173,7 @@ public static class Inventory
 
     public static int CountItemByTag(string tag)
     {
-        return string.IsNullOrWhiteSpace(tag) 
+        return string.IsNullOrWhiteSpace(tag)
             ? 0
             : CountItem(info => info.HasTag(tag));
     }
@@ -223,7 +224,7 @@ public static class Inventory
             .Where(info => info != null)
             .ToList();
     }
-    
+
     public static bool HasWearable(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -236,7 +237,7 @@ public static class Inventory
     public static bool HasWearable(Predicate<ItemInfo> predicate)
     {
         return predicate == null
-            ? throw new ArgumentNullException(nameof(predicate)) 
+            ? throw new ArgumentNullException(nameof(predicate))
             : GetWearableInfos().Any(info => predicate(info));
     }
 
@@ -257,7 +258,7 @@ public static class Inventory
         var body = GetBody();
         return body.FindByIdSurface(id, out item);
     }
-    
+
     public static bool FindByIdThorough(string id, out Item item)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -281,7 +282,7 @@ public static class Inventory
         var body = GetBody();
         return body.FindByTagThorough(tag, out item);
     }
-    
+
     public static List<Item> FindAll(Predicate<ItemInfo> predicate)
     {
         if (predicate == null)
@@ -295,6 +296,7 @@ public static class Inventory
             if (item?.Stats != null && predicate(item.Stats))
                 result.Add(item);
         }
+
         return result;
     }
 
@@ -311,14 +313,14 @@ public static class Inventory
 
     public static List<Item> FindAllByTag(string tag)
     {
-        return string.IsNullOrWhiteSpace(tag) 
+        return string.IsNullOrWhiteSpace(tag)
             ? []
             : FindAll(info => info.HasTag(tag));
     }
 
     public static List<Item> FindAllByCategory(string category)
     {
-        return string.IsNullOrWhiteSpace(category) 
+        return string.IsNullOrWhiteSpace(category)
             ? []
             : FindAll(info => info.category == category);
     }
@@ -381,7 +383,7 @@ public static class Inventory
         var ids = GetAllItemIds();
         return ids.Count > 0 ? string.Join(", ", ids) : Locale("tool.inventory.empty");
     }
-    
+
     private static string Locale(string key, params object[] args)
     {
         var text = LocaleRegistry.Get("other", key, key);

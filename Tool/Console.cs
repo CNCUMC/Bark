@@ -15,7 +15,8 @@ public static class GameConsole
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException(
-                LocaleRegistry.Get("other", "tool.console.null_or_empty", "Command cannot be null or empty"), nameof(key));
+                LocaleRegistry.Get("other", "tool.console.null_or_empty", "Command cannot be null or empty"),
+                nameof(key));
 
         if (Instance == null)
             throw new InvalidOperationException(

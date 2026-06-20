@@ -17,7 +17,8 @@
 ### 新增
 
 - 集成 CUCoreLib (CCL) 作为硬依赖 (`[BepInDependency("net.cucorelib")]`)
-- 使用 [`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) 替代旧的 `ModLocaleBase` / `ModLangGenBase` / `ModLangGen` 本地化系统
+- 使用 [`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) 替代旧的 `ModLocaleBase` / `ModLangGenBase` /
+  `ModLangGen` 本地化系统
 - 新增 `Bark.Core` 基类：`ModLocaleBase`、`ModLangGenBase`、`ModLocale`、`ModCommandBase`
 - 通过 `LocaleRegistry.Get("category", "key", "fallback")` 支持 CCL 本地化
 - 支持 CCL 的 `createLocale` 控制台命令生成 EN.json 基线文件
