@@ -11,8 +11,8 @@
             https://nuget.samboy.dev/v3/index.json
         </RestoreAdditionalProjectSources>
         <Platforms>AnyCPU;x64;x86</Platforms>
-        <PackageProjectUrl>https://github.com/yourname/Bark</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/yourname/Bark</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/CNCUMC/Bark</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/CNCUMC/Bark</RepositoryUrl>
         <PackageId>Bark</PackageId>
     </PropertyGroup>
 
@@ -23,6 +23,13 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*"/>
         <PackageReference Include="Lib.Harmony" Version="2.4.2"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" IncludeAssets="compile"/>
+    </ItemGroup>
+
+    <!-- CUCoreLib (CCL) -->
+    <ItemGroup>
+        <Reference Include="CUCoreLib">
+            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/BepInEx/plugins/CUCoreLib/CUCoreLib.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <!-- ==================== 游戏 DLL 引用 ==================== -->
@@ -46,6 +53,9 @@
         <Reference Include="Assembly-CSharp">
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Assembly-CSharp.dll</HintPath>
         </Reference>
+        <Reference Include="CUCoreLib">
+          <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUCoreLib\CUCoreLib.dll</HintPath>
+        </Reference>
 
         <!-- Unity 引擎核心 (必须) -->
         <Reference Include="UnityEngine">
@@ -56,6 +66,9 @@
         </Reference>
 
         <!-- Unity 常用模块 -->
+        <Reference Include="UnityEngine.GridModule">
+            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.GridModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.InputModule">
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.InputModule.dll</HintPath>
         </Reference>
@@ -65,8 +78,14 @@
         <Reference Include="UnityEngine.PhysicsModule">
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.TilemapModule">
+            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.TilemapModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.UIModule">
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.IMGUIModule">
             <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>

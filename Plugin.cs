@@ -1,10 +1,11 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
+[BepInDependency("net.cucorelib")]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cucnmc.bark";
@@ -18,6 +19,6 @@ public class Plugin : BaseUnityPlugin
         Logger = base.Logger;
         _harmony.PatchAll();
 
-        Logger.LogInfo("Bark loaded!");
+        Logger.LogInfo("Bark!");
     }
 }
