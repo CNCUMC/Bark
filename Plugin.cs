@@ -1,5 +1,7 @@
 using BepInEx;
 using BepInEx.Logging;
+using Bark.Example.Lang;
+using Bark.Tool;
 using HarmonyLib;
 
 namespace Bark;
@@ -17,6 +19,13 @@ public class Plugin : BaseUnityPlugin
     public void Awake()
     {
         Logger = base.Logger;
+
+        LocaleGenerator.SetLogger(Logger);
+        LocaleGenerator.Register(new EnLangGenerator(), Logger);
+        LocaleGenerator.Register(new ZhCnLangGenerator(), Logger);
+        LocaleGenerator.Register(new ZhTwLangGenerator(), Logger);
+        LocaleGenerator.GenerateAll();
+
         _harmony.PatchAll();
 
         Logger.LogInfo("Bark!");
