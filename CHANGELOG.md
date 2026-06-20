@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- **Project renamed** from Moss Lib to **Bark**
+- **Project renamed** from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) to **Bark**
 - Migrated from `MossLib.*` namespaces to `Bark.*` namespaces
 - All source files moved from Moss-Lib repository to standalone Bark repository
 
