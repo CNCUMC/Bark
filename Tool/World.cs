@@ -35,7 +35,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("tool.world.place_block", vector2, block, ex);
+            Error("log.world.place_block", vector2, block, ex);
         }
     }
 
@@ -66,7 +66,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("tool.world.place_block", startX, startY, endX, endY, block, ex);
+            Error("log.world.place_block", startX, startY, endX, endY, block, ex);
         }
     }
 
@@ -100,7 +100,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("tool.world.place_block", startX, startY, blocks, ex);
+            Error("log.world.place_block", startX, startY, blocks, ex);
         }
     }
 
@@ -114,7 +114,7 @@ public static class World
         CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(item))
-            throw new ArgumentException(Locale("tool.world.place_item.null_or_empty"), nameof(item));
+            throw new ArgumentException(Locale("log.world.place_item.null_or_empty"), nameof(item));
 
         try
         {
@@ -122,7 +122,7 @@ public static class World
         }
         catch (Exception ex)
         {
-            Error("tool.world.place_item", vector2, item, ex);
+            Error("log.world.place_item", vector2, item, ex);
         }
     }
 
@@ -241,7 +241,7 @@ public static class World
         if (sprite == null)
         {
             if (MissingSpriteWarnings.Add(backgroundId))
-                Warning("tool.world.try_get_sprite", backgroundId);
+                Warning("log.world.try_get_sprite", backgroundId);
             return false;
         }
 
@@ -252,7 +252,7 @@ public static class World
     public static void CheckForWorld()
     {
         if (PlayerCamera.main == null)
-            throw new InvalidOperationException(Locale("tool.world.check_for_world"));
+            throw new InvalidOperationException(Locale("log.world.check_for_world"));
     }
 
     public static void ClearCache()

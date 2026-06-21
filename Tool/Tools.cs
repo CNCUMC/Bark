@@ -14,28 +14,28 @@ public static class Tools
             throw new ArgumentNullException(nameof(args));
 
         if (args.Length <= desired)
-            throw new Exception(Locale("tool.utils.check_argument_count", desired, args.Length - 1));
+            throw new Exception(Locale("log.utils.check_argument_count", desired, args.Length - 1));
     }
 
     public static float ParseFloat(string s)
     {
         if (string.IsNullOrWhiteSpace(s))
-            throw new ArgumentException(Locale("tool.utils.string.null_or_empty"), nameof(s));
+            throw new ArgumentException(Locale("log.utils.string.null_or_empty"), nameof(s));
 
         return !float.TryParse(
             s, NumberStyles.Float | NumberStyles.AllowThousands,
             CultureInfo.InvariantCulture, out var result)
-            ? throw new FormatException(Locale("tool.utils.parse.float_invalid", s))
+            ? throw new FormatException(Locale("log.utils.parse.float_invalid", s))
             : result;
     }
 
     public static int ParseInt(string s)
     {
         if (string.IsNullOrWhiteSpace(s))
-            throw new ArgumentException(Locale("tool.utils.string.null_or_empty"), nameof(s));
+            throw new ArgumentException(Locale("log.utils.string.null_or_empty"), nameof(s));
 
         return !int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
-            ? throw new FormatException(Locale("tool.utils.parse.int_invalid", s))
+            ? throw new FormatException(Locale("log.utils.parse.int_invalid", s))
             : result;
     }
 

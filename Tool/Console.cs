@@ -15,12 +15,12 @@ public static class GameConsole
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException(
-                LocaleRegistry.Get("other", "tool.console.null_or_empty", "Command cannot be null or empty"),
+                LocaleRegistry.Get("other", "log.console.null_or_empty", "Command cannot be null or empty"),
                 nameof(key));
 
         if (Instance == null)
             throw new InvalidOperationException(
-                LocaleRegistry.Get("other", "tool.console.not_initialized", "ConsoleScript not initialized"));
+                LocaleRegistry.Get("other", "log.console.not_initialized", "ConsoleScript not initialized"));
 
         ConsoleScript.SearchExact(key).action(key.Split());
     }

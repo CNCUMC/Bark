@@ -5,6 +5,7 @@
         <Version>1.0.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
         <RestoreAdditionalProjectSources>
             https://api.nuget.org/v3/index.json;
             https://nuget.bepinex.dev/v3/index.json;
@@ -28,81 +29,63 @@
     <!-- CUCoreLib (CCL) -->
     <ItemGroup>
         <Reference Include="CUCoreLib">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/BepInEx/plugins/CUCoreLib/CUCoreLib.dll</HintPath>
+            <HintPath>$(PluginsDir)/CUCoreLib/CUCoreLib.dll</HintPath>
         </Reference>
     </ItemGroup>
 
-    <!-- ==================== 游戏 DLL 引用 ==================== -->
-    <!--
-        以下为游戏 Managed 目录中的核心 DLL 引用。
-        如需额外引用，请取消注释或添加新条目。
-
-        常用附加引用:
-        - UnityEngine.Physics2DModule.dll    (2D 物理)
-        - UnityEngine.AudioModule.dll        (音频)
-        - UnityEngine.AnimationModule.dll    (动画)
-        - UnityEngine.ParticleSystemModule.dll (粒子系统)
-        - UnityEngine.TerrainModule.dll      (地形)
-        - UnityEngine.AssetBundleModule.dll  (AssetBundle 加载)
-        - UnityEngine.ImageConversionModule.dll (图片转换)
-        - Unity.TextMeshPro.dll              (TMP 文本)
-        - Unity.RenderPipelines.Universal.Runtime.dll (URP 渲染)
-    -->
+    <!-- 游戏 DLL 引用 -->
     <ItemGroup>
         <!-- 游戏主程序集 (必须) -->
         <Reference Include="Assembly-CSharp">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Assembly-CSharp.dll</HintPath>
-        </Reference>
-        <Reference Include="CUCoreLib">
-            <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\CUCoreLib\CUCoreLib.dll</HintPath>
+            <HintPath>$(ManagedDir)/Assembly-CSharp.dll</HintPath>
         </Reference>
 
         <!-- Unity 引擎核心 (必须) -->
         <Reference Include="UnityEngine">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.CoreModule.dll</HintPath>
         </Reference>
 
         <!-- Unity 常用模块 -->
         <Reference Include="UnityEngine.GridModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.GridModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.GridModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.InputModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.InputModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.InputModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.InputLegacyModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.InputLegacyModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.PhysicsModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.PhysicsModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.TilemapModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.TilemapModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.TilemapModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UIModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.UIModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.UIModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UI">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.UI.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.IMGUIModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.IMGUIModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.TextRenderingModule">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/UnityEngine.TextRenderingModule.dll</HintPath>
+            <HintPath>$(ManagedDir)/UnityEngine.TextRenderingModule.dll</HintPath>
         </Reference>
 
-        <!-- URP 渲染管线 (如果游戏使用 URP) -->
+        <!-- URP 渲染管线 -->
         <Reference Include="Unity.RenderPipelines.Core.Runtime">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+            <HintPath>$(ManagedDir)/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="Unity.RenderPipelines.Universal.Runtime">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
+            <HintPath>$(ManagedDir)/Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="Unity.TextMeshPro">
-            <HintPath>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/CasualtiesUnknown_Data/Managed/Unity.TextMeshPro.dll</HintPath>
+            <HintPath>$(ManagedDir)/Unity.TextMeshPro.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -124,13 +107,13 @@
     </PropertyGroup>
 
     <Target Name="CopyOutputDllsToPluginsFolder" AfterTargets="AfterBuild" Condition="'$(RequiredFilesToCopy)'!=''">
-        <MakeDir Directories="$(BepInExDir)/plugins/$(PluginDirName)"/>
+        <MakeDir Directories="$(PluginsDir)/plugins/$(PluginDirName)"/>
         <CombinePath BasePath="$(OutDir)" Paths="$(RequiredFilesToCopy)">
             <Output TaskParameter="CombinedPaths" ItemName="RequiredFilesToCopy_Combined"/>
         </CombinePath>
         <Copy
                 SourceFiles="@(RequiredFilesToCopy_Combined)"
-                DestinationFolder="$(BepInExDir)/plugins/$(PluginDirName)"
+                DestinationFolder="$(PluginsDir)/plugins/$(PluginDirName)"
         />
     </Target>
 
@@ -141,7 +124,7 @@
         </ItemGroup>
         <Copy
                 SourceFiles="@(FilesToCopy)"
-                DestinationFiles="@(FilesToCopy->'$(BepInExDir)/plugins/$(PluginDirName)/%(Identity)')"
+                DestinationFiles="@(FilesToCopy->'$(PluginsDir)/plugins/$(PluginDirName)/%(Identity)')"
         />
     </Target>
 </Project>

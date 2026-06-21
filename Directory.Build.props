@@ -1,0 +1,16 @@
+<Project>
+    <PropertyGroup>
+        <!--
+            游戏安装目录。每个开发者在本地创建 Directory.Build.props.user 覆盖此值。
+            示例：Directory.Build.props.user
+            <Project>
+                <PropertyGroup>
+                    <GameDir>D:/SteamLibrary/steamapps/common/Casualties Unknown Demo</GameDir>
+                </PropertyGroup>
+            </Project>
+        -->
+        <GameDir>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo</GameDir>
+        <ManagedDir>$(GameDir)/CasualtiesUnknown_Data/Managed</ManagedDir>
+        <PluginsDir>$(GameDir)/BepInEx/plugins</PluginsDir>
+    </PropertyGroup>
+</Project>

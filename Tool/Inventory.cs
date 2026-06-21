@@ -16,7 +16,7 @@ public static class Inventory
         World.CheckForWorld();
 
         return PlayerCamera.main.body == null
-            ? throw new InvalidOperationException(Locale("tool.inventory.body_null"))
+            ? throw new InvalidOperationException(Locale("log.inventory.body_null"))
             : PlayerCamera.main.body;
     }
 
@@ -51,7 +51,7 @@ public static class Inventory
     public static bool HasItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HoldingItem(id);
@@ -60,7 +60,7 @@ public static class Inventory
     public static bool HasItemThorough(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.FindByIdThorough(id, out _);
@@ -228,7 +228,7 @@ public static class Inventory
     public static bool HasWearable(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("tool.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HasWearable(id);
@@ -381,7 +381,7 @@ public static class Inventory
     public static string GetItemIdsString()
     {
         var ids = GetAllItemIds();
-        return ids.Count > 0 ? string.Join(", ", ids) : Locale("tool.inventory.empty");
+        return ids.Count > 0 ? string.Join(", ", ids) : Locale("log.inventory.empty");
     }
 
     private static string Locale(string key, params object[] args)

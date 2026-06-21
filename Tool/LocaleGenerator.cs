@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Bark.Core;
+using Bark.Base;
 using BepInEx.Logging;
 
 namespace Bark.Tool;

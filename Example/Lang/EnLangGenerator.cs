@@ -1,4 +1,4 @@
-using Bark.Core;
+using Bark.Base;
 
 namespace Bark.Example.Lang;
 
@@ -26,48 +26,48 @@ public class EnLangGenerator : ModLangGenBase
         Add("command.spawn_background.invalid_background_id", "Background ID cannot be empty.");
         Add("command.spawn_background.success", "Spawned background {0}.");
 
-        // Tool - Console
-        Add("tool.console.null_or_empty", "Command cannot be null or empty");
-        Add("tool.console.not_initialized", "ConsoleScript not initialized");
+        // Log - Console
+        Add("log.console.null_or_empty", "Command cannot be null or empty");
+        Add("log.console.not_initialized", "ConsoleScript not initialized");
 
-        // Tool - World
-        Add("tool.world.check_for_world", "No world is loaded. Try starting a game?");
-        Add("tool.world.place_block", "Failed to spawn block {1} at {0}: {2}");
-        Add("tool.world.place_item", "Failed to spawn item {1} at {0}: {2}");
-        Add("tool.world.place_item.null_or_empty", "Item cannot be null or empty");
-        Add("tool.world.try_get_sprite", "Background sprite not found: {0}");
+        // Log - World
+        Add("log.world.check_for_world", "No world is loaded. Try starting a game?");
+        Add("log.world.place_block", "Failed to spawn block {1} at {0}: {2}");
+        Add("log.world.place_item", "Failed to spawn item {1} at {0}: {2}");
+        Add("log.world.place_item.null_or_empty", "Item cannot be null or empty");
+        Add("log.world.try_get_sprite", "Background sprite not found: {0}");
 
-        // Tool - Player
-        Add("tool.player.body_null", "Player body is null");
-        Add("tool.player.item.null_or_empty", "Item identifier cannot be null or whitespace");
-        Add("tool.player.slot.out_of_range", "Slot index out of range. Maximum slots: {0}");
-        Add("tool.player.load_item.fail", "Failed to load or instantiate item resource: '{0}'");
-        Add("tool.player.load_item.missing_component", "Resource '{0}' loaded but missing required Item component");
+        // Log - Player
+        Add("log.player.body_null", "Player body is null");
+        Add("log.player.item.null_or_empty", "Item identifier cannot be null or whitespace");
+        Add("log.player.slot.out_of_range", "Slot index out of range. Maximum slots: {0}");
+        Add("log.player.load_item.fail", "Failed to load or instantiate item resource: '{0}'");
+        Add("log.player.load_item.missing_component", "Resource '{0}' loaded but missing required Item component");
 
-        // Tool - Multiplayer
-        Add("tool.multiplayer.player_name.null_or_empty", "Player name cannot be null or empty");
-        Add("tool.multiplayer.teleport.success", "Teleported: {0} to {1}");
-        Add("tool.multiplayer.teleport.fail", "Failed to teleport: {0}");
+        // Log - Multiplayer
+        Add("log.multiplayer.player_name.null_or_empty", "Player name cannot be null or empty");
+        Add("log.multiplayer.teleport.success", "Teleported: {0} to {1}");
+        Add("log.multiplayer.teleport.fail", "Failed to teleport: {0}");
 
-        // Tool - Config
-        Add("tool.config.get_config.not_exist_config", "Config '{0}' does not exist");
-        Add("tool.config.get_config.not_exist_key", "Key '{1}' does not exist in config '{0}'");
-        Add("tool.config.switch_type", "{0} has been set to {1}!");
+        // Log - Config
+        Add("log.config.get_config.not_exist_config", "Config '{0}' does not exist");
+        Add("log.config.get_config.not_exist_key", "Key '{1}' does not exist in config '{0}'");
+        Add("log.config.switch_type", "{0} has been set to {1}!");
 
-        // Tool - Utils
-        Add("tool.utils.check_argument_count", "Expected at least {0} argument {1}, but got {2}.");
-        Add("tool.utils.parse.float_invalid", "'{0}' is not a valid float value! (2, 0.7, 14.1, etc)");
-        Add("tool.utils.parse.int_invalid", "'{0}' is not a valid integer value!");
-        Add("tool.utils.string.null_or_empty", "Input string cannot be null or empty");
+        // Log - Utils
+        Add("log.utils.check_argument_count", "Expected at least {0} argument {1}, but got {2}.");
+        Add("log.utils.parse.float_invalid", "'{0}' is not a valid float value! (2, 0.7, 14.1, etc)");
+        Add("log.utils.parse.int_invalid", "'{0}' is not a valid integer value!");
+        Add("log.utils.string.null_or_empty", "Input string cannot be null or empty");
 
-        // Tool - Inventory
-        Add("tool.inventory.body_null", "Player body is null");
-        Add("tool.inventory.id.null_or_empty", "Item ID cannot be null or empty");
-        Add("tool.inventory.summary.header", "[Inventory]");
-        Add("tool.inventory.summary.hand_slot", "{0}* (Hand)");
-        Add("tool.inventory.summary.slot", "{0}");
-        Add("tool.inventory.summary.empty", "Empty");
-        Add("tool.inventory.summary.wearables", "[Wearables]");
-        Add("tool.inventory.empty", "(empty)");
+        // Log - Inventory
+        Add("log.inventory.body_null", "Player body is null");
+        Add("log.inventory.id.null_or_empty", "Item ID cannot be null or empty");
+        Add("log.inventory.summary.header", "[Inventory]");
+        Add("log.inventory.summary.hand_slot", "{0}* (Hand)");
+        Add("log.inventory.summary.slot", "{0}");
+        Add("log.inventory.summary.empty", "Empty");
+        Add("log.inventory.summary.wearables", "[Wearables]");
+        Add("log.inventory.empty", "(empty)");
     }
 }

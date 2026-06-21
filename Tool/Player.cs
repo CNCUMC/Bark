@@ -41,7 +41,7 @@ public static class Player
         World.CheckForWorld();
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(Locale("tool.player.body_null"));
+            throw new InvalidOperationException(Locale("log.player.body_null"));
 
         PlayerCamera.main.body.transform.position = vector2;
         PlayerCamera.main.transform.position = vector2;
@@ -58,16 +58,16 @@ public static class Player
 
         if (string.IsNullOrWhiteSpace(item))
             throw new ArgumentException(
-                Locale("tool.player.item.null_or_empty"), nameof(item));
+                Locale("log.player.item.null_or_empty"), nameof(item));
 
         if (slot
             is < 0
             or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
-                Locale("tool.player.slot.out_of_range", MaxInventorySlots));
+                Locale("log.player.slot.out_of_range", MaxInventorySlots));
 
         if (PlayerCamera.main.body == null)
-            throw new InvalidOperationException(Locale("tool.player.body_null"));
+            throw new InvalidOperationException(Locale("log.player.body_null"));
 
         var body = PlayerCamera.main.body;
         var position = body.transform.position;
@@ -75,14 +75,14 @@ public static class Player
         var createdObject = Utils.Create(item, position, 0.0f);
         if (createdObject == null)
             throw new InvalidOperationException(
-                Locale("tool.player.load_item.fail", item));
+                Locale("log.player.load_item.fail", item));
 
         var itemComponent = createdObject.GetComponent<Item>();
         if (itemComponent == null)
         {
             Object.Destroy(createdObject);
             throw new InvalidOperationException(
-                Locale("tool.player.load_item.missing_component", item));
+                Locale("log.player.load_item.missing_component", item));
         }
 
         body.PickUpItem(itemComponent, slot, force);

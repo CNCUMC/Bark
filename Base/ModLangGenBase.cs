@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using BepInEx.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bark.Core;
+namespace Bark.Base;
 
 public abstract class ModLangGenBase
 {
@@ -67,6 +70,7 @@ public abstract class ModLangGenBase
         if (string.IsNullOrEmpty(outputDirectory))
         {
             var pluginDirectory = Path.GetDirectoryName(_ownerAssembly.Location);
+            Debug.Assert(pluginDirectory != null, nameof(pluginDirectory) + " != null");
             outputDirectory = Path.Combine(pluginDirectory, LangDirectory);
         }
 
@@ -95,12 +99,12 @@ public abstract class ModLangGenBase
             {
                 var existingKeys = FlattenJson(existingJson);
 
-                foreach (var kvp in LocaleData)
-                    if (!existingKeys.ContainsKey(kvp.Key))
-                    {
-                        SetNestedValue(existingJson, kvp.Key, kvp.Value);
-                        newEntries++;
-                    }
+                foreach (var kvp in LocaleData
+                             .Where(kvp => !existingKeys.ContainsKey(kvp.Key)))
+                {
+                    SetNestedValue(existingJson, kvp.Key, kvp.Value);
+                    newEntries++;
+                }
 
                 resultJson = existingJson;
             }
@@ -113,10 +117,9 @@ public abstract class ModLangGenBase
             var jsonContent = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             File.WriteAllText(filePath, jsonContent + Environment.NewLine);
 
-            if (newEntries > 0)
-                _log?.LogInfo($"[{LanguageCode}] Added {newEntries} new entries to: {filePath}");
-            else
-                _log?.LogInfo($"[{LanguageCode}] All entries already exist, no changes: {filePath}");
+            _log?.LogInfo(newEntries > 0
+                ? $"[{LanguageCode}] Added {newEntries} new entries to: {filePath}"
+                : $"[{LanguageCode}] All entries already exist, no changes: {filePath}");
         }
         catch (Exception ex)
         {
@@ -177,7 +180,7 @@ public abstract class ModLangGenBase
                 break;
             }
             case JValue value:
-                result[prefix] = value.ToString();
+                result[prefix] = value.ToString(CultureInfo.InvariantCulture);
                 break;
         }
     }
