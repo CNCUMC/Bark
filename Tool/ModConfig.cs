@@ -9,7 +9,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public static class Config
+public static class ModConfig
 {
     private const string LocaleKeyPre = "log.config.";
 

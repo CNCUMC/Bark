@@ -9,7 +9,7 @@ namespace Bark.Tool;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public static class World
+public static class GameWorld
 {
     private static GameObject? _cachedBgTemplate;
 

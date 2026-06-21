@@ -8,13 +8,13 @@ namespace Bark.Tool;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public static class Player
+public static class GamePlayer
 {
     public const int MaxInventorySlots = 8;
 
     public static void Alert(string text, bool important)
     {
-        World.CheckForWorld();
+        GameWorld.CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(text))
             return;
@@ -24,7 +24,7 @@ public static class Player
 
     public static void Alert(string text, bool important, float delay)
     {
-        World.CheckForWorld();
+        GameWorld.CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(text))
             return;
@@ -38,7 +38,7 @@ public static class Player
 
     public static void Tp(Vector2 vector2)
     {
-        World.CheckForWorld();
+        GameWorld.CheckForWorld();
 
         if (PlayerCamera.main.body == null)
             throw new InvalidOperationException(Locale("log.player.body_null"));
@@ -54,7 +54,7 @@ public static class Player
 
     public static void PickItem(string item, int slot, bool force = false)
     {
-        World.CheckForWorld();
+        GameWorld.CheckForWorld();
 
         if (string.IsNullOrWhiteSpace(item))
             throw new ArgumentException(

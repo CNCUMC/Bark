@@ -13,7 +13,7 @@ public static class Inventory
 {
     private static Body GetBody()
     {
-        World.CheckForWorld();
+        GameWorld.CheckForWorld();
 
         return PlayerCamera.main.body == null
             ? throw new InvalidOperationException(Locale("log.inventory.body_null"))

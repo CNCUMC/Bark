@@ -78,7 +78,7 @@ public static class Log
     public static void Alert(string text, ManualLogSource logger, bool important, float delay = 0f)
     {
         Info(text, logger);
-        Player.Alert(text, important, delay);
+        GamePlayer.Alert(text, important, delay);
     }
 
     public static void CheckWorld(ManualLogSource logger)
