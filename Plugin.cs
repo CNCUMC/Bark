@@ -1,5 +1,6 @@
 using Bark.Example.Lang;
 using Bark.Tool;
+using Bark.Tool.BetterCCL;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -26,6 +27,7 @@ public class Plugin : BaseUnityPlugin
         LocaleGenerator.Register(new ZhTwLangGenerator(), Logger);
         LocaleGenerator.GenerateAll();
 
+        BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         _harmony.PatchAll();
     }
 }
