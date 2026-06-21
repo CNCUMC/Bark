@@ -105,26 +105,4 @@
         <RequiredFoldersToCopy>
         </RequiredFoldersToCopy>
     </PropertyGroup>
-
-    <Target Name="CopyOutputDllsToPluginsFolder" AfterTargets="AfterBuild" Condition="'$(RequiredFilesToCopy)'!=''">
-        <MakeDir Directories="$(PluginsDir)/plugins/$(PluginDirName)"/>
-        <CombinePath BasePath="$(OutDir)" Paths="$(RequiredFilesToCopy)">
-            <Output TaskParameter="CombinedPaths" ItemName="RequiredFilesToCopy_Combined"/>
-        </CombinePath>
-        <Copy
-                SourceFiles="@(RequiredFilesToCopy_Combined)"
-                DestinationFolder="$(PluginsDir)/plugins/$(PluginDirName)"
-        />
-    </Target>
-
-    <Target Name="CopyFoldersToPluginsFolder" AfterTargets="AfterBuild" Condition="'$(RequiredFoldersToCopy)'!=''">
-        <ItemGroup>
-            <RequiredFolders Include="$(RequiredFoldersToCopy.Split(';'))"/>
-            <FilesToCopy Include="%(RequiredFolders.Identity)/**/*"/>
-        </ItemGroup>
-        <Copy
-                SourceFiles="@(FilesToCopy)"
-                DestinationFiles="@(FilesToCopy->'$(PluginsDir)/plugins/$(PluginDirName)/%(Identity)')"
-        />
-    </Target>
 </Project>

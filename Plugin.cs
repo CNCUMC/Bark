@@ -10,7 +10,7 @@ namespace Bark;
 [BepInDependency("net.cucorelib")]
 public class Plugin : BaseUnityPlugin
 {
-    public const string Guid = "org.cucnmc.bark";
+    public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
     public const string Version = "1.0.0";
     internal new static ManualLogSource? Logger;
