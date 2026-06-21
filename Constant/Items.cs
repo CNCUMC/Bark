@@ -310,7 +310,7 @@ public sealed class Items
         return Id;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Items other && Id == other.Id;
     }

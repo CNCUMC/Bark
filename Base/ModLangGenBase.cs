@@ -15,7 +15,7 @@ public abstract class ModLangGenBase
 {
     private const string LangDirectory = "Lang";
     private bool _isInitialized;
-    private ManualLogSource _log;
+    private ManualLogSource _log = null!;
     private Assembly _ownerAssembly = Assembly.GetCallingAssembly();
     protected abstract string LanguageCode { get; }
     private Dictionary<string, string> LocaleData { get; } = new();
@@ -25,7 +25,7 @@ public abstract class ModLangGenBase
         get
         {
             EnsureInitialized();
-            return LocaleData?.Count ?? 0;
+            return LocaleData.Count;
         }
     }
 
@@ -47,23 +47,23 @@ public abstract class ModLangGenBase
     {
         if (string.IsNullOrEmpty(key))
         {
-            _log?.LogWarning($"[{LanguageCode}] Warning: Skipping empty key");
+            _log.LogWarning($"[{LanguageCode}] Warning: Skipping empty key");
             return;
         }
 
         if (LocaleData.ContainsKey(key))
-            _log?.LogWarning($"[{LanguageCode}] Warning: Key '{key}' already exists and will be overwritten");
+            _log.LogWarning($"[{LanguageCode}] Warning: Key '{key}' already exists and will be overwritten");
 
         LocaleData[key] = value;
     }
 
-    public void Generate(string outputDirectory = null)
+    public void Generate(string outputDirectory = null!)
     {
         EnsureInitialized();
 
-        if (LocaleData == null || LocaleData.Count == 0)
+        if (LocaleData.Count == 0)
         {
-            _log?.LogWarning($"[{LanguageCode}] Warning: No localization data to generate");
+            _log.LogWarning($"[{LanguageCode}] Warning: No localization data to generate");
             return;
         }
 
@@ -80,7 +80,7 @@ public abstract class ModLangGenBase
         {
             var filePath = Path.Combine(outputDirectory, $"{LanguageCode}.json");
 
-            JObject existingJson = null;
+            JObject? existingJson = null;
             if (File.Exists(filePath))
                 try
                 {
@@ -89,7 +89,7 @@ public abstract class ModLangGenBase
                 }
                 catch (Exception ex)
                 {
-                    _log?.LogWarning($"[{LanguageCode}] Failed to parse existing file, will regenerate: {ex.Message}");
+                    _log.LogWarning($"[{LanguageCode}] Failed to parse existing file, will regenerate: {ex.Message}");
                 }
 
             JObject resultJson;
@@ -117,13 +117,13 @@ public abstract class ModLangGenBase
             var jsonContent = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             File.WriteAllText(filePath, jsonContent + Environment.NewLine);
 
-            _log?.LogInfo(newEntries > 0
+            _log.LogInfo(newEntries > 0
                 ? $"[{LanguageCode}] Added {newEntries} new entries to: {filePath}"
                 : $"[{LanguageCode}] All entries already exist, no changes: {filePath}");
         }
         catch (Exception ex)
         {
-            _log?.LogError($"[{LanguageCode}] Generation failed: {ex.Message}");
+            _log.LogError($"[{LanguageCode}] Generation failed: {ex.Message}");
         }
     }
 
@@ -144,10 +144,15 @@ public abstract class ModLangGenBase
         for (var i = 0; i < keys.Length - 1; i++)
         {
             var key = keys[i];
+            var child = current[key];
 
-            if (!current.ContainsKey(key) || current[key].Type != JTokenType.Object) current[key] = new JObject();
+            if (child is not JObject childObj)
+            {
+                childObj = new JObject();
+                current[key] = childObj;
+            }
 
-            current = (JObject)current[key];
+            current = childObj;
         }
 
         current[keys[keys.Length - 1]] = value;

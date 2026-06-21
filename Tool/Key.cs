@@ -10,12 +10,12 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class Key
 {
-    private static Camera _mainCamera;
+    private static Camera? _mainCamera;
     private static bool _cameraSearched;
 
     public static Vector2 MouseWorldPosition()
     {
-        if (!TryGetMainCamera(out var camera))
+        if (!TryGetMainCamera(out var camera) || camera == null)
             return Vector2.zero;
 
         return camera.ScreenToWorldPoint(Input.mousePosition);
@@ -38,13 +38,13 @@ public static class Key
     public static IEnumerator WaitForLeftClick(Action<Vector2> callback)
     {
         yield return new WaitUntil(() => Input.GetKeyDown(InputAction.LeftClick));
-        callback?.Invoke(MouseWorldPosition());
+        callback.Invoke(MouseWorldPosition());
     }
 
     public static IEnumerator WaitForRightClick(Action<Vector2> callback)
     {
         yield return new WaitUntil(() => Input.GetKeyDown(InputAction.RightClick));
-        callback?.Invoke(MouseWorldPosition());
+        callback.Invoke(MouseWorldPosition());
     }
 
     public static WaitForClickResult WaitForLeftClick()
@@ -57,7 +57,7 @@ public static class Key
         return new WaitForClickResult(InputAction.RightClick);
     }
 
-    private static bool TryGetMainCamera(out Camera camera)
+    private static bool TryGetMainCamera(out Camera? camera)
     {
         if (_mainCamera != null)
         {
@@ -67,7 +67,7 @@ public static class Key
 
         if (_cameraSearched)
         {
-            camera = null;
+            camera = null!;
             return false;
         }
 
@@ -80,7 +80,7 @@ public static class Key
             return true;
         }
 
-        camera = null;
+        camera = null!;
         return false;
     }
 

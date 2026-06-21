@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using BepInEx.Logging;
 using CUCoreLib.Registries;
@@ -41,7 +42,7 @@ public static class Log
 
     public static void UpdateLogScreen(ConsoleScript consoleScript)
     {
-        if (consoleScript?.logText == null) return;
+        if (consoleScript.logText == null) return;
         consoleScript.logText.text = string.Join("\n", consoleScript.logs);
     }
 
@@ -80,72 +81,47 @@ public static class Log
         Player.Alert(text, important, delay);
     }
 
-    // ==================== 通用检查方法 ====================
-
-    /// <summary>
-    /// 检查世界是否已加载，否则抛出异常并记录错误。
-    /// </summary>
     public static void CheckWorld(ManualLogSource logger)
     {
-        if (PlayerCamera.main == null)
-        {
-            var msg = Locale("tool.world.check_for_world");
-            Error(msg, logger);
-            throw new InvalidOperationException(msg);
-        }
+        if (PlayerCamera.main != null) return;
+        var msg = Locale("log.world.check_for_world");
+        Error(msg, logger);
+        throw new InvalidOperationException(msg);
     }
 
-    /// <summary>
-    /// 检查玩家身体是否为空，否则抛出异常并记录错误。
-    /// </summary>
     public static void CheckPlayerBody(ManualLogSource logger)
     {
-        if (PlayerCamera.main?.body == null)
-        {
-            var msg = Locale("tool.player.body_null");
-            Error(msg, logger);
-            throw new InvalidOperationException(msg);
-        }
+        if (PlayerCamera.main?.body != null) return;
+        var msg = Locale("log.player.body_null");
+        Error(msg, logger);
+        throw new InvalidOperationException(msg);
     }
 
-    /// <summary>
-    /// 验证参数数量，不足时抛出异常并记录错误。
-    /// </summary>
     public static void CheckArgumentCount(string[] args, int minCount, ManualLogSource logger)
     {
         if (args == null)
             throw new ArgumentNullException(nameof(args));
 
-        if (args.Length <= minCount)
-        {
-            var msg = Locale("tool.utils.check_argument_count", minCount, args.Length - 1);
-            Error(msg, logger);
-            throw new Exception(msg);
-        }
+        if (args.Length > minCount) return;
+        var msg = Locale("log.utils.check_argument_count", minCount, args.Length - 1);
+        Error(msg, logger);
+        throw new Exception(msg);
     }
 
-    /// <summary>
-    /// 验证字符串不为空或空白，否则抛出异常并记录错误。
-    /// </summary>
     public static void CheckNotNullOrEmpty(string value, string paramName, ManualLogSource logger)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            var msg = Locale("tool.utils.string.null_or_empty");
-            Error(msg, logger);
-            throw new ArgumentException(msg, paramName);
-        }
+        if (!string.IsNullOrWhiteSpace(value)) return;
+        var msg = Locale("log.utils.string.null_or_empty");
+        Error(msg, logger);
+        throw new ArgumentException(msg, paramName);
     }
 
-    /// <summary>
-    /// 尝试解析浮点数，失败时记录错误。
-    /// </summary>
     public static bool TryParseFloat(string s, out float result, ManualLogSource logger)
     {
         result = 0;
         if (string.IsNullOrWhiteSpace(s))
         {
-            Error(Locale("tool.utils.string.null_or_empty"), logger);
+            Error(Locale("log.utils.string.null_or_empty"), logger);
             return false;
         }
 
@@ -153,19 +129,16 @@ public static class Log
                 System.Globalization.CultureInfo.InvariantCulture, out result))
             return true;
 
-        Error(Locale("tool.utils.parse.float_invalid", s), logger);
+        Error(Locale("log.utils.parse.float_invalid", s), logger);
         return false;
     }
 
-    /// <summary>
-    /// 尝试解析整数，失败时记录错误。
-    /// </summary>
     public static bool TryParseInt(string s, out int result, ManualLogSource logger)
     {
         result = 0;
         if (string.IsNullOrWhiteSpace(s))
         {
-            Error(Locale("tool.utils.string.null_or_empty"), logger);
+            Error(Locale("log.utils.string.null_or_empty"), logger);
             return false;
         }
 
@@ -173,11 +146,54 @@ public static class Log
                 System.Globalization.CultureInfo.InvariantCulture, out result))
             return true;
 
-        Error(Locale("tool.utils.parse.int_invalid", s), logger);
+        Error(Locale("log.utils.parse.int_invalid", s), logger);
         return false;
     }
+    
+    public static void PrintList(string header, IEnumerable<string> items, ManualLogSource logger, string itemPrefix = "    ")
+    {
+        Divider();
+        Info(header, logger);
+        foreach (var item in items)
+            Info($"{itemPrefix}{item}", logger);
+        Divider();
+    }
 
-    // ==================== Locale 辅助 ====================
+    public static void PrintNumberedList(string header, IList<string> items, ManualLogSource logger, int startIndex = 1)
+    {
+        Divider();
+        Info(header, logger);
+        for (var i = 0; i < items.Count; i++)
+            Info($"    {startIndex + i}. {items[i]}", logger);
+        Divider();
+    }
+
+    public static void PrintKeyValueList(string header, IEnumerable<(string key, string value)> entries, ManualLogSource logger)
+    {
+        Divider();
+        Info(header, logger);
+        foreach (var (key, value) in entries)
+            Info($"    {key}: {value}", logger);
+        Divider();
+    }
+
+    public static void PrintGroupedList(string header, IEnumerable<(string groupName, IList<string> items)> groups, ManualLogSource logger, string groupPrefix = "    ", string itemPrefix = "        ")
+    {
+        Divider();
+        Info(header, logger);
+        foreach (var (groupName, items) in groups)
+        {
+            Info($"{groupPrefix}{groupName}:", logger);
+            foreach (var item in items)
+                Info($"{itemPrefix}{item}", logger);
+        }
+        Divider();
+    }
+
+    public static void PrintEmpty(string message, ManualLogSource logger)
+    {
+        Info(message, logger);
+    }
 
     private static string Locale(string key, params object[] args)
     {

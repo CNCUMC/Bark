@@ -13,7 +13,7 @@ namespace Bark.Tool;
 public static class LocaleGenerator
 {
     private static readonly List<ModLangGenBase> Generators = [];
-    private static ManualLogSource _logger;
+    private static ManualLogSource? _logger;
 
     public static void SetLogger(ManualLogSource logger)
     {
@@ -32,10 +32,10 @@ public static class LocaleGenerator
         generator.Initialize(logger, assembly);
 
         Generators.Add(generator);
-        _logger = logger ?? _logger;
+        _logger = logger;
     }
 
-    public static void GenerateAll(string outputDirectory = null)
+    public static void GenerateAll(string? outputDirectory = null)
     {
         if (Generators.Count == 0)
         {
@@ -62,7 +62,7 @@ public static class LocaleGenerator
             {
                 var generatorName = generator.GetType().Name;
                 Info($"[LocaleGenerator] Generating language file for: {generatorName}");
-                generator.Generate(outputDirectory);
+                generator.Generate(outputDirectory!);
                 successCount++;
                 Info($"[LocaleGenerator] Successfully generated: {generatorName}");
             }
@@ -77,7 +77,7 @@ public static class LocaleGenerator
             $"=== Generation complete! Success: {successCount}, Failed: {failureCount}, Total: {Generators.Count} ===");
     }
 
-    public static void GenerateSingle(string languageCode, string outputDirectory = null)
+    public static void GenerateSingle(string languageCode, string? outputDirectory = null)
     {
         if (string.IsNullOrWhiteSpace(languageCode))
             throw new ArgumentException("Language code cannot be null or empty", nameof(languageCode));
@@ -91,7 +91,7 @@ public static class LocaleGenerator
             return;
         }
 
-        generator.Generate(outputDirectory);
+        generator.Generate(outputDirectory!);
     }
 
     internal static void PrintInfo()

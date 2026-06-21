@@ -11,7 +11,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class World
 {
-    private static GameObject _cachedBgTemplate;
+    private static GameObject? _cachedBgTemplate;
 
     private static readonly Dictionary<string, Sprite> SpriteCache =
         new(StringComparer.OrdinalIgnoreCase);
@@ -19,7 +19,7 @@ public static class World
     private static readonly HashSet<string> MissingSpriteWarnings =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private static Material _cachedBgMaterial;
+    private static Material? _cachedBgMaterial;
 
     public static void PlaceBlock(int x, int y, ushort block)
     {
@@ -276,13 +276,13 @@ public static class World
     private static void Warning(string key, params object[] args)
     {
         var message = Locale(key, args);
-        Log.Warning(message, Plugin.Logger);
+        if (Plugin.Logger != null) Log.Warning(message, Plugin.Logger);
     }
 
     private static void Error(string key, params object[] args)
     {
         var message = Locale(key, args);
-        Log.Error(message, Plugin.Logger);
+        if (Plugin.Logger != null) Log.Error(message, Plugin.Logger);
     }
 
     private static string Locale(string key, params object[] args)

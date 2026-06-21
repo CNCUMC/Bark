@@ -28,7 +28,7 @@ public sealed class Backgrounds
 
     public static implicit operator string(Backgrounds background)
     {
-        return background?.Id ?? "";
+        return background.Id ?? "";
     }
 
     public override string ToString()
@@ -36,7 +36,7 @@ public sealed class Backgrounds
         return LocaleKey;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Backgrounds other && Id == other.Id;
     }

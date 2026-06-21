@@ -92,7 +92,7 @@ public sealed class Blocks
         return LocaleKey;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Blocks other && Id == other.Id;
     }

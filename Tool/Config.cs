@@ -18,7 +18,7 @@ public static class Config
         return registry.ContainsKey(config);
     }
 
-    public static ConfigEntryBase GetConfig(string config, Dictionary<string, ConfigEntryBase> registry)
+    public static ConfigEntryBase? GetConfig(string config, Dictionary<string, ConfigEntryBase> registry)
     {
         var hasConfig = registry.TryGetValue(config, out var entry);
         if (hasConfig) return entry;
@@ -27,7 +27,7 @@ public static class Config
         return null;
     }
 
-    public static object GetConfigValue(string config, Dictionary<string, ConfigEntryBase> registry)
+    public static object? GetConfigValue(string config, Dictionary<string, ConfigEntryBase> registry)
     {
         if (registry.TryGetValue(config, out var entry)) return entry.BoxedValue;
 
@@ -35,7 +35,7 @@ public static class Config
         return null;
     }
 
-    public static string GetConfigKey<T>(ConfigEntry<T> configEntry, Dictionary<string, ConfigEntryBase> registry)
+    public static string? GetConfigKey<T>(ConfigEntry<T> configEntry, Dictionary<string, ConfigEntryBase> registry)
     {
         var entry = registry.FirstOrDefault(x => x.Value == configEntry)
             .Key;
@@ -49,7 +49,7 @@ public static class Config
 
     private static void Error(string key, params object[] args)
     {
-        Log.Error(Locale(key, args), Plugin.Logger);
+        if (Plugin.Logger != null) Log.Error(Locale(key, args), Plugin.Logger);
     }
 
     private static string Locale(string key, params object[] args)

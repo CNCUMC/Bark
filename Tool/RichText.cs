@@ -9,7 +9,7 @@ public static class RichText
 {
     public static string Color(string text, string color)
     {
-        if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
+        if (string.IsNullOrEmpty(text)) return text;
         return string.IsNullOrEmpty(color)
             ? text
             : $"<color={color}>{text}</color>";
@@ -94,7 +94,7 @@ public static class RichText
 
     public static string Alpha(string text, string alphaHex)
     {
-        if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
+        if (string.IsNullOrEmpty(text)) return text;
         if (string.IsNullOrEmpty(alphaHex)) return text;
 
         if (!alphaHex.StartsWith("#")) alphaHex = "#" + alphaHex;
@@ -121,19 +121,22 @@ public static class RichText
 
     public static string Bold(string text)
     {
-        if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
-        return $"<b>{text}</b>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<b>{text}</b>";
     }
 
     public static string Italic(string text)
     {
-        if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
-        return $"<i>{text}</i>";
+        return string.IsNullOrEmpty(text) 
+            ? text
+            : $"<i>{text}</i>";
     }
 
     public static string Size(string text, int size)
     {
-        if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
-        return $"<size={size}>{text}</size>";
+        return string.IsNullOrEmpty(text)
+            ? text 
+            : $"<size={size}>{text}</size>";
     }
 }

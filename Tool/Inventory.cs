@@ -37,15 +37,15 @@ public static class Inventory
         return body.GetItem(slot);
     }
 
-    public static ItemInfo GetItemInfo(int slot)
+    public static ItemInfo? GetItemInfo(int slot)
     {
-        return GetItem(slot)?.Stats;
+        return GetItem(slot).Stats;
     }
 
-    public static string GetItemId(int slot)
+    public static string? GetItemId(int slot)
     {
         var item = GetItem(slot);
-        return item != null ? item.id : null;
+        return item.id;
     }
 
     public static bool HasItem(string id)
@@ -66,7 +66,7 @@ public static class Inventory
         return body.FindByIdThorough(id, out _);
     }
 
-    public static bool HasAnyItem(params string[] ids)
+    public static bool HasAnyItem(params string[]? ids)
     {
         if (ids == null || ids.Length == 0)
             return false;
@@ -247,7 +247,7 @@ public static class Inventory
         return body.FirstEmptySlot();
     }
 
-    public static bool FindById(string id, out Item item)
+    public static bool FindById(string id, out Item? item)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -259,7 +259,7 @@ public static class Inventory
         return body.FindByIdSurface(id, out item);
     }
 
-    public static bool FindByIdThorough(string id, out Item item)
+    public static bool FindByIdThorough(string id, out Item? item)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -271,7 +271,7 @@ public static class Inventory
         return body.FindByIdThorough(id, out item);
     }
 
-    public static bool FindByTag(string tag, out Item item)
+    public static bool FindByTag(string tag, out Item? item)
     {
         if (string.IsNullOrWhiteSpace(tag))
         {
@@ -342,14 +342,14 @@ public static class Inventory
         return body.GetItem(body.handSlot);
     }
 
-    public static ItemInfo GetItemInfoInHand()
+    public static ItemInfo? GetItemInfoInHand()
     {
-        return GetItemInHand()?.Stats;
+        return GetItemInHand().Stats;
     }
 
-    public static string GetItemIdInHand()
+    public static string? GetItemIdInHand()
     {
-        return GetItemInHand()?.id;
+        return GetItemInHand().id;
     }
 
     public static bool IsItemInHand(Predicate<ItemInfo> predicate)
