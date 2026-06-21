@@ -5,6 +5,7 @@ namespace Bark.Constant;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class Items
 {
     public static readonly Items _12Gauge = new("12gauge", "custom", 0.05f, 0);
@@ -302,7 +303,7 @@ public sealed class Items
 
     public static implicit operator string(Items item)
     {
-        return item?.Id ?? "";
+        return item.Id;
     }
 
     public override string ToString()

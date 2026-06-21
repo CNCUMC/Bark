@@ -5,6 +5,7 @@ namespace Bark.Tool;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class RichText
 {
     public static string Color(string text, string color)
@@ -94,8 +95,8 @@ public static class RichText
 
     public static string Alpha(string text, string alphaHex)
     {
-        if (string.IsNullOrEmpty(text)) return text;
-        if (string.IsNullOrEmpty(alphaHex)) return text;
+        if (string.IsNullOrEmpty(text)
+            || string.IsNullOrEmpty(alphaHex)) return text;
 
         if (!alphaHex.StartsWith("#")) alphaHex = "#" + alphaHex;
 
@@ -128,7 +129,7 @@ public static class RichText
 
     public static string Italic(string text)
     {
-        return string.IsNullOrEmpty(text) 
+        return string.IsNullOrEmpty(text)
             ? text
             : $"<i>{text}</i>";
     }
@@ -136,7 +137,7 @@ public static class RichText
     public static string Size(string text, int size)
     {
         return string.IsNullOrEmpty(text)
-            ? text 
+            ? text
             : $"<size={size}>{text}</size>";
     }
 }

@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using CUCoreLib.Registries;
+using Bark.Tool.BetterCCL;
+using BepInEx.Logging;
 
 namespace Bark.Tool;
 
@@ -11,12 +12,14 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class Inventory
 {
+    private static readonly ManualLogSource Logger = Plugin.Logger;
+
     private static Body GetBody()
     {
-        GameWorld.CheckForWorld();
+        GameWorld.CheckForWorld(Logger);
 
         return PlayerCamera.main.body == null
-            ? throw new InvalidOperationException(Locale("log.inventory.body_null"))
+            ? throw new InvalidOperationException(Locale("inventory.body_null"))
             : PlayerCamera.main.body;
     }
 
@@ -51,7 +54,7 @@ public static class Inventory
     public static bool HasItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HoldingItem(id);
@@ -60,7 +63,7 @@ public static class Inventory
     public static bool HasItemThorough(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.FindByIdThorough(id, out _);
@@ -228,7 +231,7 @@ public static class Inventory
     public static bool HasWearable(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException(Locale("log.inventory.id.null_or_empty"), nameof(id));
+            throw new ArgumentException(Locale("inventory.id.null_or_empty"), nameof(id));
 
         var body = GetBody();
         return body.HasWearable(id);
@@ -381,12 +384,11 @@ public static class Inventory
     public static string GetItemIdsString()
     {
         var ids = GetAllItemIds();
-        return ids.Count > 0 ? string.Join(", ", ids) : Locale("log.inventory.empty");
+        return ids.Count > 0 ? string.Join(", ", ids) : Locale("inventory.empty");
     }
 
     private static string Locale(string key, params object[] args)
     {
-        var text = LocaleRegistry.Get("other", key, key);
-        return args.Length > 0 ? string.Format(text, args) : text;
+        return BetterLocale.Other("log." + key, args);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using CUCoreLib.Registries;
+using Bark.Tool.BetterCCL;
 
 namespace Bark.Tool;
 
@@ -15,13 +15,18 @@ public static class GameConsole
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException(
-                LocaleRegistry.Get("other", "log.console.null_or_empty", "Command cannot be null or empty"),
+                Locale("null_or_empty"),
                 nameof(key));
 
         if (Instance == null)
             throw new InvalidOperationException(
-                LocaleRegistry.Get("other", "log.console.not_initialized", "ConsoleScript not initialized"));
+                Locale("not_initialized"));
 
         ConsoleScript.SearchExact(key).action(key.Split());
+    }
+
+    private static string Locale(string key, params object[] args)
+    {
+        return BetterLocale.Other("log.console." + key, args);
     }
 }

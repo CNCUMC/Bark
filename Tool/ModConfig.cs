@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bark.Tool.BetterCCL;
 using BepInEx.Configuration;
-using CUCoreLib.Registries;
 
 namespace Bark.Tool;
 
@@ -11,8 +11,6 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class ModConfig
 {
-    private const string LocaleKeyPre = "log.config.";
-
     public static bool HasConfig(string config, Dictionary<string, ConfigEntryBase> registry)
     {
         return registry.ContainsKey(config);
@@ -49,13 +47,11 @@ public static class ModConfig
 
     private static void Error(string key, params object[] args)
     {
-        if (Plugin.Logger != null) Log.Error(Locale(key, args), Plugin.Logger);
+        Log.Error(Locale(key, args), Plugin.Logger);
     }
 
     private static string Locale(string key, params object[] args)
     {
-        var fullKey = $"{LocaleKeyPre}{key}";
-        var text = LocaleRegistry.Get("other", fullKey, fullKey);
-        return args.Length > 0 ? string.Format(text, args) : text;
+        return BetterLocale.Other("log." + key, args);
     }
 }

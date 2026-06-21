@@ -5,6 +5,7 @@ namespace Bark.Constant;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class Backgrounds
 {
     public static readonly Backgrounds Fungal = new("fungalBackground", "fungal");
@@ -28,7 +29,7 @@ public sealed class Backgrounds
 
     public static implicit operator string(Backgrounds background)
     {
-        return background.Id ?? "";
+        return background.Id;
     }
 
     public override string ToString()

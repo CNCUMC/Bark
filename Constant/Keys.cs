@@ -5,6 +5,7 @@ namespace Bark.Constant;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class Keys
 {
     public static KeyCode Jump = KeyBinds.GetBind("jump");

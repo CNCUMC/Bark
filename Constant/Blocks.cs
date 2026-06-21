@@ -5,6 +5,7 @@ namespace Bark.Constant;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class Blocks
 {
     public static readonly Blocks Air = new(0, "air", 0f, "", "Rock");
@@ -84,7 +85,7 @@ public sealed class Blocks
 
     public static implicit operator ushort(Blocks block)
     {
-        return block?.Id ?? 0;
+        return block.Id;
     }
 
     public override string ToString()

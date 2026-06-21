@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using CUCoreLib.Registries;
+using Bark.Tool.BetterCCL;
+using BepInEx.Logging;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
@@ -11,15 +10,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class GameWorld
 {
-    private static GameObject? _cachedBgTemplate;
-
-    private static readonly Dictionary<string, Sprite> SpriteCache =
-        new(StringComparer.OrdinalIgnoreCase);
-
-    private static readonly HashSet<string> MissingSpriteWarnings =
-        new(StringComparer.OrdinalIgnoreCase);
-
-    private static Material? _cachedBgMaterial;
+    private static readonly ManualLogSource Logger = Plugin.Logger;
 
     public static void PlaceBlock(int x, int y, ushort block)
     {
@@ -28,7 +19,7 @@ public static class GameWorld
 
     public static void PlaceBlock(Vector2 vector2, ushort block)
     {
-        CheckForWorld();
+        CheckForWorld(Logger);
         try
         {
             WorldGeneration.world.SetBlock(WorldGeneration.world.WorldToBlockPos(vector2), block);
@@ -41,7 +32,7 @@ public static class GameWorld
 
     public static void FillBlocks(int startX, int startY, int endX, int endY, ushort block)
     {
-        CheckForWorld();
+        CheckForWorld(Logger);
 
         try
         {
@@ -75,7 +66,7 @@ public static class GameWorld
         if (blocks == null)
             throw new ArgumentNullException(nameof(blocks));
 
-        CheckForWorld();
+        CheckForWorld(Logger);
 
         try
         {
@@ -111,10 +102,10 @@ public static class GameWorld
 
     public static void PlaceItem(Vector2 vector2, string item)
     {
-        CheckForWorld();
+        CheckForWorld(Logger);
 
         if (string.IsNullOrWhiteSpace(item))
-            throw new ArgumentException(Locale("log.world.place_item.null_or_empty"), nameof(item));
+            throw new ArgumentException(Locale("world.place_item.null_or_empty"), nameof(item));
 
         try
         {
@@ -122,65 +113,8 @@ public static class GameWorld
         }
         catch (Exception ex)
         {
-            Error("log.world.place_item", vector2, item, ex);
+            Error("world.place_item", vector2, item, ex);
         }
-    }
-
-    public static void PlaceBackground(Vector2 pos, string backgroundId)
-    {
-        var x = (int)pos.x;
-        var y = (int)pos.y;
-        PlaceBackground(new Vector2Int(x, y), backgroundId);
-    }
-
-    public static void PlaceBackground(Vector2Int pos, string backgroundId)
-    {
-        if (WorldGeneration.world == null)
-            return;
-
-        if (!TryGetSprite(backgroundId, out var sprite))
-            return;
-
-        var template = GetBgTemplate();
-        if (template == null)
-            return;
-
-        var worldPos2 = WorldGeneration.world.BlockToWorldPos(pos);
-        var go = Object.Instantiate(template, worldPos2, Quaternion.identity);
-        go.name = $"BgTile_{pos.x}_{pos.y}";
-        go.SetActive(true);
-
-        var parent = WorldGeneration.world.worldGrid?.transform;
-        if (parent == null)
-        {
-            var chunk = WorldGeneration.world.GetClosestChunk(pos);
-            if (chunk != null)
-                parent = chunk.transform;
-        }
-
-        if (parent != null)
-            go.transform.SetParent(parent, true);
-
-        var mf = go.GetComponent<MeshFilter>();
-        mf.mesh = CreateTileMesh(pos);
-
-        var mr = go.GetComponent<MeshRenderer>();
-        mr.material = GetOrCreateBgMaterial(sprite);
-        mr.sortingOrder = -5000;
-    }
-
-    private static Material GetOrCreateBgMaterial(Sprite sprite)
-    {
-        if (_cachedBgMaterial == null)
-            _cachedBgMaterial = new Material(WorldGeneration.world.defaultMat)
-            {
-                mainTextureScale = Vector2.one,
-                mainTextureOffset = Vector2.one,
-                color = Color.gray
-            };
-
-        _cachedBgMaterial.mainTexture = sprite.texture;
-        return _cachedBgMaterial;
     }
 
     public static Mesh CreateTileMesh(Vector2Int pos)
@@ -191,7 +125,7 @@ public static class GameWorld
         if (u < 0) u += tileCount;
         if (v < 0) v += tileCount;
 
-        var step = 1f / tileCount;
+        const float step = 1f / tileCount;
         var u0 = u * step;
         var u1 = (u + 1) * step;
         var v0 = v * step;
@@ -219,75 +153,28 @@ public static class GameWorld
         return mesh;
     }
 
-    private static GameObject GetBgTemplate()
+    public static void CheckForWorld(ManualLogSource logger)
     {
-        if (_cachedBgTemplate != null)
-            return _cachedBgTemplate;
-
-        _cachedBgTemplate = new GameObject("World_BgTemplate");
-        _cachedBgTemplate.AddComponent<MeshFilter>();
-        _cachedBgTemplate.AddComponent<MeshRenderer>();
-        _cachedBgTemplate.SetActive(false);
-        Object.DontDestroyOnLoad(_cachedBgTemplate);
-        return _cachedBgTemplate;
+        if (PlayerCamera.main != null) return;
+        var msg = Locale("world.check_for_world");
+        Error(msg, logger);
+        throw new InvalidOperationException(msg);
     }
 
-    private static bool TryGetSprite(string backgroundId, out Sprite sprite)
-    {
-        if (SpriteCache.TryGetValue(backgroundId, out sprite) && sprite != null)
-            return true;
-
-        sprite = Resources.Load<Sprite>(backgroundId);
-        if (sprite == null)
-        {
-            if (MissingSpriteWarnings.Add(backgroundId))
-                Warning("log.world.try_get_sprite", backgroundId);
-            return false;
-        }
-
-        SpriteCache[backgroundId] = sprite;
-        return true;
-    }
-
-    public static void CheckForWorld()
-    {
-        if (PlayerCamera.main == null)
-            throw new InvalidOperationException(Locale("log.world.check_for_world"));
-    }
-
-    public static void ClearCache()
-    {
-        SpriteCache.Clear();
-        MissingSpriteWarnings.Clear();
-
-        if (_cachedBgTemplate != null)
-        {
-            Object.Destroy(_cachedBgTemplate);
-            _cachedBgTemplate = null;
-        }
-
-        if (_cachedBgMaterial != null)
-        {
-            Object.Destroy(_cachedBgMaterial);
-            _cachedBgMaterial = null;
-        }
-    }
-
-    private static void Warning(string key, params object[] args)
-    {
-        var message = Locale(key, args);
-        if (Plugin.Logger != null) Log.Warning(message, Plugin.Logger);
-    }
+    // private static void Warning(string key, params object[] args)
+    // {
+    //     var message = Locale(key, args);
+    //     Log.Warning(message, Plugin.Logger);
+    // }
 
     private static void Error(string key, params object[] args)
     {
         var message = Locale(key, args);
-        if (Plugin.Logger != null) Log.Error(message, Plugin.Logger);
+        Log.Error(message, Plugin.Logger);
     }
 
     private static string Locale(string key, params object[] args)
     {
-        var text = LocaleRegistry.Get("other", key, key);
-        return args.Length > 0 ? string.Format(text, args) : text;
+        return BetterLocale.Other("log." + key, args);
     }
 }

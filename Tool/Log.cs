@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using Bark.Tool.BetterCCL;
 using BepInEx.Logging;
-using CUCoreLib.Registries;
 using HarmonyLib;
 using UnityEngine;
 
@@ -84,15 +85,7 @@ public static class Log
     public static void CheckWorld(ManualLogSource logger)
     {
         if (PlayerCamera.main != null) return;
-        var msg = Locale("log.world.check_for_world");
-        Error(msg, logger);
-        throw new InvalidOperationException(msg);
-    }
-
-    public static void CheckPlayerBody(ManualLogSource logger)
-    {
-        if (PlayerCamera.main?.body != null) return;
-        var msg = Locale("log.player.body_null");
+        var msg = Locale("world.check_for_world");
         Error(msg, logger);
         throw new InvalidOperationException(msg);
     }
@@ -103,7 +96,7 @@ public static class Log
             throw new ArgumentNullException(nameof(args));
 
         if (args.Length > minCount) return;
-        var msg = Locale("log.utils.check_argument_count", minCount, args.Length - 1);
+        var msg = Locale("utils.check_argument_count", minCount, args.Length - 1);
         Error(msg, logger);
         throw new Exception(msg);
     }
@@ -111,7 +104,7 @@ public static class Log
     public static void CheckNotNullOrEmpty(string value, string paramName, ManualLogSource logger)
     {
         if (!string.IsNullOrWhiteSpace(value)) return;
-        var msg = Locale("log.utils.string.null_or_empty");
+        var msg = Locale("utils.string.null_or_empty");
         Error(msg, logger);
         throw new ArgumentException(msg, paramName);
     }
@@ -121,15 +114,15 @@ public static class Log
         result = 0;
         if (string.IsNullOrWhiteSpace(s))
         {
-            Error(Locale("log.utils.string.null_or_empty"), logger);
+            Error(Locale("utils.string.null_or_empty"), logger);
             return false;
         }
 
-        if (float.TryParse(s, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands,
-                System.Globalization.CultureInfo.InvariantCulture, out result))
+        if (float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands,
+                CultureInfo.InvariantCulture, out result))
             return true;
 
-        Error(Locale("log.utils.parse.float_invalid", s), logger);
+        Error(Locale("utils.parse.float_invalid", s), logger);
         return false;
     }
 
@@ -138,19 +131,20 @@ public static class Log
         result = 0;
         if (string.IsNullOrWhiteSpace(s))
         {
-            Error(Locale("log.utils.string.null_or_empty"), logger);
+            Error(Locale("utils.string.null_or_empty"), logger);
             return false;
         }
 
-        if (int.TryParse(s, System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture, out result))
+        if (int.TryParse(s, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out result))
             return true;
 
-        Error(Locale("log.utils.parse.int_invalid", s), logger);
+        Error(Locale("utils.parse.int_invalid", s), logger);
         return false;
     }
-    
-    public static void PrintList(string header, IEnumerable<string> items, ManualLogSource logger, string itemPrefix = "    ")
+
+    public static void PrintList(string header, IEnumerable<string> items, ManualLogSource logger,
+        string itemPrefix = "    ")
     {
         Divider();
         Info(header, logger);
@@ -168,7 +162,8 @@ public static class Log
         Divider();
     }
 
-    public static void PrintKeyValueList(string header, IEnumerable<(string key, string value)> entries, ManualLogSource logger)
+    public static void PrintKeyValueList(string header, IEnumerable<(string key, string value)> entries,
+        ManualLogSource logger)
     {
         Divider();
         Info(header, logger);
@@ -177,7 +172,8 @@ public static class Log
         Divider();
     }
 
-    public static void PrintGroupedList(string header, IEnumerable<(string groupName, IList<string> items)> groups, ManualLogSource logger, string groupPrefix = "    ", string itemPrefix = "        ")
+    public static void PrintGroupedList(string header, IEnumerable<(string groupName, IList<string> items)> groups,
+        ManualLogSource logger, string groupPrefix = "    ", string itemPrefix = "        ")
     {
         Divider();
         Info(header, logger);
@@ -187,6 +183,7 @@ public static class Log
             foreach (var item in items)
                 Info($"{itemPrefix}{item}", logger);
         }
+
         Divider();
     }
 
@@ -197,7 +194,6 @@ public static class Log
 
     private static string Locale(string key, params object[] args)
     {
-        var text = LocaleRegistry.Get("other", key, key);
-        return args.Length > 0 ? string.Format(text, args) : text;
+        return BetterLocale.Other("log." + key, args);
     }
 }

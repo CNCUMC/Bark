@@ -1,8 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using CUCoreLib.Registries;
 
-namespace Bark.Tool;
+namespace Bark.Tool.BetterCCL;
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class BetterLocale
 {
     public static string Item(string key, params object[]? args)
