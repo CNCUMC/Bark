@@ -60,6 +60,16 @@ public static class BetterLocale
     {
         return HasKey("option", key);
     }
+    
+    public static bool HasKeyLiquid(string key)
+    {
+        return HasKey("liquid", key);
+    }
+    
+    public static bool HasKeyTitle(string key)
+    {
+        return HasKey("title", key);
+    }
 
     public static string GetItem(string key, params object[]? args)
     {
@@ -94,6 +104,16 @@ public static class BetterLocale
     public static string GetOption(string key, params object[]? args)
     {
         return Get("option", key, args);
+    }
+    
+    public static string GetLiquid(string key, params object[]? args)
+    {
+        return Get("liquid", key, args);
+    }
+
+    public static string GetTitle(string key, params object[]? args)
+    {
+        return Get("title", key, args);
     }
 
     private static string Get(string category, string key, params object[]? args)
@@ -149,7 +169,7 @@ public static class BetterLocale
     public static void Flush()
     {
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
-        CleanCclOther(outputDirectory);
+        // CleanCclOther(outputDirectory);
 
         foreach (var langKvp in Defaults)
         {
@@ -195,28 +215,28 @@ public static class BetterLocale
         }
     }
 
-    // 清理 CCL 自动生成的 other.gameset* 条目（Bark 已管理在 option 分类中）
-    private static void CleanCclOther(string outputDirectory)
-    {
-        try
-        {
-            foreach (var file in Directory.GetFiles(outputDirectory, "*.json"))
-            {
-                JObject root;
-                try { root = JObject.Parse(File.ReadAllText(file)); }
-                catch { continue; }
-
-                if (root["other"] is not JObject other) continue;
-                var keysToRemove = new List<string>();
-                foreach (var prop in other.Properties())
-                    if (prop.Name.StartsWith("gameset"))
-                        keysToRemove.Add(prop.Name);
-
-                if (keysToRemove.Count == 0) continue;
-                foreach (var key in keysToRemove) other.Remove(key);
-                File.WriteAllText(file, JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
-            }
-        }
-        catch { /* best effort */ }
-    }
+    // // 清理 CCL 自动生成的 other.gameset* 条目（Bark 已管理在 option 分类中）
+    // private static void CleanCclOther(string outputDirectory)
+    // {
+    //     try
+    //     {
+    //         foreach (var file in Directory.GetFiles(outputDirectory, "*.json"))
+    //         {
+    //             JObject root;
+    //             try { root = JObject.Parse(File.ReadAllText(file)); }
+    //             catch { continue; }
+    //
+    //             if (root["other"] is not JObject other) continue;
+    //             var keysToRemove = new List<string>();
+    //             foreach (var prop in other.Properties())
+    //                 if (prop.Name.StartsWith("gameset"))
+    //                     keysToRemove.Add(prop.Name);
+    //
+    //             if (keysToRemove.Count == 0) continue;
+    //             foreach (var key in keysToRemove) other.Remove(key);
+    //             File.WriteAllText(file, JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
+    //         }
+    //     }
+    //     catch { /* best effort */ }
+    // }
 }
