@@ -29,12 +29,28 @@ public abstract class ModLangGenBase
         Count++;
     }
 
-    protected void Item(string key, string value) => Add("item", key, value);
-    protected void Building(string key, string value) => Add("building", key, value);
-    protected void Moodle(string key, string value) => Add("moodle", key, value);
+    protected void Item(string key, string value, string description)
+    {
+        Add("item", key, value);
+        Add("item", key+ "dsc", description);
+    }
+    protected void Building(string key, string value, string description)
+    {
+        Add("build", key, value);
+        Add("build", key+ "dsc", description);
+    }
+    protected void Moodle(string key, string value, string description)
+    {
+        Add("moodle", key, value);
+        Add("moodle", key+ "dsc", description);
+    }
     protected void Other(string key, string value) => Add("other", key, value);
     protected void Log(string key, string value) => Add("log", key, value);
-    protected void Command(string key, string value) => Add("command", key, value);
+    protected void Command(string key, string value, string description)
+    {
+        Add("command", key, value);
+        Add("command", key+ "dsc", description);
+    }
     protected void Option(string key, string value, string description)
     {
         Add("option", key, value);
