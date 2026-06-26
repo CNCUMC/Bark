@@ -16,7 +16,6 @@ namespace Bark.BetterCCL;
 public static class BetterLocale
 {
     private static readonly Dictionary<string, Dictionary<string, string>> Defaults = new();
-    private static readonly HashSet<string> Pending = [];
 
     // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
     public static bool HasKey(string category, string key)
@@ -106,29 +105,24 @@ public static class BetterLocale
         dict[key] = value;
     }
 
-    // BetterLocale.Get() → 获取默认值并标记待写入
+    // BetterLocale.Get() → 获取默认值
     private static string? GetDefault(string language, string key)
     {
-        if (!Defaults.TryGetValue(language, out var dict) || !dict.TryGetValue(key, out var value)) return null;
-        Pending.Add($"{language}\0{key}");
-        return value;
+        return Defaults.TryGetValue(language, out var dict) && dict.TryGetValue(key, out var value) ? value : null;
     }
 
-    // 写入所有 Pending 条目到 CCL 语言目录
+    // 写入默认值到 CCL 语言目录
     public static void Flush()
     {
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
 
-        foreach (var entry in Pending)
+        foreach (var langKvp in Defaults)
         {
-            var sepIndex = entry.IndexOf('\0');
-            if (sepIndex < 0) continue;
-            var language = entry.Substring(0, sepIndex);
-            var key = entry.Substring(sepIndex + 1);
-
-            if (!Defaults.TryGetValue(language, out var dict) ||
-                !dict.TryGetValue(key, out var value))
-                continue;
+            var language = langKvp.Key;
+            foreach (var keyKvp in langKvp.Value)
+            {
+                var key = keyKvp.Key;
+                var value = keyKvp.Value;
 
             var dotIndex = key.IndexOf('.');
             var category = dotIndex > 0 ? key.Substring(0, dotIndex) : "other";
@@ -166,10 +160,9 @@ public static class BetterLocale
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogWarning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}");
+                UnityEngine.Debug.LogWarning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}");
+            }
             }
         }
-
-        Pending.Clear();
     }
 }

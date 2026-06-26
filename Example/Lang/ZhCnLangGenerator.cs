@@ -9,8 +9,8 @@ public class ZhCnLangGenerator : ModLangGenBase
     protected override void BuildLocaleData()
     {
         // Options
-        Other("gameset.bark.game.test", "测试选项");
-        Other("gameset.bark.game.testdsc", "没有实际用处");
+        Other("gamesetbark.game.test", "测试选项");
+        Other("gamesetbark.game.testdsc", "没有实际用处");
 
         // Command
         Other("command.test_hello.description", "测试Hello");

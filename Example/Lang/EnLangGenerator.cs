@@ -9,8 +9,8 @@ public class EnLangGenerator : ModLangGenBase
     protected override void BuildLocaleData()
     {
         // Options
-        Other("gameset.bark.game.test", "Test");
-        Other("gameset.bark.game.testdsc", "test");
+        Other("gamesetbark.game.test", "Test");
+        Other("gamesetbark.game.testdsc", "just test");
 
         // Command
         Other("command.test_hello.description", "Test Hello.");
