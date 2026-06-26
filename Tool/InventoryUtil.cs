@@ -100,25 +100,10 @@ public static class InventoryUtil
         return c;
     }
 
-    public static List<Item> GetAllItems()
-    {
-        return GetBody().GetAllItems();
-    }
-
-    public static List<string> GetAllItemIds()
-    {
-        return GetAllItems().Select(item => item.id).ToList();
-    }
-
-    public static List<Item> GetAllItemsThorough()
-    {
-        return GetBody().GetAllItemsThorough();
-    }
-
-    public static List<Item> GetWearables()
-    {
-        return GetBody().GetAllWearables();
-    }
+    public static List<ItemInfo> GetAllItemInfos() => GetBody().GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
+    public static List<ItemInfo> GetAllItemInfosThorough() => GetBody().GetAllItemsThorough().Select(i => i.Stats).Where(i => i != null).ToList();
+    public static List<string> GetAllItemIds() => GetBody().GetAllItems().Select(i => i.id).ToList();
+    public static List<ItemInfo> GetWearableInfos() => GetBody().GetAllWearables().Select(i => i.Stats).Where(i => i != null).ToList();
 
     public static int? FindFirstEmptySlot()
     {
