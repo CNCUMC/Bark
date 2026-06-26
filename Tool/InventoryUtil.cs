@@ -100,10 +100,20 @@ public static class InventoryUtil
         return c;
     }
 
-    public static List<ItemInfo> GetAllItemInfos() => GetBody().GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
-    public static List<ItemInfo> GetAllItemInfosThorough() => GetBody().GetAllItemsThorough().Select(i => i.Stats).Where(i => i != null).ToList();
-    public static List<string> GetAllItemIds() => GetBody().GetAllItems().Select(i => i.id).ToList();
-    public static List<ItemInfo> GetWearableInfos() => GetBody().GetAllWearables().Select(i => i.Stats).Where(i => i != null).ToList();
+    public static List<Item> GetAllItems() => GetBody().GetAllItems();
+    public static List<Item> GetAllItemsThorough() => GetBody().GetAllItemsThorough();
+
+    public static List<ItemInfo> GetAllItemInfos() =>
+        GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
+
+    public static List<ItemInfo> GetAllItemInfosThorough() => GetAllItemsThorough().Select(i => i.Stats)
+        .Where(i => i != null).ToList();
+
+    public static List<string> GetAllItemIds() => GetAllItems().Select(i => i.id).ToList();
+    public static List<Item> GetWearables() => GetBody().GetAllWearables();
+
+    public static List<ItemInfo> GetWearableInfos() =>
+        GetWearables().Select(i => i.Stats).Where(i => i != null).ToList();
 
     public static int? FindFirstEmptySlot()
     {
