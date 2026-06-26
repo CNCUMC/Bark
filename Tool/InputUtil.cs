@@ -18,31 +18,84 @@ public static class InputUtil
         return camera.ScreenToWorldPoint(Input.mousePosition);
     }
 
-    public static Vector2 LeftClickPosition() => Input.GetKeyDown(Action.LeftClick) ? MouseWorldPosition() : Vector2.zero;
-    public static Vector2 RightClickPosition() => Input.GetKeyDown(Action.RightClick) ? MouseWorldPosition() : Vector2.zero;
+    public static Vector2 LeftClickPosition()
+    {
+        return Input.GetKeyDown(Action.LeftClick) ? MouseWorldPosition() : Vector2.zero;
+    }
 
-    public static IEnumerator WaitForLeftClick(Action<Vector2> callback) { yield return new WaitUntil(() => Input.GetKeyDown(Action.LeftClick)); callback(MouseWorldPosition()); }
-    public static IEnumerator WaitForRightClick(Action<Vector2> callback) { yield return new WaitUntil(() => Input.GetKeyDown(Action.RightClick)); callback(MouseWorldPosition()); }
-    public static WaitForClickResult WaitForLeftClick() => new(Action.LeftClick);
-    public static WaitForClickResult WaitForRightClick() => new(Action.RightClick);
+    public static Vector2 RightClickPosition()
+    {
+        return Input.GetKeyDown(Action.RightClick) ? MouseWorldPosition() : Vector2.zero;
+    }
+
+    public static IEnumerator WaitForLeftClick(Action<Vector2> callback)
+    {
+        yield return new WaitUntil(() => Input.GetKeyDown(Action.LeftClick));
+        callback(MouseWorldPosition());
+    }
+
+    public static IEnumerator WaitForRightClick(Action<Vector2> callback)
+    {
+        yield return new WaitUntil(() => Input.GetKeyDown(Action.RightClick));
+        callback(MouseWorldPosition());
+    }
+
+    public static WaitForClickResult WaitForLeftClick()
+    {
+        return new WaitForClickResult(Action.LeftClick);
+    }
+
+    public static WaitForClickResult WaitForRightClick()
+    {
+        return new WaitForClickResult(Action.RightClick);
+    }
 
     private static bool TryGetMainCamera(out Camera? camera)
     {
-        if (_mainCamera != null) { camera = _mainCamera; return true; }
-        if (_cameraSearched) { camera = null!; return false; }
-        _mainCamera = Camera.main; _cameraSearched = true;
-        if (_mainCamera != null) { camera = _mainCamera; return true; }
-        camera = null!; return false;
+        if (_mainCamera != null)
+        {
+            camera = _mainCamera;
+            return true;
+        }
+
+        if (_cameraSearched)
+        {
+            camera = null!;
+            return false;
+        }
+
+        _mainCamera = Camera.main;
+        _cameraSearched = true;
+        if (_mainCamera != null)
+        {
+            camera = _mainCamera;
+            return true;
+        }
+
+        camera = null!;
+        return false;
     }
 
-    public static class Action { public const string LeftClick = "attack"; public const string RightClick = "iteminteract"; }
+    public static class Action
+    {
+        public const string LeftClick = "attack";
+        public const string RightClick = "iteminteract";
+    }
 
     public sealed class WaitForClickResult(string action) : CustomYieldInstruction
     {
         public Vector2 Result { get; private set; }
+
         public override bool keepWaiting
         {
-            get { if (field) return false; if (!Input.GetKeyDown(action)) return true; Result = MouseWorldPosition(); field = true; return false; }
+            get
+            {
+                if (field) return false;
+                if (!Input.GetKeyDown(action)) return true;
+                Result = MouseWorldPosition();
+                field = true;
+                return false;
+            }
         }
     }
 }

@@ -6,20 +6,118 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class RichTextUtil
 {
-    public static string Color(string text, string color) => string.IsNullOrEmpty(text) ? text ?? string.Empty : string.IsNullOrEmpty(color) ? text : $"<color={color}>{text}</color>";
-    public static string Color(string text, Color color) => Color(text, ColorUtility.ToHtmlStringRGB(color));
-    public static string Hex(string text, string hex) { if (string.IsNullOrEmpty(hex)) return text; if (!hex.StartsWith("#")) hex = "#" + hex; return Color(text, hex); }
-    public static string Blue(string t) => Color(t, "blue"); public static string Red(string t) => Color(t, "red");
-    public static string Green(string t) => Color(t, "green"); public static string Yellow(string t) => Color(t, "yellow");
-    public static string White(string t) => Color(t, "white"); public static string Black(string t) => Color(t, "black");
-    public static string Cyan(string t) => Color(t, "cyan"); public static string Magenta(string t) => Color(t, "magenta");
-    public static string Gray(string t) => Color(t, "gray"); public static string Orange(string t) => Color(t, "orange");
-    public static string Purple(string t) => Color(t, "purple"); public static string Pink(string t) => Color(t, "pink");
-    public static string Brown(string t) => Color(t, "brown");
-    public static string Alpha(string text, string a) { if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(a)) return text ?? string.Empty; if (!a.StartsWith("#")) a = "#" + a; return $"<alpha={a}>{text}<alpha=#FF>"; }
-    public static string Alpha(string text, float a) => Alpha(text, ((int)(Mathf.Clamp01(a) * 255)).ToString("X2"));
-    public static string Alpha(string text, byte a) => Alpha(text, a.ToString("X2"));
-    public static string Bold(string t) => string.IsNullOrEmpty(t) ? t ?? string.Empty : $"<b>{t}</b>";
-    public static string Italic(string t) => string.IsNullOrEmpty(t) ? t ?? string.Empty : $"<i>{t}</i>";
-    public static string Size(string t, int s) => string.IsNullOrEmpty(t) ? t ?? string.Empty : $"<size={s}>{t}</size>";
+    public static string Color(string text, string color)
+    {
+        return string.IsNullOrEmpty(text) ? text :
+            string.IsNullOrEmpty(color) ? text : $"<color={color}>{text}</color>";
+    }
+
+    public static string Color(string text, Color color)
+    {
+        return Color(text, ColorUtility.ToHtmlStringRGB(color));
+    }
+
+    public static string Hex(string text, string hex)
+    {
+        if (string.IsNullOrEmpty(hex)) return text;
+        if (!hex.StartsWith("#")) hex = "#" + hex;
+        return Color(text, hex);
+    }
+
+    public static string Blue(string text)
+    {
+        return Color(text, "blue");
+    }
+
+    public static string Red(string text)
+    {
+        return Color(text, "red");
+    }
+
+    public static string Green(string text)
+    {
+        return Color(text, "green");
+    }
+
+    public static string Yellow(string text)
+    {
+        return Color(text, "yellow");
+    }
+
+    public static string White(string text)
+    {
+        return Color(text, "white");
+    }
+
+    public static string Black(string text)
+    {
+        return Color(text, "black");
+    }
+
+    public static string Cyan(string text)
+    {
+        return Color(text, "cyan");
+    }
+
+    public static string Magenta(string text)
+    {
+        return Color(text, "magenta");
+    }
+
+    public static string Gray(string text)
+    {
+        return Color(text, "gray");
+    }
+
+    public static string Orange(string text)
+    {
+        return Color(text, "orange");
+    }
+
+    public static string Purple(string text)
+    {
+        return Color(text, "purple");
+    }
+
+    public static string Pink(string text)
+    {
+        return Color(text, "pink");
+    }
+
+    public static string Brown(string text)
+    {
+        return Color(text, "brown");
+    }
+
+    public static string Alpha(string text, string alpha)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(alpha)) return text;
+        if (!alpha.StartsWith("#")) alpha = "#" + alpha;
+        return $"<alpha={alpha}>{text}<alpha=#FF>";
+    }
+
+    public static string Alpha(string text, float alpha)
+    {
+        return Alpha(text, ((int)(Mathf.Clamp01(alpha) * 255)).ToString("X2"));
+    }
+
+    public static string Alpha(string text, byte alpha)
+    {
+        return Alpha(text, alpha.ToString("X2"));
+    }
+
+    public static string Bold(string text)
+    {
+        return string.IsNullOrEmpty(text) ? text : $"<b>{text}</b>";
+    }
+
+    public static string Italic(string text)
+    {
+        return string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
+    }
+
+    public static string Size(string text, int s)
+    {
+        return string.IsNullOrEmpty(text) ? text : $"<size={s}>{text}</size>";
+    }
 }

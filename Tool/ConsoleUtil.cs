@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Bark.BetterCCL;
 
@@ -12,12 +11,13 @@ public static class ConsoleUtil
 
     public static void RunCommand(string key)
     {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException(Locale("null_or_empty"), nameof(key));
-        if (GameInstances.Console == null)
-            throw new InvalidOperationException(Locale("not_initialized"));
+        LogUtil.CheckConsole(Plugin.Logger);
+        LogUtil.CheckNotNullOrEmpty(key, nameof(key));
         ConsoleScript.SearchExact(key).action(key.Split());
     }
 
-    private static string Locale(string key, params object[] args) => BetterLocale.Other("log.console." + key, args);
+    private static string Locale(string key, params object[] args)
+    {
+        return BetterLocale.Other("log.console." + key, args);
+    }
 }

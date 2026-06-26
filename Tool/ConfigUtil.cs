@@ -10,7 +10,10 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class ConfigUtil
 {
-    public static bool HasConfig(string config, Dictionary<string, ConfigEntryBase> registry) => registry.ContainsKey(config);
+    public static bool HasConfig(string config, Dictionary<string, ConfigEntryBase> registry)
+    {
+        return registry.ContainsKey(config);
+    }
 
     public static ConfigEntryBase? GetConfig(string config, Dictionary<string, ConfigEntryBase> registry)
     {
@@ -34,6 +37,13 @@ public static class ConfigUtil
         return null;
     }
 
-    private static void Error(string key) => LogUtil.Error(Locale(key), Plugin.Logger);
-    private static string Locale(string key) => BetterLocale.Other("log." + key);
+    private static void Error(string key)
+    {
+        LogUtil.Error(Locale(key), Plugin.Logger);
+    }
+
+    private static string Locale(string key)
+    {
+        return BetterLocale.Other("log." + key);
+    }
 }

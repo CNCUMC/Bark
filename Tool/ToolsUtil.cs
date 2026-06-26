@@ -17,22 +17,29 @@ public static class ToolsUtil
     public static float ParseFloat(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(s));
-        return float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var r)
-            ? r : throw new FormatException(Locale("utils.parse.float_invalid", s));
+        return float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
+            out var r)
+            ? r
+            : throw new FormatException(Locale("utils.parse.float_invalid", s));
     }
 
     public static int ParseInt(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(s));
         return int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var r)
-            ? r : throw new FormatException(Locale("utils.parse.int_invalid", s));
+            ? r
+            : throw new FormatException(Locale("utils.parse.int_invalid", s));
     }
 
     public static bool TryParseFloat(string s, out float result)
     {
         result = 0;
-        return !string.IsNullOrWhiteSpace(s) && float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
+        return !string.IsNullOrWhiteSpace(s) && float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands,
+            CultureInfo.InvariantCulture, out result);
     }
 
-    private static string Locale(string key, params object[] args) => BetterLocale.Other("log." + key, args);
+    private static string Locale(string key, params object[] args)
+    {
+        return BetterLocale.Other("log." + key, args);
+    }
 }
