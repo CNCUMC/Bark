@@ -18,6 +18,13 @@ public static class BetterLocale
     private static readonly Dictionary<string, Dictionary<string, string>> Defaults = new();
     private static readonly HashSet<string> Pending = [];
 
+    // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
+    public static bool HasKey(string category, string key)
+    {
+        var text = LocaleRegistry.Get(category, key, key);
+        return !string.IsNullOrWhiteSpace(text) && text != key;
+    }
+
     public static string Item(string key, params object[]? args)
     {
         return Get("item", key, args);
