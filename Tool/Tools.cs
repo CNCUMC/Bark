@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Bark.Tool.BetterCCL;
+using Bark.BetterCCL;
 
 namespace Bark.Tool;
 

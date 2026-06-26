@@ -1,6 +1,6 @@
+using Bark.BetterCCL;
 using Bark.Example.Lang;
 using Bark.Tool;
-using Bark.Tool.BetterCCL;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -8,7 +8,7 @@ using HarmonyLib;
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib")]
+[BepInDependency("net.cucorelib", "1.0.1")]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
@@ -25,9 +25,9 @@ public class Plugin : BaseUnityPlugin
         LocaleGenerator.Register(new EnLangGenerator(), Logger);
         LocaleGenerator.Register(new ZhCnLangGenerator(), Logger);
         LocaleGenerator.Register(new ZhTwLangGenerator(), Logger);
-        LocaleGenerator.GenerateAll();
 
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
+        BetterLocale.Flush();
         _harmony.PatchAll();
     }
 }

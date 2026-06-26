@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Bark.Tool.BetterCCL;
+using Bark.BetterCCL;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;

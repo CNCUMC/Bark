@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Bark.Tool.BetterCCL;
+using Bark.BetterCCL;
 using BepInEx.Configuration;
 
 namespace Bark.Tool;

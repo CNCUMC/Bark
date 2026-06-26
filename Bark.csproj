@@ -29,7 +29,7 @@
     <!-- CUCoreLib (CCL) -->
     <ItemGroup>
         <Reference Include="CUCoreLib">
-            <HintPath>$(PluginsDir)/CUCoreLib/CUCoreLib.dll</HintPath>
+            <HintPath>$(PluginsDir)/CUCoreLib.dll</HintPath>
         </Reference>
     </ItemGroup>
 

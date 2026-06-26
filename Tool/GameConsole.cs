@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Bark.Tool.BetterCCL;
+using Bark.BetterCCL;
 
 namespace Bark.Tool;
 
