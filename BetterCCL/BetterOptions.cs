@@ -23,12 +23,12 @@ public static class BetterOptions
 
     private static string Label(string ns, Setting.SettingCategory category, string key)
     {
-        return BetterLocale.Other($"gameset.{Id(ns, category, key)}");
+        return BetterLocale.GetOther($"gameset.{Id(ns, category, key)}");
     }
 
     private static string Description(string ns, Setting.SettingCategory category, string key)
     {
-        return BetterLocale.Other($"gameset.{Id(ns, category, key)}dsc");
+        return BetterLocale.GetOther($"gameset.{Id(ns, category, key)}dsc");
     }
 
     public static void Float(

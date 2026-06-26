@@ -44,6 +44,6 @@ public static class ConfigUtil
 
     private static string Locale(string key)
     {
-        return BetterLocale.Other("log." + key);
+        return BetterLocale.GetOther("log." + key);
     }
 }

@@ -24,23 +24,43 @@ public static class BetterLocale
         var text = LocaleRegistry.Get(category, key, key);
         return !string.IsNullOrWhiteSpace(text) && text != key;
     }
+    
+    public static bool HasKeyItem(string key)
+    {
+        return HasKey("item", key);
+    }
 
-    public static string Item(string key, params object[]? args)
+    public static bool HasKeyBuilding(string key)
+    {
+        return HasKey("build", key);
+    }
+
+    public static bool HasKeyMoodle(string key)
+    {
+        return HasKey("moodle", key);
+    }
+
+    public static bool HasKeyOther(string key)
+    {
+        return HasKey("other", key);
+    }
+
+    public static string GetItem(string key, params object[]? args)
     {
         return Get("item", key, args);
     }
 
-    public static string Building(string key, params object[]? args)
+    public static string GetBuilding(string key, params object[]? args)
     {
         return Get("build", key, args);
     }
 
-    public static string Moodle(string key, params object[]? args)
+    public static string GetMoodle(string key, params object[]? args)
     {
         return Get("moodle", key, args);
     }
 
-    public static string Other(string key, params object[]? args)
+    public static string GetOther(string key, params object[]? args)
     {
         return Get("other", key, args);
     }

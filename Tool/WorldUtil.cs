@@ -78,6 +78,6 @@ public static class WorldUtil
 
     private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.Other("log." + key, args);
+        return BetterLocale.GetOther("log." + key, args);
     }
 }

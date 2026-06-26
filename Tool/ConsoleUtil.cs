@@ -18,6 +18,6 @@ public static class ConsoleUtil
 
     private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.Other("log.console." + key, args);
+        return BetterLocale.GetOther("log.console." + key, args);
     }
 }
