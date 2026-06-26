@@ -97,12 +97,12 @@ public static class BetterLocale
     }
 
     // ModLangGenBase.Other() → SetDefault()
-    public static void SetDefault(string language, string key, string value)
+    public static void SetDefault(string language, string category, string key, string value)
     {
         if (string.IsNullOrEmpty(key)) return;
         if (!Defaults.TryGetValue(language, out var dict))
             Defaults[language] = dict = new Dictionary<string, string>();
-        dict[key] = value;
+        dict[$"{category}.{key}"] = value;
     }
 
     // BetterLocale.Get() → 获取默认值

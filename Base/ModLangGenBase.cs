@@ -3,7 +3,6 @@ using BepInEx.Logging;
 
 namespace Bark.Base;
 
-// 语言生成器基类 — 注册默认本地化文本到 BetterLocale
 public abstract class ModLangGenBase
 {
     private bool _isInitialized;
@@ -23,10 +22,15 @@ public abstract class ModLangGenBase
 
     protected abstract void BuildLocaleData();
 
-    protected void Other(string key, string value)
+    protected void Add(string category, string key, string value)
     {
         if (string.IsNullOrEmpty(key)) return;
-        BetterLocale.SetDefault(LanguageCode, key, value);
+        BetterLocale.SetDefault(LanguageCode, category, key, value);
         Count++;
     }
+
+    protected void Item(string key, string value) => Add("item", key, value);
+    protected void Building(string key, string value) => Add("building", key, value);
+    protected void Moodle(string key, string value) => Add("moodle", key, value);
+    protected void Other(string key, string value) => Add("other", key, value);
 }
