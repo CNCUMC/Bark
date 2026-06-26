@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
+using Bark.Tool;
 using BepInEx;
 using CUCoreLib.Registries;
 using Newtonsoft.Json;
@@ -15,7 +16,8 @@ namespace Bark.BetterCCL;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class BetterLocale
 {
-    private static readonly Dictionary<string, Dictionary<string, string>> Defaults = new();
+    // language → category → key → value
+    private static readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Defaults = new();
 
     // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
     public static bool HasKey(string category, string key)
@@ -43,6 +45,21 @@ public static class BetterLocale
     {
         return HasKey("other", key);
     }
+    
+    public static bool HasKeyLog(string key)
+    {
+        return HasKey("log", key);
+    }
+    
+    public static bool HasKeyCommand(string key)
+    {
+        return HasKey("command", key);
+    }
+    
+    public static bool HasKeyOption(string key)
+    {
+        return HasKey("option", key);
+    }
 
     public static string GetItem(string key, params object[]? args)
     {
@@ -62,6 +79,21 @@ public static class BetterLocale
     public static string GetOther(string key, params object[]? args)
     {
         return Get("other", key, args);
+    }
+    
+    public static string GetLog(string key, params object[]? args)
+    {
+        return Get("log", key, args);
+    }
+
+    public static string GetCommand(string key, params object[]? args)
+    {
+        return Get("command", key, args);
+    }
+
+    public static string GetOption(string key, params object[]? args)
+    {
+        return Get("option", key, args);
     }
 
     private static string Get(string category, string key, params object[]? args)
@@ -96,73 +128,95 @@ public static class BetterLocale
         });
     }
 
-    // ModLangGenBase.Other() → SetDefault()
     public static void SetDefault(string language, string category, string key, string value)
     {
         if (string.IsNullOrEmpty(key)) return;
-        if (!Defaults.TryGetValue(language, out var dict))
-            Defaults[language] = dict = new Dictionary<string, string>();
-        dict[$"{category}.{key}"] = value;
+        if (!Defaults.TryGetValue(language, out var langDict))
+            Defaults[language] = langDict = new Dictionary<string, Dictionary<string, string>>();
+        if (!langDict.TryGetValue(category, out var catDict))
+            langDict[category] = catDict = new Dictionary<string, string>();
+        catDict[key] = value;
     }
 
-    // BetterLocale.Get() → 获取默认值
     private static string? GetDefault(string language, string key)
     {
-        return Defaults.TryGetValue(language, out var dict) && dict.TryGetValue(key, out var value) ? value : null;
+        if (!Defaults.TryGetValue(language, out var langDict)) return null;
+        foreach (var catDict in langDict.Values)
+            if (catDict.TryGetValue(key, out var value)) return value;
+        return null;
     }
 
-    // 写入默认值到 CCL 语言目录
     public static void Flush()
     {
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
+        CleanCclOther(outputDirectory);
 
         foreach (var langKvp in Defaults)
         {
             var language = langKvp.Key;
-            foreach (var keyKvp in langKvp.Value)
+            foreach (var catKvp in langKvp.Value)
             {
-                var key = keyKvp.Key;
-                var value = keyKvp.Value;
+                var category = catKvp.Key;
+                foreach (var keyKvp in catKvp.Value)
+                {
+                    var key = keyKvp.Key;
+                    var value = keyKvp.Value;
 
-            var dotIndex = key.IndexOf('.');
-            var category = dotIndex > 0 ? key.Substring(0, dotIndex) : "other";
-            category = category switch { "item" or "building" or "moodle" => category, _ => "other" };
-
-            try
-            {
-                var filePath = Path.Combine(outputDirectory, $"{language}.json");
-                Directory.CreateDirectory(outputDirectory);
-
-                JObject root;
-                if (File.Exists(filePath))
                     try
                     {
-                        root = JObject.Parse(File.ReadAllText(filePath));
+                        var filePath = Path.Combine(outputDirectory, $"{language}.json");
+                        Directory.CreateDirectory(outputDirectory);
+
+                        JObject root;
+                        if (File.Exists(filePath))
+                            try { root = JObject.Parse(File.ReadAllText(filePath)); }
+                            catch { root = new JObject(); }
+                        else root = new JObject();
+
+                        if (root[category] is not JObject catObj)
+                        {
+                            catObj = new JObject();
+                            root[category] = catObj;
+                        }
+
+                        if (catObj[key] == null)
+                        {
+                            catObj[key] = value;
+                            File.WriteAllText(filePath,
+                                JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        root = new JObject();
+                        LogUtil.Warning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}", Plugin.Logger);
                     }
-                else root = new JObject();
-
-                if (root[category] is not JObject catObj)
-                {
-                    catObj = new JObject();
-                    root[category] = catObj;
                 }
-
-                if (catObj[key] == null)
-                {
-                    catObj[key] = value;
-                    File.WriteAllText(filePath,
-                        JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
-                }
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogWarning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}");
-            }
             }
         }
+    }
+
+    // 清理 CCL 自动生成的 other.gameset* 条目（Bark 已管理在 option 分类中）
+    private static void CleanCclOther(string outputDirectory)
+    {
+        try
+        {
+            foreach (var file in Directory.GetFiles(outputDirectory, "*.json"))
+            {
+                JObject root;
+                try { root = JObject.Parse(File.ReadAllText(file)); }
+                catch { continue; }
+
+                if (root["other"] is not JObject other) continue;
+                var keysToRemove = new List<string>();
+                foreach (var prop in other.Properties())
+                    if (prop.Name.StartsWith("gameset"))
+                        keysToRemove.Add(prop.Name);
+
+                if (keysToRemove.Count == 0) continue;
+                foreach (var key in keysToRemove) other.Remove(key);
+                File.WriteAllText(file, JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
+            }
+        }
+        catch { /* best effort */ }
     }
 }
