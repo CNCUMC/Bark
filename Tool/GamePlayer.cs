@@ -14,30 +14,6 @@ public static class GamePlayer
     public const int MaxInventorySlots = 8;
     private static readonly ManualLogSource Logger = Plugin.Logger;
 
-    public static void Alert(string text, bool important)
-    {
-        GameWorld.CheckForWorld(Logger);
-
-        if (string.IsNullOrWhiteSpace(text))
-            return;
-
-        PlayerCamera.main.DoAlert(text, important);
-    }
-
-    public static void Alert(string text, bool important, float delay)
-    {
-        GameWorld.CheckForWorld(Logger);
-
-        if (string.IsNullOrWhiteSpace(text))
-            return;
-
-        if (delay < 0)
-            delay = 0;
-
-        PlayerCamera.main.StartCoroutine(
-            PlayerCamera.main.DoAlertDelayed(text, important, delay));
-    }
-
     public static void Tp(Vector2 vector2)
     {
         GameWorld.CheckForWorld(Logger);
@@ -84,7 +60,7 @@ public static class GamePlayer
         {
             Object.Destroy(createdObject);
             throw new InvalidOperationException(
-                Locale("layer.load_item.missing_component", item));
+                Locale("player.load_item.missing_component", item));
         }
 
         body.PickUpItem(itemComponent, slot, force);

@@ -76,12 +76,6 @@ public static class Log
         logger.LogWarning(text);
     }
 
-    public static void Alert(string text, ManualLogSource logger, bool important, float delay = 0f)
-    {
-        Info(text, logger);
-        GamePlayer.Alert(text, important, delay);
-    }
-
     public static void CheckWorld(ManualLogSource logger)
     {
         if (PlayerCamera.main != null) return;

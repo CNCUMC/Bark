@@ -21,10 +21,9 @@ public class Plugin : BaseUnityPlugin
     {
         Logger = base.Logger;
 
-        LocaleGenerator.SetLogger(Logger);
-        LocaleGenerator.Register(new EnLangGenerator(), Logger);
-        LocaleGenerator.Register(new ZhCnLangGenerator(), Logger);
-        LocaleGenerator.Register(new ZhTwLangGenerator(), Logger);
+        new EnLangGenerator().Initialize(Logger);
+        new ZhCnLangGenerator().Initialize(Logger);
+        new ZhTwLangGenerator().Initialize(Logger);
 
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();

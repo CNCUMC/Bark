@@ -1,11 +1,9 @@
-using System.Reflection;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 
 namespace Bark.Base;
 
-// 语言生成器基类 — 注册默认本地化文本到 LocaleFallback
-// BetterLocale 查不到翻译时 LocaleFallback 返回默认值并标记，Flush() 时写入
+// 语言生成器基类 — 注册默认本地化文本到 BetterLocale
 public abstract class ModLangGenBase
 {
     private bool _isInitialized;
@@ -14,7 +12,7 @@ public abstract class ModLangGenBase
 
     public int Count { get; private set; }
 
-    internal void Initialize(ManualLogSource logger, Assembly pluginAssembly)
+    public void Initialize(ManualLogSource logger)
     {
         if (_isInitialized) return;
         _log = logger;
