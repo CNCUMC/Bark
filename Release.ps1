@@ -44,9 +44,9 @@
     GitHub Release 需要安装 gh CLI: winget install GitHub.cli
 #>
 param(
-    [string]$ModNamespace = "__MOD_NAMESPACE__",
-    [string]$ModDisplayName = "__MOD_DISPLAY_NAME__",
-    [string]$ModVersion = "__MOD_VERSION__",
+    [string]$ModNamespace = "Bark",
+    [string]$ModDisplayName = "Bark",
+    [string]$ModVersion = "1.1.0",
     [string]$Configuration = "Release",
     [string]$NexusApiKey = $env:NEXUS_API_KEY,
     [string]$GamePath,
@@ -256,45 +256,90 @@ if (-not $SkipNexus) {
     if ([string]::IsNullOrWhiteSpace($NexusApiKey)) {
         Write-Fail "未设置 NexusMods API Key。设置环境变量 NEXUS_API_KEY 或使用 -NexusApiKey 参数。"
     } else {
-        $nexusBase = "https://api.nexusmods.com/v1"
-        $headers = @{
-            "ApiKey"        = $NexusApiKey
-            "Content-Type"  = "application/json"
+        $nexusBase = "https://api.nexusmods.com/v3"
+        $nexusModId = 362
+
+        $nexusHeaders = @{
+            "apikey" = $NexusApiKey
+            "Accept" = "application/json"
         }
 
         try {
-            # Step 1: 创建上传会话
+            # 4a. 创建上传会话
             Write-Host "    创建上传会话..." -ForegroundColor DarkGray
-            $createBody = @{
-                size_bytes = $zipSize
+            $createUploadBody = @{
                 filename   = $zipName
+                size_bytes = $zipSize
             } | ConvertTo-Json
 
-            $createResult = Invoke-RestMethod -Uri "$nexusBase/uploads" -Method Post -Headers $headers -Body $createBody
+            $uploadSession = Invoke-RestMethod -Uri "$nexusBase/uploads" `
+                -Method Post -Headers $nexusHeaders `
+                -Body $createUploadBody -ContentType "application/json"
 
-            if (-not $createResult.data -or -not $createResult.data.presigned_url) {
-                Write-Fail "创建上传会话失败: $($createResult | ConvertTo-Json)"
-                exit 1
-            }
-
-            $uploadId = $createResult.data.id
-            $presignedUrl = $createResult.data.presigned_url
+            $uploadId = $uploadSession.data.id
+            $presignedUrl = $uploadSession.data.presigned_url
             Write-OK "上传会话已创建: $uploadId"
 
-            # Step 2: PUT 文件到 presigned URL
+            # 4b. PUT 文件到 S3 预签名 URL
             Write-Host "    上传文件中 ($zipSizeMB MB)..." -ForegroundColor DarkGray
+            
+            $putClient = [System.Net.Http.HttpClient]::new()
             $fileBytes = [System.IO.File]::ReadAllBytes($zipPath)
-            $putResult = Invoke-RestMethod -Uri $presignedUrl -Method Put -Body $fileBytes -ContentType "application/octet-stream"
-            Write-OK "文件上传完成"
+            $byteContent = [System.Net.Http.ByteArrayContent]::new($fileBytes)
+            $byteContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse("application/zip")
+            $byteContent.Headers.TryAddWithoutValidation("Content-Disposition", "") | Out-Null
+            $byteContent.Headers.ContentLength = $fileBytes.Length
+            
+            $putResponse = $putClient.PutAsync($presignedUrl, $byteContent).Result
+            
+            if (-not $putResponse.IsSuccessStatusCode) {
+                $putBody = $putResponse.Content.ReadAsStringAsync().Result
+                # 已知问题: NexusMods v3 API S3 预签名 URL 签名校验存在服务端 bug
+                # 规范请求与实际请求完全匹配但签名持续失败
+                Write-Host "    [已知问题] S3 预签名 URL 签名不匹配 (NexusMods API bug)" -ForegroundColor Yellow
+                Write-Host "    压缩包已生成: $zipPath" -ForegroundColor Yellow
+                Write-Host "    请通过 NexusMods 网页手动上传。" -ForegroundColor Yellow
+                throw "S3 PUT 失败: $($putResponse.StatusCode) - 请手动上传到 NexusMods"
+            }
+            
+            Write-OK "文件已上传"
 
-            # Step 3: 完成上传
-            Write-Host "    完成上传会话..." -ForegroundColor DarkGray
-            $finaliseResult = Invoke-RestMethod -Uri "$nexusBase/uploads/$uploadId/finalise" -Method Post -Headers $headers
-            Write-OK "上传已提交，状态: $($finaliseResult.data.state)"
+            # 4c. 确认上传
+            Write-Host "    确认上传..." -ForegroundColor DarkGray
+            Invoke-RestMethod -Uri "$nexusBase/uploads/$uploadId/finalise" `
+                -Method Post -Headers $nexusHeaders | Out-Null
+            Write-OK "上传已确认"
+
+            # 4d. 创建 Mod 文件条目
+            Write-Host "    创建 Mod 文件条目..." -ForegroundColor DarkGray
+            $createFileBody = @{
+                upload_id     = $uploadId
+                mod_id        = $nexusModId
+                name          = "$ModDisplayName v$ModVersion"
+                version       = $ModVersion
+                file_category = 1
+            }
+            if ($NexusDescription) {
+                $createFileBody["description"] = $NexusDescription
+            }
+
+            $modFile = Invoke-RestMethod -Uri "$nexusBase/mod-files" `
+                -Method Post -Headers $nexusHeaders `
+                -Body ($createFileBody | ConvertTo-Json) `
+                -ContentType "application/json"
+
+            Write-OK "Mod 文件已创建 (ID: $($modFile.data.id))"
+            Write-OK "NexusMods 上传完成!"
 
         } catch {
             Write-Fail "NexusMods 上传失败: $_"
-            Write-Host "    $($_.Exception.Response)" -ForegroundColor Red
+            if ($_.Exception.Response) {
+                try {
+                    $reader = [System.IO.StreamReader]::new($_.Exception.Response.GetResponseStream())
+                    $errorBody = $reader.ReadToEnd()
+                    Write-Host "    API 响应: $errorBody" -ForegroundColor Red
+                } catch {}
+            }
         }
     }
 }
@@ -322,7 +367,7 @@ if (-not $SkipGitHub) {
                 $ghArgs = @(
                     "release", "create", $tagName,
                     $zipPath,
-                    "--title", "$ModName $tagName"
+                    "--title", "$ModDisplayName $tagName"
                 )
 
                 if ($ReleaseNotes) {

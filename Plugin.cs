@@ -12,7 +12,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "1.0.0";
+    public const string Version = "1.0.1";
     internal new static ManualLogSource Logger = null!;
     private readonly Harmony _harmony = new(Guid);
 
