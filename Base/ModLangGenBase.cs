@@ -32,38 +32,52 @@ public abstract class ModLangGenBase
     protected void Item(string key, string value, string description)
     {
         Add("item", key, value);
-        Add("item", key+ "dsc", description);
+        Add("item", key + "dsc", description);
     }
+
     protected void Building(string key, string value, string description)
     {
         Add("build", key, value);
-        Add("build", key+ "dsc", description);
+        Add("build", key + "dsc", description);
     }
+
     protected void Moodle(string key, string value, string description)
     {
         Add("moodle", key, value);
-        Add("moodle", key+ "dsc", description);
+        Add("moodle", key + "dsc", description);
     }
-    protected void Other(string key, string value) => Add("other", key, value);
-    protected void Log(string key, string value) => Add("log", key, value);
+
+    protected void Other(string key, string value)
+    {
+        Add("other", key, value);
+    }
+
+    protected void Log(string key, string value)
+    {
+        Add("log", key, value);
+    }
+
     protected void Command(string key, string value, string description)
     {
         Add("command", key, value);
-        Add("command", key+ "dsc", description);
+        Add("command", key + "dsc", description);
     }
+
     protected void Option(string key, string value, string description)
     {
         Add("option", key, value);
-        Add("option", key+ "dsc", description);
+        Add("option", key + "dsc", description);
     }
+
     protected void Liquid(string key, string value, string description)
     {
         Add("liquid", key, value);
-        Add("liquid", key+ "dsc", description);
+        Add("liquid", key + "dsc", description);
     }
+
     protected void Title(string key, string value, string description)
     {
         Add("title", key, value);
-        Add("title", key+ "dsc", description);
+        Add("title", key + "dsc", description);
     }
 }

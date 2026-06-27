@@ -116,12 +116,12 @@ public static class TextUtil
     {
         return string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
     }
-    
+
     public static string Unline(string text)
     {
         return string.IsNullOrEmpty(text) ? text : $"<u>{text}</u>";
     }
-    
+
     public static string Delete(string text)
     {
         return string.IsNullOrEmpty(text) ? text : $"<s>{text}</s>";
@@ -131,7 +131,7 @@ public static class TextUtil
     {
         return string.IsNullOrEmpty(text) ? text : $"<size={size}>{text}</size>";
     }
-    
+
     public static string SimpleMarkDown(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;

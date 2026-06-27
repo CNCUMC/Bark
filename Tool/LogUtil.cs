@@ -55,7 +55,7 @@ public static class LogUtil
         LogToConsole($"[WARNING] {text}");
         logger?.LogWarning(text);
     }
-    
+
     public static void CheckWorld(ManualLogSource? logger = null)
     {
         if (!CUCoreUtils.IsInWorld()) throw Fail("world.check_for_world", logger);

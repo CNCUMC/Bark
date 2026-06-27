@@ -6,41 +6,42 @@
 
 ---
 
-## [1.0.0] - 未发布
+## v1.0.0
 
 ### 新增
 
 - **项目更名**：从 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 更名为 **Bark**
 - 集成 CUCoreLib (CCL) 作为硬依赖 (`[BepInDependency("net.cucorelib")]`)
 - **BetterLocale 系统** — 基于 CCL `LocaleRegistry` 的完整本地化基础设施
-  - `GetItem`/`GetBuilding`/`GetMoodle`/`GetOther` 获取本地化文本
-  - `SetDefault` 注册 CCL 缺失时的回退翻译
-  - `Flush()` 将所有默认值写入 CCL 语言目录 (`BepInEx/config/CUCoreLib/Locales/`)
-  - `HasKey` 检查翻译是否存在
-  - `CleanCclOther` 将 CCL 自动生成的 `other.gameset*` 条目迁移到 Bark 的 `option` 分类
-  - `ToRichText` / `StripMarkdown` 简易 Markdown 转 Unity 富文本
+    - `GetItem`/`GetBuilding`/`GetMoodle`/`GetOther` 获取本地化文本
+    - `SetDefault` 注册 CCL 缺失时的回退翻译
+    - `Flush()` 将所有默认值写入 CCL 语言目录 (`BepInEx/config/CUCoreLib/Locales/`)
+    - `HasKey` 检查翻译是否存在
+    - `CleanCclOther` 将 CCL 自动生成的 `other.gameset*` 条目迁移到 Bark 的 `option` 分类
 - **ModLangGenBase** — 语言生成器基类
-  - `Add(category, key, value)` 配合 `Item`/`Building`/`Moodle`/`Other`/`Option` 便捷方法
-  - 生成器通过 `BetterLocale.SetDefault` 注册默认值
+    - `Add(category, key, value)` 配合 `Item`/`Building`/`Moodle`/`Other`/`Option` 便捷方法
+    - 生成器通过 `BetterLocale.SetDefault` 注册默认值
 - **BetterOptions** — CCL 设置注册封装
-  - `Float`/`Int`/`Bool`/`Dropdown`/`Keybind` 全部 CCL 设置类型
-  - 支持 `Setting.SettingCategory` 和 `string customCategory` 两种重载
+    - `Float`/`Int`/`Bool`/`Dropdown`/`Keybind` 全部 CCL 设置类型
+    - 支持 `Setting.SettingCategory` 和 `string customCategory` 两种重载
 - **GameInstances** — 统一游戏实例访问入口 (Body, World, Console, PlayerCam)
 - **PlayerUtil** — 从 ScavLib-API 合并：生命体征、药物、睡眠、恢复、Raw Writes、阈值常量、状态、外观
 - **SkillUtil** — 从 ScavLib-API 合并：技能等级/经验操作
 - **LimbUtil** — 从 ScavLib-API 合并：肢体操作、治疗、伤害
 - **ItemUtil** — 从 ScavLib-API 合并：FindNearby、FindClosest、SetCondition、Repair
-- **LogUtil** — 统一日志 + 校验辅助：`CheckWorld`、`CheckBody`、`CheckConsole`、`CheckArgumentCount`、`CheckNotNullOrEmpty`、`CheckParseFloat`、`CheckParseInt`
-- **MarkdownUtil** — Markdown 转 Unity 富文本
+- **LogUtil** — 统一日志 + 校验辅助：`CheckWorld`、`CheckBody`、`CheckConsole`、`CheckArgumentCount`、`CheckNotNullOrEmpty`、
+  `CheckParseFloat`、`CheckParseInt`
+- **TextUtil** — 一些富文本工具
+    - `SimpleMarkdown` 简易 Markdown 转 Unity 富文本
 - `Directory.Build.props` 用于共享游戏路径配置
 
 ### 变更
 
 - 命名空间从 `MossLib.*` 迁移至 `Bark.*`
 - **Tool/ 重命名为 `*Util.cs`** — 所有类统一 `XxxUtil` 命名
-  - `Log` → `LogUtil`、`Config` → `ConfigUtil`、`Input` → `InputUtil`、`Console` → `ConsoleUtil`
-  - `World` → `WorldUtil`、`Inventory` → `InventoryUtil`、`RichText` → `TextUtil`
-  - `GamePlayer` + `PlayerUtil` 合并为 `PlayerUtil`
+    - `Log` → `LogUtil`、`Config` → `ConfigUtil`、`Input` → `InputUtil`、`Console` → `ConsoleUtil`
+    - `World` → `WorldUtil`、`Inventory` → `InventoryUtil`、`RichText` → `TextUtil`
+    - `GamePlayer` + `PlayerUtil` 合并为 `PlayerUtil`
 - **本地化目录** — 生成器写入 `BepInEx/config/CUCoreLib/Locales/`（CCL 目录）
 - **BetterOptions** 直接传设置 ID 给 CCL（CCL 内部处理本地化）
 - **`GameInstances`** 委托给 `CUCoreUtils.IsInWorld()` / `IsWorldGenerationReady()`
@@ -62,7 +63,7 @@
 
 ---
 
-## [1.1.2] - 2026-06-19 (Moss Lib)
+## v1.1.2
 
 ### 新增
 

@@ -1,6 +1,6 @@
 [English Guide](README.md)
 
-## Bark
+# Bark
 
 [GitHub](https://github.com/CNCUMC/Bark) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
@@ -17,45 +17,39 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 - [安装](#安装)
 - [快速开始](#快速开始)
 - [本地化](#本地化)
+- [设置选项 (BetterOptions)](#设置选项-betteroptions)
 - [工具参考](#工具参考)
-    - [Log - 日志](#log---日志)
-    - [GameConsole - 游戏控制台](#gameconsole---游戏控制台)
-    - [World - 世界操作](#world---世界操作)
-    - [Player - 玩家操作](#player---玩家操作)
-    - [Key - 输入处理](#key---输入处理)
-    - [Multiplayer - 多人游戏](#multiplayer---多人游戏)
-    - [Config - 配置](#config---配置)
-    - [RichText - 富文本](#richtext---富文本)
-    - [Tools - 工具函数](#tools---工具函数)
 - [常量参考](#常量参考)
-    - [Blocks - 方块](#blocks---方块)
-    - [Items - 物品](#items---物品)
-    - [Backgrounds - 背景](#backgrounds---背景)
-    - [Keys - 按键](#keys---按键)
 
 ---
 
 ## 概述
 
 **Bark** 是一个针对 **Casualties Unknown** 的 BepInEx
-模组工具库，在 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) 基础上扩展了额外的工具和常量定义。包含以下模块：
+模组工具库，在 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) 基础上扩展了增强的本地化、设置和游戏工具。
 
-| 模块                                       | 说明                                 |
-|------------------------------------------|------------------------------------|
-| [`Log`](Tool/Log.cs)                     | 增强的游戏内控制台日志工具                      |
-| [`GameConsole`](Tool/Console.cs)         | 编程式执行游戏控制台命令的封装                    |
-| [`World`](Tool/World.cs)                 | 世界操作：放置方块、物品、背景图块                  |
-| [`Player`](Tool/Player.cs)               | 玩家操作：传送、屏幕提示、物品栏管理                 |
-| [`Key`](Tool/Key.cs)                     | 输入处理：按键绑定检查、鼠标点击等待、世界坐标转换          |
-| [`Multiplayer`](Tool/Multiplayer.cs)     | 多人游戏支持，通过反射集成 KrokoshaCasualtiesMP |
-| [`Config`](Tool/Config.cs)               | BepInEx 配置项辅助工具                    |
-| [`RichText`](Tool/RichText.cs)           | Unity 富文本格式化：颜色、透明度、粗体、斜体、字号       |
-| [`Tools`](Tool/Tools.cs)                 | 参数验证、浮点/整数解析工具                     |
-| [`Blocks`](Constant/Blocks.cs)           | 强类型方块定义，包含属性                       |
-| [`Items`](Constant/Items.cs)             | 强类型物品定义，包含属性                       |
-| [`Backgrounds`](Constant/Backgrounds.cs) | 背景 ID 字符串常量                        |
-| [`Keys`](Constant/Keys.cs)               | 强类型按键动作常量                          |
-| [`Slots`](Constant/Slots.cs)             | 物品栏槽位定义                            |
+| 模块                                            | 说明                                          |
+|-----------------------------------------------|---------------------------------------------|
+| [`BetterLocale`](BetterCCL/BetterLocale.cs)   | 基于 CCL `LocaleRegistry` 的本地化系统              |
+| [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL 设置注册封装（Float/Int/Bool/Dropdown/Keybind） |
+| [`ModLangGenBase`](Base/ModLangGenBase.cs)    | 语言生成器基类                                     |
+| [`GameInstances`](Tool/GameInstances.cs)      | 游戏实例统一入口（Body/World/Console）                |
+| [`PlayerUtil`](Tool/PlayerUtil.cs)            | 玩家操作：传送、生命体征、药物、恢复、Raw Writes               |
+| [`SkillUtil`](Tool/SkillUtil.cs)              | 技能等级/经验操作                                   |
+| [`LimbUtil`](Tool/LimbUtil.cs)                | 肢体操作：治疗、伤害、状态检查                             |
+| [`WorldUtil`](Tool/WorldUtil.cs)              | 世界操作：放置方块、物品                                |
+| [`InventoryUtil`](Tool/InventoryUtil.cs)      | 物品栏操作                                       |
+| [`ItemUtil`](Tool/ItemUtil.cs)                | 物品工具：附近搜索、修复、耐久度                            |
+| [`InputUtil`](Tool/InputUtil.cs)              | 输入处理：鼠标位置、点击等待                              |
+| [`LogUtil`](Tool/LogUtil.cs)                  | 控制台日志 + 校验辅助                                |
+| [`ConfigUtil`](Tool/ConfigUtil.cs)            | BepInEx 配置辅助                                |
+| [`TextUtil`](Tool/TextUtil.cs)                | 富文本格式化：颜色、透明度、粗体、斜体、字号                      |
+| [`ToolsUtil`](Tool/ToolsUtil.cs)              | 参数验证、浮点/整数解析                                |
+| [`Blocks`](Constant/Blocks.cs)                | 强类型方块定义                                     |
+| [`Items`](Constant/Items.cs)                  | 强类型物品定义                                     |
+| [`Backgrounds`](Constant/Backgrounds.cs)      | 背景 ID 字符串常量                                 |
+| [`Keys`](Constant/Keys.cs)                    | 按键动作常量                                      |
+| [`Slots`](Constant/Slots.cs)                  | 物品栏槽位定义                                     |
 
 ---
 
@@ -66,9 +60,8 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
    `BepInEx/plugins/CUCoreLib/`。
 3. 从 [Releases](https://github.com/CNCUMC/Bark/releases) 页面下载最新版 `Bark.dll`。
 4. 将 `Bark.dll` 放入 `BepInEx/plugins/` 文件夹。
-5. （可选）如需多人游戏功能，需安装 **KrokoshaCasualtiesMP** 作为软依赖。
 
-> **对于模组开发者：** 在项目中添加 `Bark.dll` 引用，并在插件类上添加 `[BepInDependency("org.cucnmc.bark")]` 特性。
+> **对于模组开发者：** 在项目中添加 `Bark.dll` 引用，在插件类上添加 `[BepInDependency("org.cucnmc.bark")]` 特性。
 
 ---
 
@@ -86,181 +79,202 @@ public class MyPlugin : BaseUnityPlugin
 }
 ```
 
-### 2. 本地化（通过 CCL）
+### 2. 本地化
 
-Bark 使用 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) 的 [
-`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) 进行所有本地化。无需额外设置。
-
-```csharp
-using CUCoreLib.Registries;
-
-// 在代码中直接使用 LocaleRegistry.Get
-string text = LocaleRegistry.Get("other", "mykey", "Fallback English text");
-
-// 带格式化参数
-string msg = LocaleRegistry.Get("other", "mykey.arg", "Hello {0}!");
-Console.WriteLine(string.Format(msg, "World"));
-```
-
-模组注册内容后，在游戏内运行 `createLocale` 命令生成基线 `EN.json` 文件：
-
-```
-createLocale
-```
-
-该文件写入 `BepInEx/config/CUCoreLib/Locales/EN.json`。翻译人员可据此创建对应语言文件（如 `CN-zh.json`）。
-
-### 3. 注册自定义指令
+Bark 在 CCL 的 `LocaleRegistry` 之上提供 `BetterLocale`：
 
 ```csharp
-[HarmonyPatch(typeof(ConsoleScript))]
-public class MyCommand
-{
-    [HarmonyPatch("RegisterAllCommands")]
-    [HarmonyPostfix]
-    public static void RegisterCustomCommands(ConsoleScript __instance)
-    {
-        ConsoleScript.Commands.Add(new Command(
-            "mycommand",
-            "我的指令说明",
-            _ => Log.Info("指令已执行！", Plugin.Logger),
-            null
-        ));
-    }
-}
+using Bark.BetterCCL;
+
+// 获取本地化文本（CCL → Bark 默认值 → key 回退）
+string text = BetterLocale.GetOther("bark.feature.enabled");
+
+// 通过语言生成器定义回退翻译：
+// EnLangGenerator.cs
+Other("bark.feature.enabled", "Enable Feature");
+
+// ZhCnLangGenerator.cs
+Other("bark.feature.enabled", "启用功能");
+```
+
+见 [Example/Lang/](Example/Lang/) 示例生成器。
+
+### 3. 注册设置
+
+```csharp
+using Bark.BetterCCL;
+
+BetterOptions.Bool("bark", "feature_enabled", Setting.SettingCategory.Game, true);
+
+// 自定义分类标签页
+BetterOptions.Bool("bark", "advanced_mode", "Bark", false);
 ```
 
 ---
 
 ## 本地化
 
-Bark 的所有本地化均由 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) 的 [
-`LocaleRegistry`](https://github.com/jimmyking9999999/CUCoreLib) 处理。
-
-### 工作原理
-
-1. 在代码中使用 `LocaleRegistry.Get("category", "key", "fallback")`
-2. 运行 `createLocale` 控制台命令生成 `EN.json`
-3. 将文件交给翻译人员，生成对应语言文件（如 `CN-zh.json`）
-4. CCL 在运行时自动加载正确的语言文件
-
-### 分类
-
-| 分类         | 用途              |
-|------------|-----------------|
-| `item`     | 物品名称和描述         |
-| `building` | 建筑名称和描述         |
-| `moodle`   | 状态效果名称          |
-| `other`    | UI 文本、提示、控制台指令等 |
-
-### 示例
+### 生成器 (`ModLangGenBase`)
 
 ```csharp
-// 简单查询
-string tooltip = LocaleRegistry.Get("other", "bark.tooltip.heat", "热到能熔化手套。");
+public class EnLangGenerator : ModLangGenBase
+{
+    protected override string LanguageCode => "EN";
+    protected override void BuildLocaleData()
+    {
+        Other("bark.tooltip.heat", "Hot enough to warp.");
+        Option("bark.game.test", "Test Mode", "Turns on the test mode");
+    }
+}
+```
 
-// 带格式化参数
-string msg = LocaleRegistry.Get("other", "bark.teleport.success", "已传送: {0} 到 {1}");
-Console.WriteLine(string.Format(msg, "玩家1", "10,20"));
+| 方法                         | 分类             |
+|----------------------------|----------------|
+| `Item(key, value)`         | `item`         |
+| `Building(key, value)`     | `building`     |
+| `Moodle(key, value)`       | `moodle`       |
+| `Other(key, value)`        | `other`        |
+| `Option(key, label, desc)` | `option`（设置标签） |
+
+### BetterLocale API
+
+#### Get（获取本地化文本）
+
+| 方法                        | 分类         |
+|---------------------------|------------|
+| `GetItem(key, args?)`     | `item`     |
+| `GetBuilding(key, args?)` | `building` |
+| `GetMoodle(key, args?)`   | `moodle`   |
+| `GetOther(key, args?)`    | `other`    |
+| `GetLog(key, args?)`      | `log`      |
+| `GetCommand(key, args?)`  | `command`  |
+| `GetOption(key, args?)`   | `option`   |
+| `GetLiquid(key, args?)`   | `liquid`   |
+| `GetTitle(key, args?)`    | `title`    |
+
+#### Has（检查翻译是否存在）
+
+| 方法                      | 分类         |
+|-------------------------|------------|
+| `HasKey(category, key)` | 任意分类       |
+| `HasKeyItem(key)`       | `item`     |
+| `HasKeyBuilding(key)`   | `building` |
+| `HasKeyMoodle(key)`     | `moodle`   |
+| `HasKeyOther(key)`      | `other`    |
+| `HasKeyLog(key)`        | `log`      |
+| `HasKeyCommand(key)`    | `command`  |
+| `HasKeyOption(key)`     | `option`   |
+| `HasKeyLiquid(key)`     | `liquid`   |
+| `HasKeyTitle(key)`      | `title`    |
+
+#### 其他
+
+| 方法                                | 说明                          |
+|-----------------------------------|-----------------------------|
+| `SetDefault(lang, cat, key, val)` | 注册回退值                       |
+| `Flush()`                         | 将所有默认值写入 CCL 语言目录           |
+| `ToRichText(md)`                  | 将 **Markdown** 转为 Unity 富文本 |
+| `StripMarkdown(md)`               | 去除 Markdown 标记              |
+
+---
+
+## 设置选项 (BetterOptions)
+
+```csharp
+BetterOptions.Bool("ns", "key", Setting.SettingCategory.Game, true);
+BetterOptions.Int("ns", "level", Setting.SettingCategory.Game, 5, 1, 10);
+BetterOptions.Float("ns", "volume", Setting.SettingCategory.Audio, 0.8f, 0f, 1f);
+BetterOptions.Dropdown("ns", "mode", Setting.SettingCategory.Game, 0, choices);
+BetterOptions.Keybind("ns", "hotkey", Setting.SettingCategory.Input, KeyCode.F5);
+
+// 自定义分类标签页
+BetterOptions.Bool("ns", "key", "我的模组", false);
 ```
 
 ---
 
 ## 工具参考
 
-### Log
+### LogUtil
 
-`Bark.Tool.Log` — 增强的游戏内控制台日志。
+| 方法                                         | 说明               |
+|--------------------------------------------|------------------|
+| `Info(text, logger)`                       | 输出到控制台 + BepInEx |
+| `Error(text, logger)`                      | 输出错误             |
+| `Warning(text, logger)`                    | 输出警告             |
+| `CheckWorld(logger?)`                      | 世界未加载时抛异常        |
+| `CheckBody(logger?)`                       | 玩家身体为空时抛异常       |
+| `CheckArgumentCount(args, min, logger?)`   | 验证参数数量           |
+| `CheckNotNullOrEmpty(val, name, logger?)`  | 验证字符串非空          |
+| `CheckParseFloat(s, logger?)`              | 解析浮点数或抛异常        |
+| `CheckParseInt(s, logger?)`                | 解析整数或抛异常         |
+| `PrintList(header, items, logger)`         | 格式化列表输出          |
+| `PrintNumberedList(header, items, logger)` | 带编号列表输出          |
 
-| 方法                                           | 说明                      |
-|----------------------------------------------|-------------------------|
-| `Log.Info(text, logger)`                     | 同时输出到游戏控制台和 BepInEx 日志  |
-| `Log.Error(text, logger)`                    | 输出错误日志，带 `[ERROR]` 前缀   |
-| `Log.Warning(text, logger)`                  | 输出警告日志，带 `[WARNING]` 前缀 |
-| `Log.LogToConsole(text)`                     | 直接写入游戏控制台               |
-| `Log.Alert(text, logger, important, delay?)` | 屏幕显示提示 + 记录日志           |
+### PlayerUtil
 
-### GameConsole
+| 方法                                    | 说明       |
+|---------------------------------------|----------|
+| `Tp(x, y)`                            | 传送玩家     |
+| `PickItem(id, slot, force?)`          | 添加物品到物品栏 |
+| `IsAlive()` / `IsConscious()`         | 状态检查     |
+| `GetBloodOxygen()` / `GetHeartRate()` | 生命体征     |
+| `HealAll()`                           | 完全治愈玩家   |
+| `SetHunger(val)` / `SetThirst(val)`   | 原始写入     |
+| `Thresholds.*`                        | 常量阈值     |
 
-`Bark.Tool.GameConsole` — 编程式控制台命令执行。
+### WorldUtil
 
-| 方法                            | 说明             |
-|-------------------------------|----------------|
-| `GameConsole.RunCommand(key)` | 按名称执行已注册的控制台命令 |
+| 方法                               | 说明   |
+|----------------------------------|------|
+| `PlaceBlock(x, y, id)`           | 放置方块 |
+| `FillBlocks(sx, sy, ex, ey, id)` | 填充区域 |
+| `PlaceItem(x, y, id)`            | 生成物品 |
 
-### World
+### SkillUtil
 
-`Bark.Tool.World` — 世界操作工具。
+| 方法                          | 说明        |
+|-----------------------------|-----------|
+| `GetLevel(skill)`           | 获取技能等级    |
+| `GetExperience(skill)`      | 获取经验值     |
+| `SetLevelRaw(skill, level)` | 直接设置等级    |
+| `AddExperience(skill, xp)`  | 添加经验      |
+| `XpMultiplier`              | 获取/设置经验倍率 |
 
-| 方法                                                      | 说明               |
-|---------------------------------------------------------|------------------|
-| `World.PlaceBlock(x, y, blockId)`                       | 在指定位置放置方块        |
-| `World.FillBlocks(startX, startY, endX, endY, blockId)` | 填充矩形区域为指定方块      |
-| `World.PlaceItem(x, y, itemId)`                         | 在指定位置生成物品        |
-| `World.PlaceBackground(pos, backgroundId)`              | 放置背景图块           |
-| `World.CheckForWorld()`                                 | 检查世界是否已加载，否则抛出异常 |
-| `World.ClearCache()`                                    | 清除缓存的精灵和材质       |
+### LimbUtil
 
-### Player
+| 方法                                   | 说明      |
+|--------------------------------------|---------|
+| `GetLimb(index/slot/name)`           | 按索引获取肢体 |
+| `HasBrokenBone()` / `HasInfection()` | 状态检查    |
+| `HealLimb(limb)`                     | 完全治愈肢体  |
+| `SetSkinHealthRaw(limb, value)`      | 原始写入    |
 
-`Bark.Tool.Player` — 玩家操作。
+### InventoryUtil
 
-| 方法                                      | 说明            |
-|-----------------------------------------|---------------|
-| `Player.Tp(x, y)`                       | 传送玩家到指定位置     |
-| `Player.Alert(text, important, delay?)` | 在屏幕上显示提示信息    |
-| `Player.PickItem(itemId, slot, force?)` | 将物品添加到物品栏指定槽位 |
+| 方法                       | 说明        |
+|--------------------------|-----------|
+| `HasItem(id)`            | 检查是否持有物品  |
+| `GetItem(slot)`          | 按槽位获取物品   |
+| `GetAllItems()`          | 获取所有物品    |
+| `GetAllItemInfos()`      | 获取所有物品信息  |
+| `FindById(id, out item)` | 按 ID 查找物品 |
 
-### Key
+### ItemUtil
 
-`Bark.Tool.Key` — 输入处理。
+| 方法                               | 说明         |
+|----------------------------------|------------|
+| `FindNearby(center, radius)`     | 圆形范围查找物品   |
+| `FindClosest(center, maxRadius)` | 查找最近物品     |
+| `Repair(item)`                   | 修复到满耐久     |
+| `SetCondition(item, val)`        | 设置耐久度（0~1） |
 
-| 方法                         | 说明                |
-|----------------------------|-------------------|
-| `Key.MouseWorldPosition()` | 获取鼠标在世界坐标中的位置     |
-| `Key.LeftClickPosition()`  | 获取左键点击位置（未点击则返回零） |
-| `Key.WaitForLeftClick()`   | 协程：等待左键点击         |
-| `Key.WaitForRightClick()`  | 协程：等待右键点击         |
+### InputUtil
 
-### Multiplayer
-
-`Bark.Tool.Multiplayer` — 通过反射实现的多人游戏支持。
-
-| 属性                                 | 说明                      |
-|------------------------------------|-------------------------|
-| `Multiplayer.IsNetworkRunning`     | 检查多人游戏会话是否活跃            |
-| `Multiplayer.IsClient`             | 检查是否为客户端                |
-| `Multiplayer.Tp(playerName, x, y)` | 按名称传送玩家（支持 `@a` 传送所有玩家） |
-
-### Config
-
-`Bark.Tool.Config` — BepInEx 配置辅助工具。
-
-| 方法                     | 说明              |
-|------------------------|-----------------|
-| `Config.Register(...)` | 注册配置项，自动生成本地化描述 |
-
-### RichText
-
-`Bark.Tool.RichText` — Unity 富文本格式化。
-
-| 方法                            | 说明          |
-|-------------------------------|-------------|
-| `RichText.Color(text, color)` | 用颜色标签包裹文本   |
-| `RichText.Hex(text, hex)`     | 用十六进制颜色包裹文本 |
-| `RichText.Bold(text)`         | 用粗体标签包裹文本   |
-| `RichText.Size(text, size)`   | 用字号标签包裹文本   |
-| `RichText.Alpha(text, alpha)` | 设置文本透明度     |
-
-### Tools
-
-`Bark.Tool.Tools` — 工具函数。
-
-| 方法                                    | 说明          |
-|---------------------------------------|-------------|
-| `Tools.CheckArgumentCount(args, min)` | 验证最小参数数量    |
-| `Tools.ParseFloat(s)`                 | 带错误处理的浮点数解析 |
-| `Tools.ParseInt(s)`                   | 带错误处理的整数解析  |
+| 方法                     | 说明      |
+|------------------------|---------|
+| `WaitForLeftClick()`   | 协程：等待点击 |
+| `WaitForLeftClick()`   | 协程：等待点击 |
 
 ---
 
@@ -268,40 +282,22 @@ Console.WriteLine(string.Format(msg, "玩家1", "10,20"));
 
 ### Blocks
 
-`Bark.Constant.Blocks` — 强类型方块定义。
-
 ```csharp
-ushort blockId = Blocks.SteelTile;        // 隐式转换为 ushort
-float health = Blocks.Diamond.Health;     // 方块生命值
-bool metallic = Blocks.SteelTile.IsMetallic;
-Blocks block = Blocks.FromId(6);          // 按 ID 查找
+ushort blockId = Blocks.SteelTile;  // 隐式转换
+Blocks block = Blocks.FromId(6);
 ```
 
 ### Items
 
-`Bark.Constant.Items` — 强类型物品定义。
-
 ```csharp
-string itemId = Items.Medkit;             // 隐式转换为 string
-float weight = Items.Medkit.Weight;
-string category = Items.Medkit.Category;  // "container"
-Items item = Items.FromId("medkit");      // 按 ID 查找
+string itemId = Items.Medkit;       // 隐式转换
+Items item = Items.FromId("medkit");
 ```
 
-### Backgrounds
-
-`Bark.Constant.Backgrounds` — 背景 ID 常量。
+### Backgrounds / Keys / Slots
 
 ```csharp
-string bgId = Backgrounds.Rock;           // "rockBackground"
-Backgrounds bg = Backgrounds.FromId("rockBackground");
-```
-
-### Keys
-
-`Bark.Constant.Keys` — 按键绑定常量。
-
-```csharp
-KeyCode jumpKey = Keys.Jump;
-KeyCode attackKey = Keys.Attack;
+string bgId = Backgrounds.Rock;
+KeyCode key = Keys.Jump;
+int slotId = Slots.MainHand;
 ```

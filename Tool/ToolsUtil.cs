@@ -16,7 +16,8 @@ public static class ToolsUtil
 
     public static float ParseFloat(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
         return float.TryParse(text, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
             out var result)
             ? result
@@ -25,7 +26,8 @@ public static class ToolsUtil
 
     public static int ParseInt(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
         return int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
             ? result
             : throw new FormatException(Locale("utils.parse.int_invalid", text));
@@ -34,7 +36,8 @@ public static class ToolsUtil
     public static bool TryParseFloat(string text, out float result)
     {
         result = 0;
-        return !string.IsNullOrWhiteSpace(text) && float.TryParse(text, NumberStyles.Float | NumberStyles.AllowThousands,
+        return !string.IsNullOrWhiteSpace(text) && float.TryParse(text,
+            NumberStyles.Float | NumberStyles.AllowThousands,
             CultureInfo.InvariantCulture, out result);
     }
 

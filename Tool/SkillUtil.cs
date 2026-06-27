@@ -38,7 +38,10 @@ public static class SkillUtil
     public static float GetExperience(SkillType skillType)
     {
         return GetSkills() is { } skill
-            ? skillType switch { SkillType.Strength => skill.expSTR, SkillType.Resilience => skill.expRES, _ => skill.expINT }
+            ? skillType switch
+            {
+                SkillType.Strength => skill.expSTR, SkillType.Resilience => skill.expRES, _ => skill.expINT
+            }
             : 0f;
     }
 

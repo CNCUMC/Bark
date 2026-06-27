@@ -12,7 +12,7 @@ public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;
     private static readonly ManualLogSource Logger = Plugin.Logger;
-    
+
     public static void Tp(Vector2 pos)
     {
         LogUtil.CheckBody(Logger);
@@ -43,12 +43,13 @@ public static class PlayerUtil
                 Locale("player.slot.out_of_range", MaxInventorySlots));
         var body = GameInstances.Body!;
         var pos = body.transform.position;
-        var go = Utils.Create(item, pos, 0f) ?? throw new InvalidOperationException(Locale("player.load_item.fail", item));
+        var go = Utils.Create(item, pos, 0f) ??
+                 throw new InvalidOperationException(Locale("player.load_item.fail", item));
         var cmp = go.GetComponent<Item>() ??
                   throw new InvalidOperationException(Locale("player.load_item.missing_component", item));
         body.PickUpItem(cmp, slot, force);
     }
-    
+
     public static bool IsAlive()
     {
         return GameInstances.Body is { alive: true };
@@ -340,7 +341,7 @@ public static class PlayerUtil
     {
         return GameInstances.Body?.focusedLevel ?? 0f;
     }
-    
+
     public static bool HasPainkillers()
     {
         return GameInstances.Body?.GetComponent<Painkillers>() != null;
@@ -385,7 +386,7 @@ public static class PlayerUtil
     {
         if (GameInstances.Body is { } body && body.TryGetComponent<SleepingPills>(out var c)) Object.Destroy(c);
     }
-    
+
     public static float GetBadSleepAmount()
     {
         return GameInstances.Body?.badSleepAmount ?? 0f;
@@ -415,7 +416,7 @@ public static class PlayerUtil
     {
         return GameInstances.Body?.antibioticImmunityTime ?? 0f;
     }
-    
+
     public static void Feed(float amount)
     {
         if (GameInstances.Body is { } body) body.hunger = Mathf.Clamp(body.hunger + amount, -100f, 100f);
@@ -471,7 +472,7 @@ public static class PlayerUtil
         if (body.TryGetComponent<SleepingPills>(out var sp)) Object.Destroy(sp);
         if (body.TryGetComponent<Antidepressants>(out var ad)) Object.Destroy(ad);
     }
-    
+
     public static void SetHunger(float value)
     {
         if (GameInstances.Body is { } body) body.hunger = Mathf.Clamp(value, -50f, 125f);
@@ -551,7 +552,7 @@ public static class PlayerUtil
     {
         return BetterLocale.GetLog(key, args);
     }
-    
+
     public static class Thresholds
     {
         public const float BpCriticalLow = 60f, BpLow3 = 83f, BpLow2 = 96f, BpLow1 = 110f;

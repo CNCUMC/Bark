@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bark.BetterCCL;
-using BepInEx.Logging;
 
 namespace Bark.Tool;
 
@@ -98,20 +97,41 @@ public static class InventoryUtil
         return c;
     }
 
-    public static List<Item> GetAllItems() => GetBody().GetAllItems();
-    public static List<Item> GetAllItemsThorough() => GetBody().GetAllItemsThorough();
+    public static List<Item> GetAllItems()
+    {
+        return GetBody().GetAllItems();
+    }
 
-    public static List<ItemInfo> GetAllItemInfos() =>
-        GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
+    public static List<Item> GetAllItemsThorough()
+    {
+        return GetBody().GetAllItemsThorough();
+    }
 
-    public static List<ItemInfo> GetAllItemInfosThorough() => GetAllItemsThorough().Select(i => i.Stats)
-        .Where(i => i != null).ToList();
+    public static List<ItemInfo> GetAllItemInfos()
+    {
+        return GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
+    }
 
-    public static List<string> GetAllItemIds() => GetAllItems().Select(i => i.id).ToList();
-    public static List<Item> GetWearables() => GetBody().GetAllWearables();
+    public static List<ItemInfo> GetAllItemInfosThorough()
+    {
+        return GetAllItemsThorough().Select(i => i.Stats)
+            .Where(i => i != null).ToList();
+    }
 
-    public static List<ItemInfo> GetWearableInfos() =>
-        GetWearables().Select(i => i.Stats).Where(i => i != null).ToList();
+    public static List<string> GetAllItemIds()
+    {
+        return GetAllItems().Select(i => i.id).ToList();
+    }
+
+    public static List<Item> GetWearables()
+    {
+        return GetBody().GetAllWearables();
+    }
+
+    public static List<ItemInfo> GetWearableInfos()
+    {
+        return GetWearables().Select(i => i.Stats).Where(i => i != null).ToList();
+    }
 
     public static int? FindFirstEmptySlot()
     {

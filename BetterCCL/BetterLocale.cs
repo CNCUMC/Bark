@@ -25,7 +25,7 @@ public static class BetterLocale
         var text = LocaleRegistry.Get(category, key, key);
         return !string.IsNullOrWhiteSpace(text) && text != key;
     }
-    
+
     public static bool HasKeyItem(string key)
     {
         return HasKey("item", key);
@@ -45,27 +45,27 @@ public static class BetterLocale
     {
         return HasKey("other", key);
     }
-    
+
     public static bool HasKeyLog(string key)
     {
         return HasKey("log", key);
     }
-    
+
     public static bool HasKeyCommand(string key)
     {
         return HasKey("command", key);
     }
-    
+
     public static bool HasKeyOption(string key)
     {
         return HasKey("option", key);
     }
-    
+
     public static bool HasKeyLiquid(string key)
     {
         return HasKey("liquid", key);
     }
-    
+
     public static bool HasKeyTitle(string key)
     {
         return HasKey("title", key);
@@ -90,7 +90,7 @@ public static class BetterLocale
     {
         return Get("other", key, args);
     }
-    
+
     public static string GetLog(string key, params object[]? args)
     {
         return Get("log", key, args);
@@ -105,7 +105,7 @@ public static class BetterLocale
     {
         return Get("option", key, args);
     }
-    
+
     public static string GetLiquid(string key, params object[]? args)
     {
         return Get("liquid", key, args);
@@ -162,14 +162,14 @@ public static class BetterLocale
     {
         if (!Defaults.TryGetValue(language, out var langDict)) return null;
         foreach (var catDict in langDict.Values)
-            if (catDict.TryGetValue(key, out var value)) return value;
+            if (catDict.TryGetValue(key, out var value))
+                return value;
         return null;
     }
 
     public static void Flush()
     {
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
-        // CleanCclOther(outputDirectory);
 
         foreach (var langKvp in Defaults)
         {
@@ -189,8 +189,14 @@ public static class BetterLocale
 
                         JObject root;
                         if (File.Exists(filePath))
-                            try { root = JObject.Parse(File.ReadAllText(filePath)); }
-                            catch { root = new JObject(); }
+                            try
+                            {
+                                root = JObject.Parse(File.ReadAllText(filePath));
+                            }
+                            catch
+                            {
+                                root = new JObject();
+                            }
                         else root = new JObject();
 
                         if (root[category] is not JObject catObj)
@@ -208,7 +214,8 @@ public static class BetterLocale
                     }
                     catch (Exception ex)
                     {
-                        LogUtil.Warning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}", Plugin.Logger);
+                        LogUtil.Warning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}",
+                            Plugin.Logger);
                     }
                 }
             }

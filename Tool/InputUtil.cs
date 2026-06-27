@@ -43,7 +43,6 @@ public static class InputUtil
     }
 
 
-
     public static class Action
     {
         public const string LeftClick = "attack";

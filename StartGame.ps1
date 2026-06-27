@@ -1,6 +1,6 @@
 ﻿param(
-    [string]$GamePath = "F:/SteamLibrary/steamapps/common/Casualties Unknown Demo",
-    [string]$ModNamespace = "Bark"
+    [string]$GamePath = "__GAME_ROOT_PATH__",
+    [string]$ModNamespace = "__MOD_NAMESPACE__"
 )
 
 function Convert-ToDisplayName
@@ -42,7 +42,7 @@ $ModDll = [System.IO.Path]::Combine($PSScriptRoot, "bin/Debug/net472", "$ModName
 
 $targetModFolder = $ModName
 
-$docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "Cover.png")
+$docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "CHANGELOG.md", "CHANGELOG_ZH.md", "Cover.png")
 
 $logDestination = [System.IO.Path]::Combine($PSScriptRoot, "Logs", "$timestamp.log")
 
