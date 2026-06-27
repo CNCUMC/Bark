@@ -11,8 +11,6 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class InventoryUtil
 {
-    private static readonly ManualLogSource Logger = Plugin.Logger;
-
     private static Body GetBody()
     {
         LogUtil.CheckBody();
@@ -36,12 +34,12 @@ public static class InventoryUtil
 
     public static ItemInfo? GetItemInfo(int slot)
     {
-        return GetItem(slot)?.Stats;
+        return GetItem(slot).Stats;
     }
 
     public static string? GetItemId(int slot)
     {
-        return GetItem(slot)?.id;
+        return GetItem(slot).id;
     }
 
     public static bool HasItem(string id)
@@ -144,12 +142,12 @@ public static class InventoryUtil
 
     public static ItemInfo? GetItemInfoInHand()
     {
-        return GetItemInHand()?.Stats;
+        return GetItemInHand().Stats;
     }
 
     public static string? GetItemIdInHand()
     {
-        return GetItemInHand()?.id;
+        return GetItemInHand().id;
     }
 
     public static int GetSlotCount()
@@ -165,7 +163,7 @@ public static class InventoryUtil
 
     private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.GetOther("log." + key, args);
+        return BetterLocale.GetLog(key, args);
     }
 }
 

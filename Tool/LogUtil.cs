@@ -174,6 +174,6 @@ public static class LogUtil
 
     private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.GetOther("log." + key, args);
+        return BetterLocale.GetLog(key, args);
     }
 }

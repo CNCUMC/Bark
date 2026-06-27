@@ -42,8 +42,8 @@ public static class ConfigUtil
         LogUtil.Error(Locale(key), Plugin.Logger);
     }
 
-    private static string Locale(string key)
+    private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.GetOther("log." + key);
+        return BetterLocale.GetLog(key, args);
     }
 }

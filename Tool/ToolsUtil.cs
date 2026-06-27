@@ -14,32 +14,32 @@ public static class ToolsUtil
         if (args.Length <= desired) throw new Exception(Locale("utils.check_argument_count", desired, args.Length - 1));
     }
 
-    public static float ParseFloat(string s)
+    public static float ParseFloat(string text)
     {
-        if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(s));
-        return float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
-            out var r)
-            ? r
-            : throw new FormatException(Locale("utils.parse.float_invalid", s));
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
+        return float.TryParse(text, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
+            out var result)
+            ? result
+            : throw new FormatException(Locale("utils.parse.float_invalid", text));
     }
 
-    public static int ParseInt(string s)
+    public static int ParseInt(string text)
     {
-        if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(s));
-        return int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var r)
-            ? r
-            : throw new FormatException(Locale("utils.parse.int_invalid", s));
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException(Locale("utils.string.null_or_empty"), nameof(text));
+        return int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : throw new FormatException(Locale("utils.parse.int_invalid", text));
     }
 
-    public static bool TryParseFloat(string s, out float result)
+    public static bool TryParseFloat(string text, out float result)
     {
         result = 0;
-        return !string.IsNullOrWhiteSpace(s) && float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands,
+        return !string.IsNullOrWhiteSpace(text) && float.TryParse(text, NumberStyles.Float | NumberStyles.AllowThousands,
             CultureInfo.InvariantCulture, out result);
     }
 
     private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.GetOther("log." + key, args);
+        return BetterLocale.GetLog(key, args);
     }
 }

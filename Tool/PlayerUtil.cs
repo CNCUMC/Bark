@@ -7,15 +7,12 @@ using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
-// 玩家工具 — GamePlayer + ScavLib PlayerUtil 合并
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;
     private static readonly ManualLogSource Logger = Plugin.Logger;
-
-    // ==================== 传送 / 拾取 / 提示 ====================
-
+    
     public static void Tp(Vector2 pos)
     {
         LogUtil.CheckBody(Logger);
@@ -43,12 +40,12 @@ public static class PlayerUtil
         LogUtil.CheckNotNullOrEmpty(item, nameof(item));
         if (slot is < 0 or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
-                Loc("player.slot.out_of_range", MaxInventorySlots));
+                Locale("player.slot.out_of_range", MaxInventorySlots));
         var body = GameInstances.Body!;
         var pos = body.transform.position;
-        var go = Utils.Create(item, pos, 0f) ?? throw new InvalidOperationException(Loc("player.load_item.fail", item));
+        var go = Utils.Create(item, pos, 0f) ?? throw new InvalidOperationException(Locale("player.load_item.fail", item));
         var cmp = go.GetComponent<Item>() ??
-                  throw new InvalidOperationException(Loc("player.load_item.missing_component", item));
+                  throw new InvalidOperationException(Locale("player.load_item.missing_component", item));
         body.PickUpItem(cmp, slot, force);
     }
     
@@ -343,9 +340,7 @@ public static class PlayerUtil
     {
         return GameInstances.Body?.focusedLevel ?? 0f;
     }
-
-    // ==================== 药物 ====================
-
+    
     public static bool HasPainkillers()
     {
         return GameInstances.Body?.GetComponent<Painkillers>() != null;
@@ -378,21 +373,19 @@ public static class PlayerUtil
 
     public static void RemovePainkillers()
     {
-        if (GameInstances.Body is { } b && b.TryGetComponent<Painkillers>(out var c)) Object.Destroy(c);
+        if (GameInstances.Body is { } body && body.TryGetComponent<Painkillers>(out var c)) Object.Destroy(c);
     }
 
     public static void RemoveAntidepressants()
     {
-        if (GameInstances.Body is { } b && b.TryGetComponent<Antidepressants>(out var c)) Object.Destroy(c);
+        if (GameInstances.Body is { } body && body.TryGetComponent<Antidepressants>(out var c)) Object.Destroy(c);
     }
 
     public static void RemoveSleepingPills()
     {
-        if (GameInstances.Body is { } b && b.TryGetComponent<SleepingPills>(out var c)) Object.Destroy(c);
+        if (GameInstances.Body is { } body && body.TryGetComponent<SleepingPills>(out var c)) Object.Destroy(c);
     }
-
-    // ==================== 睡眠 / 濒死 ====================
-
+    
     public static float GetBadSleepAmount()
     {
         return GameInstances.Body?.badSleepAmount ?? 0f;
@@ -422,33 +415,31 @@ public static class PlayerUtil
     {
         return GameInstances.Body?.antibioticImmunityTime ?? 0f;
     }
-
-    // ==================== 恢复 ====================
-
+    
     public static void Feed(float amount)
     {
-        if (GameInstances.Body is { } b) b.hunger = Mathf.Clamp(b.hunger + amount, -100f, 100f);
+        if (GameInstances.Body is { } body) body.hunger = Mathf.Clamp(body.hunger + amount, -100f, 100f);
     }
 
     public static void Hydrate(float amount)
     {
-        if (GameInstances.Body is { } b) b.thirst = Mathf.Clamp(b.thirst + amount, 0f, 200f);
+        if (GameInstances.Body is { } body) body.thirst = Mathf.Clamp(body.thirst + amount, 0f, 200f);
     }
 
     public static void RestoreStamina(float amount)
     {
-        if (GameInstances.Body is { } b) b.stamina = Mathf.Clamp(b.stamina + amount, 0f, 100f);
+        if (GameInstances.Body is { } body) body.stamina = Mathf.Clamp(body.stamina + amount, 0f, 100f);
     }
 
     public static void RestoreEnergy(float amount)
     {
-        if (GameInstances.Body is { } b) b.energy = Mathf.Clamp(b.energy + amount, 0f, 100f);
+        if (GameInstances.Body is { } body) body.energy = Mathf.Clamp(body.energy + amount, 0f, 100f);
     }
 
     public static void HealAll()
     {
-        if (GameInstances.Body is not { } b) return;
-        foreach (var limb in b.limbs)
+        if (GameInstances.Body is not { } body) return;
+        foreach (var limb in body.limbs)
         {
             if (limb == null) continue;
             limb.muscleHealth = limb.skinHealth = 100f;
@@ -458,113 +449,109 @@ public static class PlayerUtil
             limb.infected = false;
         }
 
-        b.brainHealth = b.bloodVolume = b.bloodOxygen = b.consciousness = b.stamina = b.energy = 100f;
-        b.bloodPressure = 120f;
-        b.heartRate = 70f;
-        b.bloodVesselSize = 1f;
-        b.bloodViscosity = 0f;
-        b.respiratoryRate = 100f;
-        b.strokeAmount = b.hasPulmonaryEmbolism ? 0f : 0f;
-        b.fibrillationProgress = 0f;
-        b.hunger = b.thirst = 100f;
-        b.septicShock = b.sicknessAmount = 0f;
-        b.temperature = 37f;
-        b.happiness = b.radiationSickness = b.internalBleeding = b.hemothorax = b.traumaAmount = 0f;
-        b.dirtyness = b.wetness = b.badSleepAmount = b.hearingLoss = 0f;
-        b.antidepressantHappiness = b.opiateHappiness = b.antibioticImmunityTime = 0f;
-        b.adrenaline = b.curAdrenaline = b.venomCurrent = b.venomTotal = 0f;
-        b.clawHealth = 100f;
-        b.focusedLevel = b.horrifiedLevel = b.snowAmount = 0f;
-        b.hasPulmonaryEmbolism = false;
-        if (b.TryGetComponent<Painkillers>(out var pk)) Object.Destroy(pk);
-        if (b.TryGetComponent<SleepingPills>(out var sp)) Object.Destroy(sp);
-        if (b.TryGetComponent<Antidepressants>(out var ad)) Object.Destroy(ad);
+        body.brainHealth = body.bloodVolume = body.bloodOxygen = body.consciousness = body.stamina = body.energy = 100f;
+        body.bloodPressure = 120f;
+        body.heartRate = 70f;
+        body.bloodVesselSize = 1f;
+        body.bloodViscosity = 0f;
+        body.respiratoryRate = 100f;
+        body.strokeAmount = 0f;
+        body.fibrillationProgress = 0f;
+        body.hunger = body.thirst = 100f;
+        body.septicShock = body.sicknessAmount = 0f;
+        body.temperature = 37f;
+        body.happiness = body.radiationSickness = body.internalBleeding = body.hemothorax = body.traumaAmount = 0f;
+        body.dirtyness = body.wetness = body.badSleepAmount = body.hearingLoss = 0f;
+        body.antidepressantHappiness = body.opiateHappiness = body.antibioticImmunityTime = 0f;
+        body.adrenaline = body.curAdrenaline = body.venomCurrent = body.venomTotal = 0f;
+        body.clawHealth = 100f;
+        body.focusedLevel = body.horrifiedLevel = body.snowAmount = 0f;
+        body.hasPulmonaryEmbolism = false;
+        if (body.TryGetComponent<Painkillers>(out var pk)) Object.Destroy(pk);
+        if (body.TryGetComponent<SleepingPills>(out var sp)) Object.Destroy(sp);
+        if (body.TryGetComponent<Antidepressants>(out var ad)) Object.Destroy(ad);
     }
-
-    // ==================== Raw Writes ====================
-
-    public static void SetHunger(float v)
+    
+    public static void SetHunger(float value)
     {
-        if (GameInstances.Body is { } b) b.hunger = Mathf.Clamp(v, -50f, 125f);
+        if (GameInstances.Body is { } body) body.hunger = Mathf.Clamp(value, -50f, 125f);
     }
 
-    public static void SetThirst(float v)
+    public static void SetThirst(float value)
     {
-        if (GameInstances.Body is { } b) b.thirst = Mathf.Clamp(v, -50f, 250f);
+        if (GameInstances.Body is { } body) body.thirst = Mathf.Clamp(value, -50f, 250f);
     }
 
-    public static void SetStamina(float v)
+    public static void SetStamina(float value)
     {
-        if (GameInstances.Body is { } b) b.stamina = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.stamina = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetEnergy(float v)
+    public static void SetEnergy(float value)
     {
-        if (GameInstances.Body is { } b) b.energy = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.energy = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetBloodVolume(float v)
+    public static void SetBloodVolume(float value)
     {
-        if (GameInstances.Body is { } b) b.bloodVolume = Mathf.Clamp(v, -100f, 200f);
+        if (GameInstances.Body is { } body) body.bloodVolume = Mathf.Clamp(value, -100f, 200f);
     }
 
-    public static void SetBloodOxygen(float v)
+    public static void SetBloodOxygen(float value)
     {
-        if (GameInstances.Body is { } b) b.bloodOxygen = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.bloodOxygen = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetHeartRate(float v)
+    public static void SetHeartRate(float value)
     {
-        if (GameInstances.Body is { } b) b.heartRate = Mathf.Clamp(v, 0f, 300f);
+        if (GameInstances.Body is { } body) body.heartRate = Mathf.Clamp(value, 0f, 300f);
     }
 
-    public static void SetBloodPressure(float v)
+    public static void SetBloodPressure(float value)
     {
-        if (GameInstances.Body is { } b) b.bloodPressure = Mathf.Clamp(v, 0f, 250f);
+        if (GameInstances.Body is { } body) body.bloodPressure = Mathf.Clamp(value, 0f, 250f);
     }
 
-    public static void SetTemperature(float v)
+    public static void SetTemperature(float value)
     {
-        if (GameInstances.Body is { } b) b.temperature = Mathf.Clamp(v, 20f, 50f);
+        if (GameInstances.Body is { } body) body.temperature = Mathf.Clamp(value, 20f, 50f);
     }
 
-    public static void SetConsciousness(float v)
+    public static void SetConsciousness(float value)
     {
-        if (GameInstances.Body is { } b) b.consciousness = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.consciousness = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetBrainHealth(float v)
+    public static void SetBrainHealth(float value)
     {
-        if (GameInstances.Body is { } b) b.brainHealth = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.brainHealth = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetHappiness(float v)
+    public static void SetHappiness(float value)
     {
-        if (GameInstances.Body is { } b) b.happiness = Mathf.Clamp(v, -100f, 100f);
+        if (GameInstances.Body is { } body) body.happiness = Mathf.Clamp(value, -100f, 100f);
     }
 
-    public static void SetRadiationSickness(float v)
+    public static void SetRadiationSickness(float value)
     {
-        if (GameInstances.Body is { } b) b.radiationSickness = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.radiationSickness = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetTraumaAmount(float v)
+    public static void SetTraumaAmount(float value)
     {
-        if (GameInstances.Body is { } b) b.traumaAmount = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.traumaAmount = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetInternalBleeding(float v)
+    public static void SetInternalBleeding(float value)
     {
-        if (GameInstances.Body is { } b) b.internalBleeding = Mathf.Clamp(v, 0f, 100f);
+        if (GameInstances.Body is { } body) body.internalBleeding = Mathf.Clamp(value, 0f, 100f);
     }
 
-    private static string Loc(string key, params object[] args)
+    private static string Locale(string key, params object[] args)
     {
-        return BetterLocale.GetOther("log." + key, args);
+        return BetterLocale.GetLog(key, args);
     }
-
-    // ==================== 阈值常量 ====================
-
+    
     public static class Thresholds
     {
         public const float BpCriticalLow = 60f, BpLow3 = 83f, BpLow2 = 96f, BpLow1 = 110f;

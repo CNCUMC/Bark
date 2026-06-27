@@ -28,50 +28,50 @@ public static class SkillUtil
         return GameInstances.Body?.skills;
     }
 
-    public static int GetLevel(SkillType s)
+    public static int GetLevel(SkillType skillType)
     {
-        return GetSkills() is { } sk
-            ? s switch { SkillType.Strength => sk.STR, SkillType.Resilience => sk.RES, _ => sk.INT }
+        return GetSkills() is { } skill
+            ? skillType switch { SkillType.Strength => skill.STR, SkillType.Resilience => skill.RES, _ => skill.INT }
             : 0;
     }
 
-    public static float GetExperience(SkillType s)
+    public static float GetExperience(SkillType skillType)
     {
-        return GetSkills() is { } sk
-            ? s switch { SkillType.Strength => sk.expSTR, SkillType.Resilience => sk.expRES, _ => sk.expINT }
+        return GetSkills() is { } skill
+            ? skillType switch { SkillType.Strength => skill.expSTR, SkillType.Resilience => skill.expRES, _ => skill.expINT }
             : 0f;
     }
 
-    public static float GetProgress(SkillType s)
+    public static float GetProgress(SkillType skillType)
     {
-        return GetSkills() is { } sk
-            ? s switch
+        return GetSkills() is { } skill
+            ? skillType switch
             {
-                SkillType.Strength => sk.ToNextNormalized(sk.expSTR, sk.minSTR, sk.maxSTR),
-                SkillType.Resilience => sk.ToNextNormalized(sk.expRES, sk.minRES, sk.maxRES),
-                _ => sk.ToNextNormalized(sk.expINT, sk.minINT, sk.maxINT)
+                SkillType.Strength => skill.ToNextNormalized(skill.expSTR, skill.minSTR, skill.maxSTR),
+                SkillType.Resilience => skill.ToNextNormalized(skill.expRES, skill.minRES, skill.maxRES),
+                _ => skill.ToNextNormalized(skill.expINT, skill.minINT, skill.maxINT)
             }
             : 0f;
     }
 
-    public static float GetExperienceInLevel(SkillType s)
+    public static float GetExperienceInLevel(SkillType skillType)
     {
-        return GetSkills() is { } sk
-            ? s switch
+        return GetSkills() is { } skill
+            ? skillType switch
             {
-                SkillType.Strength => sk.expSTR - sk.minSTR, SkillType.Resilience => sk.expRES - sk.minRES,
-                _ => sk.expINT - sk.minINT
+                SkillType.Strength => skill.expSTR - skill.minSTR, SkillType.Resilience => skill.expRES - skill.minRES,
+                _ => skill.expINT - skill.minINT
             }
             : 0f;
     }
 
-    public static float GetExperienceForNextLevel(SkillType s)
+    public static float GetExperienceForNextLevel(SkillType skillType)
     {
-        return GetSkills() is { } sk
-            ? s switch
+        return GetSkills() is { } skill
+            ? skillType switch
             {
-                SkillType.Strength => sk.maxSTR - sk.minSTR, SkillType.Resilience => sk.maxRES - sk.minRES,
-                _ => sk.maxINT - sk.minINT
+                SkillType.Strength => skill.maxSTR - skill.minSTR, SkillType.Resilience => skill.maxRES - skill.minRES,
+                _ => skill.maxINT - skill.minINT
             }
             : 0f;
     }
@@ -81,30 +81,30 @@ public static class SkillUtil
         return Skills.GetExperienceForLevel(targetLevel);
     }
 
-    public static void AddExperience(SkillType s, float xp)
+    public static void AddExperience(SkillType skillType, float xp)
     {
-        GetSkills()?.AddExp((int)s, xp);
+        GetSkills()?.AddExp((int)skillType, xp);
     }
 
-    public static void SetLevelRaw(SkillType s, int level)
+    public static void SetLevelRaw(SkillType skillType, int level)
     {
-        if (GetSkills() is not { } sk) return;
+        if (GetSkills() is not { } skill) return;
         level = Mathf.Max(0, level);
-        switch (s)
+        switch (skillType)
         {
-            case SkillType.Strength: sk.STR = level; break;
-            case SkillType.Resilience: sk.RES = level; break;
+            case SkillType.Strength: skill.STR = level; break;
+            case SkillType.Resilience: skill.RES = level; break;
             case SkillType.Intelligence:
-            default: sk.INT = level; break;
+            default: skill.INT = level; break;
         }
 
-        sk.UpdateExpBoundaries();
-        switch (s)
+        skill.UpdateExpBoundaries();
+        switch (skillType)
         {
-            case SkillType.Strength: sk.expSTR = sk.minSTR; break;
-            case SkillType.Resilience: sk.expRES = sk.minRES; break;
+            case SkillType.Strength: skill.expSTR = skill.minSTR; break;
+            case SkillType.Resilience: skill.expRES = skill.minRES; break;
             case SkillType.Intelligence:
-            default: sk.expINT = sk.minINT; break;
+            default: skill.expINT = skill.minINT; break;
         }
     }
 }

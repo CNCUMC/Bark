@@ -39,52 +39,52 @@ public static class LimbUtil
 
     public static bool HasBrokenBone()
     {
-        var b = GameInstances.Body;
-        if (b?.limbs == null) return false;
-        foreach (var l in b.limbs)
-            if (l is { dismembered: false, broken: true })
+        var body = GameInstances.Body;
+        if (body?.limbs == null) return false;
+        foreach (var limb in body.limbs)
+            if (limb is { dismembered: false, broken: true })
                 return true;
         return false;
     }
 
     public static bool HasDislocation()
     {
-        var b = GameInstances.Body;
-        if (b?.limbs == null) return false;
-        foreach (var l in b.limbs)
-            if (l is { dismembered: false, dislocated: true })
+        var body = GameInstances.Body;
+        if (body?.limbs == null) return false;
+        foreach (var limb in body.limbs)
+            if (limb is { dismembered: false, dislocated: true })
                 return true;
         return false;
     }
 
     public static bool HasInfection()
     {
-        var b = GameInstances.Body;
-        if (b?.limbs == null) return false;
-        foreach (var l in b.limbs)
-            if (l is { dismembered: false, infected: true })
+        var body = GameInstances.Body;
+        if (body?.limbs == null) return false;
+        foreach (var limb in body.limbs)
+            if (limb is { dismembered: false, infected: true })
                 return true;
         return false;
     }
 
     public static bool HasDismemberment()
     {
-        var b = GameInstances.Body;
-        if (b?.limbs == null) return false;
-        foreach (var l in b.limbs)
-            if (l is { dismembered: true })
+        var body = GameInstances.Body;
+        if (body?.limbs == null) return false;
+        foreach (var limb in body.limbs)
+            if (limb is { dismembered: true })
                 return true;
         return false;
     }
 
     public static float GetMaxInfection()
     {
-        var b = GameInstances.Body;
-        if (b?.limbs == null) return 0f;
+        var body = GameInstances.Body;
+        if (body?.limbs == null) return 0f;
         var max = 0f;
-        foreach (var l in b.limbs)
-            if (l is { dismembered: false } && l.infectionAmount > max)
-                max = l.infectionAmount;
+        foreach (var limb in body.limbs)
+            if (limb is { dismembered: false } && limb.infectionAmount > max)
+                max = limb.infectionAmount;
         return max;
     }
 
@@ -114,40 +114,40 @@ public static class LimbUtil
         HealLimb(GetLimb(index));
     }
 
-    public static void DamageSkin(Limb? l, float a)
+    public static void DamageSkin(Limb? limb, float value)
     {
-        if (l != null) l.skinHealth = Mathf.Clamp(l.skinHealth - a, 0f, 100f);
+        if (limb != null) limb.skinHealth = Mathf.Clamp(limb.skinHealth - value, 0f, 100f);
     }
 
-    public static void DamageMuscle(Limb? l, float a)
+    public static void DamageMuscle(Limb? limb, float value)
     {
-        if (l != null) l.muscleHealth = Mathf.Clamp(l.muscleHealth - a, 0f, 100f);
+        if (limb != null) limb.muscleHealth = Mathf.Clamp(limb.muscleHealth - value, 0f, 100f);
     }
 
-    public static void SetSkinHealthRaw(Limb? l, float v)
+    public static void SetSkinHealthRaw(Limb? limb, float value)
     {
-        if (l != null) l.skinHealth = Mathf.Clamp(v, 0f, 100f);
+        if (limb != null) limb.skinHealth = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetMuscleHealthRaw(Limb? l, float v)
+    public static void SetMuscleHealthRaw(Limb? limb, float value)
     {
-        if (l != null) l.muscleHealth = Mathf.Clamp(v, 0f, 100f);
+        if (limb != null) limb.muscleHealth = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetBleedRaw(Limb? l, float v)
+    public static void SetBleedRaw(Limb? limb, float value)
     {
-        if (l != null) l.bleedAmount = Mathf.Clamp(v, 0f, 100f);
+        if (limb != null) limb.bleedAmount = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetPainRaw(Limb? l, float v)
+    public static void SetPainRaw(Limb? limb, float value)
     {
-        if (l != null) l.pain = Mathf.Clamp(v, 0f, 100f);
+        if (limb != null) limb.pain = Mathf.Clamp(value, 0f, 100f);
     }
 
-    public static void SetInfectionRaw(Limb? l, float v)
+    public static void SetInfectionRaw(Limb? limb, float value)
     {
-        if (l == null) return;
-        l.infectionAmount = Mathf.Clamp(v, 0f, 100f);
-        l.infected = v > 0f;
+        if (limb == null) return;
+        limb.infectionAmount = Mathf.Clamp(value, 0f, 100f);
+        limb.infected = value > 0f;
     }
 }

@@ -48,9 +48,9 @@ public static class ItemUtil
         SetCondition(item, 1f);
     }
 
-    public static void SetFavourited(Item? item, bool f)
+    public static void SetFavourited(Item? item, bool favourited)
     {
-        if (item != null) item.favourited = f;
+        if (item != null) item.favourited = favourited;
     }
 
     public static void Destroy(Item? item)
