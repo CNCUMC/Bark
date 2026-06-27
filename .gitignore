@@ -8,3 +8,4 @@
 .vs/
 *.suo
 *.user
+/Releases/

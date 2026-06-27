@@ -7,7 +7,7 @@ to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.0.0] - Unreleased
+## v1.0.0
 
 ### Added
 
@@ -64,7 +64,7 @@ to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.1.2] - 2026-06-19 (Moss Lib)
+## v1.1.2
 
 ### Added
 

@@ -1,3 +1,5 @@
+![Cover](Cover.png)
+
 [中文指南](README_ZH.md)
 
 # Bark

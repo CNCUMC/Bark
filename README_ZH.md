@@ -1,3 +1,5 @@
+![Cover](Cover.png)
+
 [English Guide](README.md)
 
 # Bark
