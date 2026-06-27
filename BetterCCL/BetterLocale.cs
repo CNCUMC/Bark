@@ -214,29 +214,4 @@ public static class BetterLocale
             }
         }
     }
-
-    // // 清理 CCL 自动生成的 other.gameset* 条目（Bark 已管理在 option 分类中）
-    // private static void CleanCclOther(string outputDirectory)
-    // {
-    //     try
-    //     {
-    //         foreach (var file in Directory.GetFiles(outputDirectory, "*.json"))
-    //         {
-    //             JObject root;
-    //             try { root = JObject.Parse(File.ReadAllText(file)); }
-    //             catch { continue; }
-    //
-    //             if (root["other"] is not JObject other) continue;
-    //             var keysToRemove = new List<string>();
-    //             foreach (var prop in other.Properties())
-    //                 if (prop.Name.StartsWith("gameset"))
-    //                     keysToRemove.Add(prop.Name);
-    //
-    //             if (keysToRemove.Count == 0) continue;
-    //             foreach (var key in keysToRemove) other.Remove(key);
-    //             File.WriteAllText(file, JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
-    //         }
-    //     }
-    //     catch { /* best effort */ }
-    // }
 }

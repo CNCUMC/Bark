@@ -1,10 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Bark.Tool;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-public static class RichTextUtil
+public static class TextUtil
 {
     public static string Color(string text, string color)
     {
@@ -115,9 +116,32 @@ public static class RichTextUtil
     {
         return string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
     }
-
-    public static string Size(string text, int s)
+    
+    public static string Unline(string text)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<size={s}>{text}</size>";
+        return string.IsNullOrEmpty(text) ? text : $"<u>{text}</u>";
+    }
+    
+    public static string Delete(string text)
+    {
+        return string.IsNullOrEmpty(text) ? text : $"<s>{text}</s>";
+    }
+
+    public static string Size(string text, int size)
+    {
+        return string.IsNullOrEmpty(text) ? text : $"<size={size}>{text}</size>";
+    }
+    
+    public static string SimpleMarkDown(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        text = Regex.Replace(text, @"\*\*\*(.+?)\*\*\*", Bold(Italic("$1")));
+        text = Regex.Replace(text, @"\*\*(.+?)\*\*", Bold("$1"));
+        text = Regex.Replace(text, @"\*(.+?)\*", Italic("$1"));
+        text = Regex.Replace(text, @"__(.+?)__", Unline("$1"));
+        text = Regex.Replace(text, @"~~(.+?)~~", Delete("$1"));
+
+        return text;
     }
 }
