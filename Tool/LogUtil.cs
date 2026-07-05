@@ -1,20 +1,42 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
 using HarmonyLib;
+using UnityEngine;
 
 namespace Bark.Tool;
 
 [HarmonyPatch(typeof(ConsoleScript))]
 public static class LogUtil
 {
+    private static readonly List<string> PendingConsoleLogs = [];
+    private static Coroutine? _flushCoroutine;
+
     public static void LogToConsole(string text)
     {
-        var console = ConsoleScript.instance;
-        CUCoreUtils.ConsoleLog(console, text);
+        if (ConsoleScript.instance == null)
+        {
+            PendingConsoleLogs.Add(text);
+            _flushCoroutine ??= CUCoreUtils.StartCoroutine(FlushPendingLogsRoutine());
+            return;
+        }
+
+        CUCoreUtils.ConsoleLog(ConsoleScript.instance, text);
+    }
+
+    private static IEnumerator FlushPendingLogsRoutine()
+    {
+        while (ConsoleScript.instance == null)
+            yield return new WaitForSecondsRealtime(3f);
+
+        foreach (var log in PendingConsoleLogs)
+            CUCoreUtils.ConsoleLog(ConsoleScript.instance, log);
+        PendingConsoleLogs.Clear();
+        _flushCoroutine = null;
     }
 
     public static void NewLine()

@@ -123,19 +123,17 @@ public static class BetterLocale
         // 1. 尝试从 CCL 获取本地化
         var cclText = LocaleRegistry.Get(category, resolvedKey, resolvedKey);
         if (!string.IsNullOrWhiteSpace(cclText) && cclText != resolvedKey)
-            return cclText;
+            return Replace(cclText, args);
 
         // 2. CCL 没有 → 从 Fallback 获取当前语言默认值
         var lang = PlayerPrefs.GetString("locale", "EN");
         var fallback = GetDefault(lang, resolvedKey);
-        if (fallback != null) return fallback;
+        if (fallback != null) return Replace(fallback, args);
 
         // 3. 当前语言没有 → 回退到英语默认值
         if (lang == "EN") return resolvedKey;
         fallback = GetDefault("EN", resolvedKey);
-        return fallback ??
-               // 4. 完全找不到 → 返回 key 自身
-               resolvedKey;
+        return Replace(fallback ?? resolvedKey, args);
     }
 
     private static string Replace(string key, params object[]? args)

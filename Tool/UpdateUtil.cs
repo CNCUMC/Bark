@@ -3,9 +3,7 @@ using System.Collections;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
-using UnityEngine;
 using UnityEngine.Networking;
-using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
@@ -17,8 +15,7 @@ public static class UpdateUtil
     {
         if (string.IsNullOrWhiteSpace(githubRepo))
         {
-            logger.LogWarning("[" + nameof(UpdateUtil) + "] " +
-                              BetterLocale.GetLog("update.no_repo", modName));
+            LogUtil.Warning(BetterLocale.GetLog("update.no_repo", modName), logger);
             return;
         }
 
@@ -36,29 +33,26 @@ public static class UpdateUtil
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            logger.LogWarning("[" + nameof(UpdateUtil) + "] " +
-                              BetterLocale.GetLog("update.failed", modName));
+            LogUtil.Warning(BetterLocale.GetLog("update.failed", modName), logger);
             yield break;
         }
 
         var latestTag = TryExtractTagName(request.downloadHandler.text);
         if (string.IsNullOrWhiteSpace(latestTag))
         {
-            logger.LogWarning("[" + nameof(UpdateUtil) + "] " +
-                              BetterLocale.GetLog("update.no_version", modName));
+            LogUtil.Warning(BetterLocale.GetLog("update.no_version", modName), logger);
             yield break;
         }
 
         if (IsNewer(currentVersion, latestTag!))
         {
-            var message = BetterLocale.GetLog("update.available", modName, currentVersion, latestTag!);
-            logger.LogWarning(message);
-            yield return NotifyConsole(message, true);
+            LogUtil.Warning(
+                BetterLocale.GetLog("update.available", modName, currentVersion, latestTag!), logger);
         }
         else
         {
-            logger.LogInfo("[" + nameof(UpdateUtil) + "] " +
-                           BetterLocale.GetLog("update.uptodate", modName, currentVersion));
+            LogUtil.Info(
+                BetterLocale.GetLog("update.uptodate", modName, currentVersion), logger);
         }
     }
 
@@ -88,26 +82,5 @@ public static class UpdateUtil
     private static string NormalizeVersion(string version)
     {
         return version.Trim().TrimStart('v', 'V');
-    }
-
-    private static IEnumerator NotifyConsole(string message, bool warning = false)
-    {
-        ConsoleScript? console = null;
-        var attempts = 0;
-        while (!console && attempts < 50)
-        {
-            console = ConsoleScript.instance
-                ? ConsoleScript.instance
-                : Object.FindObjectOfType<ConsoleScript>();
-            if (console) continue;
-            attempts++;
-            yield return new WaitForSecondsRealtime(0.2f);
-        }
-
-        if (!console) yield break;
-        var consoleMessage = warning
-            ? $"<color=#FFA500>{message}</color>"
-            : message;
-        CUCoreUtils.ConsoleLog(console, consoleMessage);
     }
 }
