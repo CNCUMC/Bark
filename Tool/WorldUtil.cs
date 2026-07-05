@@ -11,6 +11,7 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class WorldUtil
 {
+    public static WorldGeneration World = WorldGeneration.world;
     private static readonly ManualLogSource Logger = Plugin.Logger;
 
     public static void PlaceBlock(int x, int y, ushort block)
@@ -23,7 +24,7 @@ public static class WorldUtil
         LogUtil.CheckWorld();
         try
         {
-            GameInstances.World!.SetBlock(GameInstances.World.WorldToBlockPos(pos), block);
+            World!.SetBlock(World.WorldToBlockPos(pos), block);
         }
         catch (Exception ex)
         {
@@ -34,7 +35,7 @@ public static class WorldUtil
     public static void FillBlocks(int sx, int sy, int ex, int ey, ushort block)
     {
         LogUtil.CheckWorld();
-        var w = GameInstances.World!;
+        var w = World!;
         var csx = Mathf.Clamp(sx, 0, (int)w.width - 2);
         var csy = Mathf.Clamp(sy, 0, (int)w.height - 2);
         var cex = Mathf.Clamp(ex, 0, (int)w.width - 2);

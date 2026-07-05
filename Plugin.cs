@@ -1,5 +1,6 @@
 using Bark.BetterCCL;
 using Bark.Example.Lang;
+using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -7,12 +8,12 @@ using HarmonyLib;
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib", "1.0.1")]
+[BepInDependency("net.cucorelib", "1.0.2")]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "1.0.1";
+    public const string Version = "1.0.2";
     internal new static ManualLogSource Logger = null!;
     private readonly Harmony _harmony = new(Guid);
 
@@ -27,5 +28,7 @@ public class Plugin : BaseUnityPlugin
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
         _harmony.PatchAll();
+
+        UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
     }
 }

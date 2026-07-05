@@ -54,5 +54,12 @@ public class ZhCnLangGenerator : ModLangGenBase
         Log("inventory.summary.empty", "空");
         Log("inventory.summary.wearables", "[穿戴]");
         Log("inventory.empty", "(空)");
+
+        // Log - Update
+        Log("update.no_repo", "未指定 {0} 的 GitHub 仓库，跳过更新检查。");
+        Log("update.failed", "{0} 无法检查更新。");
+        Log("update.no_version", "{0} 无法读取最新版本号。");
+        Log("update.available", "{0} 有新版本可用！{1} -> {2}");
+        Log("update.uptodate", "{0} 已是最新版本 ({1})。");
     }
 }

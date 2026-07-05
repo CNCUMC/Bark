@@ -10,15 +10,9 @@ namespace Bark.Tool;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class InventoryUtil
 {
-    private static Body GetBody()
-    {
-        LogUtil.CheckBody();
-        return GameInstances.Body!;
-    }
-
     public static bool IsSlotOccupied(int slot)
     {
-        return GetBody().HoldingItem(slot);
+        return PlayerUtil.Body.HoldingItem(slot);
     }
 
     public static bool IsSlotEmpty(int slot)
@@ -28,7 +22,7 @@ public static class InventoryUtil
 
     public static Item GetItem(int slot)
     {
-        return GetBody().GetItem(slot);
+        return PlayerUtil.Body.GetItem(slot);
     }
 
     public static ItemInfo? GetItemInfo(int slot)
@@ -44,28 +38,28 @@ public static class InventoryUtil
     public static bool HasItem(string id)
     {
         LogUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return GetBody().HoldingItem(id);
+        return PlayerUtil.Body.HoldingItem(id);
     }
 
     public static bool HasItemThorough(string id)
     {
         LogUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return GetBody().FindByIdThorough(id, out _);
+        return PlayerUtil.Body.FindByIdThorough(id, out _);
     }
 
     public static bool HasAnyItem(params string[] ids)
     {
-        return ids is { Length: > 0 } && GetBody().Let(b => ids.Any(b.HoldingItem));
+        return ids is { Length: > 0 } && PlayerUtil.Body.Let(body => ids.Any(body.HoldingItem));
     }
 
-    public static bool HasItem(Predicate<ItemInfo> p)
+    public static bool HasItem(Predicate<ItemInfo> predicate)
     {
-        if (p == null) throw new ArgumentNullException(nameof(p));
-        var b = GetBody();
-        for (var i = 0; i < b.slots.Length; i++)
+        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+        var body = PlayerUtil.Body;
+        for (var i = 0; i < body.slots.Length; i++)
         {
-            var info = b.GetItem(i)?.Stats;
-            if (info != null && p(info)) return true;
+            var info = body.GetItem(i)?.Stats;
+            if (info != null && predicate(info)) return true;
         }
 
         return false;
@@ -89,22 +83,22 @@ public static class InventoryUtil
     public static int CountItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id)) return 0;
-        var b = GetBody();
+        var body = PlayerUtil.Body;
         var c = 0;
-        for (var i = 0; i < b.slots.Length; i++)
-            if (b.GetItem(i)?.id == id)
+        for (var i = 0; i < body.slots.Length; i++)
+            if (body.GetItem(i)?.id == id)
                 c++;
         return c;
     }
 
     public static List<Item> GetAllItems()
     {
-        return GetBody().GetAllItems();
+        return PlayerUtil.Body.GetAllItems();
     }
 
     public static List<Item> GetAllItemsThorough()
     {
-        return GetBody().GetAllItemsThorough();
+        return PlayerUtil.Body.GetAllItemsThorough();
     }
 
     public static List<ItemInfo> GetAllItemInfos()
@@ -125,7 +119,7 @@ public static class InventoryUtil
 
     public static List<Item> GetWearables()
     {
-        return GetBody().GetAllWearables();
+        return PlayerUtil.Body.GetAllWearables();
     }
 
     public static List<ItemInfo> GetWearableInfos()
@@ -135,29 +129,29 @@ public static class InventoryUtil
 
     public static int? FindFirstEmptySlot()
     {
-        return GetBody().FirstEmptySlot();
+        return PlayerUtil.Body.FirstEmptySlot();
     }
 
     public static bool FindById(string id, out Item? item)
     {
         item = null;
-        return !string.IsNullOrWhiteSpace(id) && GetBody().FindByIdSurface(id, out item);
+        return !string.IsNullOrWhiteSpace(id) && PlayerUtil.Body.FindByIdSurface(id, out item);
     }
 
     public static bool FindByIdThorough(string id, out Item? item)
     {
         item = null;
-        return !string.IsNullOrWhiteSpace(id) && GetBody().FindByIdThorough(id, out item);
+        return !string.IsNullOrWhiteSpace(id) && PlayerUtil.Body.FindByIdThorough(id, out item);
     }
 
     public static int GetHandSlot()
     {
-        return GetBody().handSlot;
+        return PlayerUtil.Body.handSlot;
     }
 
     public static Item GetItemInHand()
     {
-        return GetBody().GetItem(GetBody().handSlot);
+        return PlayerUtil.Body.GetItem(PlayerUtil.Body.handSlot);
     }
 
     public static ItemInfo? GetItemInfoInHand()
@@ -172,7 +166,7 @@ public static class InventoryUtil
 
     public static int GetSlotCount()
     {
-        return GetBody().slots.Length;
+        return PlayerUtil.Body.slots.Length;
     }
 
     public static string GetItemIdsString()

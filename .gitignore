@@ -9,4 +9,4 @@
 *.suo
 *.user
 /Releases/
-R.ps1
+Directory.Build.props

@@ -23,9 +23,9 @@ public static class SkillUtil
         }
     }
 
-    private static Skills? GetSkills()
+    private static Skills GetSkills()
     {
-        return GameInstances.Body?.skills;
+        return PlayerUtil.Body.skills;
     }
 
     public static int GetLevel(SkillType skillType)
@@ -86,7 +86,7 @@ public static class SkillUtil
 
     public static void AddExperience(SkillType skillType, float xp)
     {
-        GetSkills()?.AddExp((int)skillType, xp);
+        GetSkills().AddExp((int)skillType, xp);
     }
 
     public static void SetLevelRaw(SkillType skillType, int level)

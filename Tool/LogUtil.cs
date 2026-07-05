@@ -1,31 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
 using HarmonyLib;
-using UnityEngine;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedType.Global")]
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [HarmonyPatch(typeof(ConsoleScript))]
 public static class LogUtil
 {
-    public const int MaxLogCount = 100;
-
     public static void LogToConsole(string text)
     {
-        var cs = GameInstances.Console;
-        if (cs == null) return;
-        cs.logs.Add($"[<alpha=#55>{TimeSpan.FromSeconds(Time.realtimeSinceStartup):mm\\:ss}<alpha=#FF>] {text}");
-        if (cs.logs.Count > MaxLogCount) cs.logs.RemoveAt(0);
-        if (!cs.active) return;
-        if (cs.logText != null) cs.logText.text = string.Join("\n", cs.logs);
+        var console = ConsoleScript.instance;
+        CUCoreUtils.ConsoleLog(console, text);
     }
 
     public static void NewLine()
@@ -64,12 +53,12 @@ public static class LogUtil
     public static void CheckBody(ManualLogSource? logger = null)
     {
         CheckWorld(logger);
-        if (GameInstances.Body == null) throw Fail("player.body_null", logger);
+        if (!CUCoreUtils.TryGetBody(out _)) throw Fail("player.body_null", logger);
     }
 
     public static void CheckConsole(ManualLogSource? logger = null)
     {
-        if (GameInstances.Console == null) throw Fail("console.not_initialized", logger);
+        if (ConsoleScript.instance == null) throw Fail("console.not_initialized", logger);
     }
 
     public static void CheckArgumentCount(string[] args, int minCount, ManualLogSource? logger = null)

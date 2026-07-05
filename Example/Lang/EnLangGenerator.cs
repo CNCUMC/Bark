@@ -54,5 +54,12 @@ public class EnLangGenerator : ModLangGenBase
         Log("inventory.summary.empty", "Empty");
         Log("inventory.summary.wearables", "[Wearables]");
         Log("inventory.empty", "(empty)");
+
+        // Log - Update
+        Log("update.no_repo", "GitHub repo not specified for {0}, skipping update check.");
+        Log("update.failed", "{0} could not check for updates.");
+        Log("update.no_version", "{0} could not read the latest release version.");
+        Log("update.available", "{0} update available! {1} -> {2}");
+        Log("update.uptodate", "{0} is up to date ({1}).");
     }
 }
