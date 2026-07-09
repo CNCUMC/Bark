@@ -39,7 +39,7 @@ game utility tools.
 | [`BetterLocale`](BetterCCL/BetterLocale.cs)   | Localization system built on CCL's `LocaleRegistry`                 |
 | [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL settings registration wrapper (Float/Int/Bool/Dropdown/Keybind) |
 | [`ModLangGenBase`](Base/ModLangGenBase.cs)    | Language generator base class                                       |
-| [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                      |
+| [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                     |
 | [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player manipulation: TP, vitals, drugs, recovery, raw writes        |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                         |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                     |
@@ -144,33 +144,33 @@ public class EnLangGenerator : ModLangGenBase
 }
 ```
 
-| Method                            | Category                   |
-|-----------------------------------|----------------------------|
-| `Item(key, value, description)`   | `item`                     |
-| `Building(key, value, description)` | `build`                  |
-| `Moodle(key, value, description)` | `moodle`                   |
-| `Other(key, value)`               | `other`                    |
-| `Option(key, label, description)` | `option` (settings labels) |
-| `Log(key, value)`                 | `log`                      |
-| `Command(key, value, description)`| `command`                  |
-| `Liquid(key, value, description)` | `liquid`                   |
-| `Title(key, value, description)`  | `title`                    |
+| Method                              | Category                   |
+|-------------------------------------|----------------------------|
+| `Item(key, value, description)`     | `item`                     |
+| `Building(key, value, description)` | `build`                    |
+| `Moodle(key, value, description)`   | `moodle`                   |
+| `Other(key, value)`                 | `other`                    |
+| `Option(key, label, description)`   | `option` (settings labels) |
+| `Log(key, value)`                   | `log`                      |
+| `Command(key, value, description)`  | `command`                  |
+| `Liquid(key, value, description)`   | `liquid`                   |
+| `Title(key, value, description)`    | `title`                    |
 
 ### BetterLocale API
 
 #### Get (retrieve localized text)
 
-| Method                    | Category   |
-|---------------------------|------------|
-| `GetItem(key, args?)`     | `item`     |
-| `GetBuilding(key, args?)` | `build`    |
-| `GetMoodle(key, args?)`   | `moodle`   |
-| `GetOther(key, args?)`    | `other`    |
-| `GetLog(key, args?)`      | `log`      |
-| `GetCommand(key, args?)`  | `command`  |
-| `GetOption(key, args?)`   | `option`   |
-| `GetLiquid(key, args?)`   | `liquid`   |
-| `GetTitle(key, args?)`    | `title`    |
+| Method                    | Category  |
+|---------------------------|-----------|
+| `GetItem(key, args?)`     | `item`    |
+| `GetBuilding(key, args?)` | `build`   |
+| `GetMoodle(key, args?)`   | `moodle`  |
+| `GetOther(key, args?)`    | `other`   |
+| `GetLog(key, args?)`      | `log`     |
+| `GetCommand(key, args?)`  | `command` |
+| `GetOption(key, args?)`   | `option`  |
+| `GetLiquid(key, args?)`   | `liquid`  |
+| `GetTitle(key, args?)`    | `title`   |
 
 > **Note:** `args` replace `{0}`, `{1}`, etc. in the resolved locale value.
 > For example, `BetterLocale.GetLog("update.available", "Bark", "1.0", "2.0")` returns
@@ -226,12 +226,12 @@ using Bark.Tool;
 UpdateUtil.Check("CNCUMC/Bark", "MyMod", "1.0.0", Logger);
 ```
 
-| Parameter        | Description                                                     |
-|------------------|-----------------------------------------------------------------|
-| `githubRepo`     | GitHub repo path, e.g. `"CNCUMC/Bark"`                          |
-| `modName`        | Display name used in log/console messages                       |
-| `currentVersion` | Current version, supports `"1.0.0"` or `"v1.0.0"`               |
-| `logger`         | Mod's BepInEx `ManualLogSource`                                 |
+| Parameter        | Description                                       |
+|------------------|---------------------------------------------------|
+| `githubRepo`     | GitHub repo path, e.g. `"CNCUMC/Bark"`            |
+| `modName`        | Display name used in log/console messages         |
+| `currentVersion` | Current version, supports `"1.0.0"` or `"v1.0.0"` |
+| `logger`         | Mod's BepInEx `ManualLogSource`                   |
 
 Results are output to both the BepInEx log and the game console. Messages are localized
 via `BetterLocale` (`update.no_repo`, `update.failed`, `update.no_version`, `update.available`, `update.uptodate`).
@@ -242,21 +242,21 @@ via `BetterLocale` (`update.no_repo`, `update.failed`, `update.no_version`, `upd
 
 ### LogUtil
 
-| Method                                     | Description                     |
-|--------------------------------------------|---------------------------------|
-| `Info(text, logger)`                       | Log to console + BepInEx        |
-| `Error(text, logger)`                      | Log error                       |
-| `Warning(text, logger)`                    | Log warning                     |
-| `CheckWorld(logger?)`                      | Throw if no world loaded        |
-| `CheckBody(logger?)`                       | Throw if player body is null    |
-| `CheckArgumentCount(args, min, logger?)`   | Validate argument count         |
-| `CheckNotNullOrEmpty(val, name, logger?)`  | Validate string not empty       |
-| `CheckParseFloat(s, logger?)`              | Parse float or throw            |
-| `CheckParseInt(s, logger?)`                | Parse int or throw              |
-| `PrintList(header, items, logger)`         | Print formatted list to console |
-| `PrintNumberedList(header, items, logger)` | Print numbered list             |
-| `PrintKeyValueList(header, entries, logger)`| Print key-value pairs          |
-| `PrintGroupedList(header, groups, logger)` | Print grouped items             |
+| Method                                       | Description                     |
+|----------------------------------------------|---------------------------------|
+| `Info(text, logger)`                         | Log to console + BepInEx        |
+| `Error(text, logger)`                        | Log error                       |
+| `Warning(text, logger)`                      | Log warning                     |
+| `CheckWorld(logger?)`                        | Throw if no world loaded        |
+| `CheckBody(logger?)`                         | Throw if player body is null    |
+| `CheckArgumentCount(args, min, logger?)`     | Validate argument count         |
+| `CheckNotNullOrEmpty(val, name, logger?)`    | Validate string not empty       |
+| `CheckParseFloat(s, logger?)`                | Parse float or throw            |
+| `CheckParseInt(s, logger?)`                  | Parse int or throw              |
+| `PrintList(header, items, logger)`           | Print formatted list to console |
+| `PrintNumberedList(header, items, logger)`   | Print numbered list             |
+| `PrintKeyValueList(header, entries, logger)` | Print key-value pairs           |
+| `PrintGroupedList(header, groups, logger)`   | Print grouped items             |
 
 ### PlayerUtil
 
