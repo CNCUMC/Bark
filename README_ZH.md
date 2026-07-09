@@ -4,7 +4,7 @@
 
 # Bark
 
-[GitHub](https://github.com/CNCUMC/Bark) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
+[GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
 _基于 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 扩展的 [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/) 模组工具库。_
@@ -20,8 +20,11 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 - [快速开始](#快速开始)
 - [本地化](#本地化)
 - [设置选项 (BetterOptions)](#设置选项-betteroptions)
+- [更新检测 (UpdateUtil)](#更新检测-updateutil)
 - [工具参考](#工具参考)
 - [常量参考](#常量参考)
+- [项目结构](#项目结构)
+- [许可](#许可)
 
 ---
 
@@ -35,7 +38,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 | [`BetterLocale`](BetterCCL/BetterLocale.cs)   | 基于 CCL `LocaleRegistry` 的本地化系统              |
 | [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL 设置注册封装（Float/Int/Bool/Dropdown/Keybind） |
 | [`ModLangGenBase`](Base/ModLangGenBase.cs)    | 语言生成器基类                                     |
-| [`GameInstances`](Tool/GameInstances.cs)      | 游戏实例统一入口（Body/World/Console）                |
+| [`UpdateUtil`](Tool/UpdateUtil.cs)            | 基于 GitHub 的模组更新检测                           |
 | [`PlayerUtil`](Tool/PlayerUtil.cs)            | 玩家操作：传送、生命体征、药物、恢复、Raw Writes               |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | 技能等级/经验操作                                   |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | 肢体操作：治疗、伤害、状态检查                             |
@@ -58,8 +61,8 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 ## 安装
 
 1. 为 Casualties Unknown 安装 [BepInEx 5.x](https://github.com/BepInEx/BepInEx)。
-2. 安装 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) — 将 `CUCoreLib.dll` 放入
-   `BepInEx/plugins/CUCoreLib/`。
+2. 安装 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 —
+   将 `CUCoreLib.dll` 放入 `BepInEx/plugins/CUCoreLib/`。
 3. 从 [Releases](https://github.com/CNCUMC/Bark/releases) 页面下载最新版 `Bark.dll`。
 4. 将 `Bark.dll` 放入 `BepInEx/plugins/` 文件夹。
 
@@ -73,8 +76,8 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 
 ```csharp
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib")]  // CCL 必需
-[BepInDependency("org.cucnmc.bark")] // Bark 扩展 CCL
+[BepInDependency("net.cucorelib")]     // CCL 必需
+[BepInDependency("org.cucnmc.bark")]   // Bark 扩展 CCL
 public class MyPlugin : BaseUnityPlugin
 {
     // ...
@@ -112,6 +115,15 @@ BetterOptions.Bool("bark", "feature_enabled", Setting.SettingCategory.Game, true
 BetterOptions.Bool("bark", "advanced_mode", "Bark", false);
 ```
 
+### 4. 检查更新
+
+```csharp
+using Bark.Tool;
+
+// 在 Awake() 中调用 — 异步执行，结果输出到日志和控制台
+UpdateUtil.Check("YourName/YourRepo", "你的模组", "1.0.0", Logger);
+```
+
 ---
 
 ## 本地化
@@ -132,11 +144,15 @@ public class EnLangGenerator : ModLangGenBase
 
 | 方法                         | 分类             |
 |----------------------------|----------------|
-| `Item(key, value)`         | `item`         |
-| `Building(key, value)`     | `building`     |
-| `Moodle(key, value)`       | `moodle`       |
+| `Item(key, value, desc)`   | `item`         |
+| `Building(key, value, desc)` | `build`      |
+| `Moodle(key, value, desc)` | `moodle`       |
 | `Other(key, value)`        | `other`        |
 | `Option(key, label, desc)` | `option`（设置标签） |
+| `Log(key, value)`          | `log`          |
+| `Command(key, value, desc)`| `command`      |
+| `Liquid(key, value, desc)` | `liquid`       |
+| `Title(key, value, desc)`  | `title`        |
 
 ### BetterLocale API
 
@@ -145,7 +161,7 @@ public class EnLangGenerator : ModLangGenBase
 | 方法                        | 分类         |
 |---------------------------|------------|
 | `GetItem(key, args?)`     | `item`     |
-| `GetBuilding(key, args?)` | `building` |
+| `GetBuilding(key, args?)` | `build`    |
 | `GetMoodle(key, args?)`   | `moodle`   |
 | `GetOther(key, args?)`    | `other`    |
 | `GetLog(key, args?)`      | `log`      |
@@ -154,13 +170,17 @@ public class EnLangGenerator : ModLangGenBase
 | `GetLiquid(key, args?)`   | `liquid`   |
 | `GetTitle(key, args?)`    | `title`    |
 
+> **注意：** `args` 会替换查找结果中的 `{0}`、`{1}` 等占位符。
+> 例如 `BetterLocale.GetLog("update.available", "Bark", "1.0", "2.0")` 返回
+> `"Bark 有新版本可用！1.0 -> 2.0"`。
+
 #### Has（检查翻译是否存在）
 
 | 方法                      | 分类         |
 |-------------------------|------------|
 | `HasKey(category, key)` | 任意分类       |
 | `HasKeyItem(key)`       | `item`     |
-| `HasKeyBuilding(key)`   | `building` |
+| `HasKeyBuilding(key)`   | `build`    |
 | `HasKeyMoodle(key)`     | `moodle`   |
 | `HasKeyOther(key)`      | `other`    |
 | `HasKeyLog(key)`        | `log`      |
@@ -195,6 +215,27 @@ BetterOptions.Bool("ns", "key", "我的模组", false);
 
 ---
 
+## 更新检测 (UpdateUtil)
+
+```csharp
+using Bark.Tool;
+
+// 通过 GitHub Releases API 异步检查 — 支持本地化消息
+UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
+```
+
+| 参数              | 说明                                             |
+|-----------------|------------------------------------------------|
+| `githubRepo`     | GitHub 仓库路径，如 `"CNCUMC/Bark"`                 |
+| `modName`        | 日志和控制台消息中使用的显示名称                              |
+| `currentVersion` | 当前版本号，支持 `"1.0.0"` 或 `"v1.0.0"` 格式            |
+| `logger`         | 模组的 BepInEx `ManualLogSource`                   |
+
+结果同时输出到 BepInEx 日志和游戏控制台。消息通过 `BetterLocale` 本地化
+（`update.no_repo`、`update.failed`、`update.no_version`、`update.available`、`update.uptodate`）。
+
+---
+
 ## 工具参考
 
 ### LogUtil
@@ -212,6 +253,8 @@ BetterOptions.Bool("ns", "key", "我的模组", false);
 | `CheckParseInt(s, logger?)`                | 解析整数或抛异常         |
 | `PrintList(header, items, logger)`         | 格式化列表输出          |
 | `PrintNumberedList(header, items, logger)` | 带编号列表输出          |
+| `PrintKeyValueList(header, entries, logger)`| 键值对列表输出         |
+| `PrintGroupedList(header, groups, logger)` | 分组列表输出           |
 
 ### PlayerUtil
 
@@ -273,10 +316,10 @@ BetterOptions.Bool("ns", "key", "我的模组", false);
 
 ### InputUtil
 
-| 方法                     | 说明      |
-|------------------------|---------|
-| `WaitForLeftClick()`   | 协程：等待点击 |
-| `WaitForLeftClick()`   | 协程：等待点击 |
+| 方法                    | 说明      |
+|-----------------------|---------|
+| `WaitForLeftClick()`  | 协程：等待点击 |
+| `WaitForRightClick()` | 协程：等待点击 |
 
 ---
 
@@ -303,3 +346,51 @@ string bgId = Backgrounds.Rock;
 KeyCode key = Keys.Jump;
 int slotId = Slots.MainHand;
 ```
+
+---
+
+## 项目结构
+
+```
+Bark/
+├── Plugin.cs                 # 入口：初始化、依赖声明
+├── Bark.csproj               # 项目文件（net472、CUCoreLib 引用）
+├── Directory.Build.props     # 共享构建属性（游戏路径）
+├── Base/
+│   └── ModLangGenBase.cs     # 语言生成器基类
+├── BetterCCL/
+│   ├── BetterLocale.cs       # 本地化系统（Get/Set/Has/Flush）
+│   └── BetterOptions.cs      # CCL 设置注册封装
+├── Constant/
+│   ├── Blocks.cs             # 强类型方块定义
+│   ├── Items.cs              # 强类型物品定义
+│   ├── Backgrounds.cs        # 背景 ID 常量
+│   ├── Keys.cs               # 按键动作常量
+│   └── Slots.cs              # 物品栏槽位常量
+├── Example/Lang/
+│   ├── EnLangGenerator.cs    # 英语语言生成器
+│   ├── ZhCnLangGenerator.cs  # 简体中文语言生成器
+│   └── ZhTwLangGenerator.cs  # 繁体中文语言生成器
+├── Tool/
+│   ├── ConfigUtil.cs         # BepInEx 配置辅助
+│   ├── InputUtil.cs          # 输入处理
+│   ├── InventoryUtil.cs      # 物品栏操作
+│   ├── ItemUtil.cs           # 物品工具
+│   ├── LimbUtil.cs           # 肢体操作
+│   ├── LogUtil.cs            # 控制台日志 + 校验
+│   ├── PlayerUtil.cs         # 玩家操作
+│   ├── SkillUtil.cs          # 技能操作
+│   ├── TextUtil.cs           # 富文本格式化
+│   ├── ToolsUtil.cs          # 验证辅助
+│   ├── UpdateUtil.cs         # GitHub 更新检测
+│   └── WorldUtil.cs          # 世界操作
+├── CHANGELOG.md / CHANGELOG_ZH.md
+├── README.md / README_ZH.md
+└── LICENSE.md
+```
+
+---
+
+## 许可
+
+[GPL v3](LICENSE.md)

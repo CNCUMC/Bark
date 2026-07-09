@@ -4,7 +4,7 @@
 
 # Bark
 
-[GitHub](https://github.com/CNCUMC/Bark) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
+[GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
 _A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/),
 built on top of [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)._
@@ -20,8 +20,11 @@ _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 - [Quick Start](#quick-start)
 - [Localization](#localization)
 - [Setting Options (BetterOptions)](#setting-options-betteroptions)
+- [Update Checking (UpdateUtil)](#update-checking-updateutil)
 - [Tools Reference](#tools-reference)
 - [Constants Reference](#constants-reference)
+- [Project Structure](#project-structure)
+- [License](#license)
 
 ---
 
@@ -36,7 +39,7 @@ game utility tools.
 | [`BetterLocale`](BetterCCL/BetterLocale.cs)   | Localization system built on CCL's `LocaleRegistry`                 |
 | [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL settings registration wrapper (Float/Int/Bool/Dropdown/Keybind) |
 | [`ModLangGenBase`](Base/ModLangGenBase.cs)    | Language generator base class                                       |
-| [`GameInstances`](Tool/GameInstances.cs)      | Unified game instance access (Body, World, Console)                 |
+| [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                      |
 | [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player manipulation: TP, vitals, drugs, recovery, raw writes        |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                         |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                     |
@@ -59,8 +62,8 @@ game utility tools.
 ## Installation
 
 1. Install [BepInEx 5.x](https://github.com/BepInEx/BepInEx) for Casualties Unknown.
-2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) — place `CUCoreLib.dll` into
-   `BepInEx/plugins/CUCoreLib/`.
+2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 —
+   place `CUCoreLib.dll` into `BepInEx/plugins/CUCoreLib/`.
 3. Download the latest `Bark.dll` from the [Releases](https://github.com/CNCUMC/Bark/releases) page.
 4. Place `Bark.dll` into your `BepInEx/plugins/` folder.
 
@@ -75,8 +78,8 @@ game utility tools.
 
 ```csharp
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib")]  // CCL is required
-[BepInDependency("org.cucnmc.bark")] // Bark extends CCL
+[BepInDependency("net.cucorelib")]     // CCL is required
+[BepInDependency("org.cucnmc.bark")]   // Bark extends CCL
 public class MyPlugin : BaseUnityPlugin
 {
     // ...
@@ -114,6 +117,15 @@ BetterOptions.Bool("bark", "feature_enabled", Setting.SettingCategory.Game, true
 BetterOptions.Bool("bark", "advanced_mode", "Bark", false);
 ```
 
+### 4. Check for Updates
+
+```csharp
+using Bark.Tool;
+
+// Call in Awake() — async, results output to logger + game console
+UpdateUtil.Check("YourName/YourRepo", "YourMod", "1.0.0", Logger);
+```
+
 ---
 
 ## Localization
@@ -134,11 +146,15 @@ public class EnLangGenerator : ModLangGenBase
 
 | Method                            | Category                   |
 |-----------------------------------|----------------------------|
-| `Item(key, value)`                | `item`                     |
-| `Building(key, value)`            | `building`                 |
-| `Moodle(key, value)`              | `moodle`                   |
+| `Item(key, value, description)`   | `item`                     |
+| `Building(key, value, description)` | `build`                  |
+| `Moodle(key, value, description)` | `moodle`                   |
 | `Other(key, value)`               | `other`                    |
 | `Option(key, label, description)` | `option` (settings labels) |
+| `Log(key, value)`                 | `log`                      |
+| `Command(key, value, description)`| `command`                  |
+| `Liquid(key, value, description)` | `liquid`                   |
+| `Title(key, value, description)`  | `title`                    |
 
 ### BetterLocale API
 
@@ -147,7 +163,7 @@ public class EnLangGenerator : ModLangGenBase
 | Method                    | Category   |
 |---------------------------|------------|
 | `GetItem(key, args?)`     | `item`     |
-| `GetBuilding(key, args?)` | `building` |
+| `GetBuilding(key, args?)` | `build`    |
 | `GetMoodle(key, args?)`   | `moodle`   |
 | `GetOther(key, args?)`    | `other`    |
 | `GetLog(key, args?)`      | `log`      |
@@ -156,13 +172,17 @@ public class EnLangGenerator : ModLangGenBase
 | `GetLiquid(key, args?)`   | `liquid`   |
 | `GetTitle(key, args?)`    | `title`    |
 
+> **Note:** `args` replace `{0}`, `{1}`, etc. in the resolved locale value.
+> For example, `BetterLocale.GetLog("update.available", "Bark", "1.0", "2.0")` returns
+> `"Bark update available! 1.0 -> 2.0"`.
+
 #### Has (check if translation exists)
 
 | Method                  | Category     |
 |-------------------------|--------------|
 | `HasKey(category, key)` | Any category |
 | `HasKeyItem(key)`       | `item`       |
-| `HasKeyBuilding(key)`   | `building`   |
+| `HasKeyBuilding(key)`   | `build`      |
 | `HasKeyMoodle(key)`     | `moodle`     |
 | `HasKeyOther(key)`      | `other`      |
 | `HasKeyLog(key)`        | `log`        |
@@ -197,6 +217,27 @@ BetterOptions.Bool("ns", "key", "My Mod Tab", false);
 
 ---
 
+## Update Checking (UpdateUtil)
+
+```csharp
+using Bark.Tool;
+
+// Async check via GitHub Releases API — localizable messages
+UpdateUtil.Check("CNCUMC/Bark", "MyMod", "1.0.0", Logger);
+```
+
+| Parameter        | Description                                                     |
+|------------------|-----------------------------------------------------------------|
+| `githubRepo`     | GitHub repo path, e.g. `"CNCUMC/Bark"`                          |
+| `modName`        | Display name used in log/console messages                       |
+| `currentVersion` | Current version, supports `"1.0.0"` or `"v1.0.0"`               |
+| `logger`         | Mod's BepInEx `ManualLogSource`                                 |
+
+Results are output to both the BepInEx log and the game console. Messages are localized
+via `BetterLocale` (`update.no_repo`, `update.failed`, `update.no_version`, `update.available`, `update.uptodate`).
+
+---
+
 ## Tools Reference
 
 ### LogUtil
@@ -214,6 +255,8 @@ BetterOptions.Bool("ns", "key", "My Mod Tab", false);
 | `CheckParseInt(s, logger?)`                | Parse int or throw              |
 | `PrintList(header, items, logger)`         | Print formatted list to console |
 | `PrintNumberedList(header, items, logger)` | Print numbered list             |
+| `PrintKeyValueList(header, entries, logger)`| Print key-value pairs          |
+| `PrintGroupedList(header, groups, logger)` | Print grouped items             |
 
 ### PlayerUtil
 
@@ -234,7 +277,6 @@ BetterOptions.Bool("ns", "key", "My Mod Tab", false);
 | `PlaceBlock(x, y, id)`           | Place a block         |
 | `FillBlocks(sx, sy, ex, ey, id)` | Fill area with blocks |
 | `PlaceItem(x, y, id)`            | Spawn an item         |
-| `CheckForWorld()`                | Throw if no world     |
 
 ### SkillUtil
 
@@ -276,10 +318,10 @@ BetterOptions.Bool("ns", "key", "My Mod Tab", false);
 
 ### InputUtil
 
-| Method                | Description                         |
-|-----------------------|-------------------------------------|
-| `WaitForLeftClick()`  | Coroutine: wait for click           |
-| `WaitForRightClick()` | Coroutine: wait for click           |
+| Method                | Description               |
+|-----------------------|---------------------------|
+| `WaitForLeftClick()`  | Coroutine: wait for click |
+| `WaitForRightClick()` | Coroutine: wait for click |
 
 ---
 
@@ -306,3 +348,51 @@ string bgId = Backgrounds.Rock;
 KeyCode key = Keys.Jump;
 int slotId = Slots.MainHand;
 ```
+
+---
+
+## Project Structure
+
+```
+Bark/
+├── Plugin.cs                 # Entry point: initialization, dependencies
+├── Bark.csproj               # Project file (net472, CUCoreLib ref)
+├── Directory.Build.props     # Shared build properties (game path)
+├── Base/
+│   └── ModLangGenBase.cs     # Language generator base class
+├── BetterCCL/
+│   ├── BetterLocale.cs       # Localization system (Get/Set/Has/Flush)
+│   └── BetterOptions.cs      # CCL settings registration wrapper
+├── Constant/
+│   ├── Blocks.cs             # Strongly-typed block definitions
+│   ├── Items.cs              # Strongly-typed item definitions
+│   ├── Backgrounds.cs        # Background ID constants
+│   ├── Keys.cs               # Key action constants
+│   └── Slots.cs              # Inventory slot constants
+├── Example/Lang/
+│   ├── EnLangGenerator.cs    # EN locale generator
+│   ├── ZhCnLangGenerator.cs  # zh-CN locale generator
+│   └── ZhTwLangGenerator.cs  # zh-TW locale generator
+├── Tool/
+│   ├── ConfigUtil.cs         # BepInEx config helpers
+│   ├── InputUtil.cs          # Input handling
+│   ├── InventoryUtil.cs      # Inventory operations
+│   ├── ItemUtil.cs           # Item utilities
+│   ├── LimbUtil.cs           # Limb operations
+│   ├── LogUtil.cs            # Console logging + validation
+│   ├── PlayerUtil.cs         # Player manipulation
+│   ├── SkillUtil.cs          # Skill operations
+│   ├── TextUtil.cs           # Rich text formatting
+│   ├── ToolsUtil.cs          # Validation helpers
+│   ├── UpdateUtil.cs         # GitHub update checker
+│   └── WorldUtil.cs          # World manipulation
+├── CHANGELOG.md / CHANGELOG_ZH.md
+├── README.md / README_ZH.md
+└── LICENSE.md
+```
+
+---
+
+## License
+
+[GPL v3](LICENSE.md)
