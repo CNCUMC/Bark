@@ -1,24 +1,14 @@
 using System;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using CUCoreLib.Helpers;
 using UnityEngine;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class InputUtil
 {
-    public static Vector2 LeftClickPosition()
-    {
-        return Input.GetKeyDown(Action.LeftClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
-    }
-
-    public static Vector2 RightClickPosition()
-    {
-        return Input.GetKeyDown(Action.RightClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
-    }
+    public static Vector2 LeftClickPosition() => Input.GetKeyDown(Action.LeftClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
+    public static Vector2 RightClickPosition() => Input.GetKeyDown(Action.RightClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
 
     public static IEnumerator WaitForLeftClick(Action<Vector2> callback)
     {
@@ -32,15 +22,8 @@ public static class InputUtil
         callback(CUCoreUtils.GetMousePosition());
     }
 
-    public static WaitForClickResult WaitForLeftClick()
-    {
-        return new WaitForClickResult(Action.LeftClick);
-    }
-
-    public static WaitForClickResult WaitForRightClick()
-    {
-        return new WaitForClickResult(Action.RightClick);
-    }
+    public static WaitForClickResult WaitForLeftClick() => new(Action.LeftClick);
+    public static WaitForClickResult WaitForRightClick() => new(Action.RightClick);
 
 
     public static class Action

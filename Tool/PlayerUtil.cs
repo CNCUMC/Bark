@@ -42,334 +42,79 @@ public static class PlayerUtil
         LogUtil.CheckNotNullOrEmpty(item, nameof(item));
         if (slot is < 0 or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
-                Locale("player.slot.out_of_range", MaxInventorySlots));
+                LocaleLog("player.slot.out_of_range", MaxInventorySlots));
         var pos = Body.transform.position;
         var go = Utils.Create(item, pos, 0f) ??
-                 throw new InvalidOperationException(Locale("player.load_item.fail", item));
+                 throw new InvalidOperationException(LocaleLog("player.load_item.fail", item));
         var cmp = go.GetComponent<Item>() ??
-                  throw new InvalidOperationException(Locale("player.load_item.missing_component", item));
+                  throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
         Body.PickUpItem(cmp, slot, force);
     }
 
-    public static bool IsAlive()
-    {
-        return Body is { alive: true };
-    }
-
-    public static bool IsConscious()
-    {
-        return Body is { conscious: true };
-    }
-
-    public static bool IsDying()
-    {
-        return Body is { isDying: true };
-    }
-
-    public static bool IsCriticallyDying()
-    {
-        return Body is { isCriticallyDying: true };
-    }
-
-    public static bool IsInCardiacArrest()
-    {
-        return Body is { inCardiacArrest: true };
-    }
-
-    public static bool IsSleeping()
-    {
-        return Body is { sleeping: true };
-    }
-
-    public static bool IsExercising()
-    {
-        return Body is { exercising: true };
-    }
-
-    public static bool IsBreathing()
-    {
-        return Body is { breathing: true };
-    }
-
-    public static bool IsInWater()
-    {
-        return Body is { inWater: true };
-    }
-
-    public static bool HasScubaGear()
-    {
-        return Body is { hasScubaGear: true };
-    }
-
-    public static bool IsStanding()
-    {
-        return Body is { standing: true };
-    }
-
-    public static bool IsCrouching()
-    {
-        return Body is { crouching: true };
-    }
-
-    public static bool IsOnHardStimulants()
-    {
-        return Body is { onHardStimulants: true };
-    }
-
-    public static bool UsedNeuralBooster()
-    {
-        return Body is { usedNeuralBooster: true };
-    }
-
-    public static bool IsUsingSleepingBag()
-    {
-        return Body is { usingSleepingBag: true };
-    }
-
-    public static bool IsBothHandsUnusable()
-    {
-        return Body is { bothHandsUnusable: true };
-    }
-
-    public static bool AllowUseItem()
-    {
-        return Body is { allowUseItem: true };
-    }
-
-    public static bool HasPulmonaryEmbolism()
-    {
-        return Body is { hasPulmonaryEmbolism: true };
-    }
-
-    public static bool IsFibrillationForced()
-    {
-        return Body is { fibrillationForced: true };
-    }
-
-    public static bool CanTakeNap()
-    {
-        return Body is { canTakeNap: true };
-    }
-
-    public static bool IsAboveMedicalCutoff()
-    {
-        return Body is { aboveMedicalCutoff: true };
-    }
-
-    public static bool IsDisfigured()
-    {
-        return Body is { disfigured: true };
-    }
-
-    public static bool IsEyeGone()
-    {
-        return Body is { eyeGone: true };
-    }
-
-    public static bool IsBothEyesGone()
-    {
-        return Body is { bothEyesGone: true };
-    }
-
-    public static bool IsMindWiped()
-    {
-        return Body.mindWipe != null;
-    }
-
-    public static float GetHorrifiedLevel()
-    {
-        return Body.horrifiedLevel;
-    }
-
-    public static float GetClawHealth()
-    {
-        return Body.clawHealth;
-    }
-
-    public static float GetWeightOffset()
-    {
-        return Body.weightOffset;
-    }
-
-    public static float GetBloodOxygen()
-    {
-        return Body.bloodOxygen;
-    }
-
-    public static float GetBloodVolume()
-    {
-        return Body.bloodVolume;
-    }
-
-    public static float GetHeartRate()
-    {
-        return Body.heartRate;
-    }
-
-    public static float GetBloodPressure()
-    {
-        return Body.bloodPressure;
-    }
-
-    public static float GetRespiratoryRate()
-    {
-        return Body.respiratoryRate;
-    }
-
-    public static float GetTemperature()
-    {
-        return Body.temperature;
-    }
-
-    public static float GetHunger()
-    {
-        return Body.hunger;
-    }
-
-    public static float GetThirst()
-    {
-        return Body.thirst;
-    }
-
-    public static float GetStamina()
-    {
-        return Body.stamina;
-    }
-
-    public static float GetEnergy()
-    {
-        return Body.energy;
-    }
-
-    public static float GetConsciousness()
-    {
-        return Body.consciousness;
-    }
-
-    public static float GetBrainHealth()
-    {
-        return Body.brainHealth;
-    }
-
-    public static float GetHappiness()
-    {
-        return Body.totalHappiness;
-    }
-
-    public static float GetBloodViscosity()
-    {
-        return Body.bloodViscosity;
-    }
-
-    public static float GetBloodVesselSize()
-    {
-        return Body.bloodVesselSize;
-    }
-
-    public static float GetFibrillationProgress()
-    {
-        return Body.fibrillationProgress;
-    }
-
-    public static float GetAdrenaline()
-    {
-        return Body.adrenaline;
-    }
-
-    public static float GetCurAdrenaline()
-    {
-        return Body.curAdrenaline;
-    }
-
-    public static float GetSepticShock()
-    {
-        return Body.septicShock;
-    }
-
-    public static float GetSicknessAmount()
-    {
-        return Body.sicknessAmount;
-    }
-
-    public static float GetVenomTotal()
-    {
-        return Body.venomTotal;
-    }
-
-    public static float GetVenomCurrent()
-    {
-        return Body.venomCurrent;
-    }
-
-    public static float GetInternalBleeding()
-    {
-        return Body.internalBleeding;
-    }
-
-    public static float GetHemothorax()
-    {
-        return Body.hemothorax;
-    }
-
-    public static float GetShock()
-    {
-        return Body.shock;
-    }
-
-    public static float GetPainShock()
-    {
-        return Body.painShock;
-    }
-
-    public static float GetTraumaAmount()
-    {
-        return Body.traumaAmount;
-    }
-
-    public static float GetRadiationSickness()
-    {
-        return Body.radiationSickness;
-    }
-
-    public static float GetStrokeAmount()
-    {
-        return Body.strokeAmount;
-    }
-
-    public static float GetFocusedLevel()
-    {
-        return Body.focusedLevel;
-    }
-
-    public static bool HasPainkillers()
-    {
-        return Body.GetComponent<Painkillers>() != null;
-    }
-
-    public static bool HasAntidepressants()
-    {
-        return Body.GetComponent<Antidepressants>() != null;
-    }
-
-    public static bool HasSleepingPills()
-    {
-        return Body.GetComponent<SleepingPills>() != null;
-    }
-
-    public static float GetOpiateHappiness()
-    {
-        return Body.opiateHappiness;
-    }
-
-    public static float GetAntidepressantHappiness()
-    {
-        return Body.antidepressantHappiness;
-    }
-
-    public static float GetCaffeinated()
-    {
-        return Body.caffeinated;
-    }
+    public static bool IsAlive() => Body is { alive: true };
+    public static bool IsConscious() => Body is { conscious: true };
+    public static bool IsDying() => Body is { isDying: true };
+    public static bool IsCriticallyDying() => Body is { isCriticallyDying: true };
+    public static bool IsInCardiacArrest() => Body is { inCardiacArrest: true };
+    public static bool IsSleeping() => Body is { sleeping: true };
+    public static bool IsExercising() => Body is { exercising: true };
+    public static bool IsBreathing() => Body is { breathing: true };
+    public static bool IsInWater() => Body is { inWater: true };
+    public static bool HasScubaGear() => Body is { hasScubaGear: true };
+    public static bool IsStanding() => Body is { standing: true };
+    public static bool IsCrouching() => Body is { crouching: true };
+    public static bool IsOnHardStimulants() => Body is { onHardStimulants: true };
+    public static bool UsedNeuralBooster() => Body is { usedNeuralBooster: true };
+    public static bool IsUsingSleepingBag() => Body is { usingSleepingBag: true };
+    public static bool IsBothHandsUnusable() => Body is { bothHandsUnusable: true };
+    public static bool AllowUseItem() => Body is { allowUseItem: true };
+    public static bool HasPulmonaryEmbolism() => Body is { hasPulmonaryEmbolism: true };
+    public static bool IsFibrillationForced() => Body is { fibrillationForced: true };
+    public static bool CanTakeNap() => Body is { canTakeNap: true };
+    public static bool IsAboveMedicalCutoff() => Body is { aboveMedicalCutoff: true };
+    public static bool IsDisfigured() => Body is { disfigured: true };
+    public static bool IsEyeGone() => Body is { eyeGone: true };
+    public static bool IsBothEyesGone() => Body is { bothEyesGone: true };
+    public static bool IsMindWiped() => Body.mindWipe != null;
+    public static float GetHorrifiedLevel() => Body.horrifiedLevel;
+    public static float GetClawHealth() => Body.clawHealth;
+    public static float GetWeightOffset() => Body.weightOffset;
+    public static float GetBloodOxygen() => Body.bloodOxygen;
+    public static float GetBloodVolume() => Body.bloodVolume;
+    public static float GetHeartRate() => Body.heartRate;
+    public static float GetBloodPressure() => Body.bloodPressure;
+    public static float GetRespiratoryRate() => Body.respiratoryRate;
+    public static float GetTemperature() => Body.temperature;
+    public static float GetHunger() => Body.hunger;
+    public static float GetThirst() => Body.thirst;
+    public static float GetStamina() => Body.stamina;
+    public static float GetEnergy() => Body.energy;
+    public static float GetConsciousness() => Body.consciousness;
+    public static float GetBrainHealth() => Body.brainHealth;
+    public static float GetHappiness() => Body.totalHappiness;
+    public static float GetBloodViscosity() => Body.bloodViscosity;
+    public static float GetBloodVesselSize() => Body.bloodVesselSize;
+    public static float GetFibrillationProgress() => Body.fibrillationProgress;
+    public static float GetAdrenaline() => Body.adrenaline;
+    public static float GetCurAdrenaline() => Body.curAdrenaline;
+    public static float GetSepticShock() => Body.septicShock;
+    public static float GetSicknessAmount() => Body.sicknessAmount;
+    public static float GetVenomTotal() => Body.venomTotal;
+    public static float GetVenomCurrent() => Body.venomCurrent;
+    public static float GetInternalBleeding() => Body.internalBleeding;
+    public static float GetHemothorax() => Body.hemothorax;
+    public static float GetShock() => Body.shock;
+    public static float GetPainShock() => Body.painShock;
+    public static float GetTraumaAmount() => Body.traumaAmount;
+    public static float GetRadiationSickness() => Body.radiationSickness;
+    public static float GetStrokeAmount() => Body.strokeAmount;
+    public static float GetFocusedLevel() => Body.focusedLevel;
+    public static bool HasPainkillers() => Body.GetComponent<Painkillers>() != null;
+    public static bool HasAntidepressants() => Body.GetComponent<Antidepressants>() != null;
+    public static bool HasSleepingPills() => Body.GetComponent<SleepingPills>() != null;
+    public static float GetOpiateHappiness() => Body.opiateHappiness;
+    public static float GetAntidepressantHappiness() => Body.antidepressantHappiness;
+    public static float GetCaffeinated() => Body.caffeinated;
 
     public static void RemovePainkillers()
     {
@@ -386,35 +131,12 @@ public static class PlayerUtil
         if (Body is { } body && body.TryGetComponent<SleepingPills>(out var c)) Object.Destroy(c);
     }
 
-    public static float GetBadSleepAmount()
-    {
-        return Body.badSleepAmount;
-    }
-
-    public static float GetGoodSleepTime()
-    {
-        return Body.goodSleepTime;
-    }
-
-    public static bool TriedRollingLastStand()
-    {
-        return Body is { triedRollingLastStand: true };
-    }
-
-    public static bool SuccessfullyRolledLastStand()
-    {
-        return Body is { succesfullyRolledLastStand: true };
-    }
-
-    public static float GetLastStandTime()
-    {
-        return Body.lastStandTime;
-    }
-
-    public static float GetAntibioticImmunityTime()
-    {
-        return Body.antibioticImmunityTime;
-    }
+    public static float GetBadSleepAmount() => Body.badSleepAmount;
+    public static float GetGoodSleepTime() => Body.goodSleepTime;
+    public static bool TriedRollingLastStand() => Body is { triedRollingLastStand: true };
+    public static bool SuccessfullyRolledLastStand() => Body is { succesfullyRolledLastStand: true };
+    public static float GetLastStandTime() => Body.lastStandTime;
+    public static float GetAntibioticImmunityTime() => Body.antibioticImmunityTime;
 
     public static void Feed(float amount)
     {
@@ -547,7 +269,7 @@ public static class PlayerUtil
         if (Body is { } body) body.internalBleeding = Mathf.Clamp(value, 0f, 100f);
     }
 
-    private static string Locale(string key, params object[] args)
+    private static string LocaleLog(string key, params object[] args)
     {
         return BetterLocale.GetLog(key, args);
     }

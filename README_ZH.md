@@ -6,8 +6,7 @@
 
 [GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
-_基于 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
-扩展的 [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/) 模组工具库。_
+_基于 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) 扩展的 [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/) 模组工具库。_
 
 _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 
@@ -23,8 +22,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 - [更新检测 (UpdateUtil)](#更新检测-updateutil)
 - [工具参考](#工具参考)
 - [常量参考](#常量参考)
-- [项目结构](#项目结构)
-- [许可](#许可)
+- [许可证](#许可证)
 
 ---
 
@@ -47,7 +45,6 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 | [`ItemUtil`](Tool/ItemUtil.cs)                | 物品工具：附近搜索、修复、耐久度                            |
 | [`InputUtil`](Tool/InputUtil.cs)              | 输入处理：鼠标位置、点击等待                              |
 | [`LogUtil`](Tool/LogUtil.cs)                  | 控制台日志 + 校验辅助                                |
-| [`ConfigUtil`](Tool/ConfigUtil.cs)            | BepInEx 配置辅助                                |
 | [`TextUtil`](Tool/TextUtil.cs)                | 富文本格式化：颜色、透明度、粗体、斜体、字号                      |
 | [`ToolsUtil`](Tool/ToolsUtil.cs)              | 参数验证、浮点/整数解析                                |
 | [`Blocks`](Constant/Blocks.cs)                | 强类型方块定义                                     |
@@ -102,7 +99,7 @@ Other("bark.feature.enabled", "Enable Feature");
 Other("bark.feature.enabled", "启用功能");
 ```
 
-见 [Example/Lang/](Example/Lang/) 示例生成器。
+见 [Example/Lang/](Example/Lang) 示例生成器。
 
 ### 3. 注册设置
 
@@ -142,33 +139,33 @@ public class EnLangGenerator : ModLangGenBase
 }
 ```
 
-| 方法                         | 分类             |
-|----------------------------|----------------|
-| `Item(key, value, desc)`   | `item`         |
-| `Building(key, value, desc)` | `build`      |
-| `Moodle(key, value, desc)` | `moodle`       |
-| `Other(key, value)`        | `other`        |
-| `Option(key, label, desc)` | `option`（设置标签） |
-| `Log(key, value)`          | `log`          |
-| `Command(key, value, desc)`| `command`      |
-| `Liquid(key, value, desc)` | `liquid`       |
-| `Title(key, value, desc)`  | `title`        |
+| 方法                           | 分类             |
+|------------------------------|----------------|
+| `Item(key, value, desc)`     | `item`         |
+| `Building(key, value, desc)` | `build`        |
+| `Moodle(key, value, desc)`   | `moodle`       |
+| `Other(key, value)`          | `other`        |
+| `Option(key, label, desc)`   | `option`（设置标签） |
+| `Log(key, value)`            | `log`          |
+| `Command(key, value, desc)`  | `command`      |
+| `Liquid(key, value, desc)`   | `liquid`       |
+| `Title(key, value, desc)`    | `title`        |
 
 ### BetterLocale API
 
 #### Get（获取本地化文本）
 
-| 方法                        | 分类         |
-|---------------------------|------------|
-| `GetItem(key, args?)`     | `item`     |
-| `GetBuilding(key, args?)` | `build`    |
-| `GetMoodle(key, args?)`   | `moodle`   |
-| `GetOther(key, args?)`    | `other`    |
-| `GetLog(key, args?)`      | `log`      |
-| `GetCommand(key, args?)`  | `command`  |
-| `GetOption(key, args?)`   | `option`   |
-| `GetLiquid(key, args?)`   | `liquid`   |
-| `GetTitle(key, args?)`    | `title`    |
+| 方法                        | 分类        |
+|---------------------------|-----------|
+| `GetItem(key, args?)`     | `item`    |
+| `GetBuilding(key, args?)` | `build`   |
+| `GetMoodle(key, args?)`   | `moodle`  |
+| `GetOther(key, args?)`    | `other`   |
+| `GetLog(key, args?)`      | `log`     |
+| `GetCommand(key, args?)`  | `command` |
+| `GetOption(key, args?)`   | `option`  |
+| `GetLiquid(key, args?)`   | `liquid`  |
+| `GetTitle(key, args?)`    | `title`   |
 
 > **注意：** `args` 会替换查找结果中的 `{0}`、`{1}` 等占位符。
 > 例如 `BetterLocale.GetLog("update.available", "Bark", "1.0", "2.0")` 返回
@@ -176,18 +173,18 @@ public class EnLangGenerator : ModLangGenBase
 
 #### Has（检查翻译是否存在）
 
-| 方法                      | 分类         |
-|-------------------------|------------|
-| `HasKey(category, key)` | 任意分类       |
-| `HasKeyItem(key)`       | `item`     |
-| `HasKeyBuilding(key)`   | `build`    |
-| `HasKeyMoodle(key)`     | `moodle`   |
-| `HasKeyOther(key)`      | `other`    |
-| `HasKeyLog(key)`        | `log`      |
-| `HasKeyCommand(key)`    | `command`  |
-| `HasKeyOption(key)`     | `option`   |
-| `HasKeyLiquid(key)`     | `liquid`   |
-| `HasKeyTitle(key)`      | `title`    |
+| 方法                      | 分类        |
+|-------------------------|-----------|
+| `HasKey(category, key)` | 任意分类      |
+| `HasKeyItem(key)`       | `item`    |
+| `HasKeyBuilding(key)`   | `build`   |
+| `HasKeyMoodle(key)`     | `moodle`  |
+| `HasKeyOther(key)`      | `other`   |
+| `HasKeyLog(key)`        | `log`     |
+| `HasKeyCommand(key)`    | `command` |
+| `HasKeyOption(key)`     | `option`  |
+| `HasKeyLiquid(key)`     | `liquid`  |
+| `HasKeyTitle(key)`      | `title`   |
 
 #### 其他
 
@@ -224,12 +221,12 @@ using Bark.Tool;
 UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 ```
 
-| 参数              | 说明                                             |
-|-----------------|------------------------------------------------|
-| `githubRepo`     | GitHub 仓库路径，如 `"CNCUMC/Bark"`                 |
-| `modName`        | 日志和控制台消息中使用的显示名称                              |
-| `currentVersion` | 当前版本号，支持 `"1.0.0"` 或 `"v1.0.0"` 格式            |
-| `logger`         | 模组的 BepInEx `ManualLogSource`                   |
+| 参数               | 说明                                 |
+|------------------|------------------------------------|
+| `githubRepo`     | GitHub 仓库路径，如 `"CNCUMC/Bark"`      |
+| `modName`        | 日志和控制台消息中使用的显示名称                   |
+| `currentVersion` | 当前版本号，支持 `"1.0.0"` 或 `"v1.0.0"` 格式 |
+| `logger`         | 模组的 BepInEx `ManualLogSource`      |
 
 结果同时输出到 BepInEx 日志和游戏控制台。消息通过 `BetterLocale` 本地化
 （`update.no_repo`、`update.failed`、`update.no_version`、`update.available`、`update.uptodate`）。
@@ -240,21 +237,21 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 
 ### LogUtil
 
-| 方法                                         | 说明               |
-|--------------------------------------------|------------------|
-| `Info(text, logger)`                       | 输出到控制台 + BepInEx |
-| `Error(text, logger)`                      | 输出错误             |
-| `Warning(text, logger)`                    | 输出警告             |
-| `CheckWorld(logger?)`                      | 世界未加载时抛异常        |
-| `CheckBody(logger?)`                       | 玩家身体为空时抛异常       |
-| `CheckArgumentCount(args, min, logger?)`   | 验证参数数量           |
-| `CheckNotNullOrEmpty(val, name, logger?)`  | 验证字符串非空          |
-| `CheckParseFloat(s, logger?)`              | 解析浮点数或抛异常        |
-| `CheckParseInt(s, logger?)`                | 解析整数或抛异常         |
-| `PrintList(header, items, logger)`         | 格式化列表输出          |
-| `PrintNumberedList(header, items, logger)` | 带编号列表输出          |
-| `PrintKeyValueList(header, entries, logger)`| 键值对列表输出         |
-| `PrintGroupedList(header, groups, logger)` | 分组列表输出           |
+| 方法                                           | 说明               |
+|----------------------------------------------|------------------|
+| `Info(text, logger)`                         | 输出到控制台 + BepInEx |
+| `Error(text, logger)`                        | 输出错误             |
+| `Warning(text, logger)`                      | 输出警告             |
+| `CheckWorld(logger?)`                        | 世界未加载时抛异常        |
+| `CheckBody(logger?)`                         | 玩家身体为空时抛异常       |
+| `CheckArgumentCount(args, min, logger?)`     | 验证参数数量           |
+| `CheckNotNullOrEmpty(val, name, logger?)`    | 验证字符串非空          |
+| `CheckParseFloat(s, logger?)`                | 解析浮点数或抛异常        |
+| `CheckParseInt(s, logger?)`                  | 解析整数或抛异常         |
+| `PrintList(header, items, logger)`           | 格式化列表输出          |
+| `PrintNumberedList(header, items, logger)`   | 带编号列表输出          |
+| `PrintKeyValueList(header, entries, logger)` | 键值对列表输出          |
+| `PrintGroupedList(header, groups, logger)`   | 分组列表输出           |
 
 ### PlayerUtil
 
@@ -349,48 +346,6 @@ int slotId = Slots.MainHand;
 
 ---
 
-## 项目结构
-
-```
-Bark/
-├── Plugin.cs                 # 入口：初始化、依赖声明
-├── Bark.csproj               # 项目文件（net472、CUCoreLib 引用）
-├── Directory.Build.props     # 共享构建属性（游戏路径）
-├── Base/
-│   └── ModLangGenBase.cs     # 语言生成器基类
-├── BetterCCL/
-│   ├── BetterLocale.cs       # 本地化系统（Get/Set/Has/Flush）
-│   └── BetterOptions.cs      # CCL 设置注册封装
-├── Constant/
-│   ├── Blocks.cs             # 强类型方块定义
-│   ├── Items.cs              # 强类型物品定义
-│   ├── Backgrounds.cs        # 背景 ID 常量
-│   ├── Keys.cs               # 按键动作常量
-│   └── Slots.cs              # 物品栏槽位常量
-├── Example/Lang/
-│   ├── EnLangGenerator.cs    # 英语语言生成器
-│   ├── ZhCnLangGenerator.cs  # 简体中文语言生成器
-│   └── ZhTwLangGenerator.cs  # 繁体中文语言生成器
-├── Tool/
-│   ├── ConfigUtil.cs         # BepInEx 配置辅助
-│   ├── InputUtil.cs          # 输入处理
-│   ├── InventoryUtil.cs      # 物品栏操作
-│   ├── ItemUtil.cs           # 物品工具
-│   ├── LimbUtil.cs           # 肢体操作
-│   ├── LogUtil.cs            # 控制台日志 + 校验
-│   ├── PlayerUtil.cs         # 玩家操作
-│   ├── SkillUtil.cs          # 技能操作
-│   ├── TextUtil.cs           # 富文本格式化
-│   ├── ToolsUtil.cs          # 验证辅助
-│   ├── UpdateUtil.cs         # GitHub 更新检测
-│   └── WorldUtil.cs          # 世界操作
-├── CHANGELOG.md / CHANGELOG_ZH.md
-├── README.md / README_ZH.md
-└── LICENSE.md
-```
-
----
-
-## 许可
+## 许可证
 
 [GPL v3](LICENSE.md)

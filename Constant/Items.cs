@@ -1,11 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace Bark.Constant;
 
-namespace Bark.Constant;
-
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class Items
 {
     public static readonly Items _12Gauge = new("12gauge", "custom", 0.05f, 0);

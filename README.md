@@ -23,16 +23,13 @@ _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 - [Update Checking (UpdateUtil)](#update-checking-updateutil)
 - [Tools Reference](#tools-reference)
 - [Constants Reference](#constants-reference)
-- [Project Structure](#project-structure)
 - [License](#license)
 
 ---
 
 ## Overview
 
-**Bark** is a BepInEx plugin utility library for **Casualties Unknown**,
-extending [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) with enhanced localization, settings, and
-game utility tools.
+**Bark** is a BepInEx plugin utility library for **Casualties Unknown**, extending [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) with enhanced localization, settings, and game utility tools.
 
 | Module                                        | Description                                                         |
 |-----------------------------------------------|---------------------------------------------------------------------|
@@ -48,7 +45,6 @@ game utility tools.
 | [`ItemUtil`](Tool/ItemUtil.cs)                | Item utilities: FindNearby, Repair, SetCondition                    |
 | [`InputUtil`](Tool/InputUtil.cs)              | Input handling: mouse position, click waiting                       |
 | [`LogUtil`](Tool/LogUtil.cs)                  | Console logging + validation helpers                                |
-| [`ConfigUtil`](Tool/ConfigUtil.cs)            | BepInEx config helpers                                              |
 | [`TextUtil`](Tool/TextUtil.cs)                | Rich text formatting: color, alpha, bold, italic, size              |
 | [`ToolsUtil`](Tool/ToolsUtil.cs)              | Argument validation, float/int parsing                              |
 | [`Blocks`](Constant/Blocks.cs)                | Strongly-typed block definitions                                    |
@@ -104,7 +100,7 @@ Other("bark.feature.enabled", "Enable Feature");
 Other("bark.feature.enabled", "启用功能");
 ```
 
-See [Example/Lang/](Example/Lang/) for sample generators.
+See [Example/Lang/](Example/Lang) for sample generators.
 
 ### 3. Register a Setting
 
@@ -351,48 +347,6 @@ int slotId = Slots.MainHand;
 
 ---
 
-## Project Structure
-
-```
-Bark/
-├── Plugin.cs                 # Entry point: initialization, dependencies
-├── Bark.csproj               # Project file (net472, CUCoreLib ref)
-├── Directory.Build.props     # Shared build properties (game path)
-├── Base/
-│   └── ModLangGenBase.cs     # Language generator base class
-├── BetterCCL/
-│   ├── BetterLocale.cs       # Localization system (Get/Set/Has/Flush)
-│   └── BetterOptions.cs      # CCL settings registration wrapper
-├── Constant/
-│   ├── Blocks.cs             # Strongly-typed block definitions
-│   ├── Items.cs              # Strongly-typed item definitions
-│   ├── Backgrounds.cs        # Background ID constants
-│   ├── Keys.cs               # Key action constants
-│   └── Slots.cs              # Inventory slot constants
-├── Example/Lang/
-│   ├── EnLangGenerator.cs    # EN locale generator
-│   ├── ZhCnLangGenerator.cs  # zh-CN locale generator
-│   └── ZhTwLangGenerator.cs  # zh-TW locale generator
-├── Tool/
-│   ├── ConfigUtil.cs         # BepInEx config helpers
-│   ├── InputUtil.cs          # Input handling
-│   ├── InventoryUtil.cs      # Inventory operations
-│   ├── ItemUtil.cs           # Item utilities
-│   ├── LimbUtil.cs           # Limb operations
-│   ├── LogUtil.cs            # Console logging + validation
-│   ├── PlayerUtil.cs         # Player manipulation
-│   ├── SkillUtil.cs          # Skill operations
-│   ├── TextUtil.cs           # Rich text formatting
-│   ├── ToolsUtil.cs          # Validation helpers
-│   ├── UpdateUtil.cs         # GitHub update checker
-│   └── WorldUtil.cs          # World manipulation
-├── CHANGELOG.md / CHANGELOG_ZH.md
-├── README.md / README_ZH.md
-└── LICENSE.md
-```
-
----
-
 ## License
 
-[GPL v3](LICENSE.md)
+[LGPL v3](LICENSE.md)

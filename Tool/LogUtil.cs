@@ -39,16 +39,9 @@ public static class LogUtil
         _flushCoroutine = null;
     }
 
-    public static void NewLine()
-    {
-        LogToConsole("");
-    }
-
-    public static void Divider(char divider = '-', int length = 27)
-    {
-        LogToConsole(new string(divider, length));
-    }
-
+    public static void NewLine() => LogToConsole("");
+    public static void Divider(char divider = '-', int length = 27) => LogToConsole(new string(divider, length));
+    
     public static void Info(string text, ManualLogSource? logger)
     {
         LogToConsole(text);
@@ -92,7 +85,7 @@ public static class LogUtil
     public static void CheckNotNullOrEmpty(string value, string paramName, ManualLogSource? logger = null)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException(Locale("utils.string.null_or_empty"), paramName);
+            throw new ArgumentException(LocaleLog("utils.string.null_or_empty"), paramName);
     }
 
     public static float CheckParseFloat(string s, ManualLogSource? logger = null)
@@ -114,7 +107,7 @@ public static class LogUtil
 
     private static Exception Fail(string key, ManualLogSource? logger, params object[] args)
     {
-        var msg = Locale(key, args);
+        var msg = LocaleLog(key, args);
         Error(msg, logger);
         return new InvalidOperationException(msg);
     }
@@ -125,7 +118,7 @@ public static class LogUtil
         if (string.IsNullOrWhiteSpace(s)) return false;
         if (float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
                 out result)) return true;
-        Error(Locale("utils.parse.float_invalid", s), logger);
+        Error(LocaleLog("utils.parse.float_invalid", s), logger);
         return false;
     }
 
@@ -134,7 +127,7 @@ public static class LogUtil
         result = 0;
         if (string.IsNullOrWhiteSpace(s)) return false;
         if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out result)) return true;
-        Error(Locale("utils.parse.int_invalid", s), logger);
+        Error(LocaleLog("utils.parse.int_invalid", s), logger);
         return false;
     }
 
@@ -178,12 +171,7 @@ public static class LogUtil
         Divider();
     }
 
-    public static void PrintEmpty(string message, ManualLogSource logger)
-    {
-        Info(message, logger);
-    }
-
-    private static string Locale(string key, params object[] args)
+    private static string LocaleLog(string key, params object[] args)
     {
         return BetterLocale.GetLog(key, args);
     }

@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class TextUtil
 {
     public static string Color(string text, string color)

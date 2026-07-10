@@ -1,39 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bark.BetterCCL;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class InventoryUtil
 {
-    public static bool IsSlotOccupied(int slot)
-    {
-        return PlayerUtil.Body.HoldingItem(slot);
-    }
-
-    public static bool IsSlotEmpty(int slot)
-    {
-        return !IsSlotOccupied(slot);
-    }
-
-    public static Item GetItem(int slot)
-    {
-        return PlayerUtil.Body.GetItem(slot);
-    }
-
-    public static ItemInfo? GetItemInfo(int slot)
-    {
-        return GetItem(slot).Stats;
-    }
-
-    public static string? GetItemId(int slot)
-    {
-        return GetItem(slot).id;
-    }
+    public static bool IsSlotOccupied(int slot) => PlayerUtil.Body.HoldingItem(slot);
+    public static bool IsSlotEmpty(int slot) => !IsSlotOccupied(slot);
+    public static Item GetItem(int slot) => PlayerUtil.Body.GetItem(slot);
+    public static ItemInfo? GetItemInfo(int slot) => GetItem(slot).Stats;
+    public static string? GetItemId(int slot) => GetItem(slot).id;
 
     public static bool HasItem(string id)
     {
@@ -65,20 +43,10 @@ public static class InventoryUtil
         return false;
     }
 
-    public static bool HasItemByTag(string tag)
-    {
-        return !string.IsNullOrWhiteSpace(tag) && HasItem(info => info.HasTag(tag));
-    }
-
-    public static bool HasItemByCategory(string cat)
-    {
-        return !string.IsNullOrWhiteSpace(cat) && HasItem(info => info.category == cat);
-    }
-
-    public static bool HasWearableItem()
-    {
-        return HasItem(info => info.wearable);
-    }
+    public static bool HasItemByTag(string tag) => !string.IsNullOrWhiteSpace(tag) && HasItem(info => info.HasTag(tag));
+    public static bool HasItemByCategory(string cat) =>
+        !string.IsNullOrWhiteSpace(cat) && HasItem(info => info.category == cat);
+    public static bool HasWearableItem() => HasItem(info => info.wearable);
 
     public static int CountItem(string id)
     {
@@ -91,20 +59,9 @@ public static class InventoryUtil
         return c;
     }
 
-    public static List<Item> GetAllItems()
-    {
-        return PlayerUtil.Body.GetAllItems();
-    }
-
-    public static List<Item> GetAllItemsThorough()
-    {
-        return PlayerUtil.Body.GetAllItemsThorough();
-    }
-
-    public static List<ItemInfo> GetAllItemInfos()
-    {
-        return GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
-    }
+    public static List<Item> GetAllItems() => PlayerUtil.Body.GetAllItems();
+    public static List<Item> GetAllItemsThorough() => PlayerUtil.Body.GetAllItemsThorough();
+    public static List<ItemInfo> GetAllItemInfos() => GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
 
     public static List<ItemInfo> GetAllItemInfosThorough()
     {
@@ -112,25 +69,15 @@ public static class InventoryUtil
             .Where(i => i != null).ToList();
     }
 
-    public static List<string> GetAllItemIds()
-    {
-        return GetAllItems().Select(i => i.id).ToList();
-    }
-
-    public static List<Item> GetWearables()
-    {
-        return PlayerUtil.Body.GetAllWearables();
-    }
+    public static List<string> GetAllItemIds() => GetAllItems().Select(i => i.id).ToList();
+    public static List<Item> GetWearables() => PlayerUtil.Body.GetAllWearables();
 
     public static List<ItemInfo> GetWearableInfos()
     {
         return GetWearables().Select(i => i.Stats).Where(i => i != null).ToList();
     }
 
-    public static int? FindFirstEmptySlot()
-    {
-        return PlayerUtil.Body.FirstEmptySlot();
-    }
+    public static int? FindFirstEmptySlot() => PlayerUtil.Body.FirstEmptySlot();
 
     public static bool FindById(string id, out Item? item)
     {
@@ -144,41 +91,19 @@ public static class InventoryUtil
         return !string.IsNullOrWhiteSpace(id) && PlayerUtil.Body.FindByIdThorough(id, out item);
     }
 
-    public static int GetHandSlot()
-    {
-        return PlayerUtil.Body.handSlot;
-    }
-
-    public static Item GetItemInHand()
-    {
-        return PlayerUtil.Body.GetItem(PlayerUtil.Body.handSlot);
-    }
-
-    public static ItemInfo? GetItemInfoInHand()
-    {
-        return GetItemInHand().Stats;
-    }
-
-    public static string? GetItemIdInHand()
-    {
-        return GetItemInHand().id;
-    }
-
-    public static int GetSlotCount()
-    {
-        return PlayerUtil.Body.slots.Length;
-    }
+    public static int GetHandSlot() => PlayerUtil.Body.handSlot;
+    public static Item GetItemInHand() => PlayerUtil.Body.GetItem(PlayerUtil.Body.handSlot);
+    public static ItemInfo? GetItemInfoInHand() => GetItemInHand().Stats;
+    public static string? GetItemIdInHand() => GetItemInHand().id;
+    public static int GetSlotCount() => PlayerUtil.Body.slots.Length;
 
     public static string GetItemIdsString()
     {
         var ids = GetAllItemIds();
-        return ids.Count > 0 ? string.Join(", ", ids) : Locale("inventory.empty");
+        return ids.Count > 0 ? string.Join(", ", ids) : LocaleLog("inventory.empty");
     }
 
-    private static string Locale(string key, params object[] args)
-    {
-        return BetterLocale.GetLog(key, args);
-    }
+    private static string LocaleLog(string key, params object[] args) => BetterLocale.GetLog(key, args);
 }
 
 internal static class BodyExt

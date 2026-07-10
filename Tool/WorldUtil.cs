@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
@@ -7,11 +6,9 @@ using UnityEngine;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class WorldUtil
 {
-    public static WorldGeneration World = WorldGeneration.world;
+    public static readonly WorldGeneration World = WorldGeneration.world;
     private static readonly ManualLogSource Logger = Plugin.Logger;
 
     public static void PlaceBlock(int x, int y, ushort block)
@@ -69,15 +66,15 @@ public static class WorldUtil
 
     public static void CheckForWorld()
     {
-        if (!CUCoreUtils.IsInWorld()) throw new InvalidOperationException(Locale("world.check_for_world"));
+        if (!CUCoreUtils.IsInWorld()) throw new InvalidOperationException(LocaleLog("world.check_for_world"));
     }
 
     private static void Error(string key, params object[] args)
     {
-        LogUtil.Error(Locale(key, args), Logger);
+        LogUtil.Error(LocaleLog(key, args), Logger);
     }
 
-    private static string Locale(string key, params object[] args)
+    private static string LocaleLog(string key, params object[] args)
     {
         return BetterLocale.GetLog(key, args);
     }

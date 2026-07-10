@@ -3,15 +3,20 @@
     [string]$ModNamespace = "Bark"
 )
 
-function Convert-ToDisplayName {
+function Convert-ToDisplayName
+{
     param([string]$Namespace)
-    if ([string]::IsNullOrWhiteSpace($Namespace)) { return $Namespace }
+    if ( [string]::IsNullOrWhiteSpace($Namespace))
+    {
+        return $Namespace
+    }
 
     $result = [System.Text.StringBuilder]::new()
     $chars = $Namespace.ToCharArray()
     for ($i = 0; $i -lt $chars.Length; $i++) {
         $c = $chars[$i]
-        if ($i -gt 0 -and [char]::IsUpper($c) -and [char]::IsLower($chars[$i-1])) {
+        if ($i -gt 0 -and [char]::IsUpper($c) -and [char]::IsLower($chars[$i - 1]))
+        {
             $result.Append(' ') | Out-Null
         }
         $result.Append($c) | Out-Null

@@ -45,15 +45,11 @@ public static class UpdateUtil
         }
 
         if (IsNewer(currentVersion, latestTag!))
-        {
             LogUtil.Warning(
                 BetterLocale.GetLog("update.available", modName, currentVersion, latestTag!), logger);
-        }
         else
-        {
             LogUtil.Info(
                 BetterLocale.GetLog("update.uptodate", modName, currentVersion), logger);
-        }
     }
 
     private static string? TryExtractTagName(string json)
