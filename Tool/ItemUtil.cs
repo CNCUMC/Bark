@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class ItemUtil
 {
     public static List<Item> FindNearby(Vector2 center, float radius, bool includeContained = false)
@@ -38,15 +36,8 @@ public static class ItemUtil
         return best;
     }
 
-    public static void SetCondition(Item? item, float condition)
-    {
-        item?.SetCondition(Mathf.Clamp01(condition));
-    }
-
-    public static void Repair(Item? item)
-    {
-        SetCondition(item, 1f);
-    }
+    public static void SetCondition(Item? item, float condition) => item?.SetCondition(Mathf.Clamp01(condition));
+    public static void Repair(Item? item) => SetCondition(item, 1f);
 
     public static void SetFavourited(Item? item, bool favourited)
     {
@@ -66,13 +57,9 @@ public static class ItemUtil
             Item.GlobalItems.TryGetValue(id, out var info) ? info : null;
     }
 
-    public static bool IsKnownId(string? id)
-    {
-        return GetInfo(id) != null;
-    }
+    public static bool IsKnownId(string? id) => GetInfo(id) != null;
 
-    public static IEnumerable<string> GetAllIds()
-    {
-        return Item.GlobalItems != null ? new List<string>(Item.GlobalItems.Keys) : Enumerable.Empty<string>();
-    }
+    public static IEnumerable<string> GetAllIds() => Item.GlobalItems != null
+        ? new List<string>(Item.GlobalItems.Keys)
+        : Enumerable.Empty<string>();
 }

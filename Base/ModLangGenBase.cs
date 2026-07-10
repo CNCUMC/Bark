@@ -29,6 +29,21 @@ public abstract class ModLangGenBase
         Count++;
     }
 
+    protected void Other(string key, string value)
+    {
+        Add("other", key, value);
+    }
+
+    protected void Log(string key, string value)
+    {
+        Add("log", key, value);
+    }
+
+    protected void Command(string key, string value)
+    {
+        Add("command", key, value);
+    }
+
     protected void Item(string key, string value, string description)
     {
         Add("item", key, value);
@@ -45,22 +60,6 @@ public abstract class ModLangGenBase
     {
         Add("moodle", key, value);
         Add("moodle", key + "dsc", description);
-    }
-
-    protected void Other(string key, string value)
-    {
-        Add("other", key, value);
-    }
-
-    protected void Log(string key, string value)
-    {
-        Add("log", key, value);
-    }
-
-    protected void Command(string key, string value, string description)
-    {
-        Add("command", key, value);
-        Add("command", key + "dsc", description);
     }
 
     protected void Option(string key, string value, string description)

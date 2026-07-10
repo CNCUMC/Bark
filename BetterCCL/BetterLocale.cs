@@ -26,95 +26,24 @@ public static class BetterLocale
         return !string.IsNullOrWhiteSpace(text) && text != key;
     }
 
-    public static bool HasKeyItem(string key)
-    {
-        return HasKey("item", key);
-    }
-
-    public static bool HasKeyBuilding(string key)
-    {
-        return HasKey("build", key);
-    }
-
-    public static bool HasKeyMoodle(string key)
-    {
-        return HasKey("moodle", key);
-    }
-
-    public static bool HasKeyOther(string key)
-    {
-        return HasKey("other", key);
-    }
-
-    public static bool HasKeyLog(string key)
-    {
-        return HasKey("log", key);
-    }
-
-    public static bool HasKeyCommand(string key)
-    {
-        return HasKey("command", key);
-    }
-
-    public static bool HasKeyOption(string key)
-    {
-        return HasKey("option", key);
-    }
-
-    public static bool HasKeyLiquid(string key)
-    {
-        return HasKey("liquid", key);
-    }
-
-    public static bool HasKeyTitle(string key)
-    {
-        return HasKey("title", key);
-    }
-
-    public static string GetItem(string key, params object[]? args)
-    {
-        return Get("item", key, args);
-    }
-
-    public static string GetBuilding(string key, params object[]? args)
-    {
-        return Get("build", key, args);
-    }
-
-    public static string GetMoodle(string key, params object[]? args)
-    {
-        return Get("moodle", key, args);
-    }
-
-    public static string GetOther(string key, params object[]? args)
-    {
-        return Get("other", key, args);
-    }
-
-    public static string GetLog(string key, params object[]? args)
-    {
-        return Get("log", key, args);
-    }
-
-    public static string GetCommand(string key, params object[]? args)
-    {
-        return Get("command", key, args);
-    }
-
-    public static string GetOption(string key, params object[]? args)
-    {
-        return Get("option", key, args);
-    }
-
-    public static string GetLiquid(string key, params object[]? args)
-    {
-        return Get("liquid", key, args);
-    }
-
-    public static string GetTitle(string key, params object[]? args)
-    {
-        return Get("title", key, args);
-    }
+    public static bool HasKeyItem(string key) => HasKey("item", key);
+    public static bool HasKeyBuilding(string key) => HasKey("build", key);
+    public static bool HasKeyMoodle(string key) => HasKey("moodle", key);
+    public static bool HasKeyOther(string key) => HasKey("other", key);
+    public static bool HasKeyLog(string key) => HasKey("log", key);
+    public static bool HasKeyCommand(string key) => HasKey("command", key);
+    public static bool HasKeyOption(string key) => HasKey("option", key);
+    public static bool HasKeyLiquid(string key) => HasKey("liquid", key);
+    public static bool HasKeyTitle(string key) => HasKey("title", key);
+    public static string GetItem(string key, params object[]? args) => Get("item", key, args);
+    public static string GetBuilding(string key, params object[]? args) => Get("build", key, args);
+    public static string GetMoodle(string key, params object[]? args) => Get("moodle", key, args);
+    public static string GetOther(string key, params object[]? args) => Get("other", key, args);
+    public static string GetLog(string key, params object[]? args) => Get("log", key, args);
+    public static string GetCommand(string key, params object[]? args) => Get("command", key, args);
+    public static string GetOption(string key, params object[]? args) => Get("option", key, args);
+    public static string GetLiquid(string key, params object[]? args) => Get("liquid", key, args);
+    public static string GetTitle(string key, params object[]? args) => Get("title", key, args);
 
     private static string Get(string category, string key, params object[]? args)
     {

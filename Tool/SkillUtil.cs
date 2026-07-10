@@ -1,9 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public enum SkillType
 {
     Strength = 0,
@@ -11,7 +9,6 @@ public enum SkillType
     Intelligence = 2
 }
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class SkillUtil
 {
     public static float XpMultiplier

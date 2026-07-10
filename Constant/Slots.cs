@@ -1,11 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Bark.Constant;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class Slots
 {
     public static readonly Slots MainHand = new(0, "mainhand");
