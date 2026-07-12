@@ -1,47 +1,25 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
-using HarmonyLib;
-using UnityEngine;
 
 namespace Bark.Tool;
 
-[HarmonyPatch(typeof(ConsoleScript))]
 public static class LogUtil
 {
-    private static List<string> PendingConsoleLogs = [];
-    private static Coroutine? _flushCoroutine;
-
     public static void LogToConsole(string text)
     {
-        if (ConsoleScript.instance == null)
-        {
-            PendingConsoleLogs.Add(text);
-            _flushCoroutine ??= CUCoreUtils.StartCoroutine(FlushPendingLogsRoutine());
-            return;
-        }
-
+        if (ConsoleScript.instance == null) return;
         CUCoreUtils.ConsoleLog(ConsoleScript.instance, text);
     }
 
-    private static IEnumerator FlushPendingLogsRoutine()
-    {
-        while (ConsoleScript.instance == null)
-            yield return new WaitForSecondsRealtime(3f);
-
-        foreach (var log in PendingConsoleLogs)
-            CUCoreUtils.ConsoleLog(ConsoleScript.instance, log);
-        PendingConsoleLogs.Clear();
-        _flushCoroutine = null;
-    }
-
     public static void NewLine() => LogToConsole("");
-    public static void Divider(char divider = '-', int length = 27) => LogToConsole(new string(divider, length));
-    
+
+    public static void Divider(char divider = '-', int length = 27) =>
+        LogToConsole(new string(divider, length));
+
     public static void Info(string text, ManualLogSource? logger)
     {
         LogToConsole(text);
@@ -79,7 +57,8 @@ public static class LogUtil
     public static void CheckArgumentCount(string[] args, int minCount, ManualLogSource? logger = null)
     {
         if (args == null) throw new ArgumentNullException(nameof(args));
-        if (args.Length <= minCount) throw Fail("utils.check_argument_count", logger, minCount, args.Length - 1);
+        if (args.Length <= minCount)
+            throw Fail("utils.check_argument_count", logger, minCount, args.Length - 1);
     }
 
     public static void CheckNotNullOrEmpty(string value, string paramName, ManualLogSource? logger = null)
@@ -140,7 +119,8 @@ public static class LogUtil
         Divider();
     }
 
-    public static void PrintNumberedList(string header, IList<string> items, ManualLogSource logger, int startIndex = 1)
+    public static void PrintNumberedList(string header, IList<string> items, ManualLogSource logger,
+        int startIndex = 1)
     {
         Divider();
         Info(header, logger);
@@ -157,7 +137,8 @@ public static class LogUtil
         Divider();
     }
 
-    public static void PrintGroupedList(string header, IEnumerable<(string groupName, IList<string> items)> groups,
+    public static void PrintGroupedList(string header,
+        IEnumerable<(string groupName, IList<string> items)> groups,
         ManualLogSource logger, string groupPrefix = "    ", string itemPrefix = "        ")
     {
         Divider();
