@@ -6,7 +6,8 @@
 
 [GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
-_基于 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) 扩展的 [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/) 模组工具库。_
+_基于 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
+扩展的 [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/) 模组工具库。_
 
 _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 

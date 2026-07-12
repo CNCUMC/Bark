@@ -1,6 +1,5 @@
 using System;
 using Bark.BetterCCL;
-using BepInEx.Logging;
 using CUCoreLib.Helpers;
 using UnityEngine;
 

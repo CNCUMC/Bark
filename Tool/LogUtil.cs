@@ -15,10 +15,15 @@ public static class LogUtil
         CUCoreUtils.ConsoleLog(ConsoleScript.instance, text);
     }
 
-    public static void NewLine() => LogToConsole("");
+    public static void NewLine()
+    {
+        LogToConsole("");
+    }
 
-    public static void Divider(char divider = '-', int length = 27) =>
+    public static void Divider(char divider = '-', int length = 27)
+    {
         LogToConsole(new string(divider, length));
+    }
 
     public static void Info(string text, ManualLogSource? logger)
     {

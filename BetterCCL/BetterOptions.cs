@@ -8,14 +8,41 @@ namespace Bark.BetterCCL;
 // CCL 设置注册封装
 public static class BetterOptions
 {
-    private static string CategoryString(Setting.SettingCategory category) => category.ToString().ToLowerInvariant();
-    private static string MakeId(string ns, Setting.SettingCategory category, string key) => $"{ns}.{CategoryString(category)}.{key}";
-    private static string MakeId(string ns, string customCategory, string key) => $"{ns}.{customCategory.ToLowerInvariant()}.{key}";
-    private static string LabelText(string ns, Setting.SettingCategory category, string key) => MakeId(ns, category, key);
-    private static string LabelText(string ns, string customCategory, string key) => MakeId(ns, customCategory, key);
-    private static string DescriptionText(string ns, Setting.SettingCategory category, string key) => $"{MakeId(ns, category, key)}dsc";
-    private static string DescriptionText(string ns, string customCategory, string key) => $"{MakeId(ns, customCategory, key)}dsc";
-    
+    private static string CategoryString(Setting.SettingCategory category)
+    {
+        return category.ToString().ToLowerInvariant();
+    }
+
+    private static string MakeId(string ns, Setting.SettingCategory category, string key)
+    {
+        return $"{ns}.{CategoryString(category)}.{key}";
+    }
+
+    private static string MakeId(string ns, string customCategory, string key)
+    {
+        return $"{ns}.{customCategory.ToLowerInvariant()}.{key}";
+    }
+
+    private static string LabelText(string ns, Setting.SettingCategory category, string key)
+    {
+        return MakeId(ns, category, key);
+    }
+
+    private static string LabelText(string ns, string customCategory, string key)
+    {
+        return MakeId(ns, customCategory, key);
+    }
+
+    private static string DescriptionText(string ns, Setting.SettingCategory category, string key)
+    {
+        return $"{MakeId(ns, category, key)}dsc";
+    }
+
+    private static string DescriptionText(string ns, string customCategory, string key)
+    {
+        return $"{MakeId(ns, customCategory, key)}dsc";
+    }
+
     public static void Float(string ns, string key, Setting.SettingCategory category,
         float defaultValue, float min, float max,
         Action<float>? apply = null, Func<float, string>? formatValue = null)
@@ -56,7 +83,7 @@ public static class BetterOptions
             MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
             category, defaultValue, apply));
     }
-    
+
     public static void Float(string ns, string key, string customCategory,
         float defaultValue, float min, float max,
         Action<float>? apply = null, Func<float, string>? formatValue = null)

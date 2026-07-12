@@ -29,7 +29,9 @@ _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 
 ## Overview
 
-**Bark** is a BepInEx plugin utility library for **Casualties Unknown**, extending [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) with enhanced localization, settings, and game utility tools.
+**Bark** is a BepInEx plugin utility library for **Casualties Unknown**,
+extending [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) with enhanced localization, settings, and
+game utility tools.
 
 | Module                                        | Description                                                         |
 |-----------------------------------------------|---------------------------------------------------------------------|

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -7,37 +5,15 @@ namespace Bark.Tool;
 
 public static class ItemUtil
 {
-    public static List<Item> FindNearby(Vector2 center, float radius, bool includeContained = false)
+    public static void SetCondition(Item? item, float condition)
     {
-        var result = new List<Item>();
-        if (radius <= 0f) return result;
-        var sqr = radius * radius;
-        result.AddRange(Object.FindObjectsOfType<Item>()
-            .Where(item => includeContained || item.ParentContainer() == null).Where(item =>
-                ((Vector2)item.transform.position - center).sqrMagnitude <= sqr));
-
-        return result;
+        item?.SetCondition(Mathf.Clamp01(condition));
     }
 
-    public static Item? FindClosest(Vector2 center, float maxRadius = float.MaxValue, bool includeContained = false)
+    public static void Repair(Item? item)
     {
-        Item? best = null;
-        var bestSqr = maxRadius * maxRadius;
-        foreach (var item in Object.FindObjectsOfType<Item>())
-        {
-            if (item == null) continue;
-            if (!includeContained && item.ParentContainer() != null) continue;
-            var d = ((Vector2)item.transform.position - center).sqrMagnitude;
-            if (!(d < bestSqr)) continue;
-            bestSqr = d;
-            best = item;
-        }
-
-        return best;
+        SetCondition(item, 1f);
     }
-
-    public static void SetCondition(Item? item, float condition) => item?.SetCondition(Mathf.Clamp01(condition));
-    public static void Repair(Item? item) => SetCondition(item, 1f);
 
     public static void SetFavourited(Item? item, bool favourited)
     {
@@ -50,16 +26,4 @@ public static class ItemUtil
         if (item.ParentContainer() != null) item.transform.SetParent(null, true);
         Object.Destroy(item.gameObject);
     }
-
-    public static ItemInfo? GetInfo(string? id)
-    {
-        return string.IsNullOrEmpty(id) || Item.GlobalItems == null ? null :
-            Item.GlobalItems.TryGetValue(id, out var info) ? info : null;
-    }
-
-    public static bool IsKnownId(string? id) => GetInfo(id) != null;
-
-    public static IEnumerable<string> GetAllIds() => Item.GlobalItems != null
-        ? new List<string>(Item.GlobalItems.Keys)
-        : Enumerable.Empty<string>();
 }
