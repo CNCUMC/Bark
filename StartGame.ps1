@@ -160,7 +160,13 @@ try
         {
             $content = Get-Content $GameLog -ReadCount 0 -Encoding UTF8
             for ($i = $lastReadPosition; $i -lt $content.Count; $i++) {
-                Write-ColoredMessage $content[$i] Magenta
+                $line = $content[$i]
+                $color = "White"
+                if ($line -match "^\[Error") { $color = "Red" }
+                elseif ($line -match "^\[Warning") { $color = "Yellow" }
+                elseif ($line -match "^\[Info") { $color = "White" }
+                elseif ($line -match "^\[Message") { $color = "Blue" }
+                Write-ColoredMessage $line $color
             }
             $lastReadPosition = $content.Count
         }

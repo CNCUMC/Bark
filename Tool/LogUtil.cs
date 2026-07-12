@@ -13,7 +13,7 @@ namespace Bark.Tool;
 [HarmonyPatch(typeof(ConsoleScript))]
 public static class LogUtil
 {
-    private static readonly List<string> PendingConsoleLogs = [];
+    private static List<string> PendingConsoleLogs = [];
     private static Coroutine? _flushCoroutine;
 
     public static void LogToConsole(string text)

@@ -8,8 +8,7 @@ namespace Bark.Tool;
 
 public static class WorldUtil
 {
-    public static readonly WorldGeneration World = WorldGeneration.world;
-    private static readonly ManualLogSource Logger = Plugin.Logger;
+    public static WorldGeneration World => WorldGeneration.world;
 
     public static void PlaceBlock(int x, int y, ushort block)
     {
@@ -71,7 +70,7 @@ public static class WorldUtil
 
     private static void Error(string key, params object[] args)
     {
-        LogUtil.Error(LocaleLog(key, args), Logger);
+        LogUtil.Error(LocaleLog(key, args), Plugin.Logger);
     }
 
     private static string LocaleLog(string key, params object[] args)

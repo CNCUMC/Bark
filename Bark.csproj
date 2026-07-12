@@ -2,7 +2,6 @@
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <Product>Bark</Product>
-        <Version>1.0.2</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>

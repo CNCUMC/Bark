@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
@@ -8,16 +7,14 @@ using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;
-    public static readonly Body Body = PlayerCamera.main.body;
-    private static readonly ManualLogSource Logger = Plugin.Logger;
+    public static Body Body => PlayerCamera.main.body;
 
     public static void Tp(Vector2 pos)
     {
-        LogUtil.CheckBody(Logger);
+        LogUtil.CheckBody(Plugin.Logger);
         Body.transform.position = pos;
         if (Body != null) Body.transform.position = pos;
     }
@@ -38,7 +35,7 @@ public static class PlayerUtil
 
     public static void PickItem(string item, int slot, bool force = false)
     {
-        LogUtil.CheckBody(Logger);
+        LogUtil.CheckBody(Plugin.Logger);
         LogUtil.CheckNotNullOrEmpty(item, nameof(item));
         if (slot is < 0 or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
 using Bark.Tool;
@@ -12,8 +11,6 @@ using UnityEngine;
 
 namespace Bark.BetterCCL;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedType.Global")]
 public static class BetterLocale
 {
     // language → category → key → value
