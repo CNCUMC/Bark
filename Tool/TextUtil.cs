@@ -20,7 +20,7 @@ public static class TextUtil
 
             _tmpUnifontSearched = true;
             field = Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
-                .FirstOrDefault(f => f.name.Contains("unifont-16.0"));
+                .FirstOrDefault(f => f.name.Contains("unifont"));
 
             if (field == null)
                 LogUtil.Warning("text.tmp_unifont_not_found");

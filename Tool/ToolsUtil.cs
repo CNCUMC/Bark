@@ -5,14 +5,7 @@ using Bark.BetterCCL;
 namespace Bark.Tool;
 
 public static class ToolsUtil
-{
-    public static void CheckArgumentCount(string[] args, int desired)
-    {
-        if (args == null) throw new ArgumentNullException(nameof(args));
-        if (args.Length <= desired)
-            throw new Exception(LocaleLog("utils.check_argument_count", desired, args.Length - 1));
-    }
-
+{ 
     public static float ParseFloat(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
