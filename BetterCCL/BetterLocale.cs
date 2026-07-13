@@ -139,7 +139,9 @@ public static class BetterLocale
         return Regex.Replace(key, @"\{(\d+)\}", match =>
         {
             var index = int.Parse(match.Groups[1].Value);
-            return args[index].ToString();
+            if (index < args.Length) return args[index].ToString();
+            LogUtil.Warning("betterlocale.placeholder_out_of_range", key, index, args.Length);
+            return match.Value;
         });
     }
 

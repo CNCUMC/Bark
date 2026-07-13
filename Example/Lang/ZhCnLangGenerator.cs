@@ -65,5 +65,8 @@ public class ZhCnLangGenerator : ModLangGenBase
         // Log - TextUtil
         Log("text.tmp_unifont_not_found", "未找到 TMP Unifont 字体 (unifont-16.0)");
         Log("text.unifont_not_found", "未找到 Unifont 字体");
+
+        // Log - BetterLocale
+        Log("betterlocale.placeholder_out_of_range", "占位符 {{{1}}} 超出键 '{0}' 的范围 (args.Length={2})");
     }
 }

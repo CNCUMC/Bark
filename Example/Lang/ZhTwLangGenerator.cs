@@ -65,5 +65,8 @@ public class ZhTwLangGenerator : ModLangGenBase
         // Log - TextUtil
         Log("text.tmp_unifont_not_found", "未找到 TMP Unifont 字體 (unifont-16.0)");
         Log("text.unifont_not_found", "未找到 Unifont 字體");
+
+        // Log - BetterLocale
+        Log("betterlocale.placeholder_out_of_range", "佔位符 {{{1}}} 超出鍵 '{0}' 的範圍 (args.Length={2})");
     }
 }

@@ -65,5 +65,8 @@ public class EnLangGenerator : ModLangGenBase
         // Log - TextUtil
         Log("text.tmp_unifont_not_found", "TMP Unifont font not found (unifont-16.0)");
         Log("text.unifont_not_found", "Unifont font not found");
+
+        // Log - BetterLocale
+        Log("betterlocale.placeholder_out_of_range", "Placeholder {{{1}}} out of range for key '{0}' (args.Length={2})");
     }
 }
