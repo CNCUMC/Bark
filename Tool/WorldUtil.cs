@@ -16,20 +16,20 @@ public static class WorldUtil
 
     public static void PlaceBlock(Vector2 pos, ushort block)
     {
-        LogUtil.CheckWorld();
+        CheckUtil.CheckWorld(Plugin.Logger);
         try
         {
-            World!.SetBlock(World.WorldToBlockPos(pos), block);
+            World.SetBlock(World.WorldToBlockPos(pos), block);
         }
         catch (Exception ex)
         {
-            Error("world.place_block", ex);
+            LogUtil.Error("world.place_block", ex);
         }
     }
 
     public static void FillBlocks(int sx, int sy, int ex, int ey, ushort block)
     {
-        LogUtil.CheckWorld();
+        CheckUtil.CheckWorld(Plugin.Logger);
         var w = World!;
         var csx = Mathf.Clamp(sx, 0, (int)w.width - 2);
         var csy = Mathf.Clamp(sy, 0, (int)w.height - 2);
@@ -50,27 +50,24 @@ public static class WorldUtil
 
     public static void PlaceItem(Vector2 pos, string item)
     {
-        LogUtil.CheckWorld();
-        LogUtil.CheckNotNullOrEmpty(item, nameof(item));
+        CheckUtil.CheckWorld(Plugin.Logger);
+        CheckUtil.CheckNotNullOrEmpty(item, nameof(item));
         try
         {
             Utils.Create(item, pos, 0f);
         }
         catch (Exception ex)
         {
-            Error("world.place_item", ex);
+            LogUtil.Error("world.place_item", ex);
         }
     }
 
     public static void CheckForWorld()
     {
-        if (!CUCoreUtils.IsInWorld()) throw new InvalidOperationException(LocaleLog("world.check_for_world"));
+        if (!CUCoreUtils.IsInWorld()) throw new InvalidOperationException(
+            LocaleLog("world.check_for_world"));
     }
 
-    private static void Error(string key, params object[] args)
-    {
-        LogUtil.Error(LocaleLog(key, args), Plugin.Logger);
-    }
 
     private static string LocaleLog(string key, params object[] args)
     {

@@ -61,5 +61,9 @@ public class ZhTwLangGenerator : ModLangGenBase
         Log("update.no_version", "{0} 無法讀取最新版本號。");
         Log("update.available", "{0} 有新版本可用！{1} -> {2}");
         Log("update.uptodate", "{0} 已是最新版本 ({1})。");
+
+        // Log - TextUtil
+        Log("text.tmp_unifont_not_found", "未找到 TMP Unifont 字體 (unifont-16.0)");
+        Log("text.unifont_not_found", "未找到 Unifont 字體");
     }
 }

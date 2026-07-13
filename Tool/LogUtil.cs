@@ -42,58 +42,23 @@ public static class LogUtil
         LogToConsole($"[WARNING] {text}");
         logger?.LogWarning(text);
     }
-
-    public static void CheckWorld(ManualLogSource? logger = null)
+    
+    public static void Debug(string text, ManualLogSource? logger)
     {
-        if (!CUCoreUtils.IsInWorld()) throw Fail("world.check_for_world", logger);
+        LogToConsole($"[DEBUG] {text}");
+        logger?.LogDebug(text);
     }
-
-    public static void CheckBody(ManualLogSource? logger = null)
+    
+    public static void Fatal(string text, ManualLogSource? logger)
     {
-        CheckWorld(logger);
-        if (!CUCoreUtils.TryGetBody(out _)) throw Fail("player.body_null", logger);
+        LogToConsole($"[FATAL] {text}");
+        logger?.LogFatal(text);
     }
-
-    public static void CheckConsole(ManualLogSource? logger = null)
+    
+    public static void Message(string text, ManualLogSource? logger)
     {
-        if (ConsoleScript.instance == null) throw Fail("console.not_initialized", logger);
-    }
-
-    public static void CheckArgumentCount(string[] args, int minCount, ManualLogSource? logger = null)
-    {
-        if (args == null) throw new ArgumentNullException(nameof(args));
-        if (args.Length <= minCount)
-            throw Fail("utils.check_argument_count", logger, minCount, args.Length - 1);
-    }
-
-    public static void CheckNotNullOrEmpty(string value, string paramName, ManualLogSource? logger = null)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException(LocaleLog("utils.string.null_or_empty"), paramName);
-    }
-
-    public static float CheckParseFloat(string s, ManualLogSource? logger = null)
-    {
-        if (string.IsNullOrWhiteSpace(s)) throw Fail("utils.string.null_or_empty", logger);
-        return float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
-            out var r)
-            ? r
-            : throw Fail("utils.parse.float_invalid", logger, s);
-    }
-
-    public static int CheckParseInt(string s, ManualLogSource? logger = null)
-    {
-        if (string.IsNullOrWhiteSpace(s)) throw Fail("utils.string.null_or_empty", logger);
-        return int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var r)
-            ? r
-            : throw Fail("utils.parse.int_invalid", logger, s);
-    }
-
-    private static Exception Fail(string key, ManualLogSource? logger, params object[] args)
-    {
-        var msg = LocaleLog(key, args);
-        Error(msg, logger);
-        return new InvalidOperationException(msg);
+        LogToConsole($"[MESSAGE] {text}");
+        logger?.LogMessage(text);
     }
 
     public static bool TryParseFloat(string s, out float result, ManualLogSource logger)
@@ -155,6 +120,36 @@ public static class LogUtil
         }
 
         Divider();
+    }
+
+    internal static void Info(string text, params object[] args)
+    {
+        Info(LocaleLog(text, args), Plugin.Logger);
+    }
+    
+    internal static void Error(string text, params object[] args)
+    {
+        Error(LocaleLog(text, args), Plugin.Logger);
+    }
+    
+    internal static void Warning(string text, params object[] args)
+    {
+        Warning(LocaleLog(text, args), Plugin.Logger);
+    }
+    
+    internal static void Debug(string text, params object[] args)
+    {
+        Debug(LocaleLog(text, args), Plugin.Logger);
+    }
+    
+    internal static void Fatal(string text, params object[] args)
+    {
+        Fatal(LocaleLog(text, args), Plugin.Logger);
+    }
+    
+    internal static void Message(string text, params object[] args)
+    {
+        Message(LocaleLog(text, args), Plugin.Logger);
     }
 
     private static string LocaleLog(string key, params object[] args)

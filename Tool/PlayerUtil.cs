@@ -13,7 +13,7 @@ public static class PlayerUtil
 
     public static void Tp(Vector2 pos)
     {
-        LogUtil.CheckBody(Plugin.Logger);
+        CheckUtil.CheckBody(Plugin.Logger);
         Body.transform.position = pos;
         if (Body != null) Body.transform.position = pos;
     }
@@ -34,8 +34,8 @@ public static class PlayerUtil
 
     public static void PickItem(string item, int slot, bool force = false)
     {
-        LogUtil.CheckBody(Plugin.Logger);
-        LogUtil.CheckNotNullOrEmpty(item, nameof(item));
+        CheckUtil.CheckBody(Plugin.Logger);
+        CheckUtil.CheckNotNullOrEmpty(item, nameof(item));
         if (slot is < 0 or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
                 LocaleLog("player.slot.out_of_range", MaxInventorySlots));

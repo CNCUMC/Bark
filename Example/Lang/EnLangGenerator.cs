@@ -61,5 +61,9 @@ public class EnLangGenerator : ModLangGenBase
         Log("update.no_version", "{0} could not read the latest release version.");
         Log("update.available", "{0} update available! {1} -> {2}");
         Log("update.uptodate", "{0} is up to date ({1}).");
+
+        // Log - TextUtil
+        Log("text.tmp_unifont_not_found", "TMP Unifont font not found (unifont-16.0)");
+        Log("text.unifont_not_found", "Unifont font not found");
     }
 }

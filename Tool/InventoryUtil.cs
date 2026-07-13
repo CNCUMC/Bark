@@ -92,7 +92,7 @@ public static class InventoryUtil
 
     public static bool HasItem(string id)
     {
-        LogUtil.CheckNotNullOrEmpty(id, nameof(id));
+        CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
         return PlayerUtil.Body.HoldingItem(id);
     }
 
@@ -239,7 +239,7 @@ public static class InventoryUtil
 
     public static bool HasItemThorough(string id)
     {
-        LogUtil.CheckNotNullOrEmpty(id, nameof(id));
+        CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
         return PlayerUtil.Body.FindByIdThorough(id, out _);
     }
 

@@ -18,9 +18,22 @@ to [Semantic Versioning](https://semver.org/).
     - **Thorough**: `HasItemThoroughByTag/Category`, `GetItemsThoroughByTag/Category`,
       `GetItemInfosThoroughByTag/Category`
     - **All**: `GetAllItemsAll()`, `GetAllItemInfosAll()` (aggregate Hand + Body + Wearable + Thorough, deduplicated)
+- **CheckUtil** — extracted validation helpers from `LogUtil` into a dedicated class:
+    - `CheckWorld(logger)`, `CheckBody(logger)`, `CheckConsole(logger)`
+    - `CheckArgumentCount(args, minCount, logger)`, `CheckNotNullOrEmpty(value, paramName)`
+    - `CheckParseFloat(parse, logger)`, `CheckParseInt(parse, logger)`
+- **TextUtil** — font properties now cached with null-guard to avoid repeated `Resources.FindObjectsOfTypeAll` calls.
+    - `TMPUnifont` and `Unifont` return nullable types with `Debug.LogWarning` on missing font.
+    - Localized warning messages via `BetterLocale` (`log.textutil.tmp_unifont_not_found`, `log.textutil.unifont_not_found`).
+- **LogUtil** — added `Debug`, `Fatal`, `Message` methods. Added internal locale-aware overloads (`Info(text, args)`, `Error(text, args)`, etc.).
 
 ### Changed
 
 - **LogUtil** — removed broken `[HarmonyPatch]` attribute that caused `NullReferenceException: routine is null` at
   `Body.Start()`. Console output now uses `CUCoreUtils.ConsoleLog` (reflection-based, matches CCL pattern). Added
   pending log queue — messages before `ConsoleScript` is ready are queued and flushed automatically.
+- **CheckUtil.Fail** — now uses `LogUtil.Error` to output to both game console and BepInEx logger (previously only BepInEx).
+
+### Fixed
+
+- **CheckUtil.CheckArgumentCount** — fixed comparison (`<=` → `<`) and off-by-one in error message (`args.Length - 1` → `args.Length`).

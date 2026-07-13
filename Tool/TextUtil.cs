@@ -1,10 +1,52 @@
+using System.Linq;
 using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
+using Bark.BetterCCL;
 
 namespace Bark.Tool;
 
 public static class TextUtil
 {
+    private static bool _tmpUnifontSearched;
+    private static bool _unifontSearched;
+
+    public static TMP_FontAsset? TMPUnifont
+    {
+        get
+        {
+            if (field != null) return field;
+            if (_tmpUnifontSearched) return null;
+
+            _tmpUnifontSearched = true;
+            field = Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+                .FirstOrDefault(f => f.name.Contains("unifont-16.0"));
+
+            if (field == null)
+                LogUtil.Warning("text.tmp_unifont_not_found");
+
+            return field;
+        }
+    }
+
+    public static Font? Unifont
+    {
+        get
+        {
+            if (field != null) return field;
+            if (_unifontSearched) return null;
+
+            _unifontSearched = true;
+            field = Resources.FindObjectsOfTypeAll<Font>()
+                .FirstOrDefault(f => f.name.Contains("unifont"));
+
+            if (field == null)
+                LogUtil.Warning("text.unifont_not_found");
+
+            return field;
+        }
+    }
+
     public static string Color(string text, string color)
     {
         return string.IsNullOrEmpty(text) ? text :
@@ -23,70 +65,19 @@ public static class TextUtil
         return Color(text, hex);
     }
 
-    public static string Blue(string text)
-    {
-        return Color(text, "blue");
-    }
-
-    public static string Red(string text)
-    {
-        return Color(text, "red");
-    }
-
-    public static string Green(string text)
-    {
-        return Color(text, "green");
-    }
-
-    public static string Yellow(string text)
-    {
-        return Color(text, "yellow");
-    }
-
-    public static string White(string text)
-    {
-        return Color(text, "white");
-    }
-
-    public static string Black(string text)
-    {
-        return Color(text, "black");
-    }
-
-    public static string Cyan(string text)
-    {
-        return Color(text, "cyan");
-    }
-
-    public static string Magenta(string text)
-    {
-        return Color(text, "magenta");
-    }
-
-    public static string Gray(string text)
-    {
-        return Color(text, "gray");
-    }
-
-    public static string Orange(string text)
-    {
-        return Color(text, "orange");
-    }
-
-    public static string Purple(string text)
-    {
-        return Color(text, "purple");
-    }
-
-    public static string Pink(string text)
-    {
-        return Color(text, "pink");
-    }
-
-    public static string Brown(string text)
-    {
-        return Color(text, "brown");
-    }
+    public static string Blue(string text) => Color(text, "blue");
+    public static string Red(string text) => Color(text, "red");
+    public static string Green(string text) => Color(text, "green");
+    public static string Yellow(string text) => Color(text, "yellow");
+    public static string White(string text) => Color(text, "white");
+    public static string Black(string text) => Color(text, "black");
+    public static string Cyan(string text) => Color(text, "cyan");
+    public static string Magenta(string text) => Color(text, "magenta");
+    public static string Gray(string text) => Color(text, "gray");
+    public static string Orange(string text) => Color(text, "orange");
+    public static string Purple(string text) => Color(text, "purple");
+    public static string Pink(string text) => Color(text, "pink");
+    public static string Brown(string text) => Color(text, "brown");
 
     public static string Alpha(string text, string alpha)
     {
@@ -105,30 +96,20 @@ public static class TextUtil
         return Alpha(text, alpha.ToString("X2"));
     }
 
-    public static string Bold(string text)
-    {
-        return string.IsNullOrEmpty(text) ? text : $"<b>{text}</b>";
-    }
+    public static string Bold(string text) =>
+        string.IsNullOrEmpty(text) ? text : $"<b>{text}</b>";
 
-    public static string Italic(string text)
-    {
-        return string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
-    }
+    public static string Italic(string text) =>
+        string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
 
-    public static string Unline(string text)
-    {
-        return string.IsNullOrEmpty(text) ? text : $"<u>{text}</u>";
-    }
+    public static string Unline(string text) =>
+        string.IsNullOrEmpty(text) ? text : $"<u>{text}</u>";
 
-    public static string Delete(string text)
-    {
-        return string.IsNullOrEmpty(text) ? text : $"<s>{text}</s>";
-    }
+    public static string Delete(string text) =>
+        string.IsNullOrEmpty(text) ? text : $"<s>{text}</s>";
 
-    public static string Size(string text, int size)
-    {
-        return string.IsNullOrEmpty(text) ? text : $"<size={size}>{text}</size>";
-    }
+    public static string Size(string text, int size) =>
+        string.IsNullOrEmpty(text) ? text : $"<size={size}>{text}</size>";
 
     public static string SimpleMarkDown(string text)
     {

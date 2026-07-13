@@ -6,7 +6,7 @@
 
 [GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
-_A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/3624440/Casualties_Unknown_Demo/),
+_A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/4576490/),
 built on top of [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)._
 
 _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
