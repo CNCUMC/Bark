@@ -21,7 +21,7 @@
     - `CheckArgumentCount(args, minCount, logger)`、`CheckNotNullOrEmpty(value, paramName)`
     - `CheckParseFloat(parse, logger)`、`CheckParseInt(parse, logger)`
 - **TextUtil** — 字体属性现在缓存 + 空守卫，避免重复调用 `Resources.FindObjectsOfTypeAll`。
-    - `TMPUnifont` 和 `Unifont` 返回 nullable 类型，字体缺失时输出 `Debug.LogWarning`。
+    - 字体返回 nullable 类型，字体缺失时输出 `Debug.LogWarning`。
     - 警告消息通过 `BetterLocale` 本地化（`log.textutil.tmp_unifont_not_found`、`log.textutil.unifont_not_found`）。
 - **LogUtil** — 新增 `Debug`、`Fatal`、`Message` 方法。新增内部本地化重载（`Info(text, args)`、`Error(text, args)` 等）。
 

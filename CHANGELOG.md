@@ -23,7 +23,7 @@ to [Semantic Versioning](https://semver.org/).
     - `CheckArgumentCount(args, minCount, logger)`, `CheckNotNullOrEmpty(value, paramName)`
     - `CheckParseFloat(parse, logger)`, `CheckParseInt(parse, logger)`
 - **TextUtil** — font properties now cached with null-guard to avoid repeated `Resources.FindObjectsOfTypeAll` calls.
-    - `TMPUnifont` and `Unifont` return nullable types with `Debug.LogWarning` on missing font.
+    - Font return nullable types with `Debug.LogWarning` on missing font.
     - Localized warning messages via `BetterLocale` (`log.textutil.tmp_unifont_not_found`, `log.textutil.unifont_not_found`).
 - **LogUtil** — added `Debug`, `Fatal`, `Message` methods. Added internal locale-aware overloads (`Info(text, args)`, `Error(text, args)`, etc.).
 
