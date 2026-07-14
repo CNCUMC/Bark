@@ -37,3 +37,4 @@ to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - **CheckUtil.CheckArgumentCount** — fixed comparison (`<=` → `<`) and off-by-one in error message (`args.Length - 1` → `args.Length`).
+- **BetterLocale.Replace** — fixed `IndexOutOfRangeException` when placeholder index exceeds `args` array length. Now outputs localized `Debug.LogWarning` via `log.betterlocale.placeholder_out_of_range` and preserves the original placeholder text.

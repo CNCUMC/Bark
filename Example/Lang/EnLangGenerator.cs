@@ -60,13 +60,12 @@ public class EnLangGenerator : ModLangGenBase
         Log("update.failed", "{0} could not check for updates.");
         Log("update.no_version", "{0} could not read the latest release version.");
         Log("update.available", "{0} update available! {1} -> {2}");
-        Log("update.uptodate", "{0} is up to date ({1}).");
+        Log("update.up_to_date", "{0} is up to date ({1}).");
 
         // Log - TextUtil
-        Log("text.tmp_unifont_not_found", "TMP Unifont font not found (unifont-16.0)");
-        Log("text.unifont_not_found", "Unifont font not found");
+        Log("text.font_not_found", "{0} font not found.");
 
         // Log - BetterLocale
-        Log("betterlocale.placeholder_out_of_range", "Placeholder {{{1}}} out of range for key '{0}' (args.Length={2})");
+        Log("better_locale.placeholder_out_of_range", "Placeholder {{{1}}} out of range for key '{0}' (args.Length={2})");
     }
 }

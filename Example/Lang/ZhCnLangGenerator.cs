@@ -60,13 +60,12 @@ public class ZhCnLangGenerator : ModLangGenBase
         Log("update.failed", "{0} 无法检查更新");
         Log("update.no_version", "{0} 无法读取最新版本号");
         Log("update.available", "{0} 有新版本可用！{1} -> {2}");
-        Log("update.uptodate", "{0} 已是最新版本 ({1})");
+        Log("update.up_to_date", "{0} 已是最新版本 ({1})");
 
         // Log - TextUtil
-        Log("text.tmp_unifont_not_found", "未找到 TMP Unifont 字体 (unifont-16.0)");
-        Log("text.unifont_not_found", "未找到 Unifont 字体");
+        Log("text.font_not_found", "未找到 {0} 字体");
 
         // Log - BetterLocale
-        Log("betterlocale.placeholder_out_of_range", "占位符 {{{1}}} 超出键 '{0}' 的范围 (args.Length={2})");
+        Log("better_locale.placeholder_out_of_range", "占位符 {{{1}}} 超出键 '{0}' 的范围 (args.Length={2})");
     }
 }

@@ -2,7 +2,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
-using Bark.BetterCCL;
 
 namespace Bark.Tool;
 
@@ -10,8 +9,10 @@ public static class TextUtil
 {
     private static bool _tmpUnifontSearched;
     private static bool _unifontSearched;
+    private static bool _retroGamingTmpSearched;
+    private static bool _retroGamingSearched;
 
-    public static TMP_FontAsset? TMPUnifont
+    public static TMP_FontAsset? UnifontTMP
     {
         get
         {
@@ -23,7 +24,25 @@ public static class TextUtil
                 .FirstOrDefault(f => f.name.Contains("unifont"));
 
             if (field == null)
-                LogUtil.Warning("text.tmp_unifont_not_found");
+                LogUtil.Warning("text.font_not_found", "Unifont");
+
+            return field;
+        }
+    }  
+    
+    public static TMP_FontAsset? RetroGamingTMP
+    {
+        get
+        {
+            if (field != null) return field;
+            if (_retroGamingTmpSearched) return null;
+
+            _retroGamingTmpSearched = true;
+            field = Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+                .FirstOrDefault(f => f.name.Contains("Retro Gaming"));
+
+            if (field == null)
+                LogUtil.Warning("text.font_not_found", "Retro Gaming");
 
             return field;
         }
@@ -41,7 +60,25 @@ public static class TextUtil
                 .FirstOrDefault(f => f.name.Contains("unifont"));
 
             if (field == null)
-                LogUtil.Warning("text.unifont_not_found");
+                LogUtil.Warning("text.font_not_found", "unifont");
+
+            return field;
+        }
+    }
+    
+    public static Font? RetroGaming
+    {
+        get
+        {
+            if (field != null) return field;
+            if (_retroGamingSearched) return null;
+
+            _retroGamingSearched = true;
+            field = Resources.FindObjectsOfTypeAll<Font>()
+                .FirstOrDefault(f => f.name.Contains("Retro Gaming"));
+
+            if (field == null)
+                LogUtil.Warning("text.font_not_found", "Retro Gaming");
 
             return field;
         }

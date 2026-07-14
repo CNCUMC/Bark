@@ -49,7 +49,7 @@ public static class UpdateUtil
                 BetterLocale.GetLog("update.available", modName, currentVersion, latestTag!), logger);
         else
             LogUtil.Info(
-                BetterLocale.GetLog("update.uptodate", modName, currentVersion), logger);
+                BetterLocale.GetLog("update.up_to_date", modName, currentVersion), logger);
     }
 
     private static string? TryExtractTagName(string json)
@@ -57,7 +57,9 @@ public static class UpdateUtil
         if (string.IsNullOrEmpty(json))
             return null;
 
-        const string key = "\"tag_name\":\"";
+        const string key = """
+                           "tag_name":"
+                           """;
         var start = json.IndexOf(key, StringComparison.Ordinal);
         if (start < 0) return null;
 

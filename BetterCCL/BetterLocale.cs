@@ -140,7 +140,7 @@ public static class BetterLocale
         {
             var index = int.Parse(match.Groups[1].Value);
             if (index < args.Length) return args[index].ToString();
-            LogUtil.Warning("betterlocale.placeholder_out_of_range", key, index, args.Length);
+            LogUtil.Warning("better_locale.placeholder_out_of_range", key, index, args.Length);
             return match.Value;
         });
     }

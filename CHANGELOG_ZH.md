@@ -33,3 +33,4 @@
 ### 修复
 
 - **CheckUtil.CheckArgumentCount** — 修复比较方向（`<=` → `<`）和错误消息中的数量偏差（`args.Length - 1` → `args.Length`）。
+- **BetterLocale.Replace** — 修复占位符索引超出 `args` 数组时的 `IndexOutOfRangeException`。现在通过 `log.betterlocale.placeholder_out_of_range` 输出本地化 `Debug.LogWarning`，并保留原始占位符文本。
