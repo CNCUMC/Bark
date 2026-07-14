@@ -349,4 +349,4 @@ int slotId = Slots.MainHand;
 
 ## 许可证
 
-[GPL v3](LICENSE.md)
+[LGPL v3](LICENSE.md)
