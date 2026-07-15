@@ -6,7 +6,7 @@
 
 ---
 
-## v1.0.3
+## v1.1.0
 
 ### 新增
 
@@ -24,11 +24,13 @@
     - 字体返回 nullable 类型，字体缺失时输出 `Debug.LogWarning`。
     - 警告消息通过 `BetterLocale` 本地化（`log.textutil.tmp_unifont_not_found`、`log.textutil.unifont_not_found`）。
 - **LogUtil** — 新增 `Debug`、`Fatal`、`Message` 方法。新增内部本地化重载（`Info(text, args)`、`Error(text, args)` 等）。
+- **`catfcabl`** 指令：创建一个包含所有 Bark 本地化的txt文件，位置在 `BepInEx\cache\catfcabl.txt`。
 
 ### 变更
 
 - **LogUtil** — 移除损坏的 `[HarmonyPatch]` 特性（该特性导致 `Body.Start()` 抛出 `NullReferenceException: routine is null`）。控制台输出改用 `CUCoreUtils.ConsoleLog`（反射方式，与 CCL 模式一致）。新增待处理日志队列 — `ConsoleScript` 就绪前的消息自动排队，就绪后批量输出。
 - **CheckUtil.Fail** — 改用 `LogUtil.Error` 输出到游戏控制台 + BepInEx logger（之前仅输出到 BepInEx）。
+- **ModLangGenBase** — 现在强制要求添加 `NameSpace` 命名空间值。
 
 ### 修复
 

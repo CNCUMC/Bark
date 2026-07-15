@@ -26,6 +26,7 @@ to [Semantic Versioning](https://semver.org/).
     - Font return nullable types with `Debug.LogWarning` on missing font.
     - Localized warning messages via `BetterLocale` (`log.textutil.tmp_unifont_not_found`, `log.textutil.unifont_not_found`).
 - **LogUtil** — added `Debug`, `Fatal`, `Message` methods. Added internal locale-aware overloads (`Info(text, args)`, `Error(text, args)`, etc.).
+- **`catfcabl`** command: Create a txt file containing all Bark localizations, file at `BepInEx\cache\catfcabl.txt`.
 
 ### Changed
 
@@ -33,6 +34,7 @@ to [Semantic Versioning](https://semver.org/).
   `Body.Start()`. Console output now uses `CUCoreUtils.ConsoleLog` (reflection-based, matches CCL pattern). Added
   pending log queue — messages before `ConsoleScript` is ready are queued and flushed automatically.
 - **CheckUtil.Fail** — now uses `LogUtil.Error` to output to both game console and BepInEx logger (previously only BepInEx).
+- **ModLangGenBase** - Now it is mandatory to add the `NameSpace` namespace value.
 
 ### Fixed
 

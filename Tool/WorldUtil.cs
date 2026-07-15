@@ -62,13 +62,6 @@ public static class WorldUtil
         }
     }
 
-    public static void CheckForWorld()
-    {
-        if (!CUCoreUtils.IsInWorld()) throw new InvalidOperationException(
-            LocaleLog("world.check_for_world"));
-    }
-
-
     private static string LocaleLog(string key, params object[] args)
     {
         return BetterLocale.GetLog(key, args);

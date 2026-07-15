@@ -317,12 +317,7 @@ public static class InventoryUtil
     {
         return GetAllItemIds().Count > 0
             ? string.Join(", ", GetAllItemIds())
-            : LocaleLog("inventory.empty");
-    }
-
-    private static string LocaleLog(string key, params object[] args)
-    {
-        return BetterLocale.GetLog(key, args);
+            : "";
     }
 }
 

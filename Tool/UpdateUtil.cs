@@ -15,7 +15,7 @@ public static class UpdateUtil
     {
         if (string.IsNullOrWhiteSpace(githubRepo))
         {
-            LogUtil.Warning(BetterLocale.GetLog("update.no_repo", modName), logger);
+            LogUtil.Warning(LocaleLog("update.no_repo", modName), logger);
             return;
         }
 
@@ -33,23 +33,21 @@ public static class UpdateUtil
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            LogUtil.Warning(BetterLocale.GetLog("update.failed", modName), logger);
+            LogUtil.Warning(LocaleLog("update.failed", modName), logger);
             yield break;
         }
 
         var latestTag = TryExtractTagName(request.downloadHandler.text);
         if (string.IsNullOrWhiteSpace(latestTag))
         {
-            LogUtil.Warning(BetterLocale.GetLog("update.no_version", modName), logger);
+            LogUtil.Warning(LocaleLog("update.no_version", modName), logger);
             yield break;
         }
 
         if (IsNewer(currentVersion, latestTag!))
-            LogUtil.Warning(
-                BetterLocale.GetLog("update.available", modName, currentVersion, latestTag!), logger);
+            LogUtil.Warning(LocaleLog("update.available", modName, currentVersion, latestTag!), logger);
         else
-            LogUtil.Info(
-                BetterLocale.GetLog("update.up_to_date", modName, currentVersion), logger);
+            LogUtil.Info(LocaleLog("update.up_to_date", modName, currentVersion), logger);
     }
 
     private static string? TryExtractTagName(string json)
@@ -80,5 +78,10 @@ public static class UpdateUtil
     private static string NormalizeVersion(string version)
     {
         return version.Trim().TrimStart('v', 'V');
+    }
+
+    private static string LocaleLog(string text, params object[] args)
+    {
+        return BetterLocale.GetLog(text, args);
     }
 }
