@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Bark.Base;
 
-namespace Bark.Example.Lang;
+namespace Bark.Example;
 
-public class BarkLangGenerator : ModLangGenMultiBase
+public class LangGenerator : ModLangGenMultiBase
 {
     protected override string NameSpace => "bark";
 

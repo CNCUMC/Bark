@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
-using Bark.Example.Lang;
+using Bark.Example;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
@@ -24,7 +24,7 @@ public class Plugin : BaseUnityPlugin
     {
         Logger = base.Logger;
 
-        new BarkLangGenerator().Initialize(Logger);
+        new LangGenerator().Initialize(Logger);
 
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
