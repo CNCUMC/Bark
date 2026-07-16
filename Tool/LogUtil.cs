@@ -41,19 +41,19 @@ public static class LogUtil
         LogToConsole($"[WARNING] {text}");
         logger?.LogWarning(text);
     }
-    
+
     public static void Debug(string text, ManualLogSource? logger)
     {
         LogToConsole($"[DEBUG] {text}");
         logger?.LogDebug(text);
     }
-    
+
     public static void Fatal(string text, ManualLogSource? logger)
     {
         LogToConsole($"[FATAL] {text}");
         logger?.LogFatal(text);
     }
-    
+
     public static void Message(string text, ManualLogSource? logger)
     {
         LogToConsole($"[MESSAGE] {text}");
@@ -125,27 +125,27 @@ public static class LogUtil
     {
         Info(LocaleLog(text, args), Plugin.Logger);
     }
-    
+
     internal static void Error(string text, params object[] args)
     {
         Error(LocaleLog(text, args), Plugin.Logger);
     }
-    
+
     internal static void Warning(string text, params object[] args)
     {
         Warning(LocaleLog(text, args), Plugin.Logger);
     }
-    
+
     internal static void Debug(string text, params object[] args)
     {
         Debug(LocaleLog(text, args), Plugin.Logger);
     }
-    
+
     internal static void Fatal(string text, params object[] args)
     {
         Fatal(LocaleLog(text, args), Plugin.Logger);
     }
-    
+
     internal static void Message(string text, params object[] args)
     {
         Message(LocaleLog(text, args), Plugin.Logger);

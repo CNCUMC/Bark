@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Bark.BetterCCL;
 using BepInEx.Logging;
 

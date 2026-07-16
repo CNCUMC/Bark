@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using Bark.Base;
 using Bark.BetterCCL;
 using Bark.Example.Lang;
 using Bark.Tool;
@@ -25,25 +24,24 @@ public class Plugin : BaseUnityPlugin
     {
         Logger = base.Logger;
 
-        new ENLangGenerator().Initialize(Logger);
-        new ZhCnLangGenerator().Initialize(Logger);
-        new ZhTwLangGenerator().Initialize(Logger);
+        new BarkLangGenerator().Initialize(Logger);
 
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
         _harmony.PatchAll();
-        
+
         ConsoleCommandRegistry.Register(
             "catfcabl",
             BetterLocale.GetCommand("catfcabl"),
             _ =>
             {
                 var path = Paths.CachePath + "\\catfcabl.txt";
-                File.WriteAllLines(path, BetterLocale.Locales.OrderBy(x => x));
+                File.WriteAllLines(path, BetterLocale.LocaleKeys.OrderBy(x => x));
                 LogUtil.Message($"catfcabl.txt: {path}");
+                LogUtil.Message($"LocaleCount: {BetterLocale.LocaleCount}");
             }
         );
-        
+
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
     }
 }

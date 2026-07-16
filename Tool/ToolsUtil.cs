@@ -5,7 +5,7 @@ using Bark.BetterCCL;
 namespace Bark.Tool;
 
 public static class ToolsUtil
-{ 
+{
     public static float ParseFloat(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
