@@ -40,11 +40,12 @@ public class Plugin : BaseUnityPlugin
                 var path = Paths.CachePath + "\\catfcabl.txt";
                 var lines = new List<string>();
                 lines.AddRange(BetterLocale.LocaleKeys.OrderBy(x => x.Key).Select(x => $"{x.Key}: {x.Value}"));
+                lines.Add("");
                 lines.AddRange(BetterLocale.LocaleGetKeys.OrderBy(x => x.Key).Select(x => $"{x.Key}: {x.Value}"));
                 File.WriteAllLines(path, lines);
-                LogUtil.Message($"catfcabl.txt: {path}");
-                LogUtil.Message($"Register Count: {BetterLocale.LocaleKeys.Count}");
-                LogUtil.Message($"Call Count: {BetterLocale.LocaleGetKeys.Count}");
+                LogUtil.Message($"catfcabl.txt: {path}", Logger);
+                LogUtil.Message($"Register Count: {BetterLocale.LocaleKeys.Count}", Logger);
+                LogUtil.Message($"Call Count: {BetterLocale.LocaleGetKeys.Count}", Logger);
             }
         );
 
