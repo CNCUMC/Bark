@@ -6,36 +6,15 @@
 
 ---
 
-## v1.1.0
+## v1.1.1
 
 ### 新增
 
-- **InventoryUtil** — 扩展为完整的 4×3×3 接口矩阵：
-    - **手持**：`HasItemInHand(id/tag/category)`、`IsHandEmpty()`、`IsHandOccupied()`
-    - **身上**：`GetItemsByTag/Category`、`GetItemInfosByTag/Category`
-    - **装备**：`HasWearableByTag/Category`、`GetWearablesByTag/Category`、`GetWearableInfosByTag/Category`
-    - **全身**：`HasItemThoroughByTag/Category`、`GetItemsThoroughByTag/Category`、`GetItemInfosThoroughByTag/Category`
-    - **全量**：`GetAllItemsAll()`、`GetAllItemInfosAll()`（聚合 手持+身上+装备+全身，去重）
-- **CheckUtil** — 从 `LogUtil` 中提取校验辅助到独立类：
-    - `CheckWorld(logger)`、`CheckBody(logger)`、`CheckConsole(logger)`
-    - `CheckArgumentCount(args, minCount, logger)`、`CheckNotNullOrEmpty(value, paramName)`
-    - `CheckParseFloat(parse, logger)`、`CheckParseInt(parse, logger)`
-- **TextUtil** — 字体属性现在缓存 + 空守卫，避免重复调用 `Resources.FindObjectsOfTypeAll`。
-    - 字体返回 nullable 类型，字体缺失时输出 `Debug.LogWarning`。
-    - 警告消息通过 `BetterLocale` 本地化（`log.textutil.tmp_unifont_not_found`、`log.textutil.unifont_not_found`）。
-- **LogUtil** — 新增 `Debug`、`Fatal`、`Message` 方法。新增内部本地化重载（`Info(text, args)`、`Error(text, args)` 等）。
-- **`catfcabl`** 指令：创建一个包含所有 Bark 本地化的txt文件，位置在 `BepInEx\cache\catfcabl.txt`。
+- **BetterLocale** — 新增 `LocaleGetKeys` 字典，用于统计每个本地化键的调用次数。
+- **`catfcabl` 指令** — 现在同时输出注册统计和调用统计，格式为 `键: 次数`。
 
 ### 变更
 
-- **LogUtil** — 移除损坏的 `[HarmonyPatch]` 特性（该特性导致 `Body.Start()` 抛出
-  `NullReferenceException: routine is null`）。控制台输出改用 `CUCoreUtils.ConsoleLog`（反射方式，与 CCL
-  模式一致）。新增待处理日志队列 — `ConsoleScript` 就绪前的消息自动排队，就绪后批量输出。
-- **CheckUtil.Fail** — 改用 `LogUtil.Error` 输出到游戏控制台 + BepInEx logger（之前仅输出到 BepInEx）。
-- **ModLangGenBase** — 现在强制要求添加 `NameSpace` 命名空间值。
-
-### 修复
-
-- **CheckUtil.CheckArgumentCount** — 修复比较方向（`<=` → `<`）和错误消息中的数量偏差（`args.Length - 1` → `args.Length`）。
-- **BetterLocale.Replace** — 修复占位符索引超出 `args` 数组时的 `IndexOutOfRangeException`。现在通过
-  `log.betterlocale.placeholder_out_of_range` 输出本地化 `Debug.LogWarning`，并保留原始占位符文本。
+- **BetterLocale.SetDefault** — 修复注册计数逻辑：已存在的键计数+1，新键添加并设置计数为1。
+- **BetterLocale.Get** — 现在会统计每个本地化键的调用次数。
+- **BetterLocale** — 移除 `LocaleCount` 字段；改用 `LocaleKeys.Count` 和 `LocaleGetKeys.Count` 获取数量。

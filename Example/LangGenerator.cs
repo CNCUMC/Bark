@@ -12,7 +12,7 @@ internal class LangGenerator : ModLangGenMultiBase
         "EN",
         "zh-CN",
         "zh-TW",
-        "ru"
+        "ru-RU"
     ];
 
     protected override void BuildLocaleData()
