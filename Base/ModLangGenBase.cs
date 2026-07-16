@@ -10,7 +10,6 @@ public abstract class ModLangGenBase
     private ManualLogSource _log = null!;
     protected abstract string LanguageCode { get; }
     protected abstract string NameSpace { get; }
-    public static readonly List<string> Locales = [];
 
     public int Count { get; private set; }
 
@@ -28,9 +27,8 @@ public abstract class ModLangGenBase
     protected void Add(string category, string key, string value)
     {
         if (string.IsNullOrEmpty(key)) return;
-        BetterLocale.SetDefault(LanguageCode, category, $"{NameSpace}.{key}", value);
+        BetterLocale.SetDefault(LanguageCode, NameSpace, category, key, value);
         Count++;
-        Locales.Add(key);
     }
 
     protected void Other(string key, string value)

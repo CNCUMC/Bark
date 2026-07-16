@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using Bark.Base;
 using Bark.BetterCCL;
 using Bark.Example.Lang;
@@ -38,7 +39,7 @@ public class Plugin : BaseUnityPlugin
             _ =>
             {
                 var path = Paths.CachePath + "\\catfcabl.txt";
-                File.WriteAllLines(path, ModLangGenBase.Locales);
+                File.WriteAllLines(path, BetterLocale.Locales.OrderBy(x => x));
                 LogUtil.Message($"catfcabl.txt: {path}");
             }
         );

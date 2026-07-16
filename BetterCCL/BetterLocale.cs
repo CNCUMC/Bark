@@ -15,7 +15,8 @@ public static class BetterLocale
 {
     // language → category → key → value
     private static readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Defaults = new();
-
+    public static readonly List<string> Locales = [];
+    
     // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
     public static bool HasKey(string category, string key)
     {
@@ -145,14 +146,17 @@ public static class BetterLocale
         });
     }
 
-    public static void SetDefault(string language, string category, string key, string value)
+    public static void SetDefault(string language, string nameSpace, string category, string key, string value)
     {
-        if (string.IsNullOrEmpty(key)) return;
+        var localeKey = $"{nameSpace}.{key}";
+        if (string.IsNullOrEmpty(localeKey)) return;
         if (!Defaults.TryGetValue(language, out var langDict))
             Defaults[language] = langDict = new Dictionary<string, Dictionary<string, string>>();
         if (!langDict.TryGetValue(category, out var catDict))
             langDict[category] = catDict = new Dictionary<string, string>();
-        catDict[key] = value;
+        catDict[localeKey] = value;
+        if (!Locales.Contains(localeKey))
+            Locales.Add(localeKey);
     }
 
     private static string? GetDefault(string language, string key)
