@@ -15,8 +15,8 @@ public static class BetterLocale
 {
     // language → category → key → value
     private static readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Defaults = new();
-    public static readonly List<string> LocaleKeys = [];
-    public static int LocaleCount;
+    public static readonly Dictionary<string, int> LocaleKeys = [];
+    public static readonly Dictionary<string, int> LocaleGetKeys = [];
 
     // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
     public static bool HasKey(string category, string key)
@@ -118,6 +118,17 @@ public static class BetterLocale
     private static string Get(string category, string key, params object[]? args)
     {
         var resolvedKey = Replace(key, args);
+        var fullKey = $"{category}.{resolvedKey}";
+
+        // 统计调用次数
+        if (LocaleGetKeys.ContainsKey(fullKey))
+        {
+            LocaleGetKeys[fullKey]++;
+        }
+        else
+        {
+            LocaleGetKeys.Add(fullKey, 1);
+        }
 
         // 1. 尝试从 CCL 获取本地化
         var cclText = LocaleRegistry.Get(category, resolvedKey, resolvedKey);
@@ -157,9 +168,14 @@ public static class BetterLocale
             langDict[category] = catDict = new Dictionary<string, string>();
         catDict[localeKey] = value;
         var localeKeys = $"{category}.{localeKey}";
-        if (LocaleKeys.Contains(localeKeys)) return;
-        LocaleKeys.Add(localeKeys);
-        LocaleCount++;
+        if (LocaleKeys.ContainsKey(localeKeys))
+        {
+            LocaleKeys[localeKeys]++;
+        }
+        else
+        {
+            LocaleKeys.Add(localeKeys, 1);
+        }
     }
 
     private static string? GetDefault(string language, string key)

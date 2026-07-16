@@ -82,6 +82,6 @@ public static class UpdateUtil
 
     private static string LocaleLog(string text, params object[] args)
     {
-        return BetterLocale.GetLog(text, args);
+        return BetterLocale.GetLog($"{Plugin.NameSpace}.{text}", args);
     }
 }

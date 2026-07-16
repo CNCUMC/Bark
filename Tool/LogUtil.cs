@@ -153,6 +153,6 @@ public static class LogUtil
 
     private static string LocaleLog(string key, params object[] args)
     {
-        return BetterLocale.GetLog(key, args);
+        return BetterLocale.GetLog($"{Plugin.NameSpace}.{key}", args);
     }
 }

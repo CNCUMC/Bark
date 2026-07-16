@@ -5,14 +5,14 @@ namespace Bark.Example;
 
 internal class LangGenerator : ModLangGenMultiBase
 {
-    protected override string NameSpace => "bark";
+    protected override string NameSpace => Plugin.NameSpace;
 
     protected override IEnumerable<string> LanguageCodes =>
     [
         "EN",
         "zh-CN",
         "zh-TW",
-        "ru"
+        "ru-RU"
     ];
 
     protected override void BuildLocaleData()

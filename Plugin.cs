@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
@@ -16,7 +17,8 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "1.1.0";
+    public const string Version = "1.1.1";
+    public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     private readonly Harmony _harmony = new(Guid);
 
@@ -36,9 +38,13 @@ public class Plugin : BaseUnityPlugin
             _ =>
             {
                 var path = Paths.CachePath + "\\catfcabl.txt";
-                File.WriteAllLines(path, BetterLocale.LocaleKeys.OrderBy(x => x));
+                var lines = new List<string>();
+                lines.AddRange(BetterLocale.LocaleKeys.OrderBy(x => x.Key).Select(x => $"{x.Key}: {x.Value}"));
+                lines.AddRange(BetterLocale.LocaleGetKeys.OrderBy(x => x.Key).Select(x => $"{x.Key}: {x.Value}"));
+                File.WriteAllLines(path, lines);
                 LogUtil.Message($"catfcabl.txt: {path}");
-                LogUtil.Message($"LocaleCount: {BetterLocale.LocaleCount}");
+                LogUtil.Message($"Register Count: {BetterLocale.LocaleKeys.Count}");
+                LogUtil.Message($"Call Count: {BetterLocale.LocaleGetKeys.Count}");
             }
         );
 
