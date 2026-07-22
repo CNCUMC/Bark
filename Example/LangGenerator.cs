@@ -171,5 +171,143 @@ internal class LangGenerator : ModLangGenMultiBase
             "占位符 {{{1}}} 超出键 '{0}' 的范围 (args.Length={2})",
             "佔位符 {{{1}}} 超出鍵 '{0}' 的範圍 (args.Length={2})",
             "Заполнитель {{{1}}} выходит за пределы диапазона для ключа '{0}' (args.Length={2})");
+
+        // Log - ScriptMod
+        Log("scriptmod.dir_not_found",
+            "ScriptMods directory not found: {0}",
+            "ScriptMods 目录不存在: {0}",
+            "ScriptMods 目錄不存在: {0}",
+            "Каталог ScriptMods не найден: {0}");
+        Log("scriptmod.no_mods",
+            "No script mods found",
+            "没有发现脚本模组",
+            "沒有發現腳本模組",
+            "Скриптовые моды не найдены");
+        Log("scriptmod.found_manifests",
+            "Found {0} mod manifest(s)",
+            "发现 {0} 个模组清单",
+            "發現 {0} 個模組清單",
+            "Найдено {0} манифест(ов)");
+        Log("scriptmod.skip_no_manifest",
+            "Skipped (no mod.json): {0}",
+            "跳过（无 mod.json）: {0}",
+            "跳過（無 mod.json）: {0}",
+            "Пропущено (нет mod.json): {0}");
+        Log("scriptmod.parse_failed",
+            "Failed to parse manifest: {0}",
+            "解析失败: {0}",
+            "解析失敗: {0}",
+            "Не удалось разобрать манифест: {0}");
+        Log("scriptmod.missing_id",
+            "Missing 'id' field: {0}",
+            "缺少 id 字段: {0}",
+            "缺少 id 欄位: {0}",
+            "Отсутствует поле 'id': {0}");
+        Log("scriptmod.missing_version",
+            "Missing 'version' field: {0}",
+            "缺少 version 字段: {0}",
+            "缺少 version 欄位: {0}",
+            "Отсутствует поле 'version': {0}");
+        Log("scriptmod.no_entry_file",
+            "Entry file not found (main.js/lua/py): {0}",
+            "未找到入口文件（main.js/lua/py）: {0}",
+            "未找到入口檔案（main.js/lua/py）: {0}",
+            "Файл входа не найден (main.js/lua/py): {0}");
+        Log("scriptmod.manifest_read",
+            "Manifest read: {0} v{1} ({2})",
+            "已读取清单: {0} v{1} ({2})",
+            "已讀取清單: {0} v{1} ({2})",
+            "Манифест прочитан: {0} v{1} ({2})");
+        Log("scriptmod.manifest_read_error",
+            "Failed to read manifest: {0} - {1}",
+            "读取清单失败: {0} - {1}",
+            "讀取清單失敗: {0} - {1}",
+            "Не удалось прочитать манифест: {0} - {1}");
+        Log("scriptmod.loaded_count",
+            "Successfully loaded {0} script mod(s)",
+            "成功加载 {0} 个脚本模组",
+            "成功載入 {0} 個腳本模組",
+            "Успешно загружено {0} скриптовых мод(ов)");
+        Log("scriptmod.duplicate_id",
+            "Duplicate mod ID: {0}, skipped",
+            "重复的模组 ID: {0}，跳过",
+            "重複的模組 ID: {0}，跳過",
+            "Дублирующийся ID мода: {0}, пропущено");
+        Log("scriptmod.unsupported_language",
+            "Unsupported language: {0} ({1})",
+            "不支持的语言: {0} ({1})",
+            "不支援的語言: {0} ({1})",
+            "Неподдерживаемый язык: {0} ({1})");
+        Log("scriptmod.mod_loaded",
+            "Loaded: {0} v{1}",
+            "已加载: {0} v{1}",
+            "已載入: {0} v{1}",
+            "Загружено: {0} v{1}");
+        Log("scriptmod.load_failed",
+            "Failed to load: {0} - {1}",
+            "加载失败: {0} - {1}",
+            "載入失敗: {0} - {1}",
+            "Не удалось загрузить: {0} - {1}");
+        Log("scriptmod.js_loading",
+            "[JS] Loading {0}: {1}",
+            "[JS] 加载 {0}: {1}",
+            "[JS] 載入 {0}: {1}",
+            "[JS] Загрузка {0}: {1}");
+        Log("scriptmod.lua_loading",
+            "[Lua] Loading {0}: {1}",
+            "[Lua] 加载 {0}: {1}",
+            "[Lua] 載入 {0}: {1}",
+            "[Lua] Загрузка {0}: {1}");
+        Log("scriptmod.python_loading",
+            "[Python] Loading {0}: {1}",
+            "[Python] 加载 {0}: {1}",
+            "[Python] 載入 {0}: {1}",
+            "[Python] Загрузка {0}: {1}");
+        Log("scriptmod.circular_dependency",
+            "Skipped (circular dependency or unmet dependency): {0}",
+            "跳过（循环依赖或依赖未满足）: {0}",
+            "跳過（循環依賴或依賴未滿足）: {0}",
+            "Пропущено (циклическая зависимость или невыполненная зависимость): {0}");
+
+        // Log - PuerJavaScript
+        Log("scriptmod.js_loaded",
+            "[JS] Loaded: {0}",
+            "[JS] 已加载: {0}",
+            "[JS] 已載入: {0}",
+            "[JS] Загружено: {0}");
+        Log("scriptmod.js_load_failed",
+            "[JS] Failed to load: {0} - {1}",
+            "[JS] 加载失败: {0} - {1}",
+            "[JS] 載入失敗: {0} - {1}",
+            "[JS] Не удалось загрузить: {0} - {1}");
+        Log("scriptmod.hook_failed",
+            "Hook '{1}' failed for mod '{0}': {2}",
+            "模组 '{0}' 的钩子 '{1}' 执行失败: {2}",
+            "模組 '{0}' 的鉤子 '{1}' 執行失敗: {2}",
+            "Хук '{1}' мода '{0}' завершился ошибкой: {2}");
+
+        // Log - PuerLua
+        Log("scriptmod.lua_loaded",
+            "[Lua] Loaded: {0}",
+            "[Lua] 已加载: {0}",
+            "[Lua] 已載入: {0}",
+            "[Lua] Загружено: {0}");
+        Log("scriptmod.lua_load_failed",
+            "[Lua] Failed to load: {0} - {1}",
+            "[Lua] 加载失败: {0} - {1}",
+            "[Lua] 載入失敗: {0} - {1}",
+            "[Lua] Не удалось загрузить: {0} - {1}");
+
+        // Log - PuerPython
+        Log("scriptmod.python_loaded",
+            "[Python] Loaded: {0}",
+            "[Python] 已加载: {0}",
+            "[Python] 已載入: {0}",
+            "[Python] Загружено: {0}");
+        Log("scriptmod.python_load_failed",
+            "[Python] Failed to load: {0} - {1}",
+            "[Python] 加载失败: {0} - {1}",
+            "[Python] 載入失敗: {0} - {1}",
+            "[Python] Не удалось загрузить: {0} - {1}");
     }
 }

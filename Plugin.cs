@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
 using Bark.Example;
+using Bark.ScriptMod;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
@@ -21,6 +23,8 @@ public class Plugin : BaseUnityPlugin
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     private readonly Harmony _harmony = new(Guid);
+    
+    public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMods");
 
     public void Awake()
     {
@@ -31,6 +35,10 @@ public class Plugin : BaseUnityPlugin
         BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
         _harmony.PatchAll();
+
+        // 加载脚本模组
+        var scriptModLoader = new ScriptModLoader(ScriptModsPath);
+        scriptModLoader.LoadAll();
 
         ConsoleCommandRegistry.Register(
             "catfcabl",
