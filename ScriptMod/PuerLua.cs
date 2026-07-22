@@ -63,9 +63,9 @@ public class PuerLua : MonoBehaviour
         """);
 
         // 设置模组元数据
-        _scriptEnv.Eval($"bark.mod.id = '{EscapeJs(_manifest.Id)}'");
-        _scriptEnv.Eval($"bark.mod.version = '{EscapeJs(_manifest.Version)}'");
-        _scriptEnv.Eval($"bark.mod.name = '{EscapeJs(_manifest.Name)}'");
+        _scriptEnv.Eval($"bark.mod.id = '{EscapeString(_manifest.Id)}'");
+        _scriptEnv.Eval($"bark.mod.version = '{EscapeString(_manifest.Version)}'");
+        _scriptEnv.Eval($"bark.mod.name = '{EscapeString(_manifest.Name)}'");
     }
 
     // 调用生命周期钩子
@@ -75,9 +75,9 @@ public class PuerLua : MonoBehaviour
 
         try
         {
-            _scriptEnv.Eval($$"""
-                if type({{hookName}}) == 'function' then
-                    {{hookName}}()
+            _scriptEnv.Eval($"""
+                if type({hookName}) == 'function' then
+                    {hookName}()
                 end
             """);
         }
@@ -126,13 +126,13 @@ public class PuerLua : MonoBehaviour
         Cleanup();
     }
 
-    // 转义 JS 字符串中的特殊字符
-    private static string EscapeJs(string value)
+    // 转义字符串中的特殊字符（用于 PuerTS Eval 注入）
+    private static string EscapeString(string value)
     {
         return value
-            .Replace("\\", "\\\\")
-            .Replace("'", "\\'")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r");
+            .Replace("\\", @"\\")
+            .Replace("'", @"\'")
+            .Replace("\n", @"\n")
+            .Replace("\r", @"\r");
     }
 }
