@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine;
 
-namespace Bark.ScriptMod;
+namespace Bark.Script;
 
 // 脚本模组清单文件（mod.json）的数据模型
 public class ScriptManifest
@@ -49,6 +50,10 @@ public class ScriptManifest
     // 脚本语言类型（运行时根据入口文件扩展名确定）
     [JsonIgnore]
     public ScriptLanguage Language { get; set; }
+
+    // 引擎组件引用（运行时填充，用于生命周期管理）
+    [JsonIgnore]
+    public MonoBehaviour? Engine { get; set; }
 }
 
 // 模组依赖声明

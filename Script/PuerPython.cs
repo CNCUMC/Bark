@@ -3,7 +3,7 @@ using Bark.Tool;
 using Puerts;
 using UnityEngine;
 
-namespace Bark.ScriptMod;
+namespace Bark.Script;
 
 // PuerTS Python 引擎包装器，管理脚本模组的生命周期
 public class PuerPython : MonoBehaviour
@@ -36,7 +36,6 @@ public class PuerPython : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
             return false;
         }

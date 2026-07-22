@@ -30,6 +30,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "创建一个包含所有 Bark 本地化的txt文件",
             "建立一個包含所有 Bark 本地化的txt檔案",
             "Создать txt-файл, содержащий все локализации Bark");
+        Command("rs",
+            "Reload Script",
+            "重载脚本",
+            "重載腳本",
+            "Перезагрузить сценарий");
 
         // Log - Console
         Log("console.null_or_empty",
@@ -264,10 +269,10 @@ internal class LangGenerator : ModLangGenMultiBase
             "載入失敗: {0} - {1}",
             "Не удалось загрузить: {0} - {1}");
         Log("scriptmod.mod_loading",
-            "[{0}] Loading {1}",
-            "[{0}] 加载 {1}",
-            "[{0}] 載入 {1}",
-            "[{0}] Загрузка {1}");
+            "[{0}] Loading {1} v{2}",
+            "[{0}] 加载 {1} v{2}",
+            "[{0}] 載入 {1} v{2}",
+            "[{0}] Загрузка {1} v{2}");
         Log("scriptmod.circular_dependency",
             "Skipped (circular dependency or unmet dependency): {0}",
             "跳过（循环依赖或依赖未满足）: {0}",
@@ -278,5 +283,10 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 的钩子 '{1}' 执行失败: {2}",
             "模組 '{0}' 的鉤子 '{1}' 執行失敗: {2}",
             "Хук '{1}' мода '{0}' завершился ошибкой: {2}");
+        Log("scriptmod.reload_unload_failed",
+            "Failed to unload mod '{0}': {1}",
+            "卸载模组 '{0}' 失败: {1}",
+            "卸載模組 '{0}' 失敗: {1}",
+            "Не удалось выгрузить мод '{0}': {1}");
     }
 }

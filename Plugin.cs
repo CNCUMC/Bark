@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
 using Bark.Example;
-using Bark.ScriptMod;
+using Bark.Script;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
@@ -25,6 +25,7 @@ public class Plugin : BaseUnityPlugin
     private readonly Harmony _harmony = new(Guid);
     
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
+    private ScriptModLoader? _scriptModLoader;
 
     // 递归复制目录
     private static void CopyDirectory(string source, string dest)
@@ -74,8 +75,8 @@ public class Plugin : BaseUnityPlugin
         }
 
         // 加载脚本模组
-        var scriptModLoader = new ScriptModLoader(ScriptModsPath);
-        scriptModLoader.LoadAll();
+        _scriptModLoader = new ScriptModLoader(ScriptModsPath);
+        _scriptModLoader.LoadAll();
 
         ConsoleCommandRegistry.Register(
             "catfcabl",
@@ -92,6 +93,12 @@ public class Plugin : BaseUnityPlugin
                 LogUtil.Message($"Register Count: {BetterLocale.LocaleKeys.Count}", Logger);
                 LogUtil.Message($"Call Count: {BetterLocale.LocaleGetKeys.Count}", Logger);
             }
+        );
+
+        ConsoleCommandRegistry.Register(
+            "rs",
+            BetterLocale.GetCommand("rs"),
+            _ => _scriptModLoader?.ReloadAll()
         );
 
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);

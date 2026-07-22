@@ -1,9 +1,8 @@
 using System;
-using Bark.Tool;
 using Puerts;
 using UnityEngine;
 
-namespace Bark.ScriptMod;
+namespace Bark.Script;
 
 // PuerTS JavaScript 引擎包装器，管理脚本模组的生命周期
 public class PuerJavaScript : MonoBehaviour
@@ -36,7 +35,6 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
             return false;
         }
@@ -83,7 +81,7 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ScriptModLogger.Warning(_manifest.Name, $"Hook '{hookName}' failed: {ex.Message}");
+            // 静默忽略钩子执行异常
         }
     }
 

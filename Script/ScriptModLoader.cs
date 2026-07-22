@@ -5,7 +5,7 @@ using System.Linq;
 using Bark.Tool;
 using UnityEngine;
 
-namespace Bark.ScriptMod;
+namespace Bark.Script;
 
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath)
@@ -52,9 +52,6 @@ public class ScriptModLoader(string modsPath)
         Directory.CreateDirectory(modsDir);
         Directory.CreateDirectory(logsDir);
         Directory.CreateDirectory(configsDir);
-
-        // 初始化脚本模组日志
-        ScriptModLogger.Initialize(logsDir);
 
         // 1. 扫描 Mods/ 子目录
         var modDirectories = Directory.GetDirectories(modsDir);
@@ -158,25 +155,26 @@ public class ScriptModLoader(string modsPath)
 
         try
         {
-            var success = false;
+            MonoBehaviour? engine = null;
             switch (manifest.Language)
             {
                 case ScriptLanguage.JavaScript:
-                    success = LoadJavaScriptMod(manifest);
+                    engine = LoadJavaScriptMod(manifest);
                     break;
                 case ScriptLanguage.Lua:
-                    success = LoadLuaMod(manifest);
+                    engine = LoadLuaMod(manifest);
                     break;
                 case ScriptLanguage.Python:
-                    success = LoadPythonMod(manifest);
+                    engine = LoadPythonMod(manifest);
                     break;
                 default:
                     LogUtil.Warning("scriptmod.unsupported_language", manifest.Language, manifest.Id);
                     return;
             }
 
-            if (!success) return;
+            if (engine == null) return;
 
+            manifest.Engine = engine;
             _loadedMods[manifest.Id] = manifest;
         }
         catch (Exception ex)
@@ -185,28 +183,28 @@ public class ScriptModLoader(string modsPath)
         }
     }
 
-    private static bool LoadJavaScriptMod(ScriptManifest manifest)
+    private static PuerJavaScript? LoadJavaScriptMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "JS", manifest.Name);
+        LogUtil.Message("scriptmod.mod_loading", "JS", manifest.Name, manifest.Version);
         var go = new GameObject($"[ScriptMod-JS] {manifest.Id}");
         var engine = go.AddComponent<PuerJavaScript>();
-        return engine.Load(manifest);
+        return engine.Load(manifest) ? engine : null;
     }
 
-    private static bool LoadLuaMod(ScriptManifest manifest)
+    private static PuerLua? LoadLuaMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "Lua", manifest.Name);
+        LogUtil.Message("scriptmod.mod_loading", "Lua", manifest.Name, manifest.Version);
         var go = new GameObject($"[ScriptMod-Lua] {manifest.Id}");
         var engine = go.AddComponent<PuerLua>();
-        return engine.Load(manifest);
+        return engine.Load(manifest) ? engine : null;
     }
 
-    private static bool LoadPythonMod(ScriptManifest manifest)
+    private static PuerPython? LoadPythonMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "Python", manifest.Name);
+        LogUtil.Message("scriptmod.mod_loading", "Python", manifest.Name, manifest.Version);
         var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
         var engine = go.AddComponent<PuerPython>();
-        return engine.Load(manifest);
+        return engine.Load(manifest) ? engine : null;
     }
 
     // 拓扑排序：根据依赖关系确定加载顺序
@@ -254,6 +252,44 @@ public class ScriptModLoader(string modsPath)
         }
 
         return resolved;
+    }
+
+    // 重载所有脚本模组：先卸载全部，再重新加载
+    public void ReloadAll()
+    {
+        // 卸载所有已加载的模组
+        foreach (var manifest in _loadedMods.Values)
+        {
+            try
+            {
+                switch (manifest.Engine)
+                {
+                    case PuerJavaScript js:
+                        js.Disable();
+                        js.Unload();
+                        break;
+                    case PuerLua lua:
+                        lua.Disable();
+                        lua.Unload();
+                        break;
+                    case PuerPython py:
+                        py.Disable();
+                        py.Unload();
+                        break;
+                }
+                if (manifest.Engine != null)
+                    UnityEngine.Object.Destroy(manifest.Engine.gameObject);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.Warning("scriptmod.reload_unload_failed", manifest.Id, ex.Message);
+            }
+        }
+        _loadedMods.Clear();
+
+        // 重新加载
+        LoadAll();
+
     }
 
     // 获取已加载的模组信息

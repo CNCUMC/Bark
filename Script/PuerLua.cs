@@ -1,9 +1,8 @@
 using System;
-using Bark.Tool;
 using Puerts;
 using UnityEngine;
 
-namespace Bark.ScriptMod;
+namespace Bark.Script;
 
 // PuerTS Lua 引擎包装器，管理脚本模组的生命周期
 public class PuerLua : MonoBehaviour
@@ -36,7 +35,6 @@ public class PuerLua : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
             return false;
         }
@@ -83,7 +81,6 @@ public class PuerLua : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ScriptModLogger.Warning(_manifest.Name, $"Hook '{hookName}' failed: {ex.Message}");
         }
     }
 
