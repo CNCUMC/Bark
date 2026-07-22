@@ -93,6 +93,10 @@
         />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ScriptAPI\" />
+    </ItemGroup>
+
     <PropertyGroup>
         <RequiredFilesToCopy>
             $(AssemblyName).dll;

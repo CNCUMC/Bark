@@ -47,7 +47,7 @@ public class ScriptModLoader(string modsPath)
         if (!Directory.Exists(modsPath))
         {
             Directory.CreateDirectory(modsPath);
-            LogUtil.Info("scriptmod.dir_created", modsPath);
+            LogUtil.Info("script_mod_loader.dir_created", modsPath);
         }
         Directory.CreateDirectory(modsDir);
         Directory.CreateDirectory(logsDir);
@@ -57,7 +57,7 @@ public class ScriptModLoader(string modsPath)
         var modDirectories = Directory.GetDirectories(modsDir);
         if (modDirectories.Length == 0)
         {
-            LogUtil.Info("scriptmod.no_mods");
+            LogUtil.Info("script_mod_loader.no_mods");
             return;
         }
 
@@ -81,7 +81,7 @@ public class ScriptModLoader(string modsPath)
         var manifestPath = Path.Combine(modDir, "mod.json");
         if (!File.Exists(manifestPath))
         {
-            LogUtil.Warning("scriptmod.skip_no_manifest", modDir);
+            LogUtil.Warning("script_mod_loader.skip_no_manifest", modDir);
             return null;
         }
 
@@ -91,20 +91,20 @@ public class ScriptModLoader(string modsPath)
             var manifest = JsonUtil.Deserialize<ScriptManifest>(json);
             if (manifest == null)
             {
-                LogUtil.Warning("scriptmod.parse_failed", manifestPath);
+                LogUtil.Warning("script_mod_loader.parse_failed", manifestPath);
                 return null;
             }
 
             // 验证必填字段
             if (string.IsNullOrWhiteSpace(manifest.Id))
             {
-                LogUtil.Warning("scriptmod.missing_id", manifestPath);
+                LogUtil.Warning("script_mod_loader.missing_id", manifestPath);
                 return null;
             }
 
             if (string.IsNullOrWhiteSpace(manifest.Version))
             {
-                LogUtil.Warning("scriptmod.missing_version", manifestPath);
+                LogUtil.Warning("script_mod_loader.missing_version", manifestPath);
                 return null;
             }
 
@@ -115,7 +115,7 @@ public class ScriptModLoader(string modsPath)
             var entryFile = FindEntryFile(modDir);
             if (entryFile == null)
             {
-                LogUtil.Warning("scriptmod.no_entry_file", modDir);
+                LogUtil.Warning("script_mod_loader.no_entry_file", modDir);
                 return null;
             }
 
@@ -126,7 +126,7 @@ public class ScriptModLoader(string modsPath)
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.manifest_read_error", manifestPath, ex.Message);
+            LogUtil.Warning("script_mod_loader.manifest_read_error", manifestPath, ex.Message);
             return null;
         }
     }
@@ -149,13 +149,13 @@ public class ScriptModLoader(string modsPath)
     {
         if (_loadedMods.ContainsKey(manifest.Id))
         {
-            LogUtil.Warning("scriptmod.duplicate_id", manifest.Id);
+            LogUtil.Warning("script_mod_loader.duplicate_id", manifest.Id);
             return;
         }
 
         try
         {
-            MonoBehaviour? engine = null;
+            MonoBehaviour? engine;
             switch (manifest.Language)
             {
                 case ScriptLanguage.JavaScript:
@@ -168,7 +168,7 @@ public class ScriptModLoader(string modsPath)
                     engine = LoadPythonMod(manifest);
                     break;
                 default:
-                    LogUtil.Warning("scriptmod.unsupported_language", manifest.Language, manifest.Id);
+                    LogUtil.Warning("script_mod_loader.unsupported_language", manifest.Language, manifest.Id);
                     return;
             }
 
@@ -179,21 +179,21 @@ public class ScriptModLoader(string modsPath)
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
+            LogUtil.Warning("script_mod_loader.load_failed", manifest.Id, ex.Message);
         }
     }
 
     private static PuerJavaScript? LoadJavaScriptMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "JS", manifest.Name, manifest.Version);
-        var go = new GameObject($"[ScriptMod-JS] {manifest.Id}");
+        LogUtil.Message("script_mod_loader.mod_loading", "JavaScript", manifest.Name, manifest.Version);
+        var go = new GameObject($"[ScriptMod-JavaScript] {manifest.Id}");
         var engine = go.AddComponent<PuerJavaScript>();
         return engine.Load(manifest) ? engine : null;
     }
 
     private static PuerLua? LoadLuaMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "Lua", manifest.Name, manifest.Version);
+        LogUtil.Message("script_mod_loader.mod_loading", "Lua", manifest.Name, manifest.Version);
         var go = new GameObject($"[ScriptMod-Lua] {manifest.Id}");
         var engine = go.AddComponent<PuerLua>();
         return engine.Load(manifest) ? engine : null;
@@ -201,7 +201,7 @@ public class ScriptModLoader(string modsPath)
 
     private static PuerPython? LoadPythonMod(ScriptManifest manifest)
     {
-        LogUtil.Message("scriptmod.mod_loading", "Python", manifest.Name, manifest.Version);
+        LogUtil.Message("script_mod_loader.mod_loading", "Python", manifest.Name, manifest.Version);
         var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
         var engine = go.AddComponent<PuerPython>();
         return engine.Load(manifest) ? engine : null;
@@ -247,7 +247,7 @@ public class ScriptModLoader(string modsPath)
             var unresolved = manifests.Where(m => resolved.All(r => r.Id != m.Id)).ToList();
             foreach (var mod in unresolved)
             {
-                LogUtil.Warning("scriptmod.circular_dependency", mod.Id);
+                LogUtil.Warning("script_mod_loader.circular_dependency", mod.Id);
             }
         }
 
@@ -282,7 +282,7 @@ public class ScriptModLoader(string modsPath)
             }
             catch (Exception ex)
             {
-                LogUtil.Warning("scriptmod.reload_unload_failed", manifest.Id, ex.Message);
+                LogUtil.Warning("script_mod_loader.reload_unload_failed", manifest.Id, ex.Message);
             }
         }
         _loadedMods.Clear();

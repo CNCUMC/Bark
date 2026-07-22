@@ -60,9 +60,4 @@ public static class WorldUtil
             LogUtil.Error("world.place_item", ex);
         }
     }
-
-    private static string LocaleLog(string key, params object[] args)
-    {
-        return BetterLocale.GetLog(key, args);
-    }
 }

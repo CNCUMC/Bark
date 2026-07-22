@@ -1,4 +1,5 @@
 using System;
+using Bark.Tool;
 using Puerts;
 using UnityEngine;
 
@@ -35,6 +36,7 @@ public class PuerLua : MonoBehaviour
         }
         catch (Exception ex)
         {
+            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
             Cleanup();
             return false;
         }
@@ -46,24 +48,14 @@ public class PuerLua : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // 注入 bark.* API
-        _scriptEnv.Eval("""
-            bark = {
-                log = function(msg) print('[Bark] ' .. tostring(msg)) end,
-                logWarn = function(msg) print('[Bark WARN] ' .. tostring(msg)) end,
-                logError = function(msg) print('[Bark ERROR] ' .. tostring(msg)) end,
-                mod = {
-                    id = '',
-                    version = '',
-                    name = ''
-                }
-            }
+        // Lua 需要 require('csharp') 获取 CS 入口，无 new 关键字
+        var id = EscapeString(_manifest.Id);
+        var version = EscapeString(_manifest.Version);
+        var scriptName = EscapeString(_manifest.Name);
+        _scriptEnv.Eval($"""
+            local CS = require('csharp')
+            bark = CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}')
         """);
-
-        // 设置模组元数据
-        _scriptEnv.Eval($"bark.mod.id = '{EscapeString(_manifest.Id)}'");
-        _scriptEnv.Eval($"bark.mod.version = '{EscapeString(_manifest.Version)}'");
-        _scriptEnv.Eval($"bark.mod.name = '{EscapeString(_manifest.Name)}'");
     }
 
     // 调用生命周期钩子

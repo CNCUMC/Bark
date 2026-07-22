@@ -1,4 +1,5 @@
 using System;
+using Bark.Tool;
 using Puerts;
 using UnityEngine;
 
@@ -35,6 +36,7 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
+            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
             Cleanup();
             return false;
         }
@@ -46,24 +48,13 @@ public class PuerJavaScript : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // 注入 bark.* API（日志输出到控制台）
-        _scriptEnv.Eval("""
-            var bark = {
-                log: function(msg) { console.log('[Bark] ' + String(msg)); },
-                logWarn: function(msg) { console.warn('[Bark] ' + String(msg)); },
-                logError: function(msg) { console.error('[Bark] ' + String(msg)); },
-                mod: {
-                    id: '',
-                    version: '',
-                    name: ''
-                }
-            };
+        // 通过 CS 命名空间直接访问 C# ScriptAPI 类（PuerTS 官方方式）
+        var id = EscapeString(_manifest.Id);
+        var version = EscapeString(_manifest.Version);
+        var scriptName = EscapeString(_manifest.Name);
+        _scriptEnv.Eval($"""
+            var bark = new CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}');
         """);
-
-        // 设置模组元数据
-        _scriptEnv.Eval($"bark.mod.id = '{EscapeString(_manifest.Id)}'");
-        _scriptEnv.Eval($"bark.mod.version = '{EscapeString(_manifest.Version)}'");
-        _scriptEnv.Eval($"bark.mod.name = '{EscapeString(_manifest.Name)}'");
     }
 
     // 调用生命周期钩子
@@ -81,7 +72,7 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            // 静默忽略钩子执行异常
+            LogUtil.Warning("scriptmod.hook_failed", _manifest.Id, hookName, ex.Message);
         }
     }
 

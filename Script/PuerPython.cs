@@ -36,6 +36,7 @@ public class PuerPython : MonoBehaviour
         }
         catch (Exception ex)
         {
+            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
             Cleanup();
             return false;
         }
@@ -47,37 +48,14 @@ public class PuerPython : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // 注入 bark.log
-        _scriptEnv.Eval("""
-            class BarkLogger:
-                @staticmethod
-                def log(msg):
-                    print(f'[Bark] {msg}')
-                @staticmethod
-                def log_warn(msg):
-                    print(f'[Bark WARN] {msg}')
-                @staticmethod
-                def log_error(msg):
-                    print(f'[Bark ERROR] {msg}')
-
-            class BarkMod:
-                def __init__(self):
-                    self.id = ''
-                    self.version = ''
-                    self.name = ''
-
-            bark = type('bark', (), {
-                'log': BarkLogger.log,
-                'logWarn': BarkLogger.log_warn,
-                'logError': BarkLogger.log_error,
-                'mod': BarkMod()
-            })()
+        // Python 使用 import 语法导入 C# 类，无 new 关键字
+        var id = EscapeString(_manifest.Id);
+        var version = EscapeString(_manifest.Version);
+        var scriptName = EscapeString(_manifest.Name);
+        _scriptEnv.Eval($"""
+            exec('import Bark.ScriptAPI.ScriptAPI as ScriptAPI')
+            bark = ScriptAPI('{id}', '{version}', '{scriptName}')
         """);
-
-        // 设置模组元数据
-        _scriptEnv.Eval($"bark.mod.id = '{EscapeString(_manifest.Id)}'");
-        _scriptEnv.Eval($"bark.mod.version = '{EscapeString(_manifest.Version)}'");
-        _scriptEnv.Eval($"bark.mod.name = '{EscapeString(_manifest.Name)}'");
     }
 
     // 调用生命周期钩子
