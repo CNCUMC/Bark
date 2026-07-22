@@ -187,7 +187,7 @@ $packageDir = Join-Path $tempDir "package"
 New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 
 # DLL 文件
-$buildOutputDir = Join-Path $scriptDir "bin/$Configuration/net472"
+$buildOutputDir = Join-Path $scriptDir "bin/$Configuration/netstandard2.1"
 $dllSource = Join-Path $buildOutputDir "$ModNamespace.dll"
 
 if (Test-Path $dllSource)
@@ -209,6 +209,28 @@ if (Test-Path $localPluginsDir)
     {
         Copy-Item $dep.FullName $packageDir -Force
         Write-OK "已添加依赖: $( $dep.Name )"
+    }
+}
+
+# PuerTS 文件（从 Puer/ 目录）
+$puertPath = Join-Path $scriptDir "Puer"
+if (Test-Path $puertPath -PathType Container)
+{
+    # DLL 文件
+    $puertDlls = Get-ChildItem $puertPath -File -Filter "*.dll"
+    foreach ($puertDll in $puertDlls)
+    {
+        Copy-Item $puertDll.FullName $packageDir -Force
+        Write-OK "已添加 PuerTS: $( $puertDll.Name )"
+    }
+
+    # 运行时文件
+    $puertRuntimePath = Join-Path $puertPath "puerts"
+    if (Test-Path $puertRuntimePath -PathType Container)
+    {
+        $destPuertRuntime = Join-Path $packageDir "puerts"
+        Copy-Item $puertRuntimePath $destPuertRuntime -Recurse -Force
+        Write-OK "已添加 PuerTS 运行时文件"
     }
 }
 

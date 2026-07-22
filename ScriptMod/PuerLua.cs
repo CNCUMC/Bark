@@ -12,15 +12,15 @@ public class PuerLua : MonoBehaviour
     private ModManifest _manifest = null!;
     private bool _isLoaded;
 
-    // 加载并执行 Lua 模组
-    public void Load(ModManifest manifest)
+    // 加载并执行 Lua 模组，返回是否成功
+    public bool Load(ModManifest manifest)
     {
         _manifest = manifest;
 
         try
         {
             // 创建 Lua 引擎实例
-            _scriptEnv = new ScriptEnv(new BackendV8());
+            _scriptEnv = new ScriptEnv(new BackendLua());
 
             // 注入 bark.* API
             InjectBarkApi();
@@ -33,14 +33,14 @@ public class PuerLua : MonoBehaviour
 
             // 调用 onLoad 生命周期钩子
             CallLifecycleHook("onLoad");
-
-            LogUtil.Info("scriptmod.lua_loaded", manifest.Id);
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.lua_load_failed", manifest.Id, ex.Message);
+            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
+            return false;
         }
+        return true;
     }
 
     // 注入 bark.* API 到 Lua 环境
@@ -48,18 +48,18 @@ public class PuerLua : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // 注入 bark.log
+        // 注入 bark.* API
         _scriptEnv.Eval("""
-            var bark = {
-                log = function(msg) print('[Bark] ' .. msg) end,
-                logWarn = function(msg) print('[Bark WARN] ' .. msg) end,
-                logError = function(msg) print('[Bark ERROR] ' .. msg) end,
+            bark = {
+                log = function(msg) print('[Bark] ' .. tostring(msg)) end,
+                logWarn = function(msg) print('[Bark WARN] ' .. tostring(msg)) end,
+                logError = function(msg) print('[Bark ERROR] ' .. tostring(msg)) end,
                 mod = {
                     id = '',
                     version = '',
                     name = ''
                 }
-            };
+            }
         """);
 
         // 设置模组元数据
@@ -75,15 +75,15 @@ public class PuerLua : MonoBehaviour
 
         try
         {
-            _scriptEnv.Eval($"""
-                if type({hookName}) == 'function' then
-                    {hookName}()
+            _scriptEnv.Eval($$"""
+                if type({{hookName}}) == 'function' then
+                    {{hookName}}()
                 end
             """);
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.hook_failed", _manifest.Id, hookName, ex.Message);
+            ScriptModLogger.Warning(_manifest.Name, $"Hook '{hookName}' failed: {ex.Message}");
         }
     }
 
@@ -130,9 +130,9 @@ public class PuerLua : MonoBehaviour
     private static string EscapeString(string value)
     {
         return value
-            .Replace("\\", @"\\")
-            .Replace("'", @"\'")
-            .Replace("\n", @"\n")
-            .Replace("\r", @"\r");
+            .Replace("\\", "\\\\")
+            .Replace("'", "\\'")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r");
     }
 }

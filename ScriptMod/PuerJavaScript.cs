@@ -12,8 +12,8 @@ public class PuerJavaScript : MonoBehaviour
     private ModManifest _manifest = null!;
     private bool _isLoaded;
 
-    // 加载并执行 JS 模组
-    public void Load(ModManifest manifest)
+    // 加载并执行 JS 模组，返回是否成功
+    public bool Load(ModManifest manifest)
     {
         _manifest = manifest;
 
@@ -33,14 +33,14 @@ public class PuerJavaScript : MonoBehaviour
 
             // 调用 onLoad 生命周期钩子
             CallLifecycleHook("onLoad");
-
-            LogUtil.Info("scriptmod.js_loaded", manifest.Id);
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.js_load_failed", manifest.Id, ex.Message);
+            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
+            return false;
         }
+        return true;
     }
 
     // 注入 bark.* API 到 JS 环境
@@ -48,12 +48,12 @@ public class PuerJavaScript : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // 注入 bark.log
+        // 注入 bark.* API（日志输出到控制台）
         _scriptEnv.Eval("""
             var bark = {
-                log: function(msg) { console.log('[Bark] ' + msg); },
-                logWarn: function(msg) { console.warn('[Bark] ' + msg); },
-                logError: function(msg) { console.error('[Bark] ' + msg); },
+                log: function(msg) { console.log('[Bark] ' + String(msg)); },
+                logWarn: function(msg) { console.warn('[Bark] ' + String(msg)); },
+                logError: function(msg) { console.error('[Bark] ' + String(msg)); },
                 mod: {
                     id: '',
                     version: '',
@@ -83,7 +83,7 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.hook_failed", _manifest.Id, hookName, ex.Message);
+            ScriptModLogger.Warning(_manifest.Name, $"Hook '{hookName}' failed: {ex.Message}");
         }
     }
 
@@ -114,15 +114,8 @@ public class PuerJavaScript : MonoBehaviour
     {
         if (_scriptEnv != null)
         {
-            try
-            {
-                _scriptEnv.Dispose();
-            }
-            catch
-            {
-                // ignored
-            }
-
+            try { _scriptEnv.Dispose(); }
+            catch { /* 静默忽略清理异常 */ }
             _scriptEnv = null;
         }
         _isLoaded = false;
@@ -137,9 +130,9 @@ public class PuerJavaScript : MonoBehaviour
     private static string EscapeString(string value)
     {
         return value
-            .Replace("\\", @"\\")
-            .Replace("'", @"\'")
-            .Replace("\n", @"\n")
-            .Replace("\r", @"\r");
+            .Replace("\\", "\\\\")
+            .Replace("'", "\\'")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r");
     }
 }

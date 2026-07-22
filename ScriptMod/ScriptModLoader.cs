@@ -39,14 +39,25 @@ public class ScriptModLoader(string modsPath)
     // 扫描并加载所有脚本模组
     public void LoadAll()
     {
+        // 创建目录结构
+        var modsDir = Path.Combine(modsPath, "Mods");
+        var logsDir = Path.Combine(modsPath, "Logs");
+        var configsDir = Path.Combine(modsPath, "Configs");
+
         if (!Directory.Exists(modsPath))
         {
-            LogUtil.Info("scriptmod.dir_not_found", modsPath);
-            return;
+            Directory.CreateDirectory(modsPath);
+            LogUtil.Info("scriptmod.dir_created", modsPath);
         }
+        Directory.CreateDirectory(modsDir);
+        Directory.CreateDirectory(logsDir);
+        Directory.CreateDirectory(configsDir);
 
-        // 1. 扫描所有子目录
-        var modDirectories = Directory.GetDirectories(modsPath);
+        // 初始化脚本模组日志
+        ScriptModLogger.Initialize(logsDir);
+
+        // 1. 扫描 Mods/ 子目录
+        var modDirectories = Directory.GetDirectories(modsDir);
         if (modDirectories.Length == 0)
         {
             LogUtil.Info("scriptmod.no_mods");
@@ -55,8 +66,6 @@ public class ScriptModLoader(string modsPath)
 
         // 2. JSON 加载器：读取所有 mod.json
         var manifests = modDirectories.Select(LoadManifest).OfType<ModManifest>().ToList();
-
-        LogUtil.Info("scriptmod.found_manifests", manifests.Count);
 
         // 3. 依赖检查 + 拓扑排序
         var sorted = TopologicalSort(manifests);
@@ -67,11 +76,10 @@ public class ScriptModLoader(string modsPath)
             LoadMod(manifest);
         }
 
-        LogUtil.Info("scriptmod.loaded_count", _loadedMods.Count);
     }
 
     // 读取单个模组的 mod.json
-    private ModManifest? LoadManifest(string modDir)
+    private static ModManifest? LoadManifest(string modDir)
     {
         var manifestPath = Path.Combine(modDir, "mod.json");
         if (!File.Exists(manifestPath))
@@ -117,7 +125,6 @@ public class ScriptModLoader(string modsPath)
             manifest.EntryFile = entryFile;
             manifest.Language = GetLanguage(entryFile);
 
-            LogUtil.Info("scriptmod.manifest_read", manifest.Id, manifest.Version, manifest.Language);
             return manifest;
         }
         catch (Exception ex)
@@ -151,24 +158,26 @@ public class ScriptModLoader(string modsPath)
 
         try
         {
+            var success = false;
             switch (manifest.Language)
             {
                 case ScriptLanguage.JavaScript:
-                    LoadJavaScriptMod(manifest);
+                    success = LoadJavaScriptMod(manifest);
                     break;
                 case ScriptLanguage.Lua:
-                    LoadLuaMod(manifest);
+                    success = LoadLuaMod(manifest);
                     break;
                 case ScriptLanguage.Python:
-                    LoadPythonMod(manifest);
+                    success = LoadPythonMod(manifest);
                     break;
                 default:
                     LogUtil.Warning("scriptmod.unsupported_language", manifest.Language, manifest.Id);
                     return;
             }
 
+            if (!success) return;
+
             _loadedMods[manifest.Id] = manifest;
-            LogUtil.Info("scriptmod.mod_loaded", manifest.Id, manifest.Version);
         }
         catch (Exception ex)
         {
@@ -176,28 +185,28 @@ public class ScriptModLoader(string modsPath)
         }
     }
 
-    private static void LoadJavaScriptMod(ModManifest manifest)
+    private static bool LoadJavaScriptMod(ModManifest manifest)
     {
-        LogUtil.Info("scriptmod.js_loading", manifest.Id, manifest.EntryFile);
+        LogUtil.Message("scriptmod.mod_loading", "JS", manifest.Name);
         var go = new GameObject($"[ScriptMod-JS] {manifest.Id}");
         var engine = go.AddComponent<PuerJavaScript>();
-        engine.Load(manifest);
+        return engine.Load(manifest);
     }
 
-    private static void LoadLuaMod(ModManifest manifest)
+    private static bool LoadLuaMod(ModManifest manifest)
     {
-        LogUtil.Info("scriptmod.lua_loading", manifest.Id, manifest.EntryFile);
+        LogUtil.Message("scriptmod.mod_loading", "Lua", manifest.Name);
         var go = new GameObject($"[ScriptMod-Lua] {manifest.Id}");
         var engine = go.AddComponent<PuerLua>();
-        engine.Load(manifest);
+        return engine.Load(manifest);
     }
 
-    private static void LoadPythonMod(ModManifest manifest)
+    private static bool LoadPythonMod(ModManifest manifest)
     {
-        LogUtil.Info("scriptmod.python_loading", manifest.Id, manifest.EntryFile);
+        LogUtil.Message("scriptmod.mod_loading", "Python", manifest.Name);
         var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
         var engine = go.AddComponent<PuerPython>();
-        engine.Load(manifest);
+        return engine.Load(manifest);
     }
 
     // 拓扑排序：根据依赖关系确定加载顺序

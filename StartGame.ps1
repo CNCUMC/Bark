@@ -38,11 +38,11 @@ $bepInExPath = [System.IO.Path]::Combine($GamePath, "BepInEx")
 
 $GameLog = Join-Path $env:USERPROFILE "AppData\LocalLow\Orsoniks\CasualtiesUnknown\Player.log"
 $GameExecutable = [System.IO.Path]::Combine($GamePath, "CasualtiesUnknown.exe")
-$ModDll = [System.IO.Path]::Combine($PSScriptRoot, "bin/Debug/net472", "$ModNamespace.dll")
+$ModDll = [System.IO.Path]::Combine($PSScriptRoot, "bin/Debug/netstandard2.1", "$ModNamespace.dll")
 
 $targetModFolder = $ModName
 
-$docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "CHANGELOG.md", "CHANGELOG_ZH.md", "Cover.png")
+$docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "CHANGELOG.md", "CHANGELOG_ZH.md", "Puer/LICENSE")
 
 $logDestination = [System.IO.Path]::Combine($PSScriptRoot, "Logs", "$timestamp.log")
 
@@ -114,6 +114,19 @@ catch
 
 try
 {
+    # 复制 PuerTS 文件到 Bark 插件目录（Plugin.cs 会自动移动原生库到根目录）
+    $puertPath = [System.IO.Path]::Combine($PSScriptRoot, "Puer")
+    if (Test-Path $puertPath -PathType Container)
+    {
+        $puertItems = Get-ChildItem $puertPath
+        foreach ($item in $puertItems)
+        {
+            $destItem = [System.IO.Path]::Combine($pluginPath, $item.Name)
+            Copy-Item $item.FullName $destItem -Recurse -Force
+            Write-ColoredMessage "正在复制 PuerTS 文件到 ""$destItem""。" Cyan
+        }
+    }
+
     $destDocPath = [System.IO.Path]::Combine($bepInExPath, "plugins", $targetModFolder)
     $copiedDocs = 0
 

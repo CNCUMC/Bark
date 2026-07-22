@@ -173,11 +173,26 @@ internal class LangGenerator : ModLangGenMultiBase
             "Заполнитель {{{1}}} выходит за пределы диапазона для ключа '{0}' (args.Length={2})");
 
         // Log - ScriptMod
+        Log("native_dll_copied",
+            "Copied {0} to game root directory",
+            "已将 {0} 复制到游戏根目录",
+            "已將 {0} 複製到遊戲根目錄",
+            "{0} скопирован в корневую директорию игры");
+        Log("puerts_runtime_copied",
+            "Copied puerts/ runtime folder to game root directory",
+            "已将 puerts/ 运行时文件夹复制到游戏根目录",
+            "已將 puerts/ 運行時資料夾複製到遊戲根目錄",
+            "Папка运行时 puerts/ скопирована в корневую директорию игры");
         Log("scriptmod.dir_not_found",
             "ScriptMods directory not found: {0}",
             "ScriptMods 目录不存在: {0}",
             "ScriptMods 目錄不存在: {0}",
             "Каталог ScriptMods не найден: {0}");
+        Log("scriptmod.dir_created",
+            "Created ScriptMods directory: {0}",
+            "已创建 ScriptMods 目录: {0}",
+            "已建立 ScriptMods 目錄: {0}",
+            "Каталог ScriptMods создан: {0}");
         Log("scriptmod.no_mods",
             "No script mods found",
             "没有发现脚本模组",
@@ -248,66 +263,20 @@ internal class LangGenerator : ModLangGenMultiBase
             "加载失败: {0} - {1}",
             "載入失敗: {0} - {1}",
             "Не удалось загрузить: {0} - {1}");
-        Log("scriptmod.js_loading",
-            "[JS] Loading {0}: {1}",
-            "[JS] 加载 {0}: {1}",
-            "[JS] 載入 {0}: {1}",
-            "[JS] Загрузка {0}: {1}");
-        Log("scriptmod.lua_loading",
-            "[Lua] Loading {0}: {1}",
-            "[Lua] 加载 {0}: {1}",
-            "[Lua] 載入 {0}: {1}",
-            "[Lua] Загрузка {0}: {1}");
-        Log("scriptmod.python_loading",
-            "[Python] Loading {0}: {1}",
-            "[Python] 加载 {0}: {1}",
-            "[Python] 載入 {0}: {1}",
-            "[Python] Загрузка {0}: {1}");
+        Log("scriptmod.mod_loading",
+            "[{0}] Loading {1}",
+            "[{0}] 加载 {1}",
+            "[{0}] 載入 {1}",
+            "[{0}] Загрузка {1}");
         Log("scriptmod.circular_dependency",
             "Skipped (circular dependency or unmet dependency): {0}",
             "跳过（循环依赖或依赖未满足）: {0}",
             "跳過（循環依賴或依賴未滿足）: {0}",
             "Пропущено (циклическая зависимость или невыполненная зависимость): {0}");
-
-        // Log - PuerJavaScript
-        Log("scriptmod.js_loaded",
-            "[JS] Loaded: {0}",
-            "[JS] 已加载: {0}",
-            "[JS] 已載入: {0}",
-            "[JS] Загружено: {0}");
-        Log("scriptmod.js_load_failed",
-            "[JS] Failed to load: {0} - {1}",
-            "[JS] 加载失败: {0} - {1}",
-            "[JS] 載入失敗: {0} - {1}",
-            "[JS] Не удалось загрузить: {0} - {1}");
         Log("scriptmod.hook_failed",
             "Hook '{1}' failed for mod '{0}': {2}",
             "模组 '{0}' 的钩子 '{1}' 执行失败: {2}",
             "模組 '{0}' 的鉤子 '{1}' 執行失敗: {2}",
             "Хук '{1}' мода '{0}' завершился ошибкой: {2}");
-
-        // Log - PuerLua
-        Log("scriptmod.lua_loaded",
-            "[Lua] Loaded: {0}",
-            "[Lua] 已加载: {0}",
-            "[Lua] 已載入: {0}",
-            "[Lua] Загружено: {0}");
-        Log("scriptmod.lua_load_failed",
-            "[Lua] Failed to load: {0} - {1}",
-            "[Lua] 加载失败: {0} - {1}",
-            "[Lua] 載入失敗: {0} - {1}",
-            "[Lua] Не удалось загрузить: {0} - {1}");
-
-        // Log - PuerPython
-        Log("scriptmod.python_loaded",
-            "[Python] Loaded: {0}",
-            "[Python] 已加载: {0}",
-            "[Python] 已載入: {0}",
-            "[Python] Загружено: {0}");
-        Log("scriptmod.python_load_failed",
-            "[Python] Failed to load: {0} - {1}",
-            "[Python] 加载失败: {0} - {1}",
-            "[Python] 載入失敗: {0} - {1}",
-            "[Python] Не удалось загрузить: {0} - {1}");
     }
 }

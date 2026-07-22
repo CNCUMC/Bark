@@ -12,15 +12,15 @@ public class PuerPython : MonoBehaviour
     private ModManifest _manifest = null!;
     private bool _isLoaded;
 
-    // 加载并执行 Python 模组
-    public void Load(ModManifest manifest)
+    // 加载并执行 Python 模组，返回是否成功
+    public bool Load(ModManifest manifest)
     {
         _manifest = manifest;
 
         try
         {
             // 创建 Python 引擎实例
-            _scriptEnv = new ScriptEnv(new BackendV8());
+            _scriptEnv = new ScriptEnv(new BackendPython());
 
             // 注入 bark.* API
             InjectBarkApi();
@@ -33,14 +33,14 @@ public class PuerPython : MonoBehaviour
 
             // 调用 onLoad 生命周期钩子
             CallLifecycleHook("on_load");
-
-            LogUtil.Info("scriptmod.python_loaded", manifest.Id);
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.python_load_failed", manifest.Id, ex.Message);
+            ScriptModLogger.Error(manifest.Name, $"Load failed: {ex.Message}");
             Cleanup();
+            return false;
         }
+        return true;
     }
 
     // 注入 bark.* API 到 Python 环境
