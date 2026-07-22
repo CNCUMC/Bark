@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Bark.ScriptMod;
 
 // 脚本模组清单文件（mod.json）的数据模型
-public class ModManifest
+public class ScriptManifest
 {
     // 唯一标识符，推荐反向域名格式
     [JsonProperty("id")]

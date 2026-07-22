@@ -9,11 +9,11 @@ namespace Bark.ScriptMod;
 public class PuerJavaScript : MonoBehaviour
 {
     private ScriptEnv? _scriptEnv;
-    private ModManifest _manifest = null!;
+    private ScriptManifest _manifest = null!;
     private bool _isLoaded;
 
     // 加载并执行 JS 模组，返回是否成功
-    public bool Load(ModManifest manifest)
+    public bool Load(ScriptManifest manifest)
     {
         _manifest = manifest;
 

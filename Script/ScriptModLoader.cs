@@ -10,21 +10,21 @@ namespace Bark.ScriptMod;
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath)
 {
-    private readonly Dictionary<string, ModManifest> _loadedMods = new();
+    private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
 
     // 所有已加载的模组（只读）
-    public IReadOnlyDictionary<string, ModManifest> LoadedMods => _loadedMods;
+    public IReadOnlyDictionary<string, ScriptManifest> LoadedMods => _loadedMods;
 
     // 已加载的 JS 模组
-    public IReadOnlyList<ModManifest> LoadedJavaScriptMods =>
+    public IReadOnlyList<ScriptManifest> LoadedJavaScriptMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.JavaScript).ToList().AsReadOnly();
 
     // 已加载的 Lua 模组
-    public IReadOnlyList<ModManifest> LoadedLuaMods =>
+    public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
 
     // 已加载的 Python 模组
-    public IReadOnlyList<ModManifest> LoadedPythonMods =>
+    public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
 
     // 支持的入口文件扩展名 → 语言映射
@@ -65,7 +65,7 @@ public class ScriptModLoader(string modsPath)
         }
 
         // 2. JSON 加载器：读取所有 mod.json
-        var manifests = modDirectories.Select(LoadManifest).OfType<ModManifest>().ToList();
+        var manifests = modDirectories.Select(LoadManifest).OfType<ScriptManifest>().ToList();
 
         // 3. 依赖检查 + 拓扑排序
         var sorted = TopologicalSort(manifests);
@@ -79,7 +79,7 @@ public class ScriptModLoader(string modsPath)
     }
 
     // 读取单个模组的 mod.json
-    private static ModManifest? LoadManifest(string modDir)
+    private static ScriptManifest? LoadManifest(string modDir)
     {
         var manifestPath = Path.Combine(modDir, "mod.json");
         if (!File.Exists(manifestPath))
@@ -91,7 +91,7 @@ public class ScriptModLoader(string modsPath)
         try
         {
             var json = File.ReadAllText(manifestPath);
-            var manifest = JsonUtil.Deserialize<ModManifest>(json);
+            var manifest = JsonUtil.Deserialize<ScriptManifest>(json);
             if (manifest == null)
             {
                 LogUtil.Warning("scriptmod.parse_failed", manifestPath);
@@ -148,7 +148,7 @@ public class ScriptModLoader(string modsPath)
     }
 
     // 加载单个模组（路由到对应 PuerTS 引擎）
-    private void LoadMod(ModManifest manifest)
+    private void LoadMod(ScriptManifest manifest)
     {
         if (_loadedMods.ContainsKey(manifest.Id))
         {
@@ -185,7 +185,7 @@ public class ScriptModLoader(string modsPath)
         }
     }
 
-    private static bool LoadJavaScriptMod(ModManifest manifest)
+    private static bool LoadJavaScriptMod(ScriptManifest manifest)
     {
         LogUtil.Message("scriptmod.mod_loading", "JS", manifest.Name);
         var go = new GameObject($"[ScriptMod-JS] {manifest.Id}");
@@ -193,7 +193,7 @@ public class ScriptModLoader(string modsPath)
         return engine.Load(manifest);
     }
 
-    private static bool LoadLuaMod(ModManifest manifest)
+    private static bool LoadLuaMod(ScriptManifest manifest)
     {
         LogUtil.Message("scriptmod.mod_loading", "Lua", manifest.Name);
         var go = new GameObject($"[ScriptMod-Lua] {manifest.Id}");
@@ -201,7 +201,7 @@ public class ScriptModLoader(string modsPath)
         return engine.Load(manifest);
     }
 
-    private static bool LoadPythonMod(ModManifest manifest)
+    private static bool LoadPythonMod(ScriptManifest manifest)
     {
         LogUtil.Message("scriptmod.mod_loading", "Python", manifest.Name);
         var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
@@ -210,7 +210,7 @@ public class ScriptModLoader(string modsPath)
     }
 
     // 拓扑排序：根据依赖关系确定加载顺序
-    private static List<ModManifest> TopologicalSort(List<ModManifest> manifests)
+    private static List<ScriptManifest> TopologicalSort(List<ScriptManifest> manifests)
     {
         var manifestMap = manifests.ToDictionary(m => m.Id);
         var inDegree = manifests.ToDictionary(m => m.Id, _ => 0);
@@ -227,7 +227,7 @@ public class ScriptModLoader(string modsPath)
         }
 
         // 检查循环依赖
-        var resolved = new List<ModManifest>();
+        var resolved = new List<ScriptManifest>();
         var queue = new Queue<string>(inDegree.Where(kv => kv.Value == 0).Select(kv => kv.Key));
 
         while (queue.Count > 0)
@@ -257,7 +257,7 @@ public class ScriptModLoader(string modsPath)
     }
 
     // 获取已加载的模组信息
-    public ModManifest? GetMod(string modId)
+    public ScriptManifest? GetMod(string modId)
     {
         return _loadedMods.GetValueOrDefault(modId);
     }
@@ -269,7 +269,7 @@ public class ScriptModLoader(string modsPath)
     }
 
     // 获取所有已加载模组的列表
-    public IReadOnlyList<ModManifest> ListMods()
+    public IReadOnlyList<ScriptManifest> ListMods()
     {
         return _loadedMods.Values.ToList().AsReadOnly();
     }
