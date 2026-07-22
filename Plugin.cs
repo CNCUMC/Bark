@@ -12,12 +12,12 @@ using HarmonyLib;
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib", "1.0.2")]
+[BepInDependency("net.cucorelib", "1.0.3")]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "1.1.1";
+    public const string Version = "2.0.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     private readonly Harmony _harmony = new(Guid);

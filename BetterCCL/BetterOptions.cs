@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Bark.BetterCCL;
 
-// CCL 设置注册封装
 public static class BetterOptions
 {
     private static string CategoryString(Setting.SettingCategory category)
@@ -20,7 +19,7 @@ public static class BetterOptions
 
     private static string MakeId(string ns, string customCategory, string key)
     {
-        return $"{ns}.{customCategory.ToLowerInvariant()}.{key}";
+        return $"{ns}.{customCategory.ToLowerInvariant().Replace(" ", "_")}.{key}";
     }
 
     private static string LabelText(string ns, Setting.SettingCategory category, string key)
@@ -30,7 +29,7 @@ public static class BetterOptions
 
     private static string LabelText(string ns, string customCategory, string key)
     {
-        return MakeId(ns, customCategory, key);
+        return MakeId(ns, customCategory.ToLowerInvariant().Replace(" ", "_"), key);
     }
 
     private static string DescriptionText(string ns, Setting.SettingCategory category, string key)
@@ -40,7 +39,7 @@ public static class BetterOptions
 
     private static string DescriptionText(string ns, string customCategory, string key)
     {
-        return $"{MakeId(ns, customCategory, key)}dsc";
+        return $"{MakeId(ns, customCategory.ToLowerInvariant().Replace(" ", "_"), key)}dsc";
     }
 
     public static void Float(string ns, string key, Setting.SettingCategory category,
