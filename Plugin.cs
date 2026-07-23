@@ -1,14 +1,13 @@
 using System;
-using System.Collections;
 using System.IO;
 using Bark.BetterCCL;
 using Bark.Event;
+using Bark.Events;
 using Bark.Example;
 using Bark.Script;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
-using CUCoreLib.Helpers;
 using HarmonyLib;
 
 namespace Bark;
@@ -24,12 +23,21 @@ public class Plugin : BaseUnityPlugin
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
 
-    private static bool WorldGeneratedOver;
-
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
     private readonly Harmony _harmony = new(Guid);
 
     public void Awake()
+    {
+        AwakeInternal();
+    }
+
+    public void OnDestroy()
+    {
+        PlayerEvents.Stop();
+        _scriptModLoader?.Dispose();
+    }
+
+    private void AwakeInternal()
     {
         Logger = base.Logger;
 
@@ -48,14 +56,11 @@ public class Plugin : BaseUnityPlugin
 
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
 
-        // 使用 CCL AwaitWorldGeneration 协程等待世界完全生成后再触发事件
-        StartCoroutine(WaitForWorldGeneration());
-    }
-
-    private static IEnumerator WaitForWorldGeneration()
-    {
-        yield return CUCoreUtils.AwaitWorldGeneration();
-        TriggerWorldGeneratedEvent();
+        // 监听主菜单加载完成后触发事件
+        MainMenuEvents.Listen(this);
+        // 监听世界生成完成后触发事件
+        WorldEvents.Listen(this);
+        PlayerEvents.Listen(this);
     }
 
     private static void DeployPuertsNativeFiles()
@@ -114,10 +119,4 @@ public class Plugin : BaseUnityPlugin
         _scriptModLoader.LoadAll();
     }
 
-    private static void TriggerWorldGeneratedEvent()
-    {
-        if (WorldGeneratedOver) return;
-        Events.Trigger(new WorldEvents.GeneratedEvent());
-        WorldGeneratedOver = true;
-    }
 }

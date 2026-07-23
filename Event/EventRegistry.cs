@@ -43,7 +43,7 @@ public static class EventRegistry
                         // 验证方法签名：必须有一个参数，且参数类型是 BarkEvent 的子类
                         var parameters = method.GetParameters();
                         if (parameters.Length != 1 ||
-                            !typeof(Event).IsAssignableFrom(parameters[0].ParameterType))
+                            !typeof(BarkEvent).IsAssignableFrom(parameters[0].ParameterType))
                         {
                             LogUtil.Warning("event.invalid_handler", typeName, method.Name);
                             continue;
@@ -69,7 +69,7 @@ public static class EventRegistry
     }
 
     // 触发事件
-    public static void Trigger(Event evt)
+    public static void Trigger(BarkEvent evt)
     {
         var eventType = evt.GetType();
 
@@ -98,7 +98,7 @@ public static class EventRegistry
     }
 
     // 手动注册处理器（用于脚本模组或动态注册）
-    public static void Register(Type eventType, Action<Event> callback, string guid = "bark.script")
+    public static void Register(Type eventType, Action<BarkEvent> callback, string guid = "bark.script")
     {
         if (!Handlers.ContainsKey(eventType))
             Handlers[eventType] = [];
@@ -134,7 +134,7 @@ public class EventHandler
     }
 
     // 委托注册（脚本模组或动态注册）
-    public EventHandler(string guid, Action<Event> callback)
+    public EventHandler(string guid, Action<BarkEvent> callback)
     {
         Guid = guid;
         ClassType = null!;
@@ -145,12 +145,12 @@ public class EventHandler
     public string Guid { get; }
     public Type ClassType { get; }
     public MethodInfo Method { get; }
-    public Action<Event>? Callback { get; }
+    public Action<BarkEvent>? Callback { get; }
 
     public string ClassFullName => ClassType.FullName ?? "delegate";
 
     // 执行处理器
-    public void Invoke(Event evt)
+    public void Invoke(BarkEvent evt)
     {
         if (Callback != null)
             Callback(evt);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Bark.Event;
+using Bark.Events;
 using Bark.Tool;
 
 namespace Bark.ScriptApi;
@@ -20,10 +21,9 @@ public class EventApi
     // 注册事件类型映射（脚本名 → C# 类型）
     private void RegisterEventTypes()
     {
-        _eventTypeMap["world_generated"] = typeof(WorldEvents.GeneratedEvent);
+        _eventTypeMap["world_generated"] = typeof(WorldEvents.GeneratedWorldEvent);
         _eventTypeMap["player_jump"] = typeof(PlayerEvents.JumpEvent);
         _eventTypeMap["player_death"] = typeof(PlayerEvents.DeathEvent);
-        _eventTypeMap["player_respawn"] = typeof(PlayerEvents.RespawnEvent);
     }
 
     // 注册事件处理器
@@ -40,7 +40,7 @@ public class EventApi
     }
 
     // 注册带事件参数的处理器
-    public void On(string eventName, Action<Event.Event> callback)
+    public void On(string eventName, Action<BarkEvent> callback)
     {
         if (!_eventTypeMap.TryGetValue(eventName, out var eventType))
         {
@@ -66,7 +66,7 @@ public class EventApi
             return;
         }
 
-        var evt = (Event.Event)Activator.CreateInstance(eventType)!;
+        var evt = (BarkEvent)Activator.CreateInstance(eventType)!;
         EventRegistry.Trigger(evt);
     }
 }

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Bark.Event;
+using Bark.Events;
 using Bark.Tool;
 
 namespace Bark.Script;
 
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
-public class ScriptModLoader(string modsPath)
+public class ScriptModLoader(string modsPath) : IDisposable
 {
     // 已加载的 Python 模组
     // public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
@@ -208,10 +208,10 @@ public class ScriptModLoader(string modsPath)
         switch (engine)
         {
             case PuerJavaScript js:
-                Events.On<WorldEvents.GeneratedEvent>(_ => js.CallWorldGenerated(), manifest.Id);
+                EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => js.CallWorldGenerated(), manifest.Id);
                 break;
             case PuerLua lua:
-                Events.On<WorldEvents.GeneratedEvent>(_ => lua.CallWorldGenerated(), manifest.Id);
+                EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => lua.CallWorldGenerated(), manifest.Id);
                 break;
         }
     }
@@ -284,7 +284,18 @@ public class ScriptModLoader(string modsPath)
     // 重载所有脚本模组：先卸载全部，再重新加载
     public void ReloadAll()
     {
-        // 卸载所有已加载的模组
+        UnloadAll();
+        LoadAll();
+    }
+
+    // 卸载所有已加载的模组并释放资源
+    public void Dispose()
+    {
+        UnloadAll();
+    }
+
+    private void UnloadAll()
+    {
         foreach (var manifest in _loadedMods.Values)
             try
             {
@@ -312,9 +323,6 @@ public class ScriptModLoader(string modsPath)
             }
 
         _loadedMods.Clear();
-
-        // 重新加载
-        LoadAll();
     }
 
     // 获取已加载的模组信息

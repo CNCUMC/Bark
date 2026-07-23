@@ -1,23 +1,24 @@
 using System;
+using Bark.Event;
 
-namespace Bark.Event;
+namespace Bark.Tool;
 
 // 静态事件 API，C# 模组和脚本模组共用
-public static class Events
+public static class EventUtil
 {
     // 触发事件
-    public static void Trigger<T>() where T : Event, new()
+    public static void Trigger<T>() where T : Event.BarkEvent, new()
     {
         EventRegistry.Trigger(new T());
     }
 
-    public static void Trigger(Event evt)
+    public static void Trigger(Event.BarkEvent evt)
     {
         EventRegistry.Trigger(evt);
     }
 
     // 注册事件处理器
-    public static void On<T>(Action<T> callback, string guid) where T : Event
+    public static void On<T>(Action<T> callback, string guid) where T : Event.BarkEvent
     {
         EventRegistry.Register(typeof(T), evt => callback((T)evt), guid);
     }

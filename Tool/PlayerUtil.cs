@@ -9,7 +9,9 @@ namespace Bark.Tool;
 public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;
-    public static Body Body => PlayerCamera.main.body;
+    // PlayerCamera.main.body 在游戏运行时必然存在，null 仅可能出现在未初始化阶段，
+    // 调用方需自行保证在游戏就绪后使用。此处用 ! 抑制 NRT 误报。
+    public static Body Body => PlayerCamera.main.body!;
 
     public static void Tp(Vector2 pos)
     {
