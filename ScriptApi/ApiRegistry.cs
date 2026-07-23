@@ -27,7 +27,7 @@ public static class ApiRegistry
         if (className is null) throw new ArgumentNullException(nameof(className));
         return s_proxies.TryGetValue(className, out var proxy)
             ? proxy
-            : throw new KeyNotFoundException($"ApiRegistry: 未找到注册的类型 '{className}'");
+            : throw new KeyNotFoundException($"Type '{className}' not found in ApiRegistry.");
     }
 
     // 清除所有已注册的代理

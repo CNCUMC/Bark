@@ -18,7 +18,7 @@ public static class AutoApi
     {
         if (utilityTypes is null) throw new ArgumentNullException(nameof(utilityTypes));
         if (utilityTypes.Length == 0)
-            throw new ArgumentException("至少提供一个 utility 类型", nameof(utilityTypes));
+            throw new ArgumentException("At least one utility type is required.", nameof(utilityTypes));
 
         var key = string.Join("|", utilityTypes.Select(t => t.FullName));
         if (s_proxyCache.TryGetValue(key, out var proxyType)) return Activator.CreateInstance(proxyType)!;

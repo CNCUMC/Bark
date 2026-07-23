@@ -1,6 +1,6 @@
 namespace Bark.ScriptApi;
 
-// 脚本模组元数据（通过 bark.mod 访问）
+// 脚本模组元数据
 public class ScriptInfo
 {
     public string Id { get; set; } = "";

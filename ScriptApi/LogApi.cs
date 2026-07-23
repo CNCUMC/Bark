@@ -129,7 +129,7 @@ public class LogApi
             }
             catch
             {
-                /* ignored */
+                // ignored
             }
         }
 
@@ -139,7 +139,7 @@ public class LogApi
         }
         catch
         {
-            /* ignored */
+            // ignored
         }
     }
 }

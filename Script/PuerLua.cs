@@ -45,13 +45,6 @@ public class PuerLua : ScriptEngine
         return true;
     }
 
-    // 注入 API 到 Lua 全局作用域（无 bark. 前缀，平铺注册）
-    //   bodyUtil = ApiRegistry.GetProxy('bodyUtil')
-    //   playerUtil = ApiRegistry.GetProxy('playerUtil')
-    //   ...
-    //   log = LogApi(id, logsDir, name)
-    //   locale = log.Locale
-    //   scriptInfo = { Id = ..., Version = ..., Name = ... }
     private void InjectBarkApi()
     {
         if (_scriptEnv == null) return;

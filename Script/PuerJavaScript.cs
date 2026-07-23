@@ -46,14 +46,6 @@ public class PuerJavaScript : ScriptEngine
         return true;
     }
 
-    // 注入 API 到 JS 全局作用域（无 bark. 前缀，平铺注册）
-    //   var bodyUtil = CS.Bark.ScriptApi.ApiRegistry.GetProxy('bodyUtil');
-    //   var playerUtil = CS.Bark.ScriptApi.ApiRegistry.GetProxy('playerUtil');
-    //   ...
-    //   var logApi = new CS.Bark.ScriptApi.LogApi('name', 'logsDir', 'id');
-    //   var log = logApi;
-    //   var locale = logApi.Locale;
-    //   var scriptInfo = { Id: '...', Version: '...', Name: '...' };
     private void InjectBarkApi()
     {
         if (_scriptEnv == null) return;
