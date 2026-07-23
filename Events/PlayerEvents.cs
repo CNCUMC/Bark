@@ -15,20 +15,21 @@ public static class PlayerEvents
     private const int LandStableFrames = 3;
 
     private static bool _wasAlive;
+    private static bool _isJumping;
     private static float _lastJumpTime = float.MinValue;
     private static Coroutine? _monitorCoroutine;
     private static Coroutine? _jumpMonitorCoroutine;
     private static MonoBehaviour? _runner;
 
     // 起跳事件：按下跳跃键时触发
-    public class JumpEvent : BarkEvent
+    public class JumpStartEvent : BarkEvent
     {
         public Body Body { get; set; } = null!;
         public PlayerCamera Camera { get; set; } = null!;
     }
 
-    // 完整跳跃事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
-    public class JumpFullEvent : BarkEvent
+    // 跳跃结束事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
+    public class JumpOverEvent : BarkEvent
     {
         public Body Body { get; set; } = null!;
         public PlayerCamera Camera { get; set; } = null!;
@@ -67,6 +68,7 @@ public static class PlayerEvents
             _jumpMonitorCoroutine = null;
         }
 
+        _isJumping = false;
         _runner = null;
     }
 
@@ -77,14 +79,27 @@ public static class PlayerEvents
         if (cam == null) return;
         if (cam.body != __instance) return;
 
-        // 已有协程在追踪跳跃过程，无需重启；协程完成/超时会自动清空引用
-        _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+        // 已有未完成的跳跃，不重复触发 start
+        if (_isJumping)
+        {
+            // 无协程追踪则补启动（极端情况下协程丢失的兜底）
+            _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+            return;
+        }
 
-        if (Time.time - _lastJumpTime < JumpCooldown) return;
+        if (Time.time - _lastJumpTime < JumpCooldown)
+        {
+            // 冷却期内起跳，不发 start 但仍需保证有协程追踪落地
+            _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+            return;
+        }
 
         _lastJumpTime = Time.time;
+        _isJumping = true;
 
-        EventUtil.Trigger(new JumpEvent
+        _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+
+        EventUtil.Trigger(new JumpStartEvent
         {
             Body = __instance,
             Camera = cam
@@ -130,6 +145,7 @@ public static class PlayerEvents
             if (Time.time - startTime > JumpFullTimeout || !body.alive)
             {
                 _jumpMonitorCoroutine = null;
+                _isJumping = false;
                 yield break;
             }
 
@@ -137,8 +153,9 @@ public static class PlayerEvents
         }
 
         _jumpMonitorCoroutine = null;
+        _isJumping = false;
 
-        EventUtil.Trigger(new JumpFullEvent
+        EventUtil.Trigger(new JumpOverEvent
         {
             Body = body,
             Camera = camera

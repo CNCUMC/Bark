@@ -22,7 +22,8 @@ public class EventApi
     private void RegisterEventTypes()
     {
         _eventTypeMap["world_generated"] = typeof(WorldEvents.GeneratedWorldEvent);
-        _eventTypeMap["player_jump"] = typeof(PlayerEvents.JumpEvent);
+        _eventTypeMap["player_jump_start"] = typeof(PlayerEvents.JumpStartEvent);
+        _eventTypeMap["player_jump_over"] = typeof(PlayerEvents.JumpOverEvent);
         _eventTypeMap["player_death"] = typeof(PlayerEvents.DeathEvent);
     }
 
