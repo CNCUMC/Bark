@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace Bark.Script;
 
-// 脚本模组清单文件（mod.json）的数据模型
 public class ScriptManifest
 {
-    // 唯一标识符，推荐反向域名格式
     [JsonProperty("id")] public string Id { get; set; } = string.Empty;
 
     // 显示名称

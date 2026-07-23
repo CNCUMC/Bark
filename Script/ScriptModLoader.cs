@@ -44,6 +44,9 @@ public class ScriptModLoader(string modsPath)
         // 订阅世界生成完成事件
         WorldApi.OnWorldGenerated += OnWorldGenerated;
 
+        // 初始化本地化管理器（加载所有模组的 Lang/*.json）
+        ScriptLocaleManager.Initialize(modsPath);
+
         // 创建目录结构
         var modsDir = Path.Combine(modsPath, "Mods");
         var logsDir = Path.Combine(modsPath, "Logs");
