@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace Bark.Script;
 
@@ -39,7 +38,7 @@ public class ScriptManifest
     [JsonIgnore] public ScriptLanguage Language { get; set; }
 
     // 引擎组件引用（运行时填充，用于生命周期管理）
-    [JsonIgnore] public MonoBehaviour? Engine { get; set; }
+    [JsonIgnore] public ScriptEngine? Engine { get; set; }
 }
 
 // 模组依赖声明

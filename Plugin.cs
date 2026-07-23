@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
-using System.Linq;
 using Bark.BetterCCL;
+using Bark.Event;
 using Bark.Example;
 using Bark.Script;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
 using CUCoreLib.Helpers;
-using CUCoreLib.Registries;
 using HarmonyLib;
 
 namespace Bark;
@@ -23,10 +22,12 @@ public class Plugin : BaseUnityPlugin
     public const string Version = "2.0.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
+    internal static ScriptModLoader? _scriptModLoader;
+
+    private static bool WorldGeneratedOver;
 
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
     private readonly Harmony _harmony = new(Guid);
-    private ScriptModLoader? _scriptModLoader;
 
     public void Awake()
     {
@@ -39,10 +40,22 @@ public class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         DeployPuertsNativeFiles();
+        // 先扫描 C# 事件处理器，再加载脚本模组（脚本模组会注册额外的处理器）
+        EventRegistry.ScanAndRegister();
         LoadScriptMods();
-        RegisterCommands();
+
+        ModCommand.RegisterCommands();
 
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
+
+        // 使用 CCL AwaitWorldGeneration 协程等待世界完全生成后再触发事件
+        StartCoroutine(WaitForWorldGeneration());
+    }
+
+    private static IEnumerator WaitForWorldGeneration()
+    {
+        yield return CUCoreUtils.AwaitWorldGeneration();
+        TriggerWorldGeneratedEvent();
     }
 
     private static void DeployPuertsNativeFiles()
@@ -101,105 +114,10 @@ public class Plugin : BaseUnityPlugin
         _scriptModLoader.LoadAll();
     }
 
-    private void RegisterCommands()
+    private static void TriggerWorldGeneratedEvent()
     {
-        ConsoleCommandRegistry.Register(
-            "catfcabl",
-            BetterLocale.GetCommand("catfcabl"),
-            _ => ExportLocaleDebugFile()
-        );
-
-        ConsoleCommandRegistry.Register(
-            "rs",
-            LocaleCommand("reload"),
-            _ => _scriptModLoader?.ReloadAll()
-        );
-
-        ConsoleCommandRegistry.Register(
-            "script",
-            LocaleCommand("description"),
-            ExecuteScriptCommand,
-            new Dictionary<int, List<string>>
-            {
-                { 0, ["help", "reload", "list"] }
-            }
-        );
-    }
-
-    private static void ExportLocaleDebugFile()
-    {
-        var path = Path.Combine(Paths.CachePath, "catfcabl.txt");
-        var lines = new List<string>();
-
-        lines.AddRange(BetterLocale.LocaleKeys
-            .OrderBy(x => x.Key)
-            .Select(x => $"{x.Key}: {x.Value}"));
-        lines.Add("");
-        lines.AddRange(BetterLocale.LocaleGetKeys
-            .OrderBy(x => x.Key)
-            .Select(x => $"{x.Key}: {x.Value}"));
-
-        File.WriteAllLines(path, lines);
-        LogUtil.Message($"catfcabl.txt: {path}", Logger);
-        LogUtil.Message($"Register Count: {BetterLocale.LocaleKeys.Count}", Logger);
-        LogUtil.Message($"Call Count: {BetterLocale.LocaleGetKeys.Count}", Logger);
-    }
-
-    private void ExecuteScriptCommand(string[] args)
-    {
-        if (args.Length == 1)
-        {
-            PrintHelp();
-            return;
-        }
-
-        switch (args[1])
-        {
-            case "help":
-                PrintHelp();
-                break;
-            case "reload":
-                CUCoreUtils.ConsoleRunCommand(ConsoleScript.instance, "rs");
-                break;
-            case "list":
-                PrintList();
-                break;
-            default:
-                PrintHelp();
-                break;
-        }
-    }
-
-    private static void PrintHelp()
-    {
-        var helpItems = new List<(string key, string value)>
-        {
-            ("help", LocaleCommand("help.help")),
-            ("reload", LocaleCommand("help.reload"))
-        };
-
-        var header = LocaleCommand("help.header");
-        LogUtil.PrintKeyValueList(header, helpItems, Logger);
-    }
-
-    private void PrintList()
-    {
-        if (_scriptModLoader == null) return;
-
-        var mods = _scriptModLoader.ListMods();
-        if (mods.Count == 0)
-        {
-            LogUtil.Info("script_mod_loader.no_mods", Logger);
-            return;
-        }
-
-        LogUtil.Message(LocaleCommand("list.header", mods.Count), Logger);
-        foreach (var mod in mods)
-            LogUtil.Message(LocaleCommand("list.item", mod.Name, mod.Version, mod.Language, mod.Id), Logger);
-    }
-
-    private static string LocaleCommand(string key, params object[] args)
-    {
-        return BetterLocale.GetCommand($"{NameSpace}.script.{key}", args);
+        if (WorldGeneratedOver) return;
+        Events.Trigger(new WorldEvents.GeneratedEvent());
+        WorldGeneratedOver = true;
     }
 }

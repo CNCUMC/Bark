@@ -55,6 +55,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "重载所有脚本模组",
             "重載所有腳本模組",
             "Перезагрузить все скриптовые моды");
+        Command("script.list",
+            "Script mod list",
+            "脚本模组列表",
+            "腳本模組列表",
+            "Список скриптовых модов");
         Command("script.list.header",
             "Script mod list ({0}):",
             "脚本模组列表（{0}）:",

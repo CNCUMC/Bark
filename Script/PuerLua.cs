@@ -1,25 +1,19 @@
 using System;
 using System.IO;
-using Bark.Tool;
 using Puerts;
-using UnityEngine;
 
 namespace Bark.Script;
 
 // PuerTS Lua 引擎包装器，管理脚本模组的生命周期
-public class PuerLua : MonoBehaviour
+// 不依赖 Unity GameObject，避免场景切换时被意外销毁
+public class PuerLua : ScriptEngine
 {
     private bool _isLoaded;
     private ScriptManifest _manifest = null!;
     private ScriptEnv? _scriptEnv;
 
-    private void OnDestroy()
-    {
-        Cleanup();
-    }
-
     // 加载并执行 Lua 模组，返回是否成功
-    public bool Load(ScriptManifest manifest)
+    public override bool Load(ScriptManifest manifest)
     {
         _manifest = manifest;
 
@@ -42,8 +36,8 @@ public class PuerLua : MonoBehaviour
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_mod_loader.load_failed", manifest.Id, ex.Message);
-            Cleanup();
+            Plugin.Logger.LogWarning($"[Bark] Lua Load FAILED | id={manifest.Id} | {ex}");
+            Dispose();
             return false;
         }
 
@@ -55,14 +49,49 @@ public class PuerLua : MonoBehaviour
     {
         if (_scriptEnv == null) return;
 
-        // Lua 需要 require('csharp') 获取 CS 入口，无 new 关键字
         var id = EscapeString(_manifest.Id);
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
-        _scriptEnv.Eval($"""
-                             local CS = require('csharp')
-                             bark = CS.Bark.ScriptApi.ScriptApi('{id}', '{version}', '{scriptName}')
-                         """);
+
+        // 创建 C# ScriptApi 并包装为纯 Lua 表
+        // events.on 回调存入 Lua 原生表，通过 __barkTriggerEvent 在 Eval 中触发
+        // 避免 Puerts 不允许给 C# 对象挂载新字段、委托跨上下文调用不可靠的问题
+        var luaCode = """
+
+                      local CS = require('csharp')
+                      local _bark = CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__')
+                      local _eventCallbacks = {}
+
+                      bark = {
+                          events = {
+                              on = function(name, cb)
+                                  _eventCallbacks[name] = _eventCallbacks[name] or {}
+                                  table.insert(_eventCallbacks[name], cb)
+                              end
+                          },
+                          Inventor   = _bark.Inventor,
+                          Item       = _bark.Item,
+                          Limb       = _bark.Limb,
+                          Locale     = _bark.Locale,
+                          Log        = _bark.Log,
+                          Player     = _bark.Player,
+                          ScriptInfo = _bark.ScriptInfo,
+                          Skill      = _bark.Skill,
+                          World      = _bark.World,
+                      }
+
+                      function __barkTriggerEvent(name)
+                          local cbs = _eventCallbacks[name]
+                          if not cbs then return end
+                          for _, cb in ipairs(cbs) do
+                              local ok, err = pcall(cb)
+                              if not ok then print('[Bark] event cb error: ' .. name .. ' ' .. tostring(err)) end
+                          end
+                      end
+
+                      """.Replace("__ID__", id).Replace("__VERSION__", version).Replace("__NAME__", scriptName);
+
+        _scriptEnv.Eval(luaCode);
     }
 
     // 调用生命周期钩子
@@ -72,11 +101,7 @@ public class PuerLua : MonoBehaviour
 
         try
         {
-            _scriptEnv.Eval($"""
-                                 if type({hookName}) == 'function' then
-                                     {hookName}()
-                                 end
-                             """);
+            _scriptEnv.Eval($"if type({hookName}) == 'function' then {hookName}() end");
         }
         catch
         {
@@ -85,36 +110,51 @@ public class PuerLua : MonoBehaviour
     }
 
     // 激活模组（调用 onEnable）
-    public void Enable()
+    public override void Enable()
     {
         if (!_isLoaded) return;
         CallLifecycleHook("onEnable");
     }
 
     // 停用模组（调用 onDisable）
-    public void Disable()
+    public override void Disable()
     {
         if (!_isLoaded) return;
         CallLifecycleHook("onDisable");
     }
 
     // 卸载模组（调用 onUnload）
-    public void Unload()
+    public override void Unload()
     {
         if (!_isLoaded) return;
         CallLifecycleHook("onUnload");
-        Cleanup();
+        Dispose();
     }
 
     // 世界生成完成钩子
-    public void CallWorldGenerated()
+    public override void CallWorldGenerated()
     {
-        if (!_isLoaded) return;
-        CallLifecycleHook("on_world_generated");
+        if (_scriptEnv == null)
+        {
+            Plugin.Logger.LogWarning($"[Bark] Lua CallWorldGenerated SKIP | _scriptEnv is null | id={_manifest.Id}");
+            return;
+        }
+
+        try
+        {
+            _scriptEnv.Eval(@"
+                if type(onWorldGenerated) == 'function' then onWorldGenerated() end
+                if __barkTriggerEvent then __barkTriggerEvent('world_generated') end
+            ");
+        }
+        catch (Exception ex)
+        {
+            Plugin.Logger.LogWarning($"[Bark] Lua CallWorldGenerated FAILED | id={_manifest.Id} | {ex.Message}");
+        }
     }
 
-    // 清理资源
-    private void Cleanup()
+    // 释放引擎资源
+    public override void Dispose()
     {
         if (_scriptEnv != null)
         {
@@ -122,9 +162,9 @@ public class PuerLua : MonoBehaviour
             {
                 _scriptEnv.Dispose();
             }
-            catch
+            catch (Exception ex)
             {
-                /* 静默忽略清理异常 */
+                Plugin.Logger.LogWarning($"[Bark] Lua Dispose error | {ex.Message}");
             }
 
             _scriptEnv = null;

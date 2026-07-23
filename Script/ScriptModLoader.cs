@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Bark.ScriptApi;
+using Bark.Event;
 using Bark.Tool;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Bark.Script;
 
@@ -41,9 +39,6 @@ public class ScriptModLoader(string modsPath)
     // 扫描并加载所有脚本模组
     public void LoadAll()
     {
-        // 订阅世界生成完成事件
-        WorldApi.OnWorldGenerated += OnWorldGenerated;
-
         // 初始化本地化管理器（加载所有模组的 Lang/*.json）
         ScriptLocaleManager.Initialize(modsPath);
 
@@ -80,16 +75,6 @@ public class ScriptModLoader(string modsPath)
         foreach (var manifest in sorted) LoadMod(manifest);
     }
 
-    // 世界生成完成时，触发所有已加载模组的 onWorldGenerated 钩子
-    private void OnWorldGenerated()
-    {
-        foreach (var manifest in _loadedMods.Values)
-            switch (manifest.Engine)
-            {
-                case PuerJavaScript js: js.CallWorldGenerated(); break;
-                case PuerLua lua: lua.CallWorldGenerated(); break;
-            }
-    }
 
     // 读取单个模组的 mod.json
     private static ScriptManifest? LoadManifest(string modDir)
@@ -171,7 +156,7 @@ public class ScriptModLoader(string modsPath)
 
         try
         {
-            MonoBehaviour? engine;
+            ScriptEngine? engine;
             switch (manifest.Language)
             {
                 case ScriptLanguage.JavaScript:
@@ -193,6 +178,9 @@ public class ScriptModLoader(string modsPath)
             manifest.Engine = engine;
             _loadedMods[manifest.Id] = manifest;
 
+            // 注册脚本模组的生命周期钩子为事件处理器
+            RegisterScriptEventHandlers(manifest);
+
             // 加载完成后调用 onEnable
             switch (engine)
             {
@@ -206,19 +194,39 @@ public class ScriptModLoader(string modsPath)
         }
     }
 
+    // 将脚本模组的生命周期钩子注册为事件处理器
+    private static void RegisterScriptEventHandlers(ScriptManifest manifest)
+    {
+        var engine = manifest.Engine;
+        if (engine == null)
+        {
+            LogUtil.Warning("event.script_handler_no_engine", manifest.Id);
+            return;
+        }
+
+        // world_generated → WorldEvents.GeneratedEvent
+        switch (engine)
+        {
+            case PuerJavaScript js:
+                Events.On<WorldEvents.GeneratedEvent>(_ => js.CallWorldGenerated(), manifest.Id);
+                break;
+            case PuerLua lua:
+                Events.On<WorldEvents.GeneratedEvent>(_ => lua.CallWorldGenerated(), manifest.Id);
+                break;
+        }
+    }
+
     private static PuerJavaScript? LoadJavaScriptMod(ScriptManifest manifest)
     {
         LogUtil.Message("script_mod_loader.mod_loading", "JavaScript", manifest.Name, manifest.Version);
-        var go = new GameObject($"[ScriptMod-JavaScript] {manifest.Id}");
-        var engine = go.AddComponent<PuerJavaScript>();
+        var engine = new PuerJavaScript();
         return engine.Load(manifest) ? engine : null;
     }
 
     private static PuerLua? LoadLuaMod(ScriptManifest manifest)
     {
         LogUtil.Message("script_mod_loader.mod_loading", "Lua", manifest.Name, manifest.Version);
-        var go = new GameObject($"[ScriptMod-Lua] {manifest.Id}");
-        var engine = go.AddComponent<PuerLua>();
+        var engine = new PuerLua();
         return engine.Load(manifest) ? engine : null;
     }
 
@@ -296,8 +304,7 @@ public class ScriptModLoader(string modsPath)
                     //     break;
                 }
 
-                if (manifest.Engine != null)
-                    Object.Destroy(manifest.Engine.gameObject);
+                manifest.Engine?.Dispose();
             }
             catch (Exception ex)
             {

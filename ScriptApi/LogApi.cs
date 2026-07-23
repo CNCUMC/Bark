@@ -23,7 +23,7 @@ public class LogApi
             {
                 if (_sharedLatestWriter == null)
                 {
-                    var latestPath = Path.Combine(logsDir, "latest.log");
+                    var latestPath = Path.Combine(logsDir, ".latest.log");
                     _sharedLatestWriter = new StreamWriter(latestPath, false) { AutoFlush = true };
                 }
             }

@@ -28,6 +28,7 @@ public class SkillApi
     {
         SkillUtil.SetLevelRaw(ParseSkillType(skill), level);
     }
+
     public float GetExperienceForNextLevel(string skill)
     {
         return SkillUtil.GetExperienceForNextLevel(ParseSkillType(skill));

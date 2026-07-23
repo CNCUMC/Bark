@@ -1,4 +1,3 @@
-using System;
 using Bark.Tool;
 
 namespace Bark.ScriptApi;
@@ -6,11 +5,7 @@ namespace Bark.ScriptApi;
 public class WorldApi
 {
     public int Width => (int)WorldUtil.World.width;
-
     public int Height => (int)WorldUtil.World.height;
-
-    // 世界生成完成事件（Harmony 补丁触发）
-    public static event Action? OnWorldGenerated;
 
     public void PlaceBlock(int x, int y, ushort block)
     {
@@ -25,11 +20,5 @@ public class WorldApi
     public void PlaceItem(int x, int y, string item)
     {
         WorldUtil.PlaceItem(x, y, item);
-    }
-
-    // 内部触发方法（供 Harmony 补丁调用）
-    internal static void TriggerOnWorldGenerated()
-    {
-        OnWorldGenerated?.Invoke();
     }
 }

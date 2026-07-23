@@ -59,7 +59,7 @@ public class InventorApi
     {
         return InventoryUtil.FindFirstEmptySlot() ?? -1;
     }
-    
+
     public bool HasItem(string id)
     {
         return InventoryUtil.HasItem(id);
@@ -99,7 +99,7 @@ public class InventorApi
     {
         return [.. InventoryUtil.GetItemsByCategory(category).Select(i => i.id)];
     }
-    
+
     public bool HasWearableItem()
     {
         return InventoryUtil.HasWearableItem();
