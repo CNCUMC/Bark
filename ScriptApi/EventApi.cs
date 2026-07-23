@@ -28,7 +28,6 @@ public class EventApi
     }
 
     // 注册事件处理器
-    // bark.events.On("world_generated", callback)
     public void On(string eventName, Action callback)
     {
         if (!_eventTypeMap.TryGetValue(eventName, out var eventType))

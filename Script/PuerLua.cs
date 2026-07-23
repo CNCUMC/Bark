@@ -55,6 +55,7 @@ public class PuerLua : ScriptEngine
 
         // 创建 C# ScriptApi 并包装为纯 Lua 表
         // events.on 回调存入 Lua 原生表，通过 __barkTriggerEvent 在 Eval 中触发
+        // 并暴露 onPlayerJumpStart / onPlayerJumpOver / onPlayerDeath / onWorldGenerated 便利方法
         // 避免 Puerts 不允许给 C# 对象挂载新字段、委托跨上下文调用不可靠的问题
         var luaCode = """
 
@@ -62,13 +63,19 @@ public class PuerLua : ScriptEngine
                       local _bark = CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__')
                       local _eventCallbacks = {}
 
+                      local function _addCallback(name, cb)
+                          _eventCallbacks[name] = _eventCallbacks[name] or {}
+                          table.insert(_eventCallbacks[name], cb)
+                      end
+
                       bark = {
                           events = {
-                              on = function(name, cb)
-                                  _eventCallbacks[name] = _eventCallbacks[name] or {}
-                                  table.insert(_eventCallbacks[name], cb)
-                              end
+                              on = function(name, cb) _addCallback(name, cb) end
                           },
+                          onWorldGenerated  = function(cb) _addCallback('world_generated', cb) end,
+                          onPlayerJumpStart = function(cb) _addCallback('player_jump_start', cb) end,
+                          onPlayerJumpOver  = function(cb) _addCallback('player_jump_over', cb) end,
+                          onPlayerDeath     = function(cb) _addCallback('player_death', cb) end,
                           Inventor   = _bark.Inventor,
                           Item       = _bark.Item,
                           Limb       = _bark.Limb,
@@ -134,22 +141,25 @@ public class PuerLua : ScriptEngine
     // 世界生成完成钩子
     public override void CallWorldGenerated()
     {
-        if (_scriptEnv == null)
-        {
-            Plugin.Logger.LogWarning($"[Bark] Lua CallWorldGenerated SKIP | _scriptEnv is null | id={_manifest.Id}");
-            return;
-        }
+        CallTriggerEvent("world_generated");
+    }
+
+    // 向脚本侧发送事件通知：调用全局生命周期函数 + bark.events / bark.onXxx 回调
+    public override void CallTriggerEvent(string eventName)
+    {
+        if (_scriptEnv == null) return;
+
+        var hookName = EventToHookName(eventName);
 
         try
         {
-            _scriptEnv.Eval(@"
-                if type(onWorldGenerated) == 'function' then onWorldGenerated() end
-                if __barkTriggerEvent then __barkTriggerEvent('world_generated') end
-            ");
+            _scriptEnv.Eval(
+                $"if type({hookName}) == 'function' then {hookName}() end " +
+                $"if __barkTriggerEvent then __barkTriggerEvent('{eventName}') end");
         }
-        catch (Exception ex)
+        catch
         {
-            Plugin.Logger.LogWarning($"[Bark] Lua CallWorldGenerated FAILED | id={_manifest.Id} | {ex.Message}");
+            // ignored
         }
     }
 

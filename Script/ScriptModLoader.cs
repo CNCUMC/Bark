@@ -204,16 +204,17 @@ public class ScriptModLoader(string modsPath) : IDisposable
             return;
         }
 
-        // world_generated → WorldEvents.GeneratedEvent
-        switch (engine)
-        {
-            case PuerJavaScript js:
-                EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => js.CallWorldGenerated(), manifest.Id);
-                break;
-            case PuerLua lua:
-                EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => lua.CallWorldGenerated(), manifest.Id);
-                break;
-        }
+        // world_generated → 生命周期钩子 + bark events
+        EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => engine.CallWorldGenerated(), manifest.Id);
+
+        // 玩家跳跃起跳
+        EventUtil.On<PlayerEvents.JumpStartEvent>(_ => engine.CallTriggerEvent("player_jump_start"), manifest.Id);
+
+        // 玩家跳跃落地
+        EventUtil.On<PlayerEvents.JumpOverEvent>(_ => engine.CallTriggerEvent("player_jump_over"), manifest.Id);
+
+        // 玩家死亡
+        EventUtil.On<PlayerEvents.DeathEvent>(_ => engine.CallTriggerEvent("player_death"), manifest.Id);
     }
 
     private static PuerJavaScript? LoadJavaScriptMod(ScriptManifest manifest)

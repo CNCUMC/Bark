@@ -55,20 +55,36 @@ public class PuerJavaScript : ScriptEngine
         var scriptName = EscapeString(_manifest.Name);
 
         // 使用 JS Proxy 包装 C# bark 对象，拦截 events.on 存入原生 JS 数组
+        // 并暴露 onPlayerJumpStart / onPlayerJumpOver / onPlayerDeath / onWorldGenerated 便利方法
         // 避免 Puerts C# 对象无法挂载新属性、无法可靠覆盖方法的问题
         var jsCode = """
 
                      var _bark = new CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__');
                      var __barkEventCallbacks = {};
+
+                     function __barkAddCallback(name, cb) {
+                         if (!__barkEventCallbacks[name]) __barkEventCallbacks[name] = [];
+                         __barkEventCallbacks[name].push(cb);
+                     }
+
                      var bark = new Proxy(_bark, {
                          get: function(target, prop) {
                              if (prop === 'events') {
                                  return {
-                                     on: function(name, cb) {
-                                         if (!__barkEventCallbacks[name]) __barkEventCallbacks[name] = [];
-                                         __barkEventCallbacks[name].push(cb);
-                                     }
+                                     on: function(name, cb) { __barkAddCallback(name, cb); }
                                  };
+                             }
+                             if (prop === 'onWorldGenerated') {
+                                 return function(cb) { __barkAddCallback('world_generated', cb); };
+                             }
+                             if (prop === 'onPlayerJumpStart') {
+                                 return function(cb) { __barkAddCallback('player_jump_start', cb); };
+                             }
+                             if (prop === 'onPlayerJumpOver') {
+                                 return function(cb) { __barkAddCallback('player_jump_over', cb); };
+                             }
+                             if (prop === 'onPlayerDeath') {
+                                 return function(cb) { __barkAddCallback('player_death', cb); };
                              }
                              return target[prop];
                          }
@@ -126,24 +142,25 @@ public class PuerJavaScript : ScriptEngine
     // 世界生成完成钩子
     public override void CallWorldGenerated()
     {
-        if (_scriptEnv == null)
-        {
-            Plugin.Logger.LogWarning($"[Bark] JS CallWorldGenerated SKIP | _scriptEnv is null | id={_manifest.Id}");
-            return;
-        }
+        CallTriggerEvent("world_generated");
+    }
+
+    // 向脚本侧发送事件通知：调用全局生命周期函数 + bark.events / bark.onXxx 回调
+    public override void CallTriggerEvent(string eventName)
+    {
+        if (_scriptEnv == null) return;
+
+        var hookName = EventToHookName(eventName);
 
         try
         {
-            _scriptEnv.Eval("""
-
-                                            if (typeof onWorldGenerated === 'function') onWorldGenerated();
-                                            if (typeof __barkTriggerEvent === 'function') __barkTriggerEvent('world_generated');
-                                        
-                            """);
+            _scriptEnv.Eval(
+                $"if (typeof {hookName} === 'function') {{ {hookName}(); }}" +
+                $"if (typeof __barkTriggerEvent === 'function') __barkTriggerEvent('{eventName}');");
         }
-        catch (Exception ex)
+        catch
         {
-            Plugin.Logger.LogWarning($"[Bark] JS CallWorldGenerated FAILED | id={_manifest.Id} | {ex.Message}");
+            // ignored
         }
     }
 
