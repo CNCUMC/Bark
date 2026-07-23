@@ -318,5 +318,10 @@ internal class LangGenerator : ModLangGenMultiBase
             "卸载模组 '{0}' 失败: {1}",
             "卸載模組 '{0}' 失敗: {1}",
             "Не удалось выгрузить мод '{0}': {1}");
+        Log("script_mod_loader.python_not_available",
+            "Python runtime not available, skipping mod '{0}'",
+            "Python 运行时不可用，跳过模组 '{0}'",
+            "Python 運行時不可用，跳過模組 '{0}'",
+            "Python рантайм недоступен, пропуск мода '{0}'");
     }
 }

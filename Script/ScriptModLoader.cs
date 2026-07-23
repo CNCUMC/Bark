@@ -24,16 +24,16 @@ public class ScriptModLoader(string modsPath)
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
 
     // 已加载的 Python 模组
-    public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
-        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
+    // public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
+    //     _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
 
     // 支持的入口文件扩展名 → 语言映射
     private static readonly Dictionary<string, ScriptLanguage> ExtensionMap = new(StringComparer.OrdinalIgnoreCase)
     {
         { ".js", ScriptLanguage.JavaScript },
         { ".mjs", ScriptLanguage.JavaScript },
-        { ".lua", ScriptLanguage.Lua },
-        { ".py", ScriptLanguage.Python }
+        { ".lua", ScriptLanguage.Lua }
+        // { ".py", ScriptLanguage.Python }
     };
 
     // 扫描并加载所有脚本模组
@@ -164,9 +164,9 @@ public class ScriptModLoader(string modsPath)
                 case ScriptLanguage.Lua:
                     engine = LoadLuaMod(manifest);
                     break;
-                case ScriptLanguage.Python:
-                    engine = LoadPythonMod(manifest);
-                    break;
+                // case ScriptLanguage.Python:
+                //     engine = LoadPythonMod(manifest);
+                //     break;
                 default:
                     LogUtil.Warning("script_mod_loader.unsupported_language", manifest.Language, manifest.Id);
                     return;
@@ -199,13 +199,14 @@ public class ScriptModLoader(string modsPath)
         return engine.Load(manifest) ? engine : null;
     }
 
-    private static PuerPython? LoadPythonMod(ScriptManifest manifest)
-    {
-        LogUtil.Message("script_mod_loader.mod_loading", "Python", manifest.Name, manifest.Version);
-        var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
-        var engine = go.AddComponent<PuerPython>();
-        return engine.Load(manifest) ? engine : null;
-    }
+    // FUCK PYTHON
+    // private static PuerPython? LoadPythonMod(ScriptManifest manifest)
+    // {
+    //     LogUtil.Message("script_mod_loader.mod_loading", "Python", manifest.Name, manifest.Version);
+    //     var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
+    //     var engine = go.AddComponent<PuerPython>();
+    //     return engine.Load(manifest) ? engine : null;
+    // }
 
     // 拓扑排序：根据依赖关系确定加载顺序
     private static List<ScriptManifest> TopologicalSort(List<ScriptManifest> manifests)
@@ -272,10 +273,10 @@ public class ScriptModLoader(string modsPath)
                         lua.Disable();
                         lua.Unload();
                         break;
-                    case PuerPython py:
-                        py.Disable();
-                        py.Unload();
-                        break;
+                    // case PuerPython py:
+                    //     py.Disable();
+                    //     py.Unload();
+                    //     break;
                 }
                 if (manifest.Engine != null)
                     UnityEngine.Object.Destroy(manifest.Engine.gameObject);

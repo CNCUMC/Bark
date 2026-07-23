@@ -36,10 +36,11 @@ public class PuerJavaScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
+            LogUtil.Warning("script_mod_loader.load_failed", manifest.Id, ex.Message);
             Cleanup();
             return false;
         }
+
         return true;
     }
 
@@ -52,9 +53,7 @@ public class PuerJavaScript : MonoBehaviour
         var id = EscapeString(_manifest.Id);
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
-        _scriptEnv.Eval($"""
-            var bark = new CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}');
-        """);
+        _scriptEnv.Eval($"    var bark = new CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}');");
     }
 
     // 调用生命周期钩子
@@ -65,14 +64,14 @@ public class PuerJavaScript : MonoBehaviour
         try
         {
             _scriptEnv.Eval($$"""
-                if (typeof {{hookName}} === 'function') {
-                    {{hookName}}();
-                }
-            """);
+                                  if (typeof {{hookName}} === 'function') {
+                                      {{hookName}}();
+                                  }
+                              """);
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.hook_failed", _manifest.Id, hookName, ex.Message);
+            LogUtil.Warning("script_mod_loader.hook_failed", _manifest.Id, hookName, ex.Message);
         }
     }
 
@@ -103,10 +102,18 @@ public class PuerJavaScript : MonoBehaviour
     {
         if (_scriptEnv != null)
         {
-            try { _scriptEnv.Dispose(); }
-            catch { /* 静默忽略清理异常 */ }
+            try
+            {
+                _scriptEnv.Dispose();
+            }
+            catch
+            {
+                /* 静默忽略清理异常 */
+            }
+
             _scriptEnv = null;
         }
+
         _isLoaded = false;
     }
 
@@ -119,9 +126,9 @@ public class PuerJavaScript : MonoBehaviour
     private static string EscapeString(string value)
     {
         return value
-            .Replace("\\", "\\\\")
-            .Replace("'", "\\'")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r");
+            .Replace("\\", @"\\")
+            .Replace("'", @"\'")
+            .Replace("\n", @"\n")
+            .Replace("\r", @"\r");
     }
 }

@@ -114,11 +114,29 @@ catch
 
 try
 {
-    # 复制 PuerTS 文件到 Bark 插件目录（Plugin.cs 会自动移动原生库到根目录）
+    # 复制 PuerTS 文件
     $puertPath = [System.IO.Path]::Combine($PSScriptRoot, "Puer")
     if (Test-Path $puertPath -PathType Container)
     {
-        $puertItems = Get-ChildItem $puertPath
+        # Papi* 原生库直接复制到游戏根目录
+        $nativeDlls = Get-ChildItem $puertPath -Filter "Papi*.dll"
+        foreach ($dll in $nativeDlls)
+        {
+            $destFile = [System.IO.Path]::Combine($GamePath, $dll.Name)
+            Copy-Item $dll.FullName $destFile -Force
+            Write-ColoredMessage "正在复制原生库 ""$( $dll.Name )"" 到游戏根目录。" Cyan
+        }
+        # PuertsCore.dll 也复制到游戏根目录
+        $puertsCore = [System.IO.Path]::Combine($puertPath, "PuertsCore.dll")
+        if (Test-Path $puertsCore)
+        {
+            $destFile = [System.IO.Path]::Combine($GamePath, "PuertsCore.dll")
+            Copy-Item $puertsCore $destFile -Force
+            Write-ColoredMessage "正在复制原生库 ""PuertsCore.dll"" 到游戏根目录。" Cyan
+        }
+
+        # 其他 PuerTS 文件复制到插件目录
+        $puertItems = Get-ChildItem $puertPath | Where-Object { $_.Name -notlike "Papi*" -and $_.Name -ne "PuertsCore.dll" }
         foreach ($item in $puertItems)
         {
             $destItem = [System.IO.Path]::Combine($pluginPath, $item.Name)

@@ -36,10 +36,11 @@ public class PuerLua : MonoBehaviour
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("scriptmod.load_failed", manifest.Id, ex.Message);
+            LogUtil.Warning("script_mod_loader.load_failed", manifest.Id, ex.Message);
             Cleanup();
             return false;
         }
+
         return true;
     }
 
@@ -53,9 +54,9 @@ public class PuerLua : MonoBehaviour
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
         _scriptEnv.Eval($"""
-            local CS = require('csharp')
-            bark = CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}')
-        """);
+                             local CS = require('csharp')
+                             bark = CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}')
+                         """);
     }
 
     // 调用生命周期钩子
@@ -65,14 +66,15 @@ public class PuerLua : MonoBehaviour
 
         try
         {
-            _scriptEnv.Eval($$"""
-                if type({{hookName}}) == 'function' then
-                    {{hookName}}()
-                end
-            """);
+            _scriptEnv.Eval($"""
+                                 if type({hookName}) == 'function' then
+                                     {hookName}()
+                                 end
+                             """);
         }
-        catch (Exception ex)
+        catch
         {
+            // ignored
         }
     }
 
@@ -103,10 +105,18 @@ public class PuerLua : MonoBehaviour
     {
         if (_scriptEnv != null)
         {
-            try { _scriptEnv.Dispose(); }
-            catch { /* 静默忽略清理异常 */ }
+            try
+            {
+                _scriptEnv.Dispose();
+            }
+            catch
+            {
+                /* 静默忽略清理异常 */
+            }
+
             _scriptEnv = null;
         }
+
         _isLoaded = false;
     }
 
@@ -119,9 +129,9 @@ public class PuerLua : MonoBehaviour
     private static string EscapeString(string value)
     {
         return value
-            .Replace("\\", "\\\\")
-            .Replace("'", "\\'")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r");
+            .Replace("\\", @"\\")
+            .Replace("'", @"\'")
+            .Replace("\n", @"\n")
+            .Replace("\r", @"\r");
     }
 }

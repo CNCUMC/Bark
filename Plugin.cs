@@ -45,10 +45,7 @@ public class Plugin : BaseUnityPlugin
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
     }
 
-    /// <summary>
-    /// 自动将 PuerTS 原生库和运行时文件复制到游戏根目录
-    /// </summary>
-    private void DeployPuertsNativeFiles()
+    private static void DeployPuertsNativeFiles()
     {
         var barkDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? string.Empty;
         var gameRoot = Path.GetDirectoryName(barkDir) ?? string.Empty;
@@ -58,9 +55,17 @@ public class Plugin : BaseUnityPlugin
         CopyPuertsRuntime(barkDir, gameRoot);
     }
 
+    // Papi* 和 PuertsCore 是原生 C++ 库，需要复制到游戏根目录
+    // Puerts.* 是托管 .NET 程序集，由 BepInEx 从 plugins 目录加载
     private static void CopyNativeDlls(string sourceDir, string destDir)
     {
-        foreach (var dll in new[] { "PuertsCore.dll", "PapiV8.dll" })
+        foreach (var dll in new[]
+                 {
+                     "PuertsCore.dll",
+                     "PapiV8.dll", 
+                     "PapiLua.dll"
+                     // "PapiPython.dll"
+                 })
         {
             var source = Path.Combine(sourceDir, dll);
             var dest = Path.Combine(destDir, dll);
