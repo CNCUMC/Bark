@@ -11,9 +11,10 @@ public class LogApi
     private readonly StreamWriter? _archiveWriter;
     private readonly string _modName;
 
-    public LogApi(string modName, string logsDir)
+    public LogApi(string modName, string logsDir, string modId)
     {
         _modName = modName;
+        Locale = new LocaleApi(modId, modName);
 
         try
         {
@@ -37,6 +38,9 @@ public class LogApi
             // ignored
         }
     }
+
+    // 本地化访问器
+    public LocaleApi Locale { get; }
 
     public void NewLine()
     {
@@ -81,6 +85,32 @@ public class LogApi
         var text = Format(msg);
         LogUtil.Message(text, Plugin.Logger);
         WriteToFile("MESSAGE", text);
+    }
+
+    // 便捷方法：日志 + 本地化一步完成
+    public void InfoF(string key, params object[] args)
+    {
+        Info(Locale.GetFormatted(key, args));
+    }
+
+    public void ErrorF(string key, params object[] args)
+    {
+        Error(Locale.GetFormatted(key, args));
+    }
+
+    public void WarningF(string key, params object[] args)
+    {
+        Warning(Locale.GetFormatted(key, args));
+    }
+
+    public void DebugF(string key, params object[] args)
+    {
+        Debug(Locale.GetFormatted(key, args));
+    }
+
+    public void MessageF(string key, params object[] args)
+    {
+        Message(Locale.GetFormatted(key, args));
     }
 
     private string Format(string msg)
