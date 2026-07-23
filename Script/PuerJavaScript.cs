@@ -38,7 +38,7 @@ public class PuerJavaScript : ScriptEngine
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning($"[Bark] JS Load FAILED | id={Manifest.Id} | {ex}");
+            LogUtil.Warning("script_engine.js_load_failed", Manifest.Id, ex.ToString());
             Dispose();
             return false;
         }
@@ -65,9 +65,9 @@ public class PuerJavaScript : ScriptEngine
 
         // 特殊 API
         sb.AppendLine($"var logApi = new CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}');");
-        sb.AppendLine("var log = logApi;");
-        sb.AppendLine("var locale = logApi.Locale;");
-        sb.AppendLine($"var scriptInfo = {{ Id: '{id}', Version: '{version}', Name: '{scriptName}' }};");
+        sb.AppendLine("var Log = logApi;");
+        sb.AppendLine("var Locale = logApi.Locale;");
+        sb.AppendLine($"var ScriptInfo = {{ Id: '{id}', Version: '{version}', Name: '{scriptName}' }};");
 
         _scriptEnv.Eval(sb.ToString());
     }
@@ -118,9 +118,9 @@ public class PuerJavaScript : ScriptEngine
         {
             _scriptEnv.Eval($"if (typeof {eventName} === 'function') {{ {eventName}(); }}");
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName, ex.Message);
         }
     }
 
@@ -135,7 +135,7 @@ public class PuerJavaScript : ScriptEngine
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogWarning($"[Bark] JS Dispose error | {ex.Message}");
+                LogUtil.Warning("script_engine.js_dispose_error", Manifest.Id, ex.Message);
             }
 
             _scriptEnv = null;

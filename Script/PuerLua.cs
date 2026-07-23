@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using Bark.ScriptApi;
+using Bark.Tool;
 using Puerts;
 
 namespace Bark.Script;
@@ -37,7 +38,7 @@ public class PuerLua : ScriptEngine
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning($"[Bark] Lua Load FAILED | id={Manifest.Id} | {ex}");
+            LogUtil.Warning("script_engine.lua_load_failed", Manifest.Id, ex.ToString());
             Dispose();
             return false;
         }
@@ -57,7 +58,7 @@ public class PuerLua : ScriptEngine
         var sb = new StringBuilder();
         sb.AppendLine("local CS = require('csharp')");
 
-        // AutoApi 生成的代理：类型名 camelCase 作为全局变量
+        // AutoApi 生成的代理：类型名 PascalCase 作为全局变量
         foreach (var (name, _) in ApiRegistry.Proxies)
         {
             sb.AppendLine($"{name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}')");
@@ -65,9 +66,9 @@ public class PuerLua : ScriptEngine
 
         // 特殊 API：Log / Locale / ScriptInfo
         sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}')");
-        sb.AppendLine("log = _logApi");
-        sb.AppendLine("locale = _logApi.Locale");
-        sb.AppendLine($"scriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");
+        sb.AppendLine("Log = _logApi");
+        sb.AppendLine("Locale = _logApi.Locale");
+        sb.AppendLine($"ScriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");
 
         _scriptEnv.Eval(sb.ToString());
     }
@@ -81,9 +82,9 @@ public class PuerLua : ScriptEngine
         {
             _scriptEnv.Eval($"if type({hookName}) == 'function' then {hookName}() end");
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, hookName, ex.Message);
         }
     }
 
@@ -118,9 +119,9 @@ public class PuerLua : ScriptEngine
         {
             _scriptEnv.Eval($"if type({eventName}) == 'function' then {eventName}() end");
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName, ex.Message);
         }
     }
 
@@ -135,7 +136,7 @@ public class PuerLua : ScriptEngine
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogWarning($"[Bark] Lua Dispose error | {ex.Message}");
+                LogUtil.Warning("script_engine.lua_dispose_error", Manifest.Id, ex.Message);
             }
 
             _scriptEnv = null;

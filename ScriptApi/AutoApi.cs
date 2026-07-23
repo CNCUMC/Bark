@@ -45,8 +45,8 @@ public static class AutoApi
                 var attr = method.GetCustomAttribute<ScriptMethodAttribute>();
                 if (attr == null) continue;
 
-                // Name 显式指定则用指定值，否则自动转 camelCase
-                var name = attr.Name ?? ToCamelCase(method.Name);
+                // Name 显式指定则用指定值，否则保持 PascalCase
+                var name = attr.Name ?? method.Name;
                 var parameters = method.GetParameters();
                 var paramTypes = new Type[parameters.Length];
                 for (var i = 0; i < parameters.Length; i++)
@@ -72,14 +72,5 @@ public static class AutoApi
         }
 
         return typeBuilder.CreateType()!;
-    }
-
-    // PascalCase → camelCase（"IsAlive" → "isAlive", "GetHP" → "getHP"）
-    private static string ToCamelCase(string name)
-    {
-        if (string.IsNullOrEmpty(name)) return name;
-        // 全大写缩略词保持原样（如 "HP" → "hp", 但 "GetHP" → "getHP"）
-        if (name.Length == 1) return name.ToLowerInvariant();
-        return char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

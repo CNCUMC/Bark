@@ -36,10 +36,9 @@ public static class ApiRegistry
         s_proxies.Clear();
     }
 
-    // "BodyUtil" → "bodyUtil", "PlayerUtil" → "playerUtil"
+    // 保持 PascalCase，如 "BodyUtil" → "BodyUtil", "PlayerUtil" → "PlayerUtil"
     private static string ClassNameToCamelCase(string name)
     {
-        if (string.IsNullOrEmpty(name)) return name;
-        return char.ToLowerInvariant(name[0]) + name[1..];
+        return name ?? string.Empty;
     }
 }

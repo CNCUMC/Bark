@@ -48,7 +48,13 @@ public static class PlayerUtil
     }
 
     [ScriptMethod]
-    public static void Alert(string text, bool important, float delay = 0f)
+    public static void Alert(string text, bool important)
+    {
+        Alert(text, important, 0f);
+    }
+
+    [ScriptMethod]
+    public static void Alert(string text, bool important, float delay)
     {
         if (string.IsNullOrWhiteSpace(text) || Body == null) return;
         if (delay <= 0f) CUCoreUtils.Alert(text, important);

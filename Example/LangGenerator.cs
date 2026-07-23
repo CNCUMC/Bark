@@ -328,5 +328,27 @@ internal class LangGenerator : ModLangGenMultiBase
             "Python 运行时不可用，跳过模组 '{0}'",
             "Python 運行時不可用，跳過模組 '{0}'",
             "Python рантайм недоступен, пропуск мода '{0}'");
+
+        // Log - Script Engine
+        Log("script_engine.lua_load_failed",
+            "Lua mod '{0}' failed to load: {1}",
+            "Lua 模组 '{0}' 加载失败: {1}",
+            "Lua 模組 '{0}' 載入失敗: {1}",
+            "Lua-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.lua_dispose_error",
+            "Lua engine dispose error '{0}': {1}",
+            "Lua 引擎释放错误 '{0}': {1}",
+            "Lua 引擎釋放錯誤 '{0}': {1}",
+            "Ошибка освобождения Lua-движка '{0}': {1}");
+        Log("script_engine.js_load_failed",
+            "JS mod '{0}' failed to load: {1}",
+            "JS 模组 '{0}' 加载失败: {1}",
+            "JS 模組 '{0}' 載入失敗: {1}",
+            "JS-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.js_dispose_error",
+            "JS engine dispose error '{0}': {1}",
+            "JS 引擎释放错误 '{0}': {1}",
+            "JS 引擎釋放錯誤 '{0}': {1}",
+            "Ошибка освобождения JS-движка '{0}': {1}");
     }
 }

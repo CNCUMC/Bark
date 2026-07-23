@@ -20,13 +20,13 @@ public static class InventoryUtil
 
     public static ItemInfo? GetItemInfoInHand()
     {
-        return GetItemInHand().Stats;
+        return GetItemInHand()?.Stats;
     }
 
     [ScriptMethod]
     public static string GetItemIdInHand()
     {
-        return GetItemInHand().id ?? string.Empty;
+        return GetItemInHand()?.id ?? string.Empty;
     }
 
     [ScriptMethod]
@@ -86,13 +86,13 @@ public static class InventoryUtil
 
     public static ItemInfo? GetItemInfo(int slot)
     {
-        return GetItem(slot).Stats;
+        return GetItem(slot)?.Stats;
     }
 
     [ScriptMethod]
     public static string GetItemId(int slot)
     {
-        return GetItem(slot).id ?? string.Empty;
+        return GetItem(slot)?.id ?? string.Empty;
     }
 
     [ScriptMethod]
