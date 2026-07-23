@@ -1,5 +1,4 @@
 using System;
-using Bark.BetterCCL;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -29,7 +28,7 @@ public static class WorldUtil
     public static void FillBlocks(int sx, int sy, int ex, int ey, ushort block)
     {
         CheckUtil.CheckWorld(Plugin.Logger);
-        var w = World!;
+        var w = World;
         var csx = Mathf.Clamp(sx, 0, (int)w.width - 2);
         var csy = Mathf.Clamp(sy, 0, (int)w.height - 2);
         var cex = Mathf.Clamp(ex, 0, (int)w.width - 2);

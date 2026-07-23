@@ -5,25 +5,13 @@ using System.Linq;
 using Bark.ScriptApi;
 using Bark.Tool;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Bark.Script;
 
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath)
 {
-    private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
-
-    // 所有已加载的模组（只读）
-    public IReadOnlyDictionary<string, ScriptManifest> LoadedMods => _loadedMods;
-
-    // 已加载的 JS 模组
-    public IReadOnlyList<ScriptManifest> LoadedJavaScriptMods =>
-        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.JavaScript).ToList().AsReadOnly();
-
-    // 已加载的 Lua 模组
-    public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
-        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
-
     // 已加载的 Python 模组
     // public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
     //     _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
@@ -36,6 +24,19 @@ public class ScriptModLoader(string modsPath)
         { ".lua", ScriptLanguage.Lua }
         // { ".py", ScriptLanguage.Python }
     };
+
+    private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
+
+    // 所有已加载的模组（只读）
+    public IReadOnlyDictionary<string, ScriptManifest> LoadedMods => _loadedMods;
+
+    // 已加载的 JS 模组
+    public IReadOnlyList<ScriptManifest> LoadedJavaScriptMods =>
+        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.JavaScript).ToList().AsReadOnly();
+
+    // 已加载的 Lua 模组
+    public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
+        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
 
     // 扫描并加载所有脚本模组
     public void LoadAll()
@@ -53,6 +54,7 @@ public class ScriptModLoader(string modsPath)
             Directory.CreateDirectory(modsPath);
             LogUtil.Info("script_mod_loader.dir_created", modsPath);
         }
+
         Directory.CreateDirectory(modsDir);
         Directory.CreateDirectory(logsDir);
         Directory.CreateDirectory(configsDir);
@@ -72,24 +74,18 @@ public class ScriptModLoader(string modsPath)
         var sorted = TopologicalSort(manifests);
 
         // 4. 按顺序加载模组
-        foreach (var manifest in sorted)
-        {
-            LoadMod(manifest);
-        }
-
+        foreach (var manifest in sorted) LoadMod(manifest);
     }
 
     // 世界生成完成时，触发所有已加载模组的 onWorldGenerated 钩子
     private void OnWorldGenerated()
     {
         foreach (var manifest in _loadedMods.Values)
-        {
             switch (manifest.Engine)
             {
                 case PuerJavaScript js: js.CallWorldGenerated(); break;
                 case PuerLua lua: lua.CallWorldGenerated(); break;
             }
-        }
     }
 
     // 读取单个模组的 mod.json
@@ -241,12 +237,10 @@ public class ScriptModLoader(string modsPath)
 
         // 构建依赖图
         foreach (var manifest in manifests)
+        foreach (var dep in manifest.Dependencies.Where(dep => manifestMap.ContainsKey(dep.Id)))
         {
-            foreach (var dep in manifest.Dependencies.Where(dep => manifestMap.ContainsKey(dep.Id)))
-            {
-                inDegree[manifest.Id]++;
-                dependents[dep.Id].Add(manifest.Id);
-            }
+            inDegree[manifest.Id]++;
+            dependents[dep.Id].Add(manifest.Id);
         }
 
         // 检查循环依赖
@@ -270,10 +264,7 @@ public class ScriptModLoader(string modsPath)
         if (resolved.Count >= manifests.Count) return resolved;
         {
             var unresolved = manifests.Where(m => resolved.All(r => r.Id != m.Id)).ToList();
-            foreach (var mod in unresolved)
-            {
-                LogUtil.Warning("script_mod_loader.circular_dependency", mod.Id);
-            }
+            foreach (var mod in unresolved) LogUtil.Warning("script_mod_loader.circular_dependency", mod.Id);
         }
 
         return resolved;
@@ -284,7 +275,6 @@ public class ScriptModLoader(string modsPath)
     {
         // 卸载所有已加载的模组
         foreach (var manifest in _loadedMods.Values)
-        {
             try
             {
                 switch (manifest.Engine)
@@ -302,19 +292,19 @@ public class ScriptModLoader(string modsPath)
                     //     py.Unload();
                     //     break;
                 }
+
                 if (manifest.Engine != null)
-                    UnityEngine.Object.Destroy(manifest.Engine.gameObject);
+                    Object.Destroy(manifest.Engine.gameObject);
             }
             catch (Exception ex)
             {
                 LogUtil.Warning("script_mod_loader.reload_unload_failed", manifest.Id, ex.Message);
             }
-        }
+
         _loadedMods.Clear();
 
         // 重新加载
         LoadAll();
-
     }
 
     // 获取已加载的模组信息

@@ -141,40 +141,40 @@ public static class InventoryUtil
 
     public static List<ItemInfo> GetAllItemInfos()
     {
-        return GetAllItems().Select(i => i.Stats).Where(i => i != null).ToList();
+        return [.. GetAllItems().Select(i => i.Stats).Where(i => i != null)];
     }
 
     public static List<string> GetAllItemIds()
     {
-        return GetAllItems().Select(i => i.id).ToList();
+        return [.. GetAllItems().Select(i => i.id)];
     }
 
     public static List<Item> GetItemsByTag(string tag)
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetAllItems().Where(i => i.Stats != null && i.Stats.HasTag(tag)).ToList();
+            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.HasTag(tag))];
     }
 
     public static List<Item> GetItemsByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetAllItems().Where(i => i.Stats != null && i.Stats.category == category).ToList();
+            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.category == category)];
     }
 
     public static List<ItemInfo> GetItemInfosByTag(string tag)
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetAllItemInfos().Where(i => i.HasTag(tag)).ToList();
+            : [.. GetAllItemInfos().Where(i => i.HasTag(tag))];
     }
 
     public static List<ItemInfo> GetItemInfosByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetAllItemInfos().Where(i => i.category == category).ToList();
+            : [.. GetAllItemInfos().Where(i => i.category == category)];
     }
 
     public static bool FindById(string id, out Item? item)
@@ -190,7 +190,7 @@ public static class InventoryUtil
 
     public static List<ItemInfo> GetWearableInfos()
     {
-        return GetWearables().Select(i => i.Stats).Where(i => i != null).ToList();
+        return [.. GetWearables().Select(i => i.Stats).Where(i => i != null)];
     }
 
     public static bool HasWearableItem()
@@ -212,28 +212,28 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetWearables().Where(i => i.Stats != null && i.Stats.HasTag(tag)).ToList();
+            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.HasTag(tag))];
     }
 
     public static List<Item> GetWearablesByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetWearables().Where(i => i.Stats != null && i.Stats.category == category).ToList();
+            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.category == category)];
     }
 
     public static List<ItemInfo> GetWearableInfosByTag(string tag)
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetWearableInfos().Where(i => i.HasTag(tag)).ToList();
+            : [.. GetWearableInfos().Where(i => i.HasTag(tag))];
     }
 
     public static List<ItemInfo> GetWearableInfosByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetWearableInfos().Where(i => i.category == category).ToList();
+            : [.. GetWearableInfos().Where(i => i.category == category)];
     }
 
     public static bool HasItemThorough(string id)
@@ -259,35 +259,35 @@ public static class InventoryUtil
 
     public static List<ItemInfo> GetAllItemInfosThorough()
     {
-        return GetAllItemsThorough().Select(i => i.Stats).Where(i => i != null).ToList();
+        return [.. GetAllItemsThorough().Select(i => i.Stats).Where(i => i != null)];
     }
 
     public static List<Item> GetItemsThoroughByTag(string tag)
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.HasTag(tag)).ToList();
+            : [.. GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.HasTag(tag))];
     }
 
     public static List<Item> GetItemsThoroughByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.category == category).ToList();
+            : [.. GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.category == category)];
     }
 
     public static List<ItemInfo> GetItemInfosThoroughByTag(string tag)
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : GetAllItemInfosThorough().Where(i => i.HasTag(tag)).ToList();
+            : [.. GetAllItemInfosThorough().Where(i => i.HasTag(tag))];
     }
 
     public static List<ItemInfo> GetItemInfosThoroughByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : GetAllItemInfosThorough().Where(i => i.category == category).ToList();
+            : [.. GetAllItemInfosThorough().Where(i => i.category == category)];
     }
 
     public static bool FindByIdThorough(string id, out Item? item)
@@ -304,12 +304,12 @@ public static class InventoryUtil
         items.AddRange(GetAllItems());
         items.AddRange(GetWearables());
         items.AddRange(GetAllItemsThorough());
-        return items.Distinct().ToList();
+        return [.. items.Distinct()];
     }
 
     public static List<ItemInfo> GetAllItemInfosAll()
     {
-        return GetAllItemsAll().Select(i => i.Stats).Where(i => i != null).ToList();
+        return [.. GetAllItemsAll().Select(i => i.Stats).Where(i => i != null)];
     }
 
     public static string GetItemIdsString()

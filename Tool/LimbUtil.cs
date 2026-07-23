@@ -34,7 +34,7 @@ public static class LimbUtil
     {
         var body = PlayerUtil.Body;
         return body.limbs != null
-            ? [..body.limbs]
+            ? [.. body.limbs]
             : [];
     }
 

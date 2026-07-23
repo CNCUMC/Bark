@@ -6,8 +6,8 @@
 
 [GitHub](https://github.com/CNCUMC/Bark) | [NexusMods](https://www.nexusmods.com/scavprototype/mods/362) | [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)
 
-_A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/4576490/),
-built on top of [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)._
+_A mod utility library for [Casualties Unknown](https://store.steampowered.com/app/4576490/), built on top
+of [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)._
 
 _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 
@@ -60,8 +60,8 @@ game utility tools.
 ## Installation
 
 1. Install [BepInEx 5.x](https://github.com/BepInEx/BepInEx) for Casualties Unknown.
-2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 —
-   place `CUCoreLib.dll` into `BepInEx/plugins/CUCoreLib/`.
+2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 — place `CUCoreLib.dll` into
+   `BepInEx/plugins/CUCoreLib/`.
 3. Download the latest `Bark.dll` from the [Releases](https://github.com/CNCUMC/Bark/releases) page.
 4. Place `Bark.dll` into your `BepInEx/plugins/` folder.
 
@@ -231,8 +231,8 @@ UpdateUtil.Check("CNCUMC/Bark", "MyMod", "1.0.0", Logger);
 | `currentVersion` | Current version, supports `"1.0.0"` or `"v1.0.0"` |
 | `logger`         | Mod's BepInEx `ManualLogSource`                   |
 
-Results are output to both the BepInEx log and the game console. Messages are localized
-via `BetterLocale` (`update.no_repo`, `update.failed`, `update.no_version`, `update.available`, `update.uptodate`).
+Results are output to both the BepInEx log and the game console. Messages are localized via `BetterLocale`
+(`update.no_repo`, `update.failed`, `update.no_version`, `update.available`, `update.uptodate`).
 
 ---
 

@@ -6,10 +6,10 @@ namespace Bark.ScriptApi;
 
 public class LogApi
 {
-    private readonly string _modName;
-    private readonly StreamWriter? _archiveWriter;
     private static StreamWriter? _sharedLatestWriter;
     private static readonly object _latestLock = new();
+    private readonly StreamWriter? _archiveWriter;
+    private readonly string _modName;
 
     public LogApi(string modName, string logsDir)
     {
@@ -24,13 +24,13 @@ public class LogApi
                 if (_sharedLatestWriter == null)
                 {
                     var latestPath = Path.Combine(logsDir, "latest.log");
-                    _sharedLatestWriter = new StreamWriter(latestPath, append: false) { AutoFlush = true };
+                    _sharedLatestWriter = new StreamWriter(latestPath, false) { AutoFlush = true };
                 }
             }
 
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
             var archivePath = Path.Combine(logsDir, $"{timestamp}.log");
-            _archiveWriter = new StreamWriter(archivePath, append: true) { AutoFlush = true };
+            _archiveWriter = new StreamWriter(archivePath, true) { AutoFlush = true };
         }
         catch
         {

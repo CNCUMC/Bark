@@ -23,9 +23,9 @@ public class Plugin : BaseUnityPlugin
     public const string Version = "2.0.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
-    private readonly Harmony _harmony = new(Guid);
 
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
+    private readonly Harmony _harmony = new(Guid);
     private ScriptModLoader? _scriptModLoader;
 
     public void Awake()
@@ -62,7 +62,7 @@ public class Plugin : BaseUnityPlugin
         foreach (var dll in new[]
                  {
                      "PuertsCore.dll",
-                     "PapiV8.dll", 
+                     "PapiV8.dll",
                      "PapiLua.dll"
                      // "PapiPython.dll"
                  })
@@ -89,7 +89,7 @@ public class Plugin : BaseUnityPlugin
         Directory.CreateDirectory(dest);
 
         foreach (var file in Directory.GetFiles(source))
-            File.Copy(file, Path.Combine(dest, Path.GetFileName(file)), overwrite: true);
+            File.Copy(file, Path.Combine(dest, Path.GetFileName(file)), true);
 
         foreach (var dir in Directory.GetDirectories(source))
             CopyDirectory(dir, Path.Combine(dest, Path.GetFileName(dir)));

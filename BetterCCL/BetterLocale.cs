@@ -121,14 +121,8 @@ public static class BetterLocale
         var fullKey = $"{category}.{resolvedKey}";
 
         // 统计调用次数
-        if (LocaleGetKeys.ContainsKey(fullKey))
-        {
+        if (!LocaleGetKeys.TryAdd(fullKey, 1))
             LocaleGetKeys[fullKey]++;
-        }
-        else
-        {
-            LocaleGetKeys.Add(fullKey, 1);
-        }
 
         // 1. 尝试从 CCL 获取本地化
         var cclText = LocaleRegistry.Get(category, resolvedKey, resolvedKey);
@@ -169,13 +163,9 @@ public static class BetterLocale
         catDict[localeKey] = value;
         var localeKeys = $"{category}.{localeKey}";
         if (LocaleKeys.ContainsKey(localeKeys))
-        {
             LocaleKeys[localeKeys]++;
-        }
         else
-        {
             LocaleKeys.Add(localeKeys, 1);
-        }
     }
 
     private static string? GetDefault(string language, string key)

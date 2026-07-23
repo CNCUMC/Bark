@@ -10,3 +10,4 @@
 *.user
 /Releases/
 Directory.Build.props
+/Puer/
