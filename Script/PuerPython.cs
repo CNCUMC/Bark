@@ -108,8 +108,8 @@
 //         var version = EscapeString(_manifest.Version);
 //         var scriptName = EscapeString(_manifest.Name);
 //         _scriptEnv.Eval($"""
-//                              exec('import Bark.ScriptAPI.ScriptAPI as ScriptAPI')
-//                              bark = ScriptAPI('{id}', '{version}', '{scriptName}')
+//                              exec('import Bark.ScriptApi.ScriptApi as ScriptApi')
+//                              bark = ScriptApi('{id}', '{version}', '{scriptName}')
 //                          """);
 //     }
 //

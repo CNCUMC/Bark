@@ -55,7 +55,7 @@ public class PuerLua : MonoBehaviour
         var scriptName = EscapeString(_manifest.Name);
         _scriptEnv.Eval($"""
                              local CS = require('csharp')
-                             bark = CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}')
+                             bark = CS.Bark.ScriptAPI.ScriptApi('{id}', '{version}', '{scriptName}')
                          """);
     }
 

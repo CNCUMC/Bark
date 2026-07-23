@@ -53,7 +53,7 @@ public class PuerJavaScript : MonoBehaviour
         var id = EscapeString(_manifest.Id);
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
-        _scriptEnv.Eval($"    var bark = new CS.Bark.ScriptAPI.ScriptAPI('{id}', '{version}', '{scriptName}');");
+        _scriptEnv.Eval($"    var bark = new CS.Bark.ScriptApi.ScriptApi('{id}', '{version}', '{scriptName}');");
     }
 
     // 调用生命周期钩子

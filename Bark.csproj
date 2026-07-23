@@ -94,7 +94,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ScriptAPI\" />
+      <Folder Include="ScriptApi\" />
     </ItemGroup>
 
     <PropertyGroup>

@@ -58,7 +58,6 @@ public class ModDependency
 public enum ScriptLanguage
 {
     JavaScript,
-
     Lua
     // Python
 }

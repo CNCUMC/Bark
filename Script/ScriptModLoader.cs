@@ -111,7 +111,7 @@ public class ScriptModLoader(string modsPath)
             // 设置运行时字段
             manifest.Directory = modDir;
 
-            // 查找入口文件（默认 main.js）
+            // 查找入口文件
             var entryFile = FindEntryFile(modDir);
             if (entryFile == null)
             {
@@ -131,7 +131,7 @@ public class ScriptModLoader(string modsPath)
         }
     }
 
-    // 查找入口文件（默认 main.js，也支持 main.lua / main.py）
+    // 查找入口文件（默认 main.js，也支持 main.lua）
     private static string? FindEntryFile(string modDir)
     {
         return ExtensionMap.Keys.Select(ext => Path.Combine(modDir, $"main{ext}")).FirstOrDefault(File.Exists);

@@ -3,7 +3,7 @@ using Bark.Tool;
 namespace Bark.ScriptAPI;
 
 // 脚本模组日志 API（通过 bark.log 访问）
-public class LogAPI(string modName)
+public class LogApi(string modName)
 {
     // 输出普通日志
     public void Info(string msg)
