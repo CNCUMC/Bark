@@ -1,3 +1,4 @@
+using Bark.ScriptApi;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -25,5 +26,33 @@ public static class ItemUtil
         if (item == null) return;
         if (item.ParentContainer() != null) item.transform.SetParent(null, true);
         Object.Destroy(item.gameObject);
+    }
+    
+    [ScriptMethod]
+    public static void SetCondition(string itemId, float condition)
+    {
+        if (InventoryUtil.FindById(itemId, out var item))
+            SetCondition(item, condition);
+    }
+
+    [ScriptMethod]
+    public static void Repair(string itemId)
+    {
+        if (InventoryUtil.FindById(itemId, out var item))
+            Repair(item);
+    }
+
+    [ScriptMethod]
+    public static void SetFavourited(string itemId, bool favourited)
+    {
+        if (InventoryUtil.FindById(itemId, out var item))
+            SetFavourited(item, favourited);
+    }
+
+    [ScriptMethod]
+    public static void Destroy(string itemId)
+    {
+        if (InventoryUtil.FindById(itemId, out var item))
+            Destroy(item);
     }
 }

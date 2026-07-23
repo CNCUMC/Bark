@@ -1,5 +1,6 @@
 using System;
 using Bark.BetterCCL;
+using Bark.ScriptApi;
 using CUCoreLib.Helpers;
 using UnityEngine;
 
@@ -24,11 +25,13 @@ public static class PlayerUtil
         Body.transform.position = pos;
     }
 
+    [ScriptMethod]
     public static void Teleport(float x, float y)
     {
         Teleport(new Vector2(x, y));
     }
 
+    [ScriptMethod]
     public static void PickUpItem(string item, int slot, bool force = false)
     {
         CheckUtil.CheckBody(Plugin.Logger);
@@ -44,13 +47,13 @@ public static class PlayerUtil
         Body.PickUpItem(cmp, slot, force);
     }
 
+    [ScriptMethod]
     public static void Alert(string text, bool important, float delay = 0f)
     {
         if (string.IsNullOrWhiteSpace(text) || Body == null) return;
-        if (delay <= 0f) PlayerCamera.main.DoAlert(text, important);
+        if (delay <= 0f) CUCoreUtils.Alert(text, important);
         else
-            CUCoreUtils.StartCoroutine(
-                PlayerCamera.main.DoAlertDelayed(text, important, delay));
+            CUCoreUtils.Alert(text, important, delay);
     }
 
     private static string LocaleLog(string key, params object[] args)

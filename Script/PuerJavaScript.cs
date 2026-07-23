@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using Bark.ScriptApi;
 using Bark.Tool;
 using Puerts;
 
@@ -10,24 +12,23 @@ namespace Bark.Script;
 public class PuerJavaScript : ScriptEngine
 {
     private bool _isLoaded;
-    private ScriptManifest _manifest = null!;
     private ScriptEnv? _scriptEnv;
 
     // 加载并执行 JS 模组，返回是否成功
     public override bool Load(ScriptManifest manifest)
     {
-        _manifest = manifest;
+        base.Load(manifest);
 
         try
         {
             // 创建 V8 引擎实例
             _scriptEnv = new ScriptEnv(new BackendV8());
 
-            // 注入 bark.* API
+            // 注入 API 到全局作用域（无 bark. 前缀）
             InjectBarkApi();
 
             // 执行入口脚本
-            var script = File.ReadAllText(manifest.EntryFile);
+            var script = File.ReadAllText(Manifest.EntryFile);
             _scriptEnv.Eval(script);
 
             _isLoaded = true;
@@ -37,7 +38,7 @@ public class PuerJavaScript : ScriptEngine
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning($"[Bark] JS Load FAILED | id={manifest.Id} | {ex}");
+            Plugin.Logger.LogWarning($"[Bark] JS Load FAILED | id={Manifest.Id} | {ex}");
             Dispose();
             return false;
         }
@@ -45,16 +46,38 @@ public class PuerJavaScript : ScriptEngine
         return true;
     }
 
-    // 注入 bark.* API 到 JS 环境
+    // 注入 API 到 JS 全局作用域（无 bark. 前缀，平铺注册）
+    //   var bodyUtil = CS.Bark.ScriptApi.ApiRegistry.GetProxy('bodyUtil');
+    //   var playerUtil = CS.Bark.ScriptApi.ApiRegistry.GetProxy('playerUtil');
+    //   ...
+    //   var logApi = new CS.Bark.ScriptApi.LogApi('name', 'logsDir', 'id');
+    //   var log = logApi;
+    //   var locale = logApi.Locale;
+    //   var scriptInfo = { Id: '...', Version: '...', Name: '...' };
     private void InjectBarkApi()
     {
         if (_scriptEnv == null) return;
 
-        var id = EscapeString(_manifest.Id);
-        var version = EscapeString(_manifest.Version);
-        var scriptName = EscapeString(_manifest.Name);
+        var id = EscapeString(Manifest.Id);
+        var version = EscapeString(Manifest.Version);
+        var scriptName = EscapeString(Manifest.Name);
+        var logsDir = EscapeString(LogsDir);
 
-        _scriptEnv.Eval($"var bark = new CS.Bark.ScriptApi.ScriptApi('{id}', '{version}', '{scriptName}');");
+        var sb = new StringBuilder();
+
+        // AutoApi 生成的代理
+        foreach (var (name, _) in ApiRegistry.Proxies)
+        {
+            sb.AppendLine($"var {name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}');");
+        }
+
+        // 特殊 API
+        sb.AppendLine($"var logApi = new CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}');");
+        sb.AppendLine("var log = logApi;");
+        sb.AppendLine("var locale = logApi.Locale;");
+        sb.AppendLine($"var scriptInfo = {{ Id: '{id}', Version: '{version}', Name: '{scriptName}' }};");
+
+        _scriptEnv.Eval(sb.ToString());
     }
 
     // 调用生命周期钩子
@@ -68,7 +91,7 @@ public class PuerJavaScript : ScriptEngine
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_mod_loader.hook_failed", _manifest.Id, hookName, ex.Message);
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, hookName, ex.Message);
         }
     }
 
@@ -94,16 +117,14 @@ public class PuerJavaScript : ScriptEngine
         Dispose();
     }
 
-    // 向脚本侧发送事件通知：调用全局生命周期函数（如 onPlayerJumpStart）
+    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart）
     public override void CallTriggerEvent(string eventName)
     {
         if (_scriptEnv == null) return;
 
-        var hookName = EventToHookName(eventName);
-
         try
         {
-            _scriptEnv.Eval($"if (typeof {hookName} === 'function') {{ {hookName}(); }}");
+            _scriptEnv.Eval($"if (typeof {eventName} === 'function') {{ {eventName}(); }}");
         }
         catch
         {

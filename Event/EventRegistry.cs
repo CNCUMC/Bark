@@ -15,7 +15,7 @@ public static class EventRegistry
     // 已注册的处理器（用于调试）
     public static IReadOnlyDictionary<Type, List<EventHandler>> AllHandlers => Handlers;
 
-    // 扫描所有已加载程序集，注册标注了 [EventBusSubscriber] + [SubscribeEvent] 的方法
+    // 扫描所有已加载程序集，注册标注了 [EventBusSubscriber] 的类中参数为 BarkEvent 子类的静态方法
     public static void ScanAndRegister()
     {
         Handlers.Clear();
@@ -34,12 +34,9 @@ public static class EventRegistry
 
                     var typeName = type.FullName ?? type.Name;
 
-                    // 查找 [SubscribeEvent] 方法
+                    // 查找 public static 方法，参数为 BarkEvent 子类即自动视为事件处理器
                     foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                     {
-                        var subscribeAttr = method.GetCustomAttribute<SubscribeEventAttribute>();
-                        if (subscribeAttr == null) continue;
-
                         // 验证方法签名：必须有一个参数，且参数类型是 BarkEvent 的子类
                         var parameters = method.GetParameters();
                         if (parameters.Length != 1 ||

@@ -10,6 +10,7 @@ public static class WorldEvents
 {
     private static bool _triggered;
 
+    [ScriptEvent("onWorldGenerated")]
     public class GeneratedWorldEvent : BarkEvent
     {
         public WorldGeneration World { get; set; } = WorldGeneration.world;

@@ -1,3 +1,4 @@
+using Bark.ScriptApi;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -9,6 +10,7 @@ public enum SkillType
     Intelligence = 2
 }
 
+// 技能操作：等级、经验、进度读取/设置
 public static class SkillUtil
 {
     public static float XpMultiplier
@@ -106,5 +108,53 @@ public static class SkillUtil
             case SkillType.Intelligence:
             default: skill.expINT = skill.minINT; break;
         }
+    }
+
+    // -- [ScriptMethod] string 重载：脚本侧用 "str" / "res" / "int" 代替枚举 --
+
+    [ScriptMethod]
+    public static int GetLevel(string skill)
+    {
+        return GetLevel(Parse(skill));
+    }
+
+    [ScriptMethod]
+    public static float GetExperience(string skill)
+    {
+        return GetExperience(Parse(skill));
+    }
+
+    [ScriptMethod]
+    public static float GetProgress(string skill)
+    {
+        return GetProgress(Parse(skill));
+    }
+
+    [ScriptMethod]
+    public static void AddExperience(string skill, float xp)
+    {
+        AddExperience(Parse(skill), xp);
+    }
+
+    [ScriptMethod]
+    public static void SetLevel(string skill, int level)
+    {
+        SetLevelRaw(Parse(skill), level);
+    }
+
+    [ScriptMethod]
+    public static float GetExperienceForNextLevel(string skill)
+    {
+        return GetExperienceForNextLevel(Parse(skill));
+    }
+
+    private static SkillType Parse(string skill)
+    {
+        return skill.ToLowerInvariant() switch
+        {
+            "strength" or "str" => SkillType.Strength,
+            "resilience" or "res" => SkillType.Resilience,
+            _ => SkillType.Intelligence
+        };
     }
 }

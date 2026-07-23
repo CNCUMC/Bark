@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Bark.ScriptApi;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -38,6 +39,7 @@ public static class LimbUtil
             : [];
     }
 
+    [ScriptMethod]
     public static bool HasBrokenBone()
     {
         var body = PlayerUtil.Body;
@@ -48,6 +50,7 @@ public static class LimbUtil
         return false;
     }
 
+    [ScriptMethod]
     public static bool HasDislocation()
     {
         var body = PlayerUtil.Body;
@@ -58,6 +61,7 @@ public static class LimbUtil
         return false;
     }
 
+    [ScriptMethod]
     public static bool HasInfection()
     {
         var body = PlayerUtil.Body;
@@ -68,6 +72,7 @@ public static class LimbUtil
         return false;
     }
 
+    [ScriptMethod]
     public static bool HasDismemberment()
     {
         var body = PlayerUtil.Body;
@@ -78,6 +83,7 @@ public static class LimbUtil
         return false;
     }
 
+    [ScriptMethod]
     public static float GetMaxInfection()
     {
         var body = PlayerUtil.Body;
@@ -89,11 +95,13 @@ public static class LimbUtil
         return max;
     }
 
+    [ScriptMethod]
     public static float GetAveragePain()
     {
         return PlayerUtil.Body.averagePain;
     }
 
+    [ScriptMethod]
     public static float GetTotalBleedSpeed()
     {
         return PlayerUtil.Body.totalBleedSpeed;
@@ -110,6 +118,7 @@ public static class LimbUtil
         if (limb.dislocated) limb.UnDislocate();
     }
 
+    [ScriptMethod]
     public static void HealLimb(int index)
     {
         HealLimb(GetLimb(index));

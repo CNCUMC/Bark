@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bark.ScriptApi;
 
 namespace Bark.Tool;
 
 public static class InventoryUtil
 {
+    [ScriptMethod]
     public static int GetHandSlot()
     {
         return PlayerUtil.Body.handSlot;
@@ -21,11 +23,13 @@ public static class InventoryUtil
         return GetItemInHand().Stats;
     }
 
-    public static string? GetItemIdInHand()
+    [ScriptMethod]
+    public static string GetItemIdInHand()
     {
-        return GetItemInHand().id;
+        return GetItemInHand().id ?? string.Empty;
     }
 
+    [ScriptMethod]
     public static bool IsHandEmpty()
     {
         return IsSlotEmpty(GetHandSlot());
@@ -36,34 +40,40 @@ public static class InventoryUtil
         return IsSlotOccupied(GetHandSlot());
     }
 
+    [ScriptMethod]
     public static bool HasItemInHand(string id)
     {
         var item = GetItemInHand();
         return item != null && item.id == id;
     }
 
+    [ScriptMethod]
     public static bool HasItemInHandByTag(string tag)
     {
         var info = GetItemInfoInHand();
         return info != null && info.HasTag(tag);
     }
 
+    [ScriptMethod]
     public static bool HasItemInHandByCategory(string category)
     {
         var info = GetItemInfoInHand();
         return info != null && info.category == category;
     }
 
+    [ScriptMethod]
     public static int GetSlotCount()
     {
         return PlayerUtil.Body.slots.Length;
     }
 
+    [ScriptMethod]
     public static bool IsSlotOccupied(int slot)
     {
         return PlayerUtil.Body.HoldingItem(slot);
     }
 
+    [ScriptMethod]
     public static bool IsSlotEmpty(int slot)
     {
         return !IsSlotOccupied(slot);
@@ -79,16 +89,19 @@ public static class InventoryUtil
         return GetItem(slot).Stats;
     }
 
-    public static string? GetItemId(int slot)
+    [ScriptMethod]
+    public static string GetItemId(int slot)
     {
-        return GetItem(slot).id;
+        return GetItem(slot).id ?? string.Empty;
     }
 
-    public static int? FindFirstEmptySlot()
+    [ScriptMethod]
+    public static int FindFirstEmptySlot()
     {
-        return PlayerUtil.Body.FirstEmptySlot();
+        return PlayerUtil.Body.FirstEmptySlot() ?? -1;
     }
 
+    [ScriptMethod]
     public static bool HasItem(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
@@ -108,21 +121,25 @@ public static class InventoryUtil
         return false;
     }
 
+    [ScriptMethod]
     public static bool HasItemByTag(string tag)
     {
         return !string.IsNullOrWhiteSpace(tag) && HasItem(info => info.HasTag(tag));
     }
 
+    [ScriptMethod]
     public static bool HasItemByCategory(string category)
     {
         return !string.IsNullOrWhiteSpace(category) && HasItem(info => info.category == category);
     }
 
-    public static bool HasAnyItem(params string[] ids)
+    [ScriptMethod]
+    public static bool HasAnyItem(string[] ids)
     {
         return ids is { Length: > 0 } && PlayerUtil.Body.Let(body => ids.Any(body.HoldingItem));
     }
 
+    [ScriptMethod]
     public static int CountItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id)) return 0;
@@ -144,9 +161,28 @@ public static class InventoryUtil
         return [.. GetAllItems().Select(i => i.Stats).Where(i => i != null)];
     }
 
-    public static List<string> GetAllItemIds()
+    // -- [ScriptMethod] 数组返回包装（PuerTS 对 T[] 的支持优于 List<T>） --
+
+    [ScriptMethod]
+    public static string[] GetAllItemIds()
     {
         return [.. GetAllItems().Select(i => i.id)];
+    }
+
+    [ScriptMethod]
+    public static string[] GetItemIdsByTag(string tag)
+    {
+        return string.IsNullOrWhiteSpace(tag)
+            ? []
+            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.HasTag(tag)).Select(i => i.id)];
+    }
+
+    [ScriptMethod]
+    public static string[] GetItemIdsByCategory(string category)
+    {
+        return string.IsNullOrWhiteSpace(category)
+            ? []
+            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.category == category).Select(i => i.id)];
     }
 
     public static List<Item> GetItemsByTag(string tag)
@@ -193,6 +229,7 @@ public static class InventoryUtil
         return [.. GetWearables().Select(i => i.Stats).Where(i => i != null)];
     }
 
+    [ScriptMethod]
     public static bool HasWearableItem()
     {
         return HasItem(info => info.wearable);
@@ -206,6 +243,30 @@ public static class InventoryUtil
     public static bool HasWearableByCategory(string category)
     {
         return !string.IsNullOrWhiteSpace(category) && GetWearableInfos().Any(i => i.category == category);
+    }
+
+    // -- [ScriptMethod] 穿戴装备数组返回包装 --
+
+    [ScriptMethod]
+    public static string[] GetWearableItemIds()
+    {
+        return [.. GetWearables().Select(i => i.id)];
+    }
+
+    [ScriptMethod]
+    public static string[] GetWearableIdsByTag(string tag)
+    {
+        return string.IsNullOrWhiteSpace(tag)
+            ? []
+            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.HasTag(tag)).Select(i => i.id)];
+    }
+
+    [ScriptMethod]
+    public static string[] GetWearableIdsByCategory(string category)
+    {
+        return string.IsNullOrWhiteSpace(category)
+            ? []
+            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.category == category).Select(i => i.id)];
     }
 
     public static List<Item> GetWearablesByTag(string tag)
@@ -236,6 +297,7 @@ public static class InventoryUtil
             : [.. GetWearableInfos().Where(i => i.category == category)];
     }
 
+    [ScriptMethod]
     public static bool HasItemThorough(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
@@ -312,10 +374,17 @@ public static class InventoryUtil
         return [.. GetAllItemsAll().Select(i => i.Stats).Where(i => i != null)];
     }
 
+    [ScriptMethod]
+    public static string[] GetAllItemIdsAll()
+    {
+        return [.. GetAllItemsAll().Select(i => i.id)];
+    }
+
     public static string GetItemIdsString()
     {
-        return GetAllItemIds().Count > 0
-            ? string.Join(", ", GetAllItemIds())
+        var ids = GetAllItemIds();
+        return ids.Length > 0
+            ? string.Join(", ", ids)
             : "";
     }
 }

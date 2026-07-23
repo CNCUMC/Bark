@@ -5,6 +5,7 @@ using Bark.Event;
 using Bark.Events;
 using Bark.Example;
 using Bark.Script;
+using Bark.ScriptApi;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
@@ -48,8 +49,16 @@ public class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         DeployPuertsNativeFiles();
-        // 先扫描 C# 事件处理器，再加载脚本模组（脚本模组会注册额外的处理器）
+        // 扫描注解驱动的事件：
+        // 1. C# 模组的 [EventBusSubscriber]（方法参数为 BarkEvent 子类即自动注册）
+        // 2. 脚本模组的 [ScriptEvent]（标记哪些事件需要桥接到 Lua/JS）
         EventRegistry.ScanAndRegister();
+        ScriptEventScanner.Scan();
+
+        // 注册所有带 [ScriptMethod] 的 Tool 类型到 ApiRegistry
+        // 脚本引擎加载时会自动从 ApiRegistry 平铺注入到全局作用域
+        RegisterScriptApis();
+
         LoadScriptMods();
 
         ModCommand.RegisterCommands();
@@ -117,6 +126,19 @@ public class Plugin : BaseUnityPlugin
     {
         _scriptModLoader = new ScriptModLoader(ScriptModsPath);
         _scriptModLoader.LoadAll();
+    }
+
+    // 注册所有带 [ScriptMethod] 的 Tool 类型到 ApiRegistry
+    // ApiRegistry 为每个类型生成 AutoApi 代理，脚本引擎按 camelCase 类名直接注入全局
+    private static void RegisterScriptApis()
+    {
+        ApiRegistry.Register(typeof(BodyUtil));
+        ApiRegistry.Register(typeof(PlayerUtil));
+        ApiRegistry.Register(typeof(InventoryUtil));
+        ApiRegistry.Register(typeof(ItemUtil));
+        ApiRegistry.Register(typeof(LimbUtil));
+        ApiRegistry.Register(typeof(SkillUtil));
+        ApiRegistry.Register(typeof(WorldUtil));
     }
 
 }

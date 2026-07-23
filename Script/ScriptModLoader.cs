@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Bark.Events;
+using Bark.Event;
 using Bark.Tool;
 
 namespace Bark.Script;
@@ -187,26 +187,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
     }
 
     // 将脚本模组的生命周期钩子注册为事件处理器
+    // 通过 [ScriptEvent] 注解自动发现所有需要桥接到脚本侧的事件类型
     private static void RegisterScriptEventHandlers(ScriptManifest manifest)
     {
-        var engine = manifest.Engine;
-        if (engine == null)
-        {
-            LogUtil.Warning("event.script_handler_no_engine", manifest.Id);
-            return;
-        }
-
-        // 世界生成完成
-        EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => engine.CallTriggerEvent("world_generated"), manifest.Id);
-
-        // 玩家跳跃起跳
-        EventUtil.On<PlayerEvents.JumpStartEvent>(_ => engine.CallTriggerEvent("player_jump_start"), manifest.Id);
-
-        // 玩家跳跃落地
-        EventUtil.On<PlayerEvents.JumpOverEvent>(_ => engine.CallTriggerEvent("player_jump_over"), manifest.Id);
-
-        // 玩家死亡
-        EventUtil.On<PlayerEvents.DeathEvent>(_ => engine.CallTriggerEvent("player_death"), manifest.Id);
+        ScriptEventScanner.RegisterForMod(manifest);
     }
 
     private static PuerJavaScript? LoadJavaScriptMod(ScriptManifest manifest)

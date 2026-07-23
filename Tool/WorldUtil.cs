@@ -1,4 +1,5 @@
 using System;
+using Bark.ScriptApi;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -7,6 +8,19 @@ public static class WorldUtil
 {
     public static WorldGeneration World => WorldGeneration.world;
 
+    [ScriptMethod]
+    public static int GetWidth()
+    {
+        return (int)World.width;
+    }
+
+    [ScriptMethod]
+    public static int GetHeight()
+    {
+        return (int)World.height;
+    }
+
+    [ScriptMethod]
     public static void PlaceBlock(int x, int y, ushort block)
     {
         PlaceBlock(new Vector2(x, y), block);
@@ -25,14 +39,15 @@ public static class WorldUtil
         }
     }
 
-    public static void FillBlocks(int sx, int sy, int ex, int ey, ushort block)
+    [ScriptMethod]
+    public static void FillBlocks(int startX, int startY, int endX, int endY, ushort block)
     {
         CheckUtil.CheckWorld(Plugin.Logger);
         var w = World;
-        var csx = Mathf.Clamp(sx, 0, (int)w.width - 2);
-        var csy = Mathf.Clamp(sy, 0, (int)w.height - 2);
-        var cex = Mathf.Clamp(ex, 0, (int)w.width - 2);
-        var cey = Mathf.Clamp(ey, 0, (int)w.height - 2);
+        var csx = Mathf.Clamp(startX, 0, (int)w.width - 2);
+        var csy = Mathf.Clamp(startY, 0, (int)w.height - 2);
+        var cex = Mathf.Clamp(endX, 0, (int)w.width - 2);
+        var cey = Mathf.Clamp(endY, 0, (int)w.height - 2);
         for (var x = csx; x <= cex; x++)
         for (var y = csy; y <= cey; y++)
             w.SetBlockNoUpdate(new Vector2Int(x, y), block);
@@ -41,6 +56,7 @@ public static class WorldUtil
             w.UpdateChunk(new Vector2Int(cx, cy));
     }
 
+    [ScriptMethod]
     public static void PlaceItem(int x, int y, string item)
     {
         PlaceItem(new Vector2(x, y), item);

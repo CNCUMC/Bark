@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using Bark.ScriptApi;
 using Puerts;
 
 namespace Bark.Script;
@@ -9,24 +11,23 @@ namespace Bark.Script;
 public class PuerLua : ScriptEngine
 {
     private bool _isLoaded;
-    private ScriptManifest _manifest = null!;
     private ScriptEnv? _scriptEnv;
 
     // 加载并执行 Lua 模组，返回是否成功
     public override bool Load(ScriptManifest manifest)
     {
-        _manifest = manifest;
+        base.Load(manifest);
 
         try
         {
             // 创建 Lua 引擎实例
             _scriptEnv = new ScriptEnv(new BackendLua());
 
-            // 注入 bark.* API
+            // 注入 API 到全局作用域（无 bark. 前缀）
             InjectBarkApi();
 
             // 执行入口脚本
-            var script = File.ReadAllText(manifest.EntryFile);
+            var script = File.ReadAllText(Manifest.EntryFile);
             _scriptEnv.Eval(script);
 
             _isLoaded = true;
@@ -36,7 +37,7 @@ public class PuerLua : ScriptEngine
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning($"[Bark] Lua Load FAILED | id={manifest.Id} | {ex}");
+            Plugin.Logger.LogWarning($"[Bark] Lua Load FAILED | id={Manifest.Id} | {ex}");
             Dispose();
             return false;
         }
@@ -44,36 +45,38 @@ public class PuerLua : ScriptEngine
         return true;
     }
 
-    // 注入 bark.* API 到 Lua 环境
+    // 注入 API 到 Lua 全局作用域（无 bark. 前缀，平铺注册）
+    //   bodyUtil = ApiRegistry.GetProxy('bodyUtil')
+    //   playerUtil = ApiRegistry.GetProxy('playerUtil')
+    //   ...
+    //   log = LogApi(id, logsDir, name)
+    //   locale = log.Locale
+    //   scriptInfo = { Id = ..., Version = ..., Name = ... }
     private void InjectBarkApi()
     {
         if (_scriptEnv == null) return;
 
-        var id = EscapeString(_manifest.Id);
-        var version = EscapeString(_manifest.Version);
-        var scriptName = EscapeString(_manifest.Name);
+        var id = EscapeString(Manifest.Id);
+        var version = EscapeString(Manifest.Version);
+        var scriptName = EscapeString(Manifest.Name);
+        var logsDir = EscapeString(LogsDir);
 
-        // 包装为 Lua 表暴露非事件 API，避免 Puerts 不允许给 C# 对象挂载新字段的问题
-        var luaCode = """
+        var sb = new StringBuilder();
+        sb.AppendLine("local CS = require('csharp')");
 
-                      local CS = require('csharp')
-                      local _bark = CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__')
-                      bark = {
-                          Body       = _bark.Body,
-                          Inventor   = _bark.Inventor,
-                          Item       = _bark.Item,
-                          Limb       = _bark.Limb,
-                          Locale     = _bark.Locale,
-                          Log        = _bark.Log,
-                          Player     = _bark.Player,
-                          ScriptInfo = _bark.ScriptInfo,
-                          Skill      = _bark.Skill,
-                          World      = _bark.World,
-                      }
+        // AutoApi 生成的代理：类型名 camelCase 作为全局变量
+        foreach (var (name, _) in ApiRegistry.Proxies)
+        {
+            sb.AppendLine($"{name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}')");
+        }
 
-                      """.Replace("__ID__", id).Replace("__VERSION__", version).Replace("__NAME__", scriptName);
+        // 特殊 API：Log / Locale / ScriptInfo
+        sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}')");
+        sb.AppendLine("log = _logApi");
+        sb.AppendLine("locale = _logApi.Locale");
+        sb.AppendLine($"scriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");
 
-        _scriptEnv.Eval(luaCode);
+        _scriptEnv.Eval(sb.ToString());
     }
 
     // 调用生命周期钩子
@@ -113,16 +116,14 @@ public class PuerLua : ScriptEngine
         Dispose();
     }
 
-    // 向脚本侧发送事件通知：调用全局生命周期函数（如 onPlayerJumpStart）
+    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart）
     public override void CallTriggerEvent(string eventName)
     {
         if (_scriptEnv == null) return;
 
-        var hookName = EventToHookName(eventName);
-
         try
         {
-            _scriptEnv.Eval($"if type({hookName}) == 'function' then {hookName}() end");
+            _scriptEnv.Eval($"if type({eventName}) == 'function' then {eventName}() end");
         }
         catch
         {

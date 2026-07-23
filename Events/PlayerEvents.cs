@@ -22,6 +22,7 @@ public static class PlayerEvents
     private static MonoBehaviour? _runner;
 
     // 起跳事件：按下跳跃键时触发
+    [ScriptEvent("onPlayerJumpStart")]
     public class JumpStartEvent : BarkEvent
     {
         public Body Body { get; set; } = null!;
@@ -29,6 +30,7 @@ public static class PlayerEvents
     }
 
     // 跳跃结束事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
+    [ScriptEvent("onPlayerJumpOver")]
     public class JumpOverEvent : BarkEvent
     {
         public Body Body { get; set; } = null!;
@@ -36,6 +38,7 @@ public static class PlayerEvents
     }
 
     // 死亡事件
+    [ScriptEvent("onPlayerDeath")]
     public class DeathEvent : BarkEvent
     {
         public Body Body { get; set; } = null!;
