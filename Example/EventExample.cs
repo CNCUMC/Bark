@@ -6,11 +6,11 @@
 // {
 //     public static void OnPlayerJumpStart(PlayerEvents.JumpStartEvent eve)
 //     {
-//         // 处理跳跃起跳事件
+//         Plugin.Logger.LogInfo("[EventExample] JumpStart!");
 //     }
 //
 //     public static void OnPlayerJumpOver(PlayerEvents.JumpOverEvent eve)
 //     {
-//         // 处理跳跃落地事件
+//         Plugin.Logger.LogInfo("[EventExample] JumpOver!");
 //     }
 // }

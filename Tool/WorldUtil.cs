@@ -43,17 +43,16 @@ public static class WorldUtil
     public static void FillBlocks(int startX, int startY, int endX, int endY, ushort block)
     {
         CheckUtil.CheckWorld(Plugin.Logger);
-        var w = World;
-        var csx = Mathf.Clamp(startX, 0, (int)w.width - 2);
-        var csy = Mathf.Clamp(startY, 0, (int)w.height - 2);
-        var cex = Mathf.Clamp(endX, 0, (int)w.width - 2);
-        var cey = Mathf.Clamp(endY, 0, (int)w.height - 2);
+        var csx = Mathf.Clamp(startX, 0, GetWidth() - 2);
+        var csy = Mathf.Clamp(startY, 0, GetHeight() - 2);
+        var cex = Mathf.Clamp(endX, 0, GetWidth() - 2);
+        var cey = Mathf.Clamp(endY, 0, GetHeight() - 2);
         for (var x = csx; x <= cex; x++)
         for (var y = csy; y <= cey; y++)
-            w.SetBlockNoUpdate(new Vector2Int(x, y), block);
+            World.SetBlockNoUpdate(new Vector2Int(x, y), block);
         for (var cx = csx / WorldGeneration.CHUNKSIZE; cx <= cex / WorldGeneration.CHUNKSIZE; cx++)
         for (var cy = csy / WorldGeneration.CHUNKSIZE; cy <= cey / WorldGeneration.CHUNKSIZE; cy++)
-            w.UpdateChunk(new Vector2Int(cx, cy));
+            World.UpdateChunk(new Vector2Int(cx, cy));
     }
 
     [ScriptMethod]

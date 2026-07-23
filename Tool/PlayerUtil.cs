@@ -13,6 +13,7 @@ public static class PlayerUtil
 
     public static Body Body => PlayerCamera.main.body!;
 
+    [ScriptMethod]
     public static Vector2 GetPosition()
     {
         CheckUtil.CheckBody(Plugin.Logger);
@@ -48,13 +49,7 @@ public static class PlayerUtil
     }
 
     [ScriptMethod]
-    public static void Alert(string text, bool important)
-    {
-        Alert(text, important, 0f);
-    }
-
-    [ScriptMethod]
-    public static void Alert(string text, bool important, float delay)
+    public static void Alert(string text, bool important, float delay = 0f)
     {
         if (string.IsNullOrWhiteSpace(text) || Body == null) return;
         if (delay <= 0f) CUCoreUtils.Alert(text, important);
