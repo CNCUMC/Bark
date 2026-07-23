@@ -10,47 +10,41 @@ namespace Bark.Events;
 public static class PlayerEvents
 {
     private const float JumpCooldown = 0.3f;
-    private const float JumpFullTimeout = 5f;   // 起跳后超过此时长未落地，取消等待
+    private const float JumpFullTimeout = 5f;
+    private const float LandStableThreshold = 0.001f;
+    private const int LandStableFrames = 3;
 
     private static bool _wasAlive;
-    private static bool _wasStanding;
-    private static bool _jumpPending;
     private static float _lastJumpTime = float.MinValue;
     private static Coroutine? _monitorCoroutine;
+    private static Coroutine? _jumpMonitorCoroutine;
     private static MonoBehaviour? _runner;
 
     // 起跳事件：按下跳跃键时触发
     public class JumpEvent : BarkEvent
     {
-        public Body? Body { get; set; }
-        public PlayerCamera? Camera { get; set; }
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
     }
 
     // 完整跳跃事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
     public class JumpFullEvent : BarkEvent
     {
-        public Body? Body { get; set; }
-        public PlayerCamera? Camera { get; set; }
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
     }
 
     // 死亡事件
     public class DeathEvent : BarkEvent
     {
-        public Body? Body { get; set; }
-        public PlayerCamera? Camera { get; set; }
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
     }
 
     internal static void Listen(MonoBehaviour runner)
     {
-        // 事件属性 getter 通过 EventRegistry/反射消费，分析器无法追踪。
-        // 以下显式读取仅用于压制 IDE "getter never used" 误报。
-        _ = new JumpEvent().Body; _ = new JumpEvent().Camera;
-        _ = new JumpFullEvent().Body;
-        _ = new DeathEvent().Body; _ = new DeathEvent().Camera;
-
         _runner = runner;
 
-        // Harmony 补丁：截获 Body.Jump()
         var harmony = new Harmony("Bark.PlayerEvents");
         harmony.Patch(
             typeof(Body).GetMethod("Jump"),
@@ -60,27 +54,35 @@ public static class PlayerEvents
         _monitorCoroutine = runner.StartCoroutine(MonitorPlayer());
     }
 
-    // 停止监听（插件卸载时调用）
     internal static void Stop()
     {
         if (_runner == null) return;
 
         _runner.StopCoroutine(_monitorCoroutine);
         _monitorCoroutine = null;
+
+        if (_jumpMonitorCoroutine != null)
+        {
+            _runner.StopCoroutine(_jumpMonitorCoroutine);
+            _jumpMonitorCoroutine = null;
+        }
+
         _runner = null;
     }
 
     // Body.Jump() 被调用时触发起跳事件（仅限玩家自身，带冷却防连发）
     private static void OnJump(Body __instance)
     {
-        if (Time.time - _lastJumpTime < JumpCooldown) return;
-
         var cam = PlayerCamera.main;
         if (cam == null) return;
         if (cam.body != __instance) return;
 
+        // 已有协程在追踪跳跃过程，无需重启；协程完成/超时会自动清空引用
+        _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+
+        if (Time.time - _lastJumpTime < JumpCooldown) return;
+
         _lastJumpTime = Time.time;
-        _jumpPending = true;   // 标记：等待落地
 
         EventUtil.Trigger(new JumpEvent
         {
@@ -89,15 +91,67 @@ public static class PlayerEvents
         });
     }
 
-    // 世界生成后持续轮询：死亡检测 + 完整跳跃检测
+    // 通过 transform.position.y 检测完整跳跃：
+    // Y 上升 → Y 开始下降 → Y 不再下降（触地）
+    private static IEnumerator MonitorJump(Body body, PlayerCamera camera)
+    {
+        var startTime = Time.time;
+        var previousY = body.transform.position.y;
+        var stableFrames = 0;
+        var falling = false;
+
+        while (true)
+        {
+            yield return null;
+
+            var currentY = body.transform.position.y;
+            var deltaY = currentY - previousY;
+
+            if (!falling)
+            {
+                // Y 开始下降 → 已过最高点，进入下落阶段
+                if (deltaY < 0f)
+                    falling = true;
+            }
+            else
+            {
+                // 下落阶段中 Y 趋于稳定 → 落地
+                if (Mathf.Abs(deltaY) < LandStableThreshold)
+                {
+                    stableFrames++;
+                    if (stableFrames >= LandStableFrames) break;
+                }
+                else
+                {
+                    stableFrames = 0;
+                }
+            }
+
+            if (Time.time - startTime > JumpFullTimeout || !body.alive)
+            {
+                _jumpMonitorCoroutine = null;
+                yield break;
+            }
+
+            previousY = currentY;
+        }
+
+        _jumpMonitorCoroutine = null;
+
+        EventUtil.Trigger(new JumpFullEvent
+        {
+            Body = body,
+            Camera = camera
+        });
+    }
+
+    // 世界生成后持续轮询：死亡检测
     private static IEnumerator MonitorPlayer()
     {
         yield return CUCoreUtils.AwaitWorldGeneration();
 
         var body = PlayerUtil.Body;
-        // PlayerUtil.Body 可能为 null（外部API），但世界已生成后玩家 Body 必然存在
         _wasAlive = body.alive;
-        _wasStanding = body.standing;
 
         while (_monitorCoroutine != null)
         {
@@ -111,7 +165,6 @@ public static class PlayerEvents
         var body = PlayerUtil.Body;
         if (!body) return;
 
-        // --- 死亡检测 ---
         var isAlive = body.alive;
         if (_wasAlive && !isAlive)
             EventUtil.Trigger(new DeathEvent
@@ -120,32 +173,5 @@ public static class PlayerEvents
                 Camera = PlayerCamera.main
             });
         _wasAlive = isAlive;
-
-        if (!isAlive)
-        {
-            // 玩家已死，清理跳跃等待标记
-            _jumpPending = false;
-            return;
-        }
-
-        // --- 完整跳跃检测 ---
-        var isStanding = body.standing;
-
-        // 过去不在站立状态，现在站住了，且有等待中的跳跃 → 落地
-        if (!_wasStanding && isStanding && _jumpPending)
-        {
-            _jumpPending = false;
-            EventUtil.Trigger(new JumpFullEvent
-            {
-                Body = body,
-                Camera = PlayerCamera.main
-            });
-        }
-
-        _wasStanding = isStanding;
-
-        // 起跳后超时未落地（卡墙/死亡等异常情况），清理标记防止误触发
-        if (_jumpPending && Time.time - _lastJumpTime > JumpFullTimeout)
-            _jumpPending = false;
     }
 }

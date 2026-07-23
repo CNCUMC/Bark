@@ -7,15 +7,15 @@ namespace Bark.Example;
 [EventBusSubscriber(Plugin.Guid)]
 public class EventExample
 {
-    [SubscribeEvent]
-    public static void OnMainMenuLoaded(MainMenuEvents.LoadedEvent eve)
-    {
-        LogUtil.Debug("Main menu loaded!");
-    }
+    // [SubscribeEvent]
+    // public static void OnPlayerJump(PlayerEvents.JumpEvent eve)
+    // {
+    //     LogUtil.Debug("Player jump!");
+    // }
     
     [SubscribeEvent]
     public static void OnPlayerJumpFull(PlayerEvents.JumpFullEvent eve)
     {
-        LogUtil.Debug("Player jump full!" + eve.Camera.blackAmount);
+        LogUtil.Debug("Player jump full!");
     }
 }
