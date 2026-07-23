@@ -7,7 +7,6 @@ public class ScriptApi(string id, string version, string name)
 {
     private static readonly string LogsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod", "Logs");
 
-    public EventApi events { get; } = new(id);
     public InventorApi Inventor { get; } = new();
     public ItemApi Item { get; } = new();
     public LimbApi Limb { get; } = new();

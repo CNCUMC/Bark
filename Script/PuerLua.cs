@@ -53,29 +53,12 @@ public class PuerLua : ScriptEngine
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
 
-        // 创建 C# ScriptApi 并包装为纯 Lua 表
-        // events.on 回调存入 Lua 原生表，通过 __barkTriggerEvent 在 Eval 中触发
-        // 并暴露 onPlayerJumpStart / onPlayerJumpOver / onPlayerDeath / onWorldGenerated 便利方法
-        // 避免 Puerts 不允许给 C# 对象挂载新字段、委托跨上下文调用不可靠的问题
+        // 包装为 Lua 表暴露非事件 API，避免 Puerts 不允许给 C# 对象挂载新字段的问题
         var luaCode = """
 
                       local CS = require('csharp')
                       local _bark = CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__')
-                      local _eventCallbacks = {}
-
-                      local function _addCallback(name, cb)
-                          _eventCallbacks[name] = _eventCallbacks[name] or {}
-                          table.insert(_eventCallbacks[name], cb)
-                      end
-
                       bark = {
-                          events = {
-                              on = function(name, cb) _addCallback(name, cb) end
-                          },
-                          onWorldGenerated  = function(cb) _addCallback('world_generated', cb) end,
-                          onPlayerJumpStart = function(cb) _addCallback('player_jump_start', cb) end,
-                          onPlayerJumpOver  = function(cb) _addCallback('player_jump_over', cb) end,
-                          onPlayerDeath     = function(cb) _addCallback('player_death', cb) end,
                           Inventor   = _bark.Inventor,
                           Item       = _bark.Item,
                           Limb       = _bark.Limb,
@@ -86,15 +69,6 @@ public class PuerLua : ScriptEngine
                           Skill      = _bark.Skill,
                           World      = _bark.World,
                       }
-
-                      function __barkTriggerEvent(name)
-                          local cbs = _eventCallbacks[name]
-                          if not cbs then return end
-                          for _, cb in ipairs(cbs) do
-                              local ok, err = pcall(cb)
-                              if not ok then print('[Bark] event cb error: ' .. name .. ' ' .. tostring(err)) end
-                          end
-                      end
 
                       """.Replace("__ID__", id).Replace("__VERSION__", version).Replace("__NAME__", scriptName);
 
@@ -138,13 +112,7 @@ public class PuerLua : ScriptEngine
         Dispose();
     }
 
-    // 世界生成完成钩子
-    public override void CallWorldGenerated()
-    {
-        CallTriggerEvent("world_generated");
-    }
-
-    // 向脚本侧发送事件通知：调用全局生命周期函数 + bark.events / bark.onXxx 回调
+    // 向脚本侧发送事件通知：调用全局生命周期函数（如 onPlayerJumpStart）
     public override void CallTriggerEvent(string eventName)
     {
         if (_scriptEnv == null) return;
@@ -153,9 +121,7 @@ public class PuerLua : ScriptEngine
 
         try
         {
-            _scriptEnv.Eval(
-                $"if type({hookName}) == 'function' then {hookName}() end " +
-                $"if __barkTriggerEvent then __barkTriggerEvent('{eventName}') end");
+            _scriptEnv.Eval($"if type({hookName}) == 'function' then {hookName}() end");
         }
         catch
         {

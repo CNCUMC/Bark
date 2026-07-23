@@ -54,52 +54,7 @@ public class PuerJavaScript : ScriptEngine
         var version = EscapeString(_manifest.Version);
         var scriptName = EscapeString(_manifest.Name);
 
-        // 使用 JS Proxy 包装 C# bark 对象，拦截 events.on 存入原生 JS 数组
-        // 并暴露 onPlayerJumpStart / onPlayerJumpOver / onPlayerDeath / onWorldGenerated 便利方法
-        // 避免 Puerts C# 对象无法挂载新属性、无法可靠覆盖方法的问题
-        var jsCode = """
-
-                     var _bark = new CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__');
-                     var __barkEventCallbacks = {};
-
-                     function __barkAddCallback(name, cb) {
-                         if (!__barkEventCallbacks[name]) __barkEventCallbacks[name] = [];
-                         __barkEventCallbacks[name].push(cb);
-                     }
-
-                     var bark = new Proxy(_bark, {
-                         get: function(target, prop) {
-                             if (prop === 'events') {
-                                 return {
-                                     on: function(name, cb) { __barkAddCallback(name, cb); }
-                                 };
-                             }
-                             if (prop === 'onWorldGenerated') {
-                                 return function(cb) { __barkAddCallback('world_generated', cb); };
-                             }
-                             if (prop === 'onPlayerJumpStart') {
-                                 return function(cb) { __barkAddCallback('player_jump_start', cb); };
-                             }
-                             if (prop === 'onPlayerJumpOver') {
-                                 return function(cb) { __barkAddCallback('player_jump_over', cb); };
-                             }
-                             if (prop === 'onPlayerDeath') {
-                                 return function(cb) { __barkAddCallback('player_death', cb); };
-                             }
-                             return target[prop];
-                         }
-                     });
-                     function __barkTriggerEvent(name) {
-                         var cbs = __barkEventCallbacks[name];
-                         if (!cbs || cbs.length === 0) return;
-                         for (var i = 0; i < cbs.length; i++) {
-                             try { cbs[i](); } catch(e) { console.log('[Bark] event cb error: ' + name + ' ' + e); }
-                         }
-                     }
-
-                     """.Replace("__ID__", id).Replace("__VERSION__", version).Replace("__NAME__", scriptName);
-
-        _scriptEnv.Eval(jsCode);
+        _scriptEnv.Eval($"var bark = new CS.Bark.ScriptApi.ScriptApi('{id}', '{version}', '{scriptName}');");
     }
 
     // 调用生命周期钩子
@@ -139,13 +94,7 @@ public class PuerJavaScript : ScriptEngine
         Dispose();
     }
 
-    // 世界生成完成钩子
-    public override void CallWorldGenerated()
-    {
-        CallTriggerEvent("world_generated");
-    }
-
-    // 向脚本侧发送事件通知：调用全局生命周期函数 + bark.events / bark.onXxx 回调
+    // 向脚本侧发送事件通知：调用全局生命周期函数（如 onPlayerJumpStart）
     public override void CallTriggerEvent(string eventName)
     {
         if (_scriptEnv == null) return;
@@ -154,9 +103,7 @@ public class PuerJavaScript : ScriptEngine
 
         try
         {
-            _scriptEnv.Eval(
-                $"if (typeof {hookName} === 'function') {{ {hookName}(); }}" +
-                $"if (typeof __barkTriggerEvent === 'function') __barkTriggerEvent('{eventName}');");
+            _scriptEnv.Eval($"if (typeof {hookName} === 'function') {{ {hookName}(); }}");
         }
         catch
         {

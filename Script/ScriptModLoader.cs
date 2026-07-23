@@ -10,17 +10,12 @@ namespace Bark.Script;
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath) : IDisposable
 {
-    // 已加载的 Python 模组
-    // public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
-    //     _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
-
     // 支持的入口文件扩展名 → 语言映射
     private static readonly Dictionary<string, ScriptLanguage> ExtensionMap = new(StringComparer.OrdinalIgnoreCase)
     {
         { ".js", ScriptLanguage.JavaScript },
         { ".mjs", ScriptLanguage.JavaScript },
         { ".lua", ScriptLanguage.Lua }
-        // { ".py", ScriptLanguage.Python }
     };
 
     private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
@@ -165,9 +160,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
                 case ScriptLanguage.Lua:
                     engine = LoadLuaMod(manifest);
                     break;
-                // case ScriptLanguage.Python:
-                //     engine = LoadPythonMod(manifest);
-                //     break;
                 default:
                     LogUtil.Warning("script_mod_loader.unsupported_language", manifest.Language, manifest.Id);
                     return;
@@ -204,8 +196,8 @@ public class ScriptModLoader(string modsPath) : IDisposable
             return;
         }
 
-        // world_generated → 生命周期钩子 + bark events
-        EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => engine.CallWorldGenerated(), manifest.Id);
+        // 世界生成完成
+        EventUtil.On<WorldEvents.GeneratedWorldEvent>(_ => engine.CallTriggerEvent("world_generated"), manifest.Id);
 
         // 玩家跳跃起跳
         EventUtil.On<PlayerEvents.JumpStartEvent>(_ => engine.CallTriggerEvent("player_jump_start"), manifest.Id);
@@ -230,15 +222,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
         var engine = new PuerLua();
         return engine.Load(manifest) ? engine : null;
     }
-
-    // FUCK PYTHON
-    // private static PuerPython? LoadPythonMod(ScriptManifest manifest)
-    // {
-    //     LogUtil.Message("script_mod_loader.mod_loading", "Python", manifest.Name, manifest.Version);
-    //     var go = new GameObject($"[ScriptMod-Python] {manifest.Id}");
-    //     var engine = go.AddComponent<PuerPython>();
-    //     return engine.Load(manifest) ? engine : null;
-    // }
 
     // 拓扑排序：根据依赖关系确定加载顺序
     private static List<ScriptManifest> TopologicalSort(List<ScriptManifest> manifests)
@@ -310,10 +293,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
                         lua.Disable();
                         lua.Unload();
                         break;
-                    // case PuerPython py:
-                    //     py.Disable();
-                    //     py.Unload();
-                    //     break;
                 }
 
                 manifest.Engine?.Dispose();

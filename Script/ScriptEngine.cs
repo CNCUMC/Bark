@@ -9,9 +9,8 @@ public abstract class ScriptEngine
     public abstract void Enable();
     public abstract void Disable();
     public abstract void Unload();
-    public abstract void CallWorldGenerated();
 
-    // 向脚本侧发送事件：调用全局生命周期函数 + __barkTriggerEvent 桥接
+    // 向脚本侧发送事件：调用全局生命周期函数（如 onPlayerJumpStart）
     public abstract void CallTriggerEvent(string eventName);
 
     public abstract void Dispose();
