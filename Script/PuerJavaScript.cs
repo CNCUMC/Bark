@@ -97,6 +97,13 @@ public class PuerJavaScript : MonoBehaviour
         Cleanup();
     }
 
+    // 世界生成完成钩子
+    public void CallWorldGenerated()
+    {
+        if (!_isLoaded) return;
+        CallLifecycleHook("onWorldGenerated");
+    }
+
     // 清理资源
     private void Cleanup()
     {

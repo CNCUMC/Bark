@@ -1,9 +1,14 @@
-namespace Bark.ScriptAPI;
+using System;
+using System.IO;
 
-// 脚本模组主 API 入口（bark.* 全局对象）
-// 通过 loadType('Bark.ScriptAPI.BarkScriptAPI') 在脚本中实例化
+namespace Bark.ScriptApi;
+
 public class ScriptApi(string id, string version, string name)
 {
-    public LogApi Log { get; } = new(name);
+    // 游戏根目录下的 ScriptMod/Logs/
+    private static readonly string LogsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod", "Logs");
+
+    public LogApi Log { get; } = new(name, LogsDir);
     public ScriptInfo ScriptInfo { get; } = new() { Id = id, Version = version, Name = name };
+    public WorldApi World { get; } = new();
 }

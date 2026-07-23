@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Bark.ScriptApi;
 using Bark.Tool;
 using UnityEngine;
 
@@ -39,6 +40,9 @@ public class ScriptModLoader(string modsPath)
     // 扫描并加载所有脚本模组
     public void LoadAll()
     {
+        // 订阅世界生成完成事件
+        WorldApi.OnWorldGenerated += OnWorldGenerated;
+
         // 创建目录结构
         var modsDir = Path.Combine(modsPath, "Mods");
         var logsDir = Path.Combine(modsPath, "Logs");
@@ -73,6 +77,19 @@ public class ScriptModLoader(string modsPath)
             LoadMod(manifest);
         }
 
+    }
+
+    // 世界生成完成时，触发所有已加载模组的 onWorldGenerated 钩子
+    private void OnWorldGenerated()
+    {
+        foreach (var manifest in _loadedMods.Values)
+        {
+            switch (manifest.Engine)
+            {
+                case PuerJavaScript js: js.CallWorldGenerated(); break;
+                case PuerLua lua: lua.CallWorldGenerated(); break;
+            }
+        }
     }
 
     // 读取单个模组的 mod.json
@@ -176,6 +193,13 @@ public class ScriptModLoader(string modsPath)
 
             manifest.Engine = engine;
             _loadedMods[manifest.Id] = manifest;
+
+            // 加载完成后调用 onEnable
+            switch (engine)
+            {
+                case PuerJavaScript js: js.Enable(); break;
+                case PuerLua lua: lua.Enable(); break;
+            }
         }
         catch (Exception ex)
         {

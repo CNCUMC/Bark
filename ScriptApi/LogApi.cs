@@ -1,36 +1,115 @@
+using System;
+using System.IO;
 using Bark.Tool;
 
-namespace Bark.ScriptAPI;
+namespace Bark.ScriptApi;
 
-// 脚本模组日志 API（通过 bark.log 访问）
-public class LogApi(string modName)
+public class LogApi
 {
-    // 输出普通日志
+    private readonly string _modName;
+    private readonly StreamWriter? _archiveWriter;
+    private static StreamWriter? _sharedLatestWriter;
+    private static readonly object _latestLock = new();
+
+    public LogApi(string modName, string logsDir)
+    {
+        _modName = modName;
+
+        try
+        {
+            Directory.CreateDirectory(logsDir);
+
+            lock (_latestLock)
+            {
+                if (_sharedLatestWriter == null)
+                {
+                    var latestPath = Path.Combine(logsDir, "latest.log");
+                    _sharedLatestWriter = new StreamWriter(latestPath, append: false) { AutoFlush = true };
+                }
+            }
+
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+            var archivePath = Path.Combine(logsDir, $"{timestamp}.log");
+            _archiveWriter = new StreamWriter(archivePath, append: true) { AutoFlush = true };
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+
+    public void NewLine()
+    {
+        LogUtil.NewLine();
+    }
+
+    public void Divider(char divider = '-', int length = 27)
+    {
+        LogUtil.Divider(divider, length);
+    }
+
     public void Info(string msg)
     {
-        LogUtil.Info(Log(modName, msg), Plugin.Logger);
-    }
-    
-    // 输出信息日志
-    public void Message(string msg)
-    {
-        LogUtil.Message(Log(modName, msg), Plugin.Logger);
+        var text = Format(msg);
+        LogUtil.Info(text, Plugin.Logger);
+        WriteToFile("INFO", text);
     }
 
-    // 输出警告日志
-    public void Warn(string msg)
-    {
-        LogUtil.Warning(Log(modName, msg), Plugin.Logger);
-    }
-
-    // 输出错误日志
     public void Error(string msg)
     {
-        LogUtil.Error(Log(modName, msg), Plugin.Logger);
+        var text = Format(msg);
+        LogUtil.Error(text, Plugin.Logger);
+        WriteToFile("ERROR", text);
     }
 
-    private static string Log(string modName, string msg)
+    public void Warning(string msg)
     {
-        return $"[{modName}] {msg}";
+        var text = Format(msg);
+        LogUtil.Warning(text, Plugin.Logger);
+        WriteToFile("WARNING", text);
+    }
+
+    public void Debug(string msg)
+    {
+        var text = Format(msg);
+        LogUtil.Debug(text, Plugin.Logger);
+        WriteToFile("DEBUG", text);
+    }
+
+    public void Message(string msg)
+    {
+        var text = Format(msg);
+        LogUtil.Message(text, Plugin.Logger);
+        WriteToFile("MESSAGE", text);
+    }
+
+    private string Format(string msg)
+    {
+        return $"[{_modName}] {msg}";
+    }
+
+    private void WriteToFile(string type, string text)
+    {
+        var line = $"[{DateTime.Now:HH:mm:ss}] [{type}] {text}";
+        lock (_latestLock)
+        {
+            try
+            {
+                _sharedLatestWriter?.WriteLine(line);
+            }
+            catch
+            {
+                /* ignored */
+            }
+        }
+
+        try
+        {
+            _archiveWriter?.WriteLine(line);
+        }
+        catch
+        {
+            /* ignored */
+        }
     }
 }

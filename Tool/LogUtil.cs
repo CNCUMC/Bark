@@ -48,12 +48,6 @@ public static class LogUtil
         logger?.LogDebug(text);
     }
 
-    public static void Fatal(string text, ManualLogSource? logger)
-    {
-        LogToConsole($"[FATAL] {text}");
-        logger?.LogFatal(text);
-    }
-
     public static void Message(string text, ManualLogSource? logger)
     {
         LogToConsole($"[MESSAGE] {text}");
@@ -139,11 +133,6 @@ public static class LogUtil
     internal static void Debug(string text, params object[] args)
     {
         Debug(LocaleLog(text, args), Plugin.Logger);
-    }
-
-    internal static void Fatal(string text, params object[] args)
-    {
-        Fatal(LocaleLog(text, args), Plugin.Logger);
     }
 
     internal static void Message(string text, params object[] args)

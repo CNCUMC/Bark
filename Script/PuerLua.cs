@@ -55,7 +55,7 @@ public class PuerLua : MonoBehaviour
         var scriptName = EscapeString(_manifest.Name);
         _scriptEnv.Eval($"""
                              local CS = require('csharp')
-                             bark = CS.Bark.ScriptAPI.ScriptApi('{id}', '{version}', '{scriptName}')
+                             bark = CS.Bark.ScriptApi.ScriptApi('{id}', '{version}', '{scriptName}')
                          """);
     }
 
@@ -98,6 +98,13 @@ public class PuerLua : MonoBehaviour
         if (!_isLoaded) return;
         CallLifecycleHook("onUnload");
         Cleanup();
+    }
+
+    // 世界生成完成钩子
+    public void CallWorldGenerated()
+    {
+        if (!_isLoaded) return;
+        CallLifecycleHook("on_world_generated");
     }
 
     // 清理资源
