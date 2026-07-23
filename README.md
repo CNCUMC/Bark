@@ -39,7 +39,7 @@ game utility tools.
 | [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL settings registration wrapper (Float/Int/Bool/Dropdown/Keybind) |
 | [`ModLangGenBase`](Base/ModLangGenBase.cs)    | Language generator base class                                       |
 | [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                     |
-| [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player manipulation: TP, vitals, drugs, recovery, raw writes        |
+| [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player: status/vitals/movement/drugs/inventory/recovery/alert/thresholds |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                         |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                     |
 | [`WorldUtil`](Tool/WorldUtil.cs)              | World manipulation: blocks, items                                   |
@@ -258,15 +258,18 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 
 ### PlayerUtil
 
-| Method                                | Description                |
-|---------------------------------------|----------------------------|
-| `Tp(x, y)`                            | Teleport player            |
-| `PickItem(id, slot, force?)`          | Add item to inventory slot |
-| `IsAlive()` / `IsConscious()`         | State checks               |
-| `GetBloodOxygen()` / `GetHeartRate()` | Vital signs                |
-| `HealAll()`                           | Fully heal player          |
-| `SetHunger(val)` / `SetThirst(val)`   | Raw writes                 |
-| `Thresholds.*`                        | Constant threshold values  |
+| Group                                                      | Description                |
+|------------------------------------------------------------|----------------------------|
+| `Status.IsAlive()` / `Status.IsConscious()`                | State checks               |
+| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()`        | Vital signs read/write     |
+| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`          | Raw writes                 |
+| `Movement.Teleport(x, y)`                                  | Teleport player            |
+| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()`        | Drugs & psychological      |
+| `Inventory.PickUpItem(id, slot, force?)`                    | Add item to inventory slot |
+| `Recovery.HealAll()` / `Recovery.Feed(amount)`             | Recovery & healing         |
+| `Alert.Show(text, important, delay?)`                      | UI alert                   |
+| `Body` (property)                                          | Game Body reference        |
+| `Thresholds.*`                                             | Constant threshold values  |
 
 ### WorldUtil
 

@@ -59,6 +59,7 @@ public class PuerLua : ScriptEngine
                       local CS = require('csharp')
                       local _bark = CS.Bark.ScriptApi.ScriptApi('__ID__', '__VERSION__', '__NAME__')
                       bark = {
+                          Body       = _bark.Body,
                           Inventor   = _bark.Inventor,
                           Item       = _bark.Item,
                           Limb       = _bark.Limb,

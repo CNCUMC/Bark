@@ -5,203 +5,209 @@ namespace Bark.ScriptApi;
 // 玩家操作 API（通过 bark.player 访问）
 public class PlayerApi
 {
+    // -- Status --
+
     public bool IsAlive()
     {
-        return PlayerUtil.IsAlive();
+        return BodyUtil.Status.IsAlive();
     }
 
     public bool IsConscious()
     {
-        return PlayerUtil.IsConscious();
+        return BodyUtil.Status.IsConscious();
     }
 
     public bool IsDying()
     {
-        return PlayerUtil.IsDying();
+        return BodyUtil.Status.IsDying();
     }
 
     public bool IsSleeping()
     {
-        return PlayerUtil.IsSleeping();
+        return BodyUtil.Status.IsSleeping();
     }
 
     public bool IsInWater()
     {
-        return PlayerUtil.IsInWater();
+        return BodyUtil.Status.IsInWater();
     }
 
     public bool IsStanding()
     {
-        return PlayerUtil.IsStanding();
+        return BodyUtil.Status.IsStanding();
     }
 
     public bool IsCrouching()
     {
-        return PlayerUtil.IsCrouching();
+        return BodyUtil.Status.IsCrouching();
     }
+
+    // -- Vitals - Getters --
 
     public float GetHeartRate()
     {
-        return PlayerUtil.GetHeartRate();
+        return BodyUtil.Vitals.GetHeartRate();
     }
 
     public float GetBloodPressure()
     {
-        return PlayerUtil.GetBloodPressure();
+        return BodyUtil.Vitals.GetBloodPressure();
     }
 
     public float GetBloodOxygen()
     {
-        return PlayerUtil.GetBloodOxygen();
+        return BodyUtil.Vitals.GetBloodOxygen();
     }
 
     public float GetBloodVolume()
     {
-        return PlayerUtil.GetBloodVolume();
+        return BodyUtil.Vitals.GetBloodVolume();
     }
 
     public float GetTemperature()
     {
-        return PlayerUtil.GetTemperature();
+        return BodyUtil.Vitals.GetTemperature();
     }
 
     public float GetConsciousness()
     {
-        return PlayerUtil.GetConsciousness();
+        return BodyUtil.Vitals.GetConsciousness();
     }
 
     public float GetBrainHealth()
     {
-        return PlayerUtil.GetBrainHealth();
+        return BodyUtil.Vitals.GetBrainHealth();
     }
 
     public float GetRespiratoryRate()
     {
-        return PlayerUtil.GetRespiratoryRate();
+        return BodyUtil.Vitals.GetRespiratoryRate();
     }
 
     public float GetHunger()
     {
-        return PlayerUtil.GetHunger();
+        return BodyUtil.Vitals.GetHunger();
     }
 
     public float GetThirst()
     {
-        return PlayerUtil.GetThirst();
+        return BodyUtil.Vitals.GetThirst();
     }
 
     public float GetStamina()
     {
-        return PlayerUtil.GetStamina();
+        return BodyUtil.Vitals.GetStamina();
     }
 
     public float GetEnergy()
     {
-        return PlayerUtil.GetEnergy();
+        return BodyUtil.Vitals.GetEnergy();
     }
 
     public float GetHappiness()
     {
-        return PlayerUtil.GetHappiness();
+        return BodyUtil.Vitals.GetTotalHappiness();
     }
 
-    public void Feed(float amount)
-    {
-        PlayerUtil.Feed(amount);
-    }
-
-    public void Hydrate(float amount)
-    {
-        PlayerUtil.Hydrate(amount);
-    }
-
-    public void RestoreStamina(float amount)
-    {
-        PlayerUtil.RestoreStamina(amount);
-    }
-
-    public void RestoreEnergy(float amount)
-    {
-        PlayerUtil.RestoreEnergy(amount);
-    }
+    // -- Vitals - Setters --
 
     public void SetHunger(float value)
     {
-        PlayerUtil.SetHunger(value);
+        BodyUtil.Vitals.SetHunger(value);
     }
 
     public void SetThirst(float value)
     {
-        PlayerUtil.SetThirst(value);
+        BodyUtil.Vitals.SetThirst(value);
     }
 
     public void SetStamina(float value)
     {
-        PlayerUtil.SetStamina(value);
+        BodyUtil.Vitals.SetStamina(value);
     }
 
     public void SetEnergy(float value)
     {
-        PlayerUtil.SetEnergy(value);
+        BodyUtil.Vitals.SetEnergy(value);
     }
 
     public void SetHeartRate(float value)
     {
-        PlayerUtil.SetHeartRate(value);
+        BodyUtil.Vitals.SetHeartRate(value);
     }
 
     public void SetBloodPressure(float value)
     {
-        PlayerUtil.SetBloodPressure(value);
+        BodyUtil.Vitals.SetBloodPressure(value);
     }
 
     public void SetTemperature(float value)
     {
-        PlayerUtil.SetTemperature(value);
+        BodyUtil.Vitals.SetTemperature(value);
     }
 
     public void SetConsciousness(float value)
     {
-        PlayerUtil.SetConsciousness(value);
+        BodyUtil.Vitals.SetConsciousness(value);
     }
 
     public void SetBrainHealth(float value)
     {
-        PlayerUtil.SetBrainHealth(value);
+        BodyUtil.Vitals.SetBrainHealth(value);
     }
 
     public void SetBloodVolume(float value)
     {
-        PlayerUtil.SetBloodVolume(value);
+        BodyUtil.Vitals.SetBloodVolume(value);
     }
 
     public void SetBloodOxygen(float value)
     {
-        PlayerUtil.SetBloodOxygen(value);
+        BodyUtil.Vitals.SetBloodOxygen(value);
     }
 
     public void SetHappiness(float value)
     {
-        PlayerUtil.SetHappiness(value);
+        BodyUtil.Vitals.SetRawHappiness(value);
     }
-
+    
     public void Teleport(float x, float y)
     {
-        PlayerUtil.Tp(x, y);
+        PlayerUtil.Teleport(x, y);
     }
-
+    
     public void PickItem(string itemId, int slot)
     {
-        PlayerUtil.PickItem(itemId, slot);
+        PlayerUtil.PickUpItem(itemId, slot);
     }
-
+    
     public void Alert(string text, bool important)
     {
         PlayerUtil.Alert(text, important);
     }
+    
+    public void Feed(float amount)
+    {
+        BodyUtil.Recovery.Feed(amount);
+    }
+
+    public void Hydrate(float amount)
+    {
+        BodyUtil.Recovery.Hydrate(amount);
+    }
+
+    public void RestoreStamina(float amount)
+    {
+        BodyUtil.Recovery.RestoreStamina(amount);
+    }
+
+    public void RestoreEnergy(float amount)
+    {
+        BodyUtil.Recovery.RestoreEnergy(amount);
+    }
 
     public void HealAll()
     {
-        PlayerUtil.HealAll();
+        BodyUtil.Recovery.HealAll();
     }
 }
