@@ -59,9 +59,7 @@ public class PuerJavaScript : ScriptEngine
 
         // AutoApi 生成的代理
         foreach (var (name, _) in ApiRegistry.Proxies)
-        {
             sb.AppendLine($"var {name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}');");
-        }
 
         // 特殊 API
         sb.AppendLine($"var logApi = new CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}');");

@@ -7,15 +7,29 @@ namespace Bark.Tool;
 
 public static class InventoryUtil
 {
+    // ============================================================
+    // 内部辅助 - 统一 Body 获取入口
+    // ============================================================
+
+    private static Body? GetBody()
+    {
+        return PlayerCamera.main?.body;
+    }
+
+    // ============================================================
+    // 手部物品查询
+    // ============================================================
+
     [ScriptMethod]
     public static int GetHandSlot()
     {
-        return PlayerUtil.Body.handSlot;
+        return GetBody()?.handSlot ?? 0;
     }
 
-    public static Item GetItemInHand()
+    public static Item? GetItemInHand()
     {
-        return PlayerUtil.Body.GetItem(PlayerUtil.Body.handSlot);
+        var body = GetBody();
+        return body?.GetItem(body.handSlot);
     }
 
     public static ItemInfo? GetItemInfoInHand()
@@ -61,16 +75,20 @@ public static class InventoryUtil
         return info != null && info.category == category;
     }
 
+    // ============================================================
+    // 背包槽位查询
+    // ============================================================
+
     [ScriptMethod]
     public static int GetSlotCount()
     {
-        return PlayerUtil.Body.slots.Length;
+        return GetBody()?.slots?.Length ?? 0;
     }
 
     [ScriptMethod]
     public static bool IsSlotOccupied(int slot)
     {
-        return PlayerUtil.Body.HoldingItem(slot);
+        return GetBody()?.HoldingItem(slot) ?? false;
     }
 
     [ScriptMethod]
@@ -79,9 +97,9 @@ public static class InventoryUtil
         return !IsSlotOccupied(slot);
     }
 
-    public static Item GetItem(int slot)
+    public static Item? GetItem(int slot)
     {
-        return PlayerUtil.Body.GetItem(slot);
+        return GetBody()?.GetItem(slot);
     }
 
     public static ItemInfo? GetItemInfo(int slot)
@@ -98,20 +116,24 @@ public static class InventoryUtil
     [ScriptMethod]
     public static int FindFirstEmptySlot()
     {
-        return PlayerUtil.Body.FirstEmptySlot() ?? -1;
+        return GetBody()?.FirstEmptySlot() ?? -1;
     }
+
+    // ============================================================
+    // 物品查询 - By id / tag / category
+    // ============================================================
 
     [ScriptMethod]
     public static bool HasItem(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return PlayerUtil.Body.HoldingItem(id);
+        return GetBody()?.HoldingItem(id) ?? false;
     }
 
     public static bool HasItem(Predicate<ItemInfo> predicate)
     {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-        var body = PlayerUtil.Body;
+        if (GetBody() is not { } body) return false;
         for (var i = 0; i < body.slots.Length; i++)
         {
             var info = body.GetItem(i)?.Stats;
@@ -136,14 +158,15 @@ public static class InventoryUtil
     [ScriptMethod]
     public static bool HasAnyItem(string[] ids)
     {
-        return ids is { Length: > 0 } && PlayerUtil.Body.Let(body => ids.Any(body.HoldingItem));
+        if (ids is not { Length: > 0 }) return false;
+        return GetBody() is { } body && ids.Any(body.HoldingItem);
     }
 
     [ScriptMethod]
     public static int CountItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id)) return 0;
-        var body = PlayerUtil.Body;
+        if (GetBody() is not { } body) return 0;
         var c = 0;
         for (var i = 0; i < body.slots.Length; i++)
             if (body.GetItem(i)?.id == id)
@@ -151,9 +174,13 @@ public static class InventoryUtil
         return c;
     }
 
+    // ============================================================
+    // 全部物品收集
+    // ============================================================
+
     public static List<Item> GetAllItems()
     {
-        return PlayerUtil.Body.GetAllItems();
+        return GetBody()?.GetAllItems() ?? [];
     }
 
     public static List<ItemInfo> GetAllItemInfos()
@@ -216,12 +243,17 @@ public static class InventoryUtil
     public static bool FindById(string id, out Item? item)
     {
         item = null;
-        return !string.IsNullOrWhiteSpace(id) && PlayerUtil.Body.FindByIdSurface(id, out item);
+        if (string.IsNullOrWhiteSpace(id)) return false;
+        return GetBody() is { } body && body.FindByIdSurface(id, out item);
     }
+
+    // ============================================================
+    // 穿戴装备查询
+    // ============================================================
 
     public static List<Item> GetWearables()
     {
-        return PlayerUtil.Body.GetAllWearables();
+        return GetBody()?.GetAllWearables() ?? [];
     }
 
     public static List<ItemInfo> GetWearableInfos()
@@ -297,11 +329,15 @@ public static class InventoryUtil
             : [.. GetWearableInfos().Where(i => i.category == category)];
     }
 
+    // ============================================================
+    // Thorough 查询（深度搜索，包括容器内物品）
+    // ============================================================
+
     [ScriptMethod]
     public static bool HasItemThorough(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return PlayerUtil.Body.FindByIdThorough(id, out _);
+        return GetBody() is { } body && body.FindByIdThorough(id, out _);
     }
 
     public static bool HasItemThoroughByTag(string tag)
@@ -316,7 +352,7 @@ public static class InventoryUtil
 
     public static List<Item> GetAllItemsThorough()
     {
-        return PlayerUtil.Body.GetAllItemsThorough();
+        return GetBody()?.GetAllItemsThorough() ?? [];
     }
 
     public static List<ItemInfo> GetAllItemInfosThorough()
@@ -355,17 +391,23 @@ public static class InventoryUtil
     public static bool FindByIdThorough(string id, out Item? item)
     {
         item = null;
-        return !string.IsNullOrWhiteSpace(id) && PlayerUtil.Body.FindByIdThorough(id, out item);
+        if (string.IsNullOrWhiteSpace(id)) return false;
+        return GetBody() is { } body && body.FindByIdThorough(id, out item);
     }
+
+    // ============================================================
+    // 聚合查询（手部 + 背包 + 装备 + 容器内，去重）
+    // ============================================================
 
     public static List<Item> GetAllItemsAll()
     {
+        if (GetBody() is not { } body) return [];
         var items = new List<Item>();
         var hand = GetItemInHand();
         if (hand != null) items.Add(hand);
-        items.AddRange(GetAllItems());
-        items.AddRange(GetWearables());
-        items.AddRange(GetAllItemsThorough());
+        items.AddRange(body.GetAllItems());
+        items.AddRange(body.GetAllWearables());
+        items.AddRange(body.GetAllItemsThorough());
         return [.. items.Distinct()];
     }
 

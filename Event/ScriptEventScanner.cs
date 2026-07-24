@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Bark.Script;
 using Bark.Tool;
 
 namespace Bark.Event;
@@ -54,7 +55,7 @@ public static class ScriptEventScanner
     }
 
     // 为指定模组注册所有已扫描到的脚本事件
-    public static void RegisterForMod(Script.ScriptManifest manifest)
+    public static void RegisterForMod(ScriptManifest manifest)
     {
         if (manifest is null) throw new ArgumentNullException(nameof(manifest));
 

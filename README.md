@@ -33,27 +33,27 @@ _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 extending [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) with enhanced localization, settings, and
 game utility tools.
 
-| Module                                        | Description                                                         |
-|-----------------------------------------------|---------------------------------------------------------------------|
-| [`BetterLocale`](BetterCCL/BetterLocale.cs)   | Localization system built on CCL's `LocaleRegistry`                 |
-| [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL settings registration wrapper (Float/Int/Bool/Dropdown/Keybind) |
-| [`ModLangGenBase`](Base/ModLangGenBase.cs)    | Language generator base class                                       |
-| [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                     |
+| Module                                        | Description                                                              |
+|-----------------------------------------------|--------------------------------------------------------------------------|
+| [`BetterLocale`](BetterCCL/BetterLocale.cs)   | Localization system built on CCL's `LocaleRegistry`                      |
+| [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL settings registration wrapper (Float/Int/Bool/Dropdown/Keybind)      |
+| [`ModLangGenBase`](Base/ModLangGenBase.cs)    | Language generator base class                                            |
+| [`UpdateUtil`](Tool/UpdateUtil.cs)            | GitHub-based mod update checker                                          |
 | [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player: status/vitals/movement/drugs/inventory/recovery/alert/thresholds |
-| [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                         |
-| [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                     |
-| [`WorldUtil`](Tool/WorldUtil.cs)              | World manipulation: blocks, items                                   |
-| [`InventoryUtil`](Tool/InventoryUtil.cs)      | Inventory operations                                                |
-| [`ItemUtil`](Tool/ItemUtil.cs)                | Item utilities: FindNearby, Repair, SetCondition                    |
-| [`InputUtil`](Tool/InputUtil.cs)              | Input handling: mouse position, click waiting                       |
-| [`LogUtil`](Tool/LogUtil.cs)                  | Console logging + validation helpers                                |
-| [`TextUtil`](Tool/TextUtil.cs)                | Rich text formatting: color, alpha, bold, italic, size              |
-| [`ToolsUtil`](Tool/ToolsUtil.cs)              | Argument validation, float/int parsing                              |
-| [`Blocks`](Constant/Blocks.cs)                | Strongly-typed block definitions                                    |
-| [`Items`](Constant/Items.cs)                  | Strongly-typed item definitions                                     |
-| [`Backgrounds`](Constant/Backgrounds.cs)      | Background ID string constants                                      |
-| [`Keys`](Constant/Keys.cs)                    | Key action constants                                                |
-| [`Slots`](Constant/Slots.cs)                  | Inventory slot definitions                                          |
+| [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                              |
+| [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                          |
+| [`WorldUtil`](Tool/WorldUtil.cs)              | World manipulation: blocks, items                                        |
+| [`InventoryUtil`](Tool/InventoryUtil.cs)      | Inventory operations                                                     |
+| [`ItemUtil`](Tool/ItemUtil.cs)                | Item utilities: FindNearby, Repair, SetCondition                         |
+| [`InputUtil`](Tool/InputUtil.cs)              | Input handling: mouse position, click waiting                            |
+| [`LogUtil`](Tool/LogUtil.cs)                  | Console logging + validation helpers                                     |
+| [`TextUtil`](Tool/TextUtil.cs)                | Rich text formatting: color, alpha, bold, italic, size                   |
+| [`ToolsUtil`](Tool/ToolsUtil.cs)              | Argument validation, float/int parsing                                   |
+| [`Blocks`](Constant/Blocks.cs)                | Strongly-typed block definitions                                         |
+| [`Items`](Constant/Items.cs)                  | Strongly-typed item definitions                                          |
+| [`Backgrounds`](Constant/Backgrounds.cs)      | Background ID string constants                                           |
+| [`Keys`](Constant/Keys.cs)                    | Key action constants                                                     |
+| [`Slots`](Constant/Slots.cs)                  | Inventory slot definitions                                               |
 
 ---
 
@@ -258,18 +258,18 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 
 ### PlayerUtil
 
-| Group                                                      | Description                |
-|------------------------------------------------------------|----------------------------|
-| `Status.IsAlive()` / `Status.IsConscious()`                | State checks               |
-| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()`        | Vital signs read/write     |
-| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`          | Raw writes                 |
-| `Movement.Teleport(x, y)`                                  | Teleport player            |
-| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()`        | Drugs & psychological      |
-| `Inventory.PickUpItem(id, slot, force?)`                    | Add item to inventory slot |
-| `Recovery.HealAll()` / `Recovery.Feed(amount)`             | Recovery & healing         |
-| `Alert.Show(text, important, delay?)`                      | UI alert                   |
-| `Body` (property)                                          | Game Body reference        |
-| `Thresholds.*`                                             | Constant threshold values  |
+| Group                                               | Description                |
+|-----------------------------------------------------|----------------------------|
+| `Status.IsAlive()` / `Status.IsConscious()`         | State checks               |
+| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()` | Vital signs read/write     |
+| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`   | Raw writes                 |
+| `Movement.Teleport(x, y)`                           | Teleport player            |
+| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()` | Drugs & psychological      |
+| `Inventory.PickUpItem(id, slot, force?)`            | Add item to inventory slot |
+| `Recovery.HealAll()` / `Recovery.Feed(amount)`      | Recovery & healing         |
+| `Alert.Show(text, important, delay?)`               | UI alert                   |
+| `Body` (property)                                   | Game Body reference        |
+| `Thresholds.*`                                      | Constant threshold values  |
 
 ### WorldUtil
 

@@ -60,28 +60,115 @@ public static class LimbUtil
 
     // -- 基础状态查询 --
 
-    private static bool IsBroken(Limb limb) => limb is { dismembered: false, broken: true };
-    private static bool IsDislocated(Limb limb) => limb is { dismembered: false, dislocated: true };
-    private static bool IsInfected(Limb limb) => limb is { dismembered: false, infected: true };
-    private static bool IsDismembered(Limb limb) => limb is { dismembered: true };
-    private static bool IsSplinted(Limb limb) => limb is { dismembered: false, splinted: true };
-    private static bool IsVital(Limb limb) => limb.isVital;
-    private static bool IsHead(Limb limb) => limb.isHead;
-    private static bool IsAbdomen(Limb limb) => limb.isAbdomen;
-    private static bool IsArm(Limb limb) => limb.isArm;
-    private static bool IsLeg(Limb limb) => limb.isLegLimb;
-    private static bool HasShrapnel(Limb limb) => limb.hasShrapnel;
-    private static bool IsBlockedBleeding(Limb limb) => limb.blockedBleeding;
-    private static string GetLimbName(Limb limb) => limb.fullName ?? string.Empty;
-    private static string GetLimbShortName(Limb limb) => limb.shortName ?? string.Empty;
-    private static float GetSkinHealth(Limb limb) => limb.skinHealth;
-    private static float GetMuscleHealth(Limb limb) => limb.muscleHealth;
-    private static float GetBleedAmount(Limb limb) => limb.bleedAmount;
-    private static float GetTotalBleedAmount(Limb limb) => limb.totalBleedAmount;
-    private static float GetPain(Limb limb) => limb.pain;
-    private static float GetInfectionAmount(Limb limb) => limb.infectionAmount;
-    private static int GetShrapnelCount(Limb limb) => limb.shrapnel;
-    private static float GetInjuryHealTime(Limb limb) => limb.injuryHealTime;
+    private static bool IsBroken(Limb limb)
+    {
+        return limb is { dismembered: false, broken: true };
+    }
+
+    private static bool IsDislocated(Limb limb)
+    {
+        return limb is { dismembered: false, dislocated: true };
+    }
+
+    private static bool IsInfected(Limb limb)
+    {
+        return limb is { dismembered: false, infected: true };
+    }
+
+    private static bool IsDismembered(Limb limb)
+    {
+        return limb is { dismembered: true };
+    }
+
+    private static bool IsSplinted(Limb limb)
+    {
+        return limb is { dismembered: false, splinted: true };
+    }
+
+    private static bool IsVital(Limb limb)
+    {
+        return limb.isVital;
+    }
+
+    private static bool IsHead(Limb limb)
+    {
+        return limb.isHead;
+    }
+
+    private static bool IsAbdomen(Limb limb)
+    {
+        return limb.isAbdomen;
+    }
+
+    private static bool IsArm(Limb limb)
+    {
+        return limb.isArm;
+    }
+
+    private static bool IsLeg(Limb limb)
+    {
+        return limb.isLegLimb;
+    }
+
+    private static bool HasShrapnel(Limb limb)
+    {
+        return limb.hasShrapnel;
+    }
+
+    private static bool IsBlockedBleeding(Limb limb)
+    {
+        return limb.blockedBleeding;
+    }
+
+    private static string GetLimbName(Limb limb)
+    {
+        return limb.fullName ?? string.Empty;
+    }
+
+    private static string GetLimbShortName(Limb limb)
+    {
+        return limb.shortName ?? string.Empty;
+    }
+
+    private static float GetSkinHealth(Limb limb)
+    {
+        return limb.skinHealth;
+    }
+
+    private static float GetMuscleHealth(Limb limb)
+    {
+        return limb.muscleHealth;
+    }
+
+    private static float GetBleedAmount(Limb limb)
+    {
+        return limb.bleedAmount;
+    }
+
+    private static float GetTotalBleedAmount(Limb limb)
+    {
+        return limb.totalBleedAmount;
+    }
+
+    private static float GetPain(Limb limb)
+    {
+        return limb.pain;
+    }
+
+    private static float GetInfectionAmount(Limb limb)
+    {
+        return limb.infectionAmount;
+    }
+
+    private static int GetShrapnelCount(Limb limb)
+    {
+        return limb.shrapnel;
+    }
+
+    private static float GetInjuryHealTime(Limb limb)
+    {
+        return limb.injuryHealTime;
+    }
 
     // -- 修改操作 --
 
@@ -505,10 +592,8 @@ public static class LimbUtil
         var limbs = GetAllLimbs();
         var max = 0f;
         foreach (var l in limbs)
-        {
             if (l is { dismembered: false } && l.infectionAmount > max)
                 max = l.infectionAmount;
-        }
         return max;
     }
 

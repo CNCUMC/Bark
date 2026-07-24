@@ -17,52 +17,6 @@ public static class LimbEvents
     private static readonly Dictionary<int, bool> WasInfected = new();
 
     // ============================================================
-    // 事件定义
-    // ============================================================
-
-    [ScriptEvent("onLimbBroken")]
-    public class BrokenEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbMended")]
-    public class MendedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbDislocated")]
-    public class DislocatedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbUnDislocated")]
-    public class UnDislocatedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbDismembered")]
-    public class DismemberedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbInfected")]
-    public class InfectedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    // ============================================================
     // 启动 / 停止
     // ============================================================
 
@@ -73,23 +27,23 @@ public static class LimbEvents
         var harmony = new Harmony("Bark.LimbEvents");
         harmony.Patch(
             typeof(Limb).GetMethod("BreakBone"),
-            prefix: new HarmonyMethod(typeof(LimbEvents), nameof(OnBreakBone))
+            new HarmonyMethod(typeof(LimbEvents), nameof(OnBreakBone))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("MendBone"),
-            prefix: new HarmonyMethod(typeof(LimbEvents), nameof(OnMendBone))
+            new HarmonyMethod(typeof(LimbEvents), nameof(OnMendBone))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("Dislocate"),
-            prefix: new HarmonyMethod(typeof(LimbEvents), nameof(OnDislocate))
+            new HarmonyMethod(typeof(LimbEvents), nameof(OnDislocate))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("UnDislocate"),
-            prefix: new HarmonyMethod(typeof(LimbEvents), nameof(OnUnDislocate))
+            new HarmonyMethod(typeof(LimbEvents), nameof(OnUnDislocate))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("Dismember"),
-            prefix: new HarmonyMethod(typeof(LimbEvents), nameof(OnDismember))
+            new HarmonyMethod(typeof(LimbEvents), nameof(OnDismember))
         );
 
         _infectionCoroutine = runner.StartCoroutine(MonitorInfection());
@@ -199,13 +153,11 @@ public static class LimbEvents
             WasInfected[id] = limb.infected;
 
             if (!wasInfected && limb.infected)
-            {
                 EventUtil.Trigger(new InfectedEvent
                 {
                     LimbIndex = i,
                     LimbName = limb.fullName ?? string.Empty
                 });
-            }
         }
     }
 
@@ -223,5 +175,51 @@ public static class LimbEvents
         var limbs = PlayerUtil.Body.limbs;
         if (limbs == null) return -1;
         return Array.IndexOf(limbs, limb);
+    }
+
+    // ============================================================
+    // 事件定义
+    // ============================================================
+
+    [ScriptEvent("onLimbBroken")]
+    public class BrokenEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
+    }
+
+    [ScriptEvent("onLimbMended")]
+    public class MendedEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
+    }
+
+    [ScriptEvent("onLimbDislocated")]
+    public class DislocatedEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
+    }
+
+    [ScriptEvent("onLimbUnDislocated")]
+    public class UnDislocatedEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
+    }
+
+    [ScriptEvent("onLimbDismembered")]
+    public class DismemberedEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
+    }
+
+    [ScriptEvent("onLimbInfected")]
+    public class InfectedEvent : BarkEvent
+    {
+        public int LimbIndex { get; set; }
+        public string LimbName { get; set; } = string.Empty;
     }
 }

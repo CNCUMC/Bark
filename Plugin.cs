@@ -32,16 +32,16 @@ public class Plugin : BaseUnityPlugin
         AwakeInternal();
     }
 
+    public void Update()
+    {
+        _scriptModLoader?.UpdateAll();
+    }
+
     public void OnDestroy()
     {
         PlayerEvents.Stop();
         LimbEvents.Stop();
         _scriptModLoader?.Dispose();
-    }
-
-    public void Update()
-    {
-        _scriptModLoader?.UpdateAll();
     }
 
     private void AwakeInternal()
@@ -151,5 +151,4 @@ public class Plugin : BaseUnityPlugin
         ApiRegistry.Register(typeof(WorldUtil));
         ApiRegistry.Register(typeof(OptionsUtil));
     }
-
 }

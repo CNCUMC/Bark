@@ -10,9 +10,6 @@ public static class MainMenuEvents
 {
     private static bool _triggered;
 
-    [ScriptEvent("onMainMenuLoaded")]
-    public class LoadedEvent : BarkEvent;
-
     internal static void Listen(MonoBehaviour runner)
     {
         runner.StartCoroutine(WaitForMainMenu());
@@ -30,4 +27,7 @@ public static class MainMenuEvents
         EventUtil.Trigger(new LoadedEvent());
         _triggered = true;
     }
+
+    [ScriptEvent("onMainMenuLoaded")]
+    public class LoadedEvent : BarkEvent;
 }

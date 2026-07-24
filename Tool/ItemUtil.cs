@@ -27,7 +27,7 @@ public static class ItemUtil
         if (item.ParentContainer() != null) item.transform.SetParent(null, true);
         Object.Destroy(item.gameObject);
     }
-    
+
     [ScriptMethod]
     public static void SetCondition(string itemId, float condition)
     {

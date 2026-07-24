@@ -40,29 +40,27 @@ public static class AutoApi
         var registered = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var utilityType in utilityTypes)
+        foreach (var method in utilityType.GetMethods(BindingFlags.Public | BindingFlags.Static))
         {
-            foreach (var method in utilityType.GetMethods(BindingFlags.Public | BindingFlags.Static))
-            {
-                var attr = method.GetCustomAttribute<ScriptMethodAttribute>();
-                if (attr == null) continue;
+            var attr = method.GetCustomAttribute<ScriptMethodAttribute>();
+            if (attr == null) continue;
 
-                // Name 显式指定则用指定值，否则保持 PascalCase
-                var name = attr.Name ?? method.Name;
-                var parameters = method.GetParameters();
-                var paramTypes = new Type[parameters.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    paramTypes[i] = parameters[i].ParameterType;
+            // Name 显式指定则用指定值，否则保持 PascalCase
+            var name = attr.Name ?? method.Name;
+            var parameters = method.GetParameters();
+            var paramTypes = new Type[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+                paramTypes[i] = parameters[i].ParameterType;
 
-                // 签名 key，防止重复定义
-                var sigKey = name + "::" + string.Join(",", paramTypes.Select(t => t.FullName));
-                if (!registered.Add(sigKey)) continue;
+            // 签名 key，防止重复定义
+            var sigKey = name + "::" + string.Join(",", paramTypes.Select(t => t.FullName));
+            if (!registered.Add(sigKey)) continue;
 
-                // 生成完整签名代理
-                EmitProxyMethod(typeBuilder, name, method, paramTypes, parameters.Length);
+            // 生成完整签名代理
+            EmitProxyMethod(typeBuilder, name, method, paramTypes, parameters.Length);
 
-                // 尾部可选参数 → 自动生成省略它们的重载
-                GenerateOptionalOverloads(typeBuilder, name, method, parameters, paramTypes, registered);
-            }
+            // 尾部可选参数 → 自动生成省略它们的重载
+            GenerateOptionalOverloads(typeBuilder, name, method, parameters, paramTypes, registered);
         }
 
         return typeBuilder.CreateType()!;
@@ -76,15 +74,13 @@ public static class AutoApi
         // 从右往左找连续的可选参数起始位置
         var firstOptional = parameters.Length;
         for (var i = parameters.Length - 1; i >= 0; i--)
-        {
             if (parameters[i].HasDefaultValue)
                 firstOptional = i;
             else
                 break;
-        }
 
         // 无可选参数或全部参数都是可选的第一个位置（已生成完整版），跳过
-        if (firstOptional >= parameters.Length || firstOptional == 0 && parameters.Length == 1)
+        if (firstOptional >= parameters.Length || (firstOptional == 0 && parameters.Length == 1))
             return;
 
         // 生成 (firstOptional) ~ (parameters.Length - 1) 个参数的重载
@@ -119,10 +115,8 @@ public static class AutoApi
 
         // 省略的可选参数 → 填入默认值
         if (originalParams != null)
-        {
             for (var i = optionalStart; i < originalParams.Length; i++)
                 EmitDefaultValue(il, originalParams[i]);
-        }
 
         il.Emit(OpCodes.Call, method);
         il.Emit(OpCodes.Ret);

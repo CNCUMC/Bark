@@ -21,30 +21,6 @@ public static class PlayerEvents
     private static Coroutine? _jumpMonitorCoroutine;
     private static MonoBehaviour? _runner;
 
-    // 起跳事件：按下跳跃键时触发
-    [ScriptEvent("onPlayerJumpStart")]
-    public class JumpStartEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
-    }
-
-    // 跳跃结束事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
-    [ScriptEvent("onPlayerJumpOver")]
-    public class JumpOverEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
-    }
-
-    // 死亡事件
-    [ScriptEvent("onPlayerDeath")]
-    public class DeathEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
-    }
-
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
@@ -52,7 +28,7 @@ public static class PlayerEvents
         var harmony = new Harmony("Bark.PlayerEvents");
         harmony.Patch(
             typeof(Body).GetMethod("Jump"),
-            prefix: new HarmonyMethod(typeof(PlayerEvents), nameof(OnJump))
+            new HarmonyMethod(typeof(PlayerEvents), nameof(OnJump))
         );
 
         _monitorCoroutine = runner.StartCoroutine(MonitorPlayer());
@@ -193,5 +169,29 @@ public static class PlayerEvents
                 Camera = PlayerCamera.main
             });
         _wasAlive = isAlive;
+    }
+
+    // 起跳事件：按下跳跃键时触发
+    [ScriptEvent("onPlayerJumpStart")]
+    public class JumpStartEvent : BarkEvent
+    {
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
+    }
+
+    // 跳跃结束事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
+    [ScriptEvent("onPlayerJumpOver")]
+    public class JumpOverEvent : BarkEvent
+    {
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
+    }
+
+    // 死亡事件
+    [ScriptEvent("onPlayerDeath")]
+    public class DeathEvent : BarkEvent
+    {
+        public Body Body { get; set; } = null!;
+        public PlayerCamera Camera { get; set; } = null!;
     }
 }

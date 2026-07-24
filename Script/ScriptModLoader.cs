@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Bark.BetterCCL;
 using Bark.Event;
 using Bark.Tool;
 
@@ -31,6 +30,12 @@ public class ScriptModLoader(string modsPath) : IDisposable
     // 已加载的 Lua 模组
     public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
+
+    // 卸载所有已加载的模组并释放资源
+    public void Dispose()
+    {
+        UnloadAll();
+    }
 
     // 扫描并加载所有脚本模组
     public void LoadAll()
@@ -265,12 +270,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
         LoadAll();
     }
 
-    // 卸载所有已加载的模组并释放资源
-    public void Dispose()
-    {
-        UnloadAll();
-    }
-
     private void UnloadAll()
     {
         foreach (var manifest in _loadedMods.Values)
@@ -320,7 +319,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
     public void UpdateAll()
     {
         foreach (var manifest in _loadedMods.Values)
-        {
             try
             {
                 manifest.Engine?.CallUpdate();
@@ -329,6 +327,5 @@ public class ScriptModLoader(string modsPath) : IDisposable
             {
                 // 单个模组 Update 失败不中断其他模组
             }
-        }
     }
 }

@@ -14,6 +14,7 @@ public static class ScriptLocaleManager
     private static readonly Dictionary<string, string> LocaleData = new();
 
     private static string _currentLang = "EN";
+
     // (modDir, modId) 配对，用于 Reload
     private static readonly List<(string ModDir, string ModId)> LoadedMods = [];
 

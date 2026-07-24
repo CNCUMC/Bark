@@ -38,7 +38,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 | [`BetterOptions`](BetterCCL/BetterOptions.cs) | CCL 设置注册封装（Float/Int/Bool/Dropdown/Keybind） |
 | [`ModLangGenBase`](Base/ModLangGenBase.cs)    | 语言生成器基类                                      |
 | [`UpdateUtil`](Tool/UpdateUtil.cs)            | 基于 GitHub 的模组更新检测                          |
-| [`PlayerUtil`](Tool/PlayerUtil.cs)            | 玩家操作：状态/体征/移动/药物/物品/恢复/警告/阈值  |
+| [`PlayerUtil`](Tool/PlayerUtil.cs)            | 玩家操作：状态/体征/移动/药物/物品/恢复/警告/阈值   |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | 技能等级/经验操作                                   |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | 肢体操作：治疗、伤害、状态检查                      |
 | [`WorldUtil`](Tool/WorldUtil.cs)              | 世界操作：放置方块、物品                            |
@@ -256,18 +256,18 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 
 ### PlayerUtil
 
-| 分组                                                      | 说明             |
-|-----------------------------------------------------------|------------------|
-| `Status.IsAlive()` / `Status.IsConscious()`               | 状态检查         |
-| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()`       | 生命体征读写     |
-| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`         | 原始写入         |
-| `Movement.Teleport(x, y)`                                 | 传送玩家         |
-| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()`       | 药物与心理效果   |
-| `Inventory.PickUpItem(id, slot, force?)`                   | 添加物品到物品栏 |
-| `Recovery.HealAll()` / `Recovery.Feed(amount)`            | 恢复与治疗       |
-| `Alert.Show(text, important, delay?)`                     | UI 警告          |
-| `Body` (属性)                                              | 游戏 Body 引用   |
-| `Thresholds.*`                                             | 常量阈值         |
+| 分组                                                | 说明             |
+|-----------------------------------------------------|------------------|
+| `Status.IsAlive()` / `Status.IsConscious()`         | 状态检查         |
+| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()` | 生命体征读写     |
+| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`   | 原始写入         |
+| `Movement.Teleport(x, y)`                           | 传送玩家         |
+| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()` | 药物与心理效果   |
+| `Inventory.PickUpItem(id, slot, force?)`            | 添加物品到物品栏 |
+| `Recovery.HealAll()` / `Recovery.Feed(amount)`      | 恢复与治疗       |
+| `Alert.Show(text, important, delay?)`               | UI 警告          |
+| `Body` (属性)                                       | 游戏 Body 引用   |
+| `Thresholds.*`                                      | 常量阈值         |
 
 ### WorldUtil
 

@@ -7,18 +7,18 @@ namespace Bark.Tool;
 public static class EventUtil
 {
     // 触发事件
-    public static void Trigger<T>() where T : Event.BarkEvent, new()
+    public static void Trigger<T>() where T : BarkEvent, new()
     {
         EventRegistry.Trigger(new T());
     }
 
-    public static void Trigger(Event.BarkEvent evt)
+    public static void Trigger(BarkEvent evt)
     {
         EventRegistry.Trigger(evt);
     }
 
     // 注册事件处理器
-    public static void On<T>(Action<T> callback, string guid) where T : Event.BarkEvent
+    public static void On<T>(Action<T> callback, string guid) where T : BarkEvent
     {
         EventRegistry.Register(typeof(T), evt => callback((T)evt), guid);
     }

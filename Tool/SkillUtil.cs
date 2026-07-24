@@ -13,6 +13,10 @@ public enum SkillType
 // 技能操作：等级、经验、进度读取/设置
 public static class SkillUtil
 {
+    // ============================================================
+    // 全局经验倍率
+    // ============================================================
+
     public static float XpMultiplier
     {
         get => Skills.xpGainMult;
@@ -22,10 +26,18 @@ public static class SkillUtil
         }
     }
 
-    private static Skills GetSkills()
+    // ============================================================
+    // 内部辅助 - 统一 Skills 获取入口
+    // ============================================================
+
+    private static Skills? GetSkills()
     {
-        return PlayerUtil.Body.skills;
+        return PlayerCamera.main?.body?.skills;
     }
+
+    // ============================================================
+    // 技能查询（SkillType 枚举版）
+    // ============================================================
 
     public static int GetLevel(SkillType skillType)
     {
@@ -85,7 +97,7 @@ public static class SkillUtil
 
     public static void AddExperience(SkillType skillType, float xp)
     {
-        GetSkills().AddExp((int)skillType, xp);
+        if (GetSkills() is { } skills) skills.AddExp((int)skillType, xp);
     }
 
     public static void SetLevelRaw(SkillType skillType, int level)
@@ -110,7 +122,9 @@ public static class SkillUtil
         }
     }
 
-    // -- [ScriptMethod] string 重载：脚本侧用 "str" / "res" / "int" 代替枚举 --
+    // ============================================================
+    // [ScriptMethod] string 重载：脚本侧用 "str" / "res" / "int"
+    // ============================================================
 
     [ScriptMethod]
     public static int GetLevel(string skill)
@@ -147,6 +161,10 @@ public static class SkillUtil
     {
         return GetExperienceForNextLevel(Parse(skill));
     }
+
+    // ============================================================
+    // 内部辅助 - 字符串到 SkillType 解析
+    // ============================================================
 
     private static SkillType Parse(string skill)
     {

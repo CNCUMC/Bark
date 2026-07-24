@@ -60,9 +60,7 @@ public class PuerLua : ScriptEngine
 
         // AutoApi 生成的代理：类型名 PascalCase 作为全局变量
         foreach (var (name, _) in ApiRegistry.Proxies)
-        {
             sb.AppendLine($"{name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}')");
-        }
 
         // 特殊 API：Log / Locale / ScriptInfo
         sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}')");
