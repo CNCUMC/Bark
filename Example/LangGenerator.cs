@@ -329,6 +329,60 @@ internal class LangGenerator : ModLangGenMultiBase
             "Python 運行時不可用，跳過模組 '{0}'",
             "Python рантайм недоступен, пропуск мода '{0}'");
 
+        // Log - OptionsUtil
+        Log("options_util.config_parse_failed",
+            "Config parse failed for '{0}': {1}",
+            "配置解析失败 '{0}': {1}",
+            "配置解析失敗 '{0}': {1}",
+            "Ошибка разбора конфига '{0}': {1}");
+        Log("options_util.missing_type",
+            "'type' field missing for option '{0}.{1}' in config",
+            "配置选项 '{0}.{1}' 缺少 'type' 字段",
+            "配置選項 '{0}.{1}' 缺少 'type' 欄位",
+            "Отсутствует поле 'type' у опции '{0}.{1}' в конфиге");
+        Log("options_util.registered_options",
+            "Registered {1} option(s) for mod '{0}'",
+            "已为模组 '{0}' 注册 {1} 个设置选项",
+            "已為模組 '{0}' 註冊 {1} 個設定選項",
+            "Зарегистрировано {1} опций для мода '{0}'");
+        Log("options_util.unknown_type",
+            "Unknown option type '{2}' for '{0}.{1}'",
+            "未知的选项类型 '{2}'：'{0}.{1}'",
+            "未知的選項類型 '{2}'：'{0}.{1}'",
+            "Неизвестный тип опции '{2}' для '{0}.{1}'");
+        Log("options_util.dropdown_no_choices",
+            "Dropdown option '{0}.{1}' has no choices array",
+            "下拉选项 '{0}.{1}' 缺少 choices 数组",
+            "下拉選項 '{0}.{1}' 缺少 choices 陣列",
+            "У выпадающего списка '{0}.{1}' отсутствует массив choices");
+        Log("options_util.write_config_failed",
+            "Failed to write config '{0}' key '{1}': {2}",
+            "写入配置 '{0}' 键 '{1}' 失败: {2}",
+            "寫入配置 '{0}' 鍵 '{1}' 失敗: {2}",
+            "Не удалось записать конфиг '{0}' ключ '{1}': {2}");
+        Log("options_util.keycode_parse_failed",
+            "Failed to parse key code: '{0}'",
+            "按键码解析失败: '{0}'",
+            "按鍵碼解析失敗: '{0}'",
+            "Не удалось разобрать код клавиши: '{0}'");
+        Log("options_util.config_changed_restart_required",
+            "Config changes detected that require a game restart to take effect",
+            "检测到配置变更，需要重启游戏才能生效",
+            "檢測到配置變更，需要重新啟動遊戲才能生效",
+            "Обнаружены изменения конфига, требуется перезапуск игры");
+
+        // Log - Event
+        Log("event.scanned",
+            "Scanned and subscribed {0} event bus method(s)",
+            "扫描并订阅了 {0} 个事件总线方法",
+            "掃描並訂閱了 {0} 個事件總線方法",
+            "Просканировано и подписано {0} методов событийной шины");
+        Log("script_event.scanned",
+            "Scanned {0} script event hook(s)",
+            "扫描到 {0} 个脚本事件钩子",
+            "掃描到 {0} 個腳本事件鉤子",
+            "Просканировано {0} хуков скриптовых событий");
+
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
             "Lua mod '{0}' failed to load: {1}",

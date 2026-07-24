@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Bark.BetterCCL;
 using Bark.Event;
 using Bark.Tool;
 
@@ -34,8 +35,8 @@ public class ScriptModLoader(string modsPath) : IDisposable
     // 扫描并加载所有脚本模组
     public void LoadAll()
     {
-        // 初始化本地化管理器（加载所有模组的 Lang/*.json）
-        ScriptLocaleManager.Initialize(modsPath);
+        // 初始化语言管理器状态
+        ScriptLocaleManager.Initialize();
 
         // 创建目录结构
         var modsDir = Path.Combine(modsPath, "Mods");
@@ -66,7 +67,15 @@ public class ScriptModLoader(string modsPath) : IDisposable
         // 3. 依赖检查 + 拓扑排序
         var sorted = TopologicalSort(manifests);
 
-        // 4. 按顺序加载模组
+        // 4. 加载各模组的语言文件
+        foreach (var manifest in sorted)
+            ScriptLocaleManager.LoadModLocale(manifest.Directory, manifest.Id);
+
+        // 5. 注册配置选项到游戏设置系统（必须在引擎创建前完成）
+        foreach (var manifest in sorted)
+            OptionsUtil.RegisterFromMod(manifest, configsDir);
+
+        // 6. 按顺序加载模组
         foreach (var manifest in sorted) LoadMod(manifest);
     }
 

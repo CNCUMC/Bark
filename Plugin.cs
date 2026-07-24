@@ -61,6 +61,9 @@ public class Plugin : BaseUnityPlugin
 
         LoadScriptMods();
 
+        // 脚本模组加载完后，将 Lang 本地化刷新到 CCL 的 locale 文件，确保选项标签/描述在游戏 UI 中可见
+        BetterLocale.Flush();
+
         ModCommand.RegisterCommands();
 
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
@@ -139,6 +142,7 @@ public class Plugin : BaseUnityPlugin
         ApiRegistry.Register(typeof(LimbUtil));
         ApiRegistry.Register(typeof(SkillUtil));
         ApiRegistry.Register(typeof(WorldUtil));
+        ApiRegistry.Register(typeof(OptionsUtil));
     }
 
 }
