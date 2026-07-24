@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using Bark.BetterCCL;
-using Bark.ScriptApi;
 using Bark.Tool;
 using CUCoreLib.Data;
 using CUCoreLib.Registries;
@@ -99,51 +98,31 @@ public static class OptionsUtil
             ShowRestartRequired("config_changed_restart_required");
     }
 
-    // ---- [ScriptMethod] 读取方法（脚本侧通过 optionsUtil.getXxx(modId, key) 调用） ----
+    // ---- 内部访问器（供 ScriptApi/OptionsApi 调用） ----
 
-    [ScriptMethod]
-    public static bool GetBool(string modId, string key)
+    internal static bool TryGetBool(string modId, string key)
     {
-        if (modId is null) throw new ArgumentNullException(nameof(modId));
-        if (key is null) throw new ArgumentNullException(nameof(key));
-        return TryGetValue<long>(modId, key) != 0;
+        return GetCachedValue<long>(modId, key) != 0;
     }
 
-    [ScriptMethod]
-    public static int GetInt(string modId, string key)
+    internal static int TryGetInt(string modId, string key)
     {
-        if (modId is null) throw new ArgumentNullException(nameof(modId));
-        if (key is null) throw new ArgumentNullException(nameof(key));
-        return (int)TryGetValue<long>(modId, key);
+        return (int)GetCachedValue<long>(modId, key);
     }
 
-    [ScriptMethod]
-    public static float GetFloat(string modId, string key)
+    internal static float TryGetFloat(string modId, string key)
     {
-        if (modId is null) throw new ArgumentNullException(nameof(modId));
-        if (key is null) throw new ArgumentNullException(nameof(key));
-        return (float)TryGetValue<double>(modId, key);
+        return (float)GetCachedValue<double>(modId, key);
     }
 
-    [ScriptMethod]
-    public static int GetDropdown(string modId, string key)
+    internal static string TryGetString(string modId, string key)
     {
-        if (modId is null) throw new ArgumentNullException(nameof(modId));
-        if (key is null) throw new ArgumentNullException(nameof(key));
-        return (int)TryGetValue<long>(modId, key);
-    }
-
-    [ScriptMethod]
-    public static string GetKeybind(string modId, string key)
-    {
-        if (modId is null) throw new ArgumentNullException(nameof(modId));
-        if (key is null) throw new ArgumentNullException(nameof(key));
-        return TryGetString(modId, key) ?? string.Empty;
+        return GetCachedString(modId, key) ?? string.Empty;
     }
 
     // ---- 内部实现 ----
 
-    private static T TryGetValue<T>(string modId, string key) where T : struct
+    private static T GetCachedValue<T>(string modId, string key) where T : struct
     {
         var cacheKey = $"{modId}.{key}";
         if (s_cache.TryGetValue(cacheKey, out var value) && value is T typed)
@@ -151,7 +130,7 @@ public static class OptionsUtil
         return default;
     }
 
-    private static string? TryGetString(string modId, string key)
+    private static string? GetCachedString(string modId, string key)
     {
         var cacheKey = $"{modId}.{key}";
         if (s_cache.TryGetValue(cacheKey, out var value) && value is string typed)

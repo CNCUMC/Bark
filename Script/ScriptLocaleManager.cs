@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
+using Bark.ScriptApi;
 using Bark.Tool;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -31,6 +32,11 @@ public static class ScriptLocaleManager
 
         LoadedMods.Clear();
         LocaleData.Clear();
+
+        // 注册桥接委托，使 ScriptApi/LocaleApi 通过委托访问本管理器
+        LocaleBridge.Getter = Get;
+        LocaleBridge.FormattedGetter = GetFormatted;
+        LocaleBridge.KeyChecker = HasKey;
     }
 
     // 加载单个模组的语言文件（使用 manifest 中声明的真实 modId）

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Bark.BetterCCL;
 using Bark.Event;
-using Bark.Events;
+using Bark.Event.Listener;
 using Bark.Example;
 using Bark.Script;
 using Bark.ScriptApi;
@@ -39,8 +39,8 @@ public class Plugin : BaseUnityPlugin
 
     public void OnDestroy()
     {
-        PlayerEvents.Stop();
-        LimbEvents.Stop();
+        PlayerEventListener.Stop();
+        LimbEventListener.Stop();
         _scriptModLoader?.Dispose();
     }
 
@@ -75,11 +75,11 @@ public class Plugin : BaseUnityPlugin
         UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
 
         // 监听主菜单加载完成后触发事件
-        MainMenuEvents.Listen(this);
+        MainMenuEventListener.Listen(this);
         // 监听世界生成完成后触发事件
-        WorldEvents.Listen(this);
-        PlayerEvents.Listen(this);
-        LimbEvents.Listen(this);
+        WorldEventListener.Listen(this);
+        PlayerEventListener.Listen(this);
+        LimbEventListener.Listen(this);
     }
 
     private static void DeployPuertsNativeFiles()
@@ -149,6 +149,6 @@ public class Plugin : BaseUnityPlugin
         ApiRegistry.Register(typeof(LimbUtil));
         ApiRegistry.Register(typeof(SkillUtil));
         ApiRegistry.Register(typeof(WorldUtil));
-        ApiRegistry.Register(typeof(OptionsUtil));
+        ApiRegistry.Register(typeof(OptionsApi));
     }
 }

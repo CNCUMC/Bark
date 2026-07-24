@@ -1,13 +1,13 @@
-﻿using System.Collections;
-using Bark.Event;
+using System.Collections;
+using Bark.Events;
 using Bark.Tool;
 using CUCoreLib.Helpers;
 using HarmonyLib;
 using UnityEngine;
 
-namespace Bark.Events;
+namespace Bark.Event.Listener;
 
-public static class PlayerEvents
+public static class PlayerEventListener
 {
     private const float JumpCooldown = 0.3f;
     private const float JumpFullTimeout = 5f;
@@ -25,10 +25,10 @@ public static class PlayerEvents
     {
         _runner = runner;
 
-        var harmony = new Harmony("Bark.PlayerEvents");
+        var harmony = new Harmony("Bark.PlayerEventListener");
         harmony.Patch(
             typeof(Body).GetMethod("Jump"),
-            new HarmonyMethod(typeof(PlayerEvents), nameof(OnJump))
+            new HarmonyMethod(typeof(PlayerEventListener), nameof(OnJump))
         );
 
         _monitorCoroutine = runner.StartCoroutine(MonitorPlayer());
@@ -78,7 +78,7 @@ public static class PlayerEvents
 
         _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
 
-        EventUtil.Trigger(new JumpStartEvent
+        EventUtil.Trigger(new PlayerJumpStartEvent
         {
             Body = __instance,
             Camera = cam
@@ -86,7 +86,7 @@ public static class PlayerEvents
     }
 
     // 通过 transform.position.y 检测完整跳跃：
-    // Y 上升 → Y 开始下降 → Y 不再下降（触地）
+    // Y 上升 -> Y 开始下降 -> Y 不再下降（触地）
     private static IEnumerator MonitorJump(Body body, PlayerCamera camera)
     {
         var startTime = Time.time;
@@ -103,13 +103,13 @@ public static class PlayerEvents
 
             if (!falling)
             {
-                // Y 开始下降 → 已过最高点，进入下落阶段
+                // Y 开始下降 -> 已过最高点，进入下落阶段
                 if (deltaY < 0f)
                     falling = true;
             }
             else
             {
-                // 下落阶段中 Y 趋于稳定 → 落地
+                // 下落阶段中 Y 趋于稳定 -> 落地
                 if (Mathf.Abs(deltaY) < LandStableThreshold)
                 {
                     stableFrames++;
@@ -134,7 +134,7 @@ public static class PlayerEvents
         _jumpMonitorCoroutine = null;
         _isJumping = false;
 
-        EventUtil.Trigger(new JumpOverEvent
+        EventUtil.Trigger(new PlayerJumpOverEvent
         {
             Body = body,
             Camera = camera
@@ -163,35 +163,11 @@ public static class PlayerEvents
 
         var isAlive = body.alive;
         if (_wasAlive && !isAlive)
-            EventUtil.Trigger(new DeathEvent
+            EventUtil.Trigger(new PlayerDeathEvent
             {
                 Body = body,
                 Camera = PlayerCamera.main
             });
         _wasAlive = isAlive;
-    }
-
-    // 起跳事件：按下跳跃键时触发
-    [ScriptEvent("onPlayerJumpStart")]
-    public class JumpStartEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
-    }
-
-    // 跳跃结束事件：落地时触发（起跳 → 滞空 → 落地 的完整过程）
-    [ScriptEvent("onPlayerJumpOver")]
-    public class JumpOverEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
-    }
-
-    // 死亡事件
-    [ScriptEvent("onPlayerDeath")]
-    public class DeathEvent : BarkEvent
-    {
-        public Body Body { get; set; } = null!;
-        public PlayerCamera Camera { get; set; } = null!;
     }
 }

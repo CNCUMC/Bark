@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Bark.Script;
+using Bark.Event;
 using Bark.Tool;
 
-namespace Bark.Event;
+namespace Bark.Script;
 
 // 在启动时扫描所有 [ScriptEvent] 标记的事件类型并缓存
 // 脚本模组加载时自动注册为桥接回调

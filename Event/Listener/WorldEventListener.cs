@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using Bark.Event;
+using System.Collections;
+using Bark.Events;
 using Bark.Tool;
 using CUCoreLib.Helpers;
 using UnityEngine;
 
-namespace Bark.Events;
+namespace Bark.Event.Listener;
 
-public static class WorldEvents
+public static class WorldEventListener
 {
     private static bool _triggered;
 
@@ -24,13 +24,7 @@ public static class WorldEvents
     private static void Trigger()
     {
         if (_triggered) return;
-        EventUtil.Trigger(new GeneratedWorldEvent());
+        EventUtil.Trigger(new WorldReadyEvent());
         _triggered = true;
-    }
-
-    [ScriptEvent("onWorldGenerated")]
-    public class GeneratedWorldEvent : BarkEvent
-    {
-        public WorldGeneration World { get; set; } = WorldGeneration.world;
     }
 }

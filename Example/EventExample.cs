@@ -4,12 +4,12 @@
 // [EventBusSubscriber(Plugin.Guid)]
 // public class EventExample
 // {
-//     public static void OnPlayerJumpStart(PlayerEvents.JumpStartEvent eve)
+//     public static void OnPlayerJumpStart(PlayerJumpStartEvent eve)
 //     {
 //         Plugin.Logger.LogInfo("[EventExample] JumpStart!");
 //     }
 //
-//     public static void OnPlayerJumpOver(PlayerEvents.JumpOverEvent eve)
+//     public static void OnPlayerJumpOver(PlayerJumpOverEvent eve)
 //     {
 //         Plugin.Logger.LogInfo("[EventExample] JumpOver!");
 //     }

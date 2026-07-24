@@ -92,6 +92,10 @@
         />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="docs\en-US\" />
+    </ItemGroup>
+
     <PropertyGroup>
         <RequiredFilesToCopy>
             $(AssemblyName).dll;

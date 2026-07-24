@@ -13,11 +13,11 @@ public static class ApiRegistry
     // 只读视图，供脚本引擎遍历注入
     public static IReadOnlyDictionary<string, object> Proxies => s_proxies;
 
-    // 注册一个 utility 类型：BodyUtil → 生成 bodyUtil 代理
+    // 注册一个 utility 类型：以类型名（保持 PascalCase）作为 registry key
     public static void Register(Type utilityType)
     {
         if (utilityType is null) throw new ArgumentNullException(nameof(utilityType));
-        var name = ClassNameToCamelCase(utilityType.Name);
+        var name = utilityType.Name ?? string.Empty;
         s_proxies[name] = AutoApi.CreateProxy(utilityType);
     }
 
@@ -36,9 +36,5 @@ public static class ApiRegistry
         s_proxies.Clear();
     }
 
-    // 保持 PascalCase，如 "BodyUtil" → "BodyUtil", "PlayerUtil" → "PlayerUtil"
-    private static string ClassNameToCamelCase(string name)
-    {
-        return name ?? string.Empty;
-    }
+
 }

@@ -1,12 +1,12 @@
 using System.Collections;
-using Bark.Event;
+using Bark.Events;
 using Bark.Tool;
 using CUCoreLib.Helpers;
 using UnityEngine;
 
-namespace Bark.Events;
+namespace Bark.Event.Listener;
 
-public static class MainMenuEvents
+public static class MainMenuEventListener
 {
     private static bool _triggered;
 
@@ -24,10 +24,7 @@ public static class MainMenuEvents
     private static void Trigger()
     {
         if (_triggered) return;
-        EventUtil.Trigger(new LoadedEvent());
+        EventUtil.Trigger(new MainMenuLoadedEvent());
         _triggered = true;
     }
-
-    [ScriptEvent("onMainMenuLoaded")]
-    public class LoadedEvent : BarkEvent;
 }

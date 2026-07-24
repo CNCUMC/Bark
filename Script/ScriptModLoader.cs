@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Bark.Event;
 using Bark.Tool;
 
 namespace Bark.Script;

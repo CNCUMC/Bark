@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Bark.Event;
+using Bark.Events;
 using Bark.Tool;
 using HarmonyLib;
 using UnityEngine;
 
-namespace Bark.Events;
+namespace Bark.Event.Listener;
 
-public static class LimbEvents
+public static class LimbEventListener
 {
     private const float InfectionPollInterval = 0.5f;
 
@@ -24,26 +24,26 @@ public static class LimbEvents
     {
         _runner = runner;
 
-        var harmony = new Harmony("Bark.LimbEvents");
+        var harmony = new Harmony("Bark.LimbEventListener");
         harmony.Patch(
             typeof(Limb).GetMethod("BreakBone"),
-            new HarmonyMethod(typeof(LimbEvents), nameof(OnBreakBone))
+            new HarmonyMethod(typeof(LimbEventListener), nameof(OnBreakBone))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("MendBone"),
-            new HarmonyMethod(typeof(LimbEvents), nameof(OnMendBone))
+            new HarmonyMethod(typeof(LimbEventListener), nameof(OnMendBone))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("Dislocate"),
-            new HarmonyMethod(typeof(LimbEvents), nameof(OnDislocate))
+            new HarmonyMethod(typeof(LimbEventListener), nameof(OnDislocate))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("UnDislocate"),
-            new HarmonyMethod(typeof(LimbEvents), nameof(OnUnDislocate))
+            new HarmonyMethod(typeof(LimbEventListener), nameof(OnUnDislocate))
         );
         harmony.Patch(
             typeof(Limb).GetMethod("Dismember"),
-            new HarmonyMethod(typeof(LimbEvents), nameof(OnDismember))
+            new HarmonyMethod(typeof(LimbEventListener), nameof(OnDismember))
         );
 
         _infectionCoroutine = runner.StartCoroutine(MonitorInfection());
@@ -70,7 +70,7 @@ public static class LimbEvents
         if (!IsPlayerLimb(__instance) || __instance.broken) return;
         var idx = GetLimbIndex(__instance);
         if (idx < 0) return;
-        EventUtil.Trigger(new BrokenEvent
+        EventUtil.Trigger(new LimbBrokenEvent
         {
             LimbIndex = idx,
             LimbName = __instance.fullName ?? string.Empty
@@ -82,7 +82,7 @@ public static class LimbEvents
         if (!IsPlayerLimb(__instance) || !__instance.broken) return;
         var idx = GetLimbIndex(__instance);
         if (idx < 0) return;
-        EventUtil.Trigger(new MendedEvent
+        EventUtil.Trigger(new LimbMendedEvent
         {
             LimbIndex = idx,
             LimbName = __instance.fullName ?? string.Empty
@@ -94,7 +94,7 @@ public static class LimbEvents
         if (!IsPlayerLimb(__instance) || __instance.dislocated) return;
         var idx = GetLimbIndex(__instance);
         if (idx < 0) return;
-        EventUtil.Trigger(new DislocatedEvent
+        EventUtil.Trigger(new LimbDislocatedEvent
         {
             LimbIndex = idx,
             LimbName = __instance.fullName ?? string.Empty
@@ -106,7 +106,7 @@ public static class LimbEvents
         if (!IsPlayerLimb(__instance) || !__instance.dislocated) return;
         var idx = GetLimbIndex(__instance);
         if (idx < 0) return;
-        EventUtil.Trigger(new UnDislocatedEvent
+        EventUtil.Trigger(new LimbUnDislocatedEvent
         {
             LimbIndex = idx,
             LimbName = __instance.fullName ?? string.Empty
@@ -118,7 +118,7 @@ public static class LimbEvents
         if (!IsPlayerLimb(__instance) || __instance.dismembered) return;
         var idx = GetLimbIndex(__instance);
         if (idx < 0) return;
-        EventUtil.Trigger(new DismemberedEvent
+        EventUtil.Trigger(new LimbDismemberedEvent
         {
             LimbIndex = idx,
             LimbName = __instance.fullName ?? string.Empty
@@ -153,7 +153,7 @@ public static class LimbEvents
             WasInfected[id] = limb.infected;
 
             if (!wasInfected && limb.infected)
-                EventUtil.Trigger(new InfectedEvent
+                EventUtil.Trigger(new LimbInfectedEvent
                 {
                     LimbIndex = i,
                     LimbName = limb.fullName ?? string.Empty
@@ -175,51 +175,5 @@ public static class LimbEvents
         var limbs = PlayerUtil.Body.limbs;
         if (limbs == null) return -1;
         return Array.IndexOf(limbs, limb);
-    }
-
-    // ============================================================
-    // 事件定义
-    // ============================================================
-
-    [ScriptEvent("onLimbBroken")]
-    public class BrokenEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbMended")]
-    public class MendedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbDislocated")]
-    public class DislocatedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbUnDislocated")]
-    public class UnDislocatedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbDismembered")]
-    public class DismemberedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
-    }
-
-    [ScriptEvent("onLimbInfected")]
-    public class InfectedEvent : BarkEvent
-    {
-        public int LimbIndex { get; set; }
-        public string LimbName { get; set; } = string.Empty;
     }
 }
