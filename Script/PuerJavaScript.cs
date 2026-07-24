@@ -124,6 +124,21 @@ public class PuerJavaScript : ScriptEngine
         }
     }
 
+    // 每帧调用脚本侧的 onUpdate() 函数（静默，不记录错误日志避免刷屏）
+    public override void CallUpdate()
+    {
+        if (_scriptEnv == null || !_isLoaded) return;
+
+        try
+        {
+            _scriptEnv.Eval("if (typeof onUpdate === 'function') { onUpdate(); }");
+        }
+        catch
+        {
+            // 静默跳过：onUpdate 无需日志，避免每帧刷屏
+        }
+    }
+
     // 释放引擎资源
     public override void Dispose()
     {

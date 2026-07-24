@@ -35,7 +35,13 @@ public class Plugin : BaseUnityPlugin
     public void OnDestroy()
     {
         PlayerEvents.Stop();
+        LimbEvents.Stop();
         _scriptModLoader?.Dispose();
+    }
+
+    public void Update()
+    {
+        _scriptModLoader?.UpdateAll();
     }
 
     private void AwakeInternal()
@@ -73,6 +79,7 @@ public class Plugin : BaseUnityPlugin
         // 监听世界生成完成后触发事件
         WorldEvents.Listen(this);
         PlayerEvents.Listen(this);
+        LimbEvents.Listen(this);
     }
 
     private static void DeployPuertsNativeFiles()

@@ -315,4 +315,20 @@ public class ScriptModLoader(string modsPath) : IDisposable
     {
         return _loadedMods.Values.ToList().AsReadOnly();
     }
+
+    // 每帧调用所有已加载模组的 onUpdate()（由 Plugin.Update 驱动）
+    public void UpdateAll()
+    {
+        foreach (var manifest in _loadedMods.Values)
+        {
+            try
+            {
+                manifest.Engine?.CallUpdate();
+            }
+            catch
+            {
+                // 单个模组 Update 失败不中断其他模组
+            }
+        }
+    }
 }
