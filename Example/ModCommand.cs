@@ -11,7 +11,7 @@ namespace Bark.Example;
 
 public static class ModCommand
 {
-    public static void RegisterCommands()
+    internal static void RegisterCommands()
     {
         ConsoleCommandRegistry.Register(
             "catfcabl",
@@ -22,7 +22,7 @@ public static class ModCommand
         ConsoleCommandRegistry.Register(
             "rs",
             LocaleCommand("reload"),
-            _ => Plugin._scriptModLoader?.ReloadAll()
+            _ => ReloadScripts()
         );
 
         ConsoleCommandRegistry.Register(
@@ -36,7 +36,7 @@ public static class ModCommand
         );
     }
 
-    public static void ExportLocaleDebugFile()
+    private static void ExportLocaleDebugFile()
     {
         var path = Path.Combine(Paths.CachePath, "catfcabl.txt");
         var lines = new List<string>();
@@ -80,7 +80,7 @@ public static class ModCommand
         }
     }
 
-    public static void PrintHelp()
+    private static void PrintHelp()
     {
         var helpItems = new List<(string key, string value)>
         {
@@ -104,12 +104,22 @@ public static class ModCommand
             return;
         }
 
-        LogUtil.Message(LocaleCommand("list.header", mods.Count), Plugin.Logger);
+        MessageCommand("list.header", mods.Count);
         foreach (var mod in mods)
-            LogUtil.Message(LocaleCommand("list.item", mod.Name, mod.Version, mod.Language, mod.Id), Plugin.Logger);
+            MessageCommand("list.item", mod.Name, mod.Version, mod.Language, mod.Id);
+    }
+    
+    private static void ReloadScripts()
+    {
+        Plugin._scriptModLoader?.ReloadAll();
+        MessageCommand("reload.completed");
     }
 
-    public static string LocaleCommand(string key, params object[] args)
+    private static void MessageCommand(string key, params object[] args)
+    {
+        LogUtil.Message(LocaleCommand(key, args));
+    }
+    private static string LocaleCommand(string key, params object[] args)
     {
         return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.{key}", args);
     }

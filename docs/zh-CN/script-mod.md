@@ -186,13 +186,35 @@ function onLimbBroken() {
 }
 ```
 
-更多示例见 [Example 目录](../../Example/)。
+## 控制台指令
+
+Bark 注册了几个游戏内控制台指令，开发调试时很有用。
+
+| 指令             | 别名 | 作用                 |
+|------------------|------|----------------------|
+| `script help`    | —    | 显示指令帮助         |
+| `script reload`  | `rs` | 重载所有脚本模组     |
+| `script list`    | —    | 列出已加载的脚本模组 |
+
+用法：在游戏内按 `` ` `` 打开控制台，输入指令回车。
+
+```text
+> script list
+脚本模组列表 (3):
+  Hello World-JavaScript v1.0.0 [JavaScript] (hello_world_js)
+  My Mod v1.0.0 [Lua] (my_mod)
+
+> rs
+所有脚本模组已重新加载
+```
+
+> 💡 `script reload` 是最常用的指令。改了脚本不需要重启游戏，输一下 `rs` 就能看到效果。
 
 ## Lua 备注
 
 Lua 用户只需注意以下差异，其他一切同上。
 
-**入口文件固定 `main.lua`**，放到模组文件夹里就行，不需要在 mod.json 里声明语言。
+**入口文件固定 `main.lua`**，放到模组文件夹里就行。
 
 **方法调用用 `:` 而不是 `.`**：
 

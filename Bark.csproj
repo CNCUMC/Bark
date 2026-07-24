@@ -94,6 +94,7 @@
 
     <ItemGroup>
       <Folder Include="docs\en-US\" />
+      <Folder Include="docs\zh-CN\csharp-api\" />
     </ItemGroup>
 
     <PropertyGroup>

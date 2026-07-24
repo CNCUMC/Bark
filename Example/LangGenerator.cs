@@ -40,6 +40,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "重载脚本",
             "重載腳本",
             "Перезагрузить сценарий");
+        Command("script.reload.completed",
+            "Reload script completed!",
+            "重载脚本完成!",
+            "重載腳本完成!",
+            "Перезарядка сценария завершена!");
         Command("script.help.header",
             "Script mod commands:",
             "脚本模组命令:",
@@ -62,13 +67,13 @@ internal class LangGenerator : ModLangGenMultiBase
             "Список скриптовых модов");
         Command("script.list.header",
             "Script mod list ({0}):",
-            "脚本模组列表（{0}）:",
-            "腳本模組列表（{0}）:",
+            "脚本模组列表 ({0}):",
+            "腳本模組列表 ({0}):",
             "Список скриптовых модов ({0}):");
         Command("script.list.item",
             "  {0} v{1} [{2}] ({3})",
-            "  {0} v{1} [{2}]（{3}）",
-            "  {0} v{1} [{2}]（{3}）",
+            "  {0} v{1} [{2}] ({3}) ",
+            "  {0} v{1} [{2}] ({3}) ",
             "  {0} v{1} [{2}] ({3})");
 
         // Log - Console
@@ -147,8 +152,8 @@ internal class LangGenerator : ModLangGenMultiBase
             "Ожидается как минимум {0} аргумент(ов) {1}, но получено {2}");
         Log("check.parse.float_invalid",
             "'{0}' is not a valid floating-point number! (2, 0.7, 14.1, etc.)",
-            "'{0}' 不是有效的浮点数值！（2, 0.7, 14.1 等）",
-            "'{0}' 不是有效的浮點數值！（2, 0.7, 14.1 等）",
+            "'{0}' 不是有效的浮点数值！ (2, 0.7, 14.1 等) ",
+            "'{0}' 不是有效的浮點數值！ (2, 0.7, 14.1 等) ",
             "'{0}' не является допустимым числом с плавающей точкой! (2, 0.7, 14.1 и т.д.)");
         Log("check.parse.int_invalid",
             "'{0}' is not a valid integer!",
@@ -245,8 +250,8 @@ internal class LangGenerator : ModLangGenMultiBase
             "Найдено {0} манифест(ов)");
         Log("script_mod_loader.skip_no_manifest",
             "Skipped (no mod.json): {0}",
-            "跳过（无 mod.json）: {0}",
-            "跳過（無 mod.json）: {0}",
+            "跳过 (无 mod.json): {0}",
+            "跳過 (無 mod.json): {0}",
             "Пропущено (нет mod.json): {0}");
         Log("script_mod_loader.parse_failed",
             "Failed to parse manifest: {0}",
@@ -265,8 +270,8 @@ internal class LangGenerator : ModLangGenMultiBase
             "Отсутствует поле 'version': {0}");
         Log("script_mod_loader.no_entry_file",
             "Entry file not found (main.js/lua/py): {0}",
-            "未找到入口文件（main.js/lua/py）: {0}",
-            "未找到入口檔案（main.js/lua/py）: {0}",
+            "未找到入口文件 (main.js/lua/py): {0}",
+            "未找到入口檔案 (main.js/lua/py): {0}",
             "Файл входа не найден (main.js/lua/py): {0}");
         Log("script_mod_loader.manifest_read",
             "Manifest read: {0} v{1} ({2})",
@@ -310,8 +315,8 @@ internal class LangGenerator : ModLangGenMultiBase
             "[{0}] Загрузка {1} v{2}");
         Log("script_mod_loader.circular_dependency",
             "Skipped (circular dependency or unmet dependency): {0}",
-            "跳过（循环依赖或依赖未满足）: {0}",
-            "跳過（循環依賴或依賴未滿足）: {0}",
+            "跳过 (循环依赖或依赖未满足): {0}",
+            "跳過 (循環依賴或依賴未滿足): {0}",
             "Пропущено (циклическая зависимость или невыполненная зависимость): {0}");
         Log("script_mod_loader.hook_failed",
             "Hook '{1}' failed for mod '{0}': {2}",
