@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Bark.Items;
+using Bark.Recipe;
 using Bark.Tool;
 
 namespace Bark.Script;
@@ -78,6 +80,14 @@ public class ScriptModLoader(string modsPath) : IDisposable
         // 5. 注册配置选项到游戏设置系统（必须在引擎创建前完成）
         foreach (var manifest in sorted)
             OptionsUtil.RegisterFromMod(manifest, configsDir);
+
+        // 5.3 加载自定义物品到 CUCoreLib ItemRegistry / LiquidRegistry
+        foreach (var manifest in sorted)
+            ItemLoader.RegisterFromMod(manifest);
+
+        // 5.4 加载自定义合成表到 CUCoreLib RecipeRegistry（必须在物品注册之后）
+        foreach (var manifest in sorted)
+            RecipeLoader.RegisterFromMod(manifest);
 
         // 6. 按顺序加载模组
         foreach (var manifest in sorted) LoadMod(manifest);

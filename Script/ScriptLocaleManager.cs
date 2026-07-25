@@ -72,17 +72,19 @@ public static class ScriptLocaleManager
 
                 foreach (var (key, value) in dictionary)
                 {
-                    // 存入本地 LocaleData，格式为 "{category}.{key}" 便于 Get() 查找
-                    var flatKey = $"{category}.{key}";
-                    LocaleData[flatKey] = value;
-
-                    // 同步推入 CCL 本地化
                     // key 自带命名空间，如 "hello_world_js.loaded" → ns="hello_world_js", rest="loaded"
                     // 也支持跨模组本地化，如 "quantum.auto_rack" → ns="quantum", rest="auto_rack"
                     // 无点号则回退用当前 modId 做命名空间
                     var dotIndex = key.IndexOf('.');
                     var localeNs = dotIndex > 0 ? key.Substring(0, dotIndex) : modId;
                     var localeKey = dotIndex > 0 ? key.Substring(dotIndex + 1) : key;
+
+                    // 存入本地 LocaleData，格式为 "{category}.{ns}.{localeKey}"
+                    // 与 LocaleApi.ExpandKey() 的查询格式一致
+                    var flatKey = $"{category}.{localeNs}.{localeKey}";
+                    LocaleData[flatKey] = value;
+
+                    // 同步推入 CCL 本地化
                     BetterLocale.SetDefault(langCode, localeNs, category, localeKey, value);
                 }
             }

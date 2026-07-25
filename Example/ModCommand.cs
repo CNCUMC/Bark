@@ -20,7 +20,7 @@ public static class ModCommand
         );
 
         ConsoleCommandRegistry.Register(
-            "rs",
+            "sr",
             LocaleCommand("reload"),
             _ => ReloadScripts()
         );
@@ -121,6 +121,6 @@ public static class ModCommand
     }
     private static string LocaleCommand(string key, params object[] args)
     {
-        return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.{key}", args);
+        return BetterLocale.GetCommand($"script.{key}", args);
     }
 }

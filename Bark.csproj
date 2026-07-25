@@ -67,6 +67,9 @@
         <Reference Include="UnityEngine.UI">
             <HintPath>$(ManagedDir)/UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule">
+            <HintPath>$(ManagedDir)/UnityEngine.ImageConversionModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.IMGUIModule">
             <HintPath>$(ManagedDir)/UnityEngine.IMGUIModule.dll</HintPath>
         </Reference>
