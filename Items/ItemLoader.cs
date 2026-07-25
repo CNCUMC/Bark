@@ -19,6 +19,7 @@ public class ItemEntry(string id, string type)
 {
     // 物品 ID（即 JSON 文件名）
     public string Id = id;
+
     // 物品类型: item / liquid-item / liquid
     public string Type = type;
 }
@@ -33,7 +34,8 @@ public static class ItemLoader
     public static readonly Dictionary<string, List<ItemEntry>> LoadedItems = new();
 
     // 暂存的脚本映射（modId → itemId → (scriptDef, modDir)），待引擎创建后注册
-    private static readonly Dictionary<string, Dictionary<string, (ItemScriptDef def, string modDir)>> PendingScripts = new();
+    private static readonly Dictionary<string, Dictionary<string, (ItemScriptDef def, string modDir)>> PendingScripts =
+        new();
 
     // ClearOwnerEntries 是 internal，缓存 MethodInfo 供热重载时清除旧物品
     private static readonly MethodInfo? s_clearItemOwnerEntries = typeof(ItemRegistry).GetMethod(
@@ -171,12 +173,12 @@ public static class ItemLoader
             return false;
 
         var info = BuildItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.originPrefab, itemId, assetsDir, def.spriteImportScale);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteImportScale);
 
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
-        StashScript(itemId, def.script, modId, modDir);
+        StashScript(itemId, def.Script, modId, modDir);
 
         LogUtil.Info("items.item_registered", itemId, modId);
         return true;
@@ -191,12 +193,12 @@ public static class ItemLoader
             return false;
 
         var info = BuildLiquidItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.originPrefab, itemId, assetsDir, def.spriteImportScale);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteImportScale);
 
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射
-        StashScript(itemId, def.script, modId, modDir);
+        StashScript(itemId, def.Script, modId, modDir);
 
         LogUtil.Info("items.item_registered", itemId, modId);
         return true;
@@ -222,52 +224,53 @@ public static class ItemLoader
     {
         var info = new CustomItemInfo
         {
-            fullName = def.fullName,
-            description = def.description,
-            category = def.category,
-            slotRotation = def.slotRotation,
-            destroyAtZeroCondition = def.destroyAtZeroCondition,
-            weight = def.weight,
-            onlyHoldInHands = def.onlyHoldInHands,
-            wearable = def.wearable,
-            wearableCanBeHeld = def.wearableCanBeHeld,
-            wearableArmor = def.wearableArmor,
-            wearableIsolation = def.wearableIsolation,
-            desiredWearLimb = def.desiredWearLimb,
-            wearSlotId = def.wearSlotId,
-            wearableHitDurabilityLossMultiplier = def.wearableHitDurabilityLossMultiplier,
-            scaleWeightWithCondition = def.scaleWeightWithCondition,
-            WearableSortingOrder = def.wearableSortingOrder,
-            combineable = def.combineable,
-            ignoreDepression = def.ignoreDepression,
-            value = def.value,
-            wearableVisualOffset = def.wearableVisualOffset,
-            tags = def.tags,
-            decayInfo = def.decayInfo,
-            decayMinutes = def.decayMinutes,
-            rec = new Recognition(def.recognition),
-            SpawnFrequency = def.spawnFrequency,
-            WorldSpawnPerChunk = def.worldSpawnPerChunk,
-            SpriteScale = def.spriteScale,
-            InventoryIconScale = def.inventoryIconScale,
+            fullName = def.FullName,
+            description = def.Description,
+            category = def.Category,
+            slotRotation = def.SlotRotation,
+            destroyAtZeroCondition = def.DestroyAtZeroCondition,
+            weight = def.Weight,
+            onlyHoldInHands = def.OnlyHoldInHands,
+            wearable = def.Wearable,
+            wearableCanBeHeld = def.WearableCanBeHeld,
+            wearableArmor = def.WearableArmor,
+            wearableIsolation = def.WearableIsolation,
+            desiredWearLimb = def.DesiredWearLimb,
+            wearSlotId = def.WearSlotId,
+            wearableHitDurabilityLossMultiplier = def.WearableHitDurabilityLossMultiplier,
+            scaleWeightWithCondition = def.ScaleWeightWithCondition,
+            WearableSortingOrder = def.WearableSortingOrder,
+            combineable = def.Combinable,
+            ignoreDepression = def.IgnoreDepression,
+            value = def.Value,
+            wearableVisualOffset = def.WearableVisualOffset,
+            tags = def.Tags,
+            decayInfo = def.DecayInfo,
+            decayMinutes = def.DecayMinutes,
+            rec = new Recognition(def.Recognition),
+            SpawnFrequency = def.SpawnFrequency,
+            WorldSpawnPerChunk = def.WorldSpawnPerChunk,
+            SpriteScale = def.SpriteScale,
+            InventoryIconScale = def.InventoryIconScale,
         };
 
         // Sprite 缩放维度：优先用 JSON 配置，未配置则回退到 prefab 精灵尺寸
-        if (def.spriteScaleDimensions is { width: > 0f, height: > 0f })
+        if (def.SpriteScaleDimensions is { Width: > 0f, Height: > 0f })
         {
-            var ssd = def.spriteScaleDimensions;
-            info.SpriteScaleDimensions = new SpriteScaleDimensions(ssd.width, ssd.height, ssd.expandToFirstMet);
+            var ssd = def.SpriteScaleDimensions;
+            info.SpriteScaleDimensions = new SpriteScaleDimensions(ssd.Width, ssd.Height, ssd.ExpandToFirstMet);
         }
         else
         {
             try
             {
-                var prefab = Resources.Load<GameObject>(def.originPrefab);
+                var prefab = Resources.Load<GameObject>(def.OriginPrefab);
                 if (prefab != null)
                 {
                     var prefabSprite = prefab.GetComponent<SpriteRenderer>()?.sprite;
                     if (prefabSprite != null)
-                        info.SpriteScaleDimensions = new SpriteScaleDimensions(prefabSprite.rect.width, prefabSprite.rect.height, true);
+                        info.SpriteScaleDimensions =
+                            new SpriteScaleDimensions(prefabSprite.rect.width, prefabSprite.rect.height, true);
                 }
             }
             catch
@@ -277,28 +280,29 @@ public static class ItemLoader
         }
 
         // 穿戴贴图: Assets/Item/{itemId}_worn.png
-        info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), def.spriteImportScale);
-        info.WornSpriteOffset = new Vector2(def.wornSpriteOffsetX, def.wornSpriteOffsetY);
+        info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), def.SpriteImportScale);
+        info.WornSpriteOffset = new Vector2(def.WornSpriteOffsetX, def.WornSpriteOffsetY);
 
         // MultiWorn: Assets/Item/{itemId}_mw_{key}.png
-        if (def.multiWorn != null)
+        if (def.MultiWorn != null)
         {
-            foreach (var kv in def.multiWorn)
+            foreach (var kv in def.MultiWorn)
             {
-                var multiSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_mw_" + kv.Key + ".png"), def.spriteImportScale);
+                var multiSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_mw_" + kv.Key + ".png"),
+                    def.SpriteImportScale);
                 if (multiSprite == null) continue;
                 info.MultiWornSprites[kv.Key] = multiSprite;
                 info.MultiWornSpriteOffsets[kv.Key] = new Vector2(
-                    kv.Value.wornSpriteOffsetX, kv.Value.wornSpriteOffsetY);
+                    kv.Value.WornSpriteOffsetX, kv.Value.WornSpriteOffsetY);
             }
         }
 
         // DropPool
-        if (def.dropPool is { Length: > 0 })
+        if (def.DropPool is { Length: > 0 })
         {
             try
             {
-                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", def.dropPool));
+                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", def.DropPool));
             }
             catch
             {
@@ -307,45 +311,45 @@ public static class ItemLoader
         }
 
         // 腐烂速度
-        if (def.rotSpeed.HasValue)
-            info.rotSpeed = def.rotSpeed.Value;
-        else if (def.decayMinutes > 0)
-            info.rotSpeed = 1f / def.decayMinutes;
+        if (def.RotSpeed.HasValue)
+            info.rotSpeed = def.RotSpeed.Value;
+        else if (def.DecayMinutes > 0)
+            info.rotSpeed = 1f / def.DecayMinutes;
 
         // 制作特性
-        if (def.qualities != null)
+        if (def.Qualities != null)
         {
             info.qualities =
             [
-                .. def.qualities
-                    .Where(q => !string.IsNullOrEmpty(q.id))
-                    .Select(q => new CraftingQuality(q.id.ToLowerInvariant(), q.amount))
+                .. def.Qualities
+                    .Where(q => !string.IsNullOrEmpty(q.Id))
+                    .Select(q => new CraftingQuality(q.Id.ToLowerInvariant(), q.Amount))
             ];
         }
 
         // 容器
-        if (def.containerData != null)
+        if (def.ContainerData != null)
         {
-            var cd = def.containerData;
+            var cd = def.ContainerData;
             info.Container = new ContainerProperties
             {
-                Capacity = cd.maxWeight,
-                MaxWeightPerItem = cd.maxWeightPerItem,
-                ItemsVisible = cd.itemsVisible,
-                TagRestriction = cd.tagRestriction,
-                EncumbranceReduction = cd.encumberanceMult,
+                Capacity = cd.MaxWeight,
+                MaxWeightPerItem = cd.MaxWeightPerItem,
+                ItemsVisible = cd.ItemsVisible,
+                TagRestriction = cd.TagRestriction,
+                EncumbranceReduction = cd.EncumbranceMult,
             };
         }
 
         // 电池
-        if (def.batteryData == null) return info;
-        var bd = def.batteryData;
+        if (def.BatteryData == null) return info;
+        var bd = def.BatteryData;
         info.Battery = new BatteryProperties
         {
-            SpawnWithBattery = bd.spawnWithBattery,
+            SpawnWithBattery = bd.SpawnWithBattery,
         };
 
-        switch (bd.preset.ToLowerInvariant())
+        switch (bd.Preset.ToLowerInvariant())
         {
             case "small":
                 info.Battery.StartCharge = 50f;
@@ -360,11 +364,12 @@ public static class ItemLoader
                 info.Battery.Preset = BatteryItem.BatteryPreset.Large;
                 break;
             default:
-                if (bd.spawnWithBattery)
+                if (bd.SpawnWithBattery)
                 {
-                    info.Battery.BatteryType = bd.batteryType;
-                    info.Battery.MaxCharge = bd.maxAllowedCharge;
+                    info.Battery.BatteryType = bd.BatteryType;
+                    info.Battery.MaxCharge = bd.MaxAllowedCharge;
                 }
+
                 break;
         }
 
@@ -377,17 +382,17 @@ public static class ItemLoader
     {
         var info = BuildItemInfo(def, itemId, assetsDir);
 
-        info.capacity = def.capacity;
-        info.autoFill = def.autoFill;
+        info.capacity = def.Capacity;
+        info.autoFill = def.AutoFill;
 
         // 液体填充贴图: Assets/Item/{itemId}_fill.png
-        info.LiquidMask = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_fill.png"), def.spriteImportScale);
+        info.LiquidMask = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_fill.png"), def.SpriteImportScale);
 
         // 默认液体
-        if (def.defaultLiquid is { Count: > 0 })
+        if (def.DefaultLiquid is { Count: > 0 })
         {
             info.defaultContents = [];
-            foreach (var kv in def.defaultLiquid)
+            foreach (var kv in def.DefaultLiquid)
                 info.defaultContents.Add(new LiquidStack(kv.Key, kv.Value));
         }
         else
@@ -405,20 +410,20 @@ public static class ItemLoader
         var info = new CustomLiquidInfo
         {
             name = liquidId,
-            description = def.description,
-            color = ItemUtil.HexToColor(def.color),
-            valuePerLiter = def.valuePerLiter,
-            healthUsable = def.healthUsable,
-            injectable = def.injectable,
-            injectionSickness = def.injectionSicknessMultiplier,
-            localeFromItem = def.localeFromItem,
+            description = def.Description,
+            color = ItemUtil.HexToColor(def.Color),
+            valuePerLiter = def.ValuePerLiter,
+            healthUsable = def.HealthUsable,
+            injectable = def.Injectable,
+            injectionSickness = def.InjectionSicknessMultiplier,
+            localeFromItem = def.LocaleFromItem,
         };
 
         // 制作特性
-        if (def.qualities == null) return info;
-        foreach (var kv in def.qualities)
+        if (def.Qualities == null) return info;
+        foreach (var kv in def.Qualities)
             info.qualities.Add(new CraftingQuality(kv.Key.ToLowerInvariant(), kv.Value));
-        
+
         return info;
     }
 
@@ -456,10 +461,10 @@ public static class ItemLoader
     private static void StashScript(string itemId, ItemScriptDef? scriptDef, string modId, string modDir)
     {
         if (scriptDef is null) return;
-        var isEmpty = scriptDef.use.Count == 0
-                      && scriptDef.equip.Count == 0
-                      && scriptDef.unequip.Count == 0
-                      && scriptDef.useOnLimb.Count == 0;
+        var isEmpty = scriptDef.Use.Count == 0
+                      && scriptDef.Equip.Count == 0
+                      && scriptDef.Unequip.Count == 0
+                      && scriptDef.UseOnLimb.Count == 0;
         if (isEmpty) return;
 
         if (!PendingScripts.TryGetValue(modId, out var itemScripts))

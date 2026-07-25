@@ -15,6 +15,7 @@ public class RecipeEntry(string id, string fileName)
 {
     // 配方产物 ID
     public string Id = id;
+
     // 配方来源文件名（如 "bandage.json"）
     public string FileName = fileName;
 }
@@ -100,7 +101,7 @@ public static class RecipeLoader
             return null;
         }
 
-        if (def is null || string.IsNullOrWhiteSpace(def.id))
+        if (def is null || string.IsNullOrWhiteSpace(def.Id))
         {
             LogUtil.Warning("recipe.missing_id", jsonFile);
             return null;
@@ -108,21 +109,21 @@ public static class RecipeLoader
 
         // 构建材料列表
         var recipeItems = new List<RecipeItem>();
-        recipeItems.AddRange(def.items.Select(ing => new RecipeItem(ing.minimumCondition)
+        recipeItems.AddRange(def.Items.Select(ing => new RecipeItem(ing.MinimumCondition)
         {
-            specific = ing.specific,
-            specificId = ing.specificId,
-            isLiquid = ing.isLiquid,
-            quality = string.IsNullOrEmpty(ing.quality)
+            specific = ing.Specific,
+            specificId = ing.SpecificId,
+            isLiquid = ing.IsLiquid,
+            quality = string.IsNullOrEmpty(ing.Quality)
                 ? null
-                : new CraftingQuality(ing.quality.ToLowerInvariant(), ing.qualityCondition),
-            minimumCondition = ing.minimumCondition,
-            destroyItem = ing.destroyItem,
-            ignoredId = ing.ignoredId,
+                : new CraftingQuality(ing.Quality.ToLowerInvariant(), ing.QualityCondition),
+            minimumCondition = ing.MinimumCondition,
+            destroyItem = ing.DestroyItem,
+            ignoredId = ing.IgnoredId,
         }));
 
         // 解析蓝图分类枚举
-        if (!Enum.TryParse<Recipes.RecipeCategory>(def.category, true, out var category))
+        if (!Enum.TryParse<Recipes.RecipeCategory>(def.Category, true, out var category))
             category = Recipes.RecipeCategory.Materials;
 
         var recipe = new global::Recipe
@@ -130,26 +131,26 @@ public static class RecipeLoader
             INT = def.INT,
             result = new RecipeResult
             {
-                id = def.id,
-                amount = def.amount,
-                isLiquid = def.isLiquid,
-                resultCondition = def.resultCondition,
-                dontDrainResultLiquid = def.dontDrainResultLiquid,
+                id = def.Id,
+                amount = def.Amount,
+                isLiquid = def.IsLiquid,
+                resultCondition = def.ResultCondition,
+                dontDrainResultLiquid = def.DontDrainResultLiquid,
             },
             category = category,
-            isRepair = def.isRepair,
+            isRepair = def.IsRepair,
             items = recipeItems,
         };
 
         // 替换原版同名合成表
-        if (def.replaceOriginalRecipe)
-            RemoveRecipesByResultId(def.id);
+        if (def.ReplaceOriginalRecipe)
+            RemoveRecipesByResultId(def.Id);
 
         RecipeRegistry.Register(recipe);
-        LogUtil.Message("recipe.registered", def.id);
+        LogUtil.Message("recipe.registered", def.Id);
 
         var fileName = Path.GetFileName(jsonFile);
-        return new RecipeEntry(def.id, fileName);
+        return new RecipeEntry(def.Id, fileName);
     }
 
     // 移除所有 result.id 匹配的配方（反射访问 RecipeRegistry 内部数据结构）
@@ -167,15 +168,13 @@ public static class RecipeLoader
             return;
 
         // 从 RegisteredRecipes 中移除并清理关联 key
-        registeredRecipes.RemoveAll(r => toRemove.Contains(r));
+        registeredRecipes.RemoveAll(toRemove.Contains);
 
         if (s_registeredRecipeKeysField?.GetValue(null) is HashSet<string> keys)
         {
-            foreach (var recipe in toRemove)
+            foreach (var key in toRemove.Select(recipe => s_buildRecipeKeyMethod?.Invoke(null, [recipe])).OfType<string>())
             {
-                var key = s_buildRecipeKeyMethod?.Invoke(null, [recipe]) as string;
-                if (key != null)
-                    keys.Remove(key);
+                keys.Remove(key);
             }
         }
 
@@ -192,11 +191,9 @@ public static class RecipeLoader
             return;
 
         var keysToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var recipe in toRemove)
+        foreach (var key in toRemove.Select(recipe => s_buildRecipeKeyMethod?.Invoke(null, [recipe])).OfType<string>())
         {
-            var key = s_buildRecipeKeyMethod?.Invoke(null, [recipe]) as string;
-            if (key != null)
-                keysToRemove.Add(key);
+            keysToRemove.Add(key);
         }
 
         if (keysToRemove.Count > 0)

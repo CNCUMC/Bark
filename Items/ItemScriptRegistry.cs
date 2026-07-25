@@ -49,10 +49,10 @@ public static class ItemScriptRegistry
     // 判断脚本定义是否所有动作都为空
     private static bool IsEmpty(ItemScriptDef def)
     {
-        return def.use.Count == 0
-               && def.equip.Count == 0
-               && def.unequip.Count == 0
-               && def.useOnLimb.Count == 0;
+        return def.Use.Count == 0
+               && def.Equip.Count == 0
+               && def.Unequip.Count == 0
+               && def.UseOnLimb.Count == 0;
     }
 }
 
@@ -60,12 +60,12 @@ public static class ItemScriptRegistry
 public class ScriptEntry(ScriptEngine engine, ItemScriptDef scriptDef, string modId, string modDir)
 {
     public ScriptEngine Engine = engine;
-    public string ModId = modId;
-    public List<string> Use = scriptDef.use;
-    public List<string> Equip = scriptDef.equip;
-    public List<string> Unequip = scriptDef.unequip;
-    public List<string> UseOnLimb = scriptDef.useOnLimb;
-    public string ModDir = modDir;
+    public readonly string ModId = modId;
+    public readonly List<string> Use = scriptDef.Use;
+    public readonly List<string> Equip = scriptDef.Equip;
+    public readonly List<string> Unequip = scriptDef.Unequip;
+    public readonly List<string> UseOnLimb = scriptDef.UseOnLimb;
+    public readonly string ModDir = modDir;
 
     // 将相对路径解析为绝对路径（基准为模组目录）
     public string ResolvePath(string relativePath)

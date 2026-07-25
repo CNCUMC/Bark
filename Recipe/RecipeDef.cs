@@ -10,7 +10,7 @@ public class RecipeDef
 {
     // 产物物品 ID（自定义物品或原版物品）
     [JsonProperty("id")]
-    public string id = string.Empty;
+    public string Id = string.Empty;
 
     // 制作所需智力
     [JsonProperty("int")]
@@ -18,35 +18,35 @@ public class RecipeDef
 
     // 材料列表
     [JsonProperty("items")]
-    public List<RecipeIngredientDef> items;
+    public List<RecipeIngredientDef> Items;
 
     // 蓝图分类: Materials, Tools, Medicine, Utilities, Food
     [JsonProperty("category")]
-    public string category = "Materials";
+    public string Category = "Materials";
 
     // 产物是否为液体
     [JsonProperty("is_liquid")]
-    public bool isLiquid;
+    public bool IsLiquid;
 
     // 产物数量
     [JsonProperty("amount")]
-    public int amount = 1;
+    public int Amount = 1;
 
     // 产物默认耐久（普通物品 1=100%，液体 1=1ml）
     [JsonProperty("result_condition")]
-    public float resultCondition = 1f;
+    public float ResultCondition = 1f;
 
     // 是否为修复配方
     [JsonProperty("is_repair")]
-    public bool isRepair;
+    public bool IsRepair;
 
     // 不消耗原料液体
     [JsonProperty("dont_drain_result_liquid")]
-    public bool dontDrainResultLiquid;
+    public bool DontDrainResultLiquid;
 
     // 是否替换原版同名合成表
     [JsonProperty("replace_original_recipe")]
-    public bool replaceOriginalRecipe;
+    public bool ReplaceOriginalRecipe;
 }
 
 // 合成表材料定义
@@ -54,35 +54,35 @@ public class RecipeIngredientDef
 {
     // 精确匹配物品 ID（与 quality 互斥）
     [JsonProperty("specific")]
-    public bool specific;
+    public bool Specific;
 
     [JsonProperty("specific_id")]
-    public string specificId = string.Empty;
+    public string SpecificId = string.Empty;
 
     // 材料是否为液体
     [JsonProperty("is_liquid")]
-    public bool isLiquid;
+    public bool IsLiquid;
 
     // 制作特性关键字（拥有该特性的物品都可作为材料）
     // 可用: foliage, cutting, rippable, dressing, disinfectant, water,
     //       blood, nails, fat, opiate, heatsource, firestarter, flammable,
     //       flour, produce, condiment, hammering
     [JsonProperty("quality")]
-    public string quality = string.Empty;
+    public string Quality = string.Empty;
 
     // 特性消耗量
     [JsonProperty("quality_condition")]
-    public float qualityCondition = 1f;
+    public float QualityCondition = 1f;
 
     // 最小耐久度
     [JsonProperty("minimum_condition")]
-    public float minimumCondition = 0.9f;
+    public float MinimumCondition = 0.9f;
 
     // 制作完成后是否消除物品
     [JsonProperty("destroy_item")]
-    public bool destroyItem = true;
+    public bool DestroyItem = true;
 
     // 排除的特定物品 ID
     [JsonProperty("ignored_id")]
-    public string ignoredId = string.Empty;
+    public string IgnoredId = string.Empty;
 }
