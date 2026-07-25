@@ -30,11 +30,7 @@ public static class OptionsUtil
     public static void ShowRestartRequired(string reasonKey)
     {
         RestartNeeded = true;
-        var message = BetterLocale.GetLog($"{Plugin.NameSpace}.options_util.{reasonKey}");
-        if (string.IsNullOrWhiteSpace(message))
-            message = reasonKey;
-        LogUtil.Warning(message);
-        LogUtil.LogToConsole($"[Bark] {message}");
+        LogUtil.Warning($"options_util.{reasonKey}");
     }
 
     // ---- 配置 → 设置桥接入口，由 ScriptModLoader.LoadAll() 在引擎创建前调用 ----

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bark.Items;
 using Bark.Recipe;
 using Bark.Tool;
@@ -90,7 +91,12 @@ public class ScriptModLoader(string modsPath) : IDisposable
             RecipeLoader.RegisterFromMod(manifest);
 
         // 6. 按顺序加载模组
-        foreach (var manifest in sorted) LoadMod(manifest);
+        foreach (var manifest in sorted)
+        {
+            LoadMod(manifest);
+            // 引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry
+            ItemLoader.RegisterScripts(manifest);
+        }
     }
 
 
@@ -118,6 +124,13 @@ public class ScriptModLoader(string modsPath) : IDisposable
             if (string.IsNullOrWhiteSpace(manifest.Id))
             {
                 LogUtil.Warning("script_mod_loader.missing_id", manifestPath);
+                return null;
+            }
+
+            // ID 必须使用 snake_case
+            if (!IsSnakeCase(manifest.Id))
+            {
+                LogUtil.Error("script_mod_loader.id_not_snake_case", manifest.Id, manifestPath);
                 return null;
             }
 
@@ -163,6 +176,14 @@ public class ScriptModLoader(string modsPath) : IDisposable
         return ExtensionMap.GetValueOrDefault(ext, ScriptLanguage.JavaScript);
     }
 
+    // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
+    private static readonly Regex SnakeCaseRegex = new(@"^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
+
+    private static bool IsSnakeCase(string id)
+    {
+        return SnakeCaseRegex.IsMatch(id);
+    }
+
     // 加载单个模组（路由到对应 PuerTS 引擎）
     private void LoadMod(ScriptManifest manifest)
     {
@@ -192,6 +213,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
 
             manifest.Engine = engine;
             _loadedMods[manifest.Id] = manifest;
+
+            // 注册到 ScriptUtil 供手动触发脚本
+            ScriptUtil.Register(manifest.Id, engine, manifest.Directory);
 
             // 注册脚本模组的生命周期钩子为事件处理器
             RegisterScriptEventHandlers(manifest);
@@ -302,6 +326,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
             {
                 LogUtil.Warning("script_mod_loader.reload_unload_failed", manifest.Id, ex.Message);
             }
+
+        // 注销所有 ScriptUtil 注册
+        foreach (var manifest in _loadedMods.Values)
+            ScriptUtil.Unregister(manifest.Id);
 
         _loadedMods.Clear();
     }

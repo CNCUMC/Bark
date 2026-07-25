@@ -263,6 +263,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "缺少 id 字段: {0}",
             "缺少 id 欄位: {0}",
             "Отсутствует поле 'id': {0}");
+        Log("script_mod_loader.id_not_snake_case",
+            "Mod ID '{0}' must be snake_case: {1}",
+            "模组 ID '{0}' 必须使用蛇形命名: {1}",
+            "模組 ID '{0}' 必須使用蛇形命名: {1}",
+            "ID мода '{0}' должен быть snake_case: {1}");
         Log("script_mod_loader.missing_version",
             "Missing 'version' field: {0}",
             "缺少 version 字段: {0}",
@@ -387,6 +392,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "扫描到 {0} 个脚本事件钩子",
             "掃描到 {0} 個腳本事件鉤子",
             "Просканировано {0} хуков скриптовых событий");
+        Log("item_event.patch_use_ok",
+            "Patched {0} for item use detection",
+            "已补丁 {0} 用于物品使用检测",
+            "已補丁 {0} 用於物品使用檢測",
+            "Запатчен {0} для обнаружения использования предметов");
 
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
@@ -446,6 +456,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 加载了 {1} 个自定义物品",
             "模組 '{0}' 載入了 {1} 個自定義物品",
             "Мод '{0}' загрузил {1} предмет(ов)");
+        Log("items.scripts_pending",
+            "Mod '{0}' has {1} item script(s) pending registration",
+            "模组 '{0}' 有 {1} 个物品脚本待注册",
+            "模組 '{0}' 有 {1} 個物品腳本待註冊",
+            "Мод '{0}' имеет {1} скрипт(ов) ожидающих регистрации");
+        Log("items.scripts_registered",
+            "Mod '{0}' registered {1} item script(s)",
+            "模组 '{0}' 注册了 {1} 个物品脚本",
+            "模組 '{0}' 註冊了 {1} 個物品腳本",
+            "Мод '{0}' зарегистрировал {1} скрипт(ов) предметов");
 
         // Log - Recipe
         Log("recipe.load_error",
@@ -468,6 +488,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "配方 '{0}' 已注册",
             "配方 '{0}' 已註冊",
             "Рецепт '{0}' зарегистрирован");
+        Log("recipe.replaced",
+            "Replaced {1} existing recipe(s) for '{0}'",
+            "已替换 {1} 个 '{0}' 的现有配方",
+            "已替換 {1} 個 '{0}' 的現有配方",
+            "Заменено {1} существующих рецептов для '{0}'");
         Log("recipe.loaded_count",
             "Mod '{0}' loaded {1} recipe(s)",
             "模组 '{0}' 加载了 {1} 个配方",

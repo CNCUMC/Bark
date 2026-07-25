@@ -11,7 +11,7 @@ public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;
 
-    public static Body Body => PlayerCamera.main.body!;
+    public static Body? Body => PlayerCamera.main?.body;
 
     [ScriptMethod]
     public static Vector2 GetPosition()

@@ -2,7 +2,7 @@
 
 # Script Event Hooks
 
-Bark provides 11 built-in event hooks. When the corresponding event occurs in-game, Bark automatically calls the
+Bark provides 15 built-in event hooks. When the corresponding event occurs in-game, Bark automatically calls the
 matching global function in your script.
 
 ## How to Use
@@ -61,6 +61,29 @@ function onLimbBroken() {
         }
     }
     Log.Info('Broken limb indices: ' + brokenList.join(', '));
+}
+```
+
+### Item Events
+
+Global hooks for item use, equip, unequip, and limb use.
+
+| Hook Function     | Trigger                    |
+|-------------------|----------------------------|
+| `onItemUse`       | Player used an item        |
+| `onItemEquip`     | Item was equipped          |
+| `onItemUnequip`   | Item was unequipped        |
+| `onItemLimbUse`   | Item was used on a limb    |
+
+> ℹ️ Item hooks carry no parameter. Use `InventoryUtil` to query the currently equipped/held item inside the hook.
+
+```js
+function onItemUse() {
+    Log.Info('Item was used');
+}
+
+function onItemLimbUse() {
+    Log.Info('Item was used on a limb');
 }
 ```
 

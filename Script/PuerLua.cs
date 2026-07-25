@@ -123,6 +123,26 @@ public class PuerLua : ScriptEngine
         }
     }
 
+    // 执行单个脚本文件（如物品动作脚本），执行前注入 __barkItemId 以供脚本侧使用
+    public override void ExecuteFile(string filePath, string? itemId)
+    {
+        if (_scriptEnv == null || !File.Exists(filePath)) return;
+
+        try
+        {
+            // 注入当前物品 ID 供脚本侧引用
+            var escapedId = itemId ?? "";
+            _scriptEnv.Eval($"__barkItemId = '{escapedId}'");
+
+            var script = File.ReadAllText(filePath);
+            _scriptEnv.Eval(script);
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath, ex.Message);
+        }
+    }
+
     // 每帧调用脚本侧的 onUpdate() 函数（静默，不记录错误日志避免刷屏）
     public override void CallUpdate()
     {

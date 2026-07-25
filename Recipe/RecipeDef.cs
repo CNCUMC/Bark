@@ -45,8 +45,8 @@ public class RecipeDef
     public bool dontDrainResultLiquid;
 
     // 是否替换原版同名合成表
-    [JsonProperty("replase_origion_recipe")]
-    public bool replaseOrigionRecipe;
+    [JsonProperty("replace_original_recipe")]
+    public bool replaceOriginalRecipe;
 }
 
 // 合成表材料定义

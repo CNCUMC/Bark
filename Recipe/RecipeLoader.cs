@@ -6,6 +6,7 @@ using System.Reflection;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Registries;
+using UnityEngine;
 
 namespace Bark.Recipe;
 
@@ -28,6 +29,18 @@ public static class RecipeLoader
     // ClearOwnerEntries 是 internal，缓存 MethodInfo 供热重载时清除旧配方
     private static readonly MethodInfo? s_clearOwnerEntries = typeof(RecipeRegistry).GetMethod(
         "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
+
+    // RegisteredRecipes (internal static List<Recipe>)，用于替换原版配方时清除旧条目
+    private static readonly FieldInfo? s_registeredRecipesField = typeof(RecipeRegistry).GetField(
+        "RegisteredRecipes", BindingFlags.NonPublic | BindingFlags.Static);
+
+    // RegisteredRecipeKeys (private static HashSet<string>)，替换原版配方时清除旧 key
+    private static readonly FieldInfo? s_registeredRecipeKeysField = typeof(RecipeRegistry).GetField(
+        "RegisteredRecipeKeys", BindingFlags.NonPublic | BindingFlags.Static);
+
+    // BuildRecipeKey (internal static)，替换原版配方时生成旧配方的 key 以清除
+    private static readonly MethodInfo? s_buildRecipeKeyMethod = typeof(RecipeRegistry).GetMethod(
+        "BuildRecipeKey", BindingFlags.NonPublic | BindingFlags.Static);
 
     public static void RegisterFromMod(ScriptManifest manifest)
     {
@@ -128,11 +141,72 @@ public static class RecipeLoader
             items = recipeItems,
         };
 
+        // 替换原版同名合成表
+        if (def.replaceOriginalRecipe)
+            RemoveRecipesByResultId(def.id);
+
         RecipeRegistry.Register(recipe);
         LogUtil.Message("recipe.registered", def.id);
 
         var fileName = Path.GetFileName(jsonFile);
         return new RecipeEntry(def.id, fileName);
+    }
+
+    // 移除所有 result.id 匹配的配方（反射访问 RecipeRegistry 内部数据结构）
+    private static void RemoveRecipesByResultId(string resultId)
+    {
+        if (s_registeredRecipesField?.GetValue(null) is not List<global::Recipe> registeredRecipes)
+            return;
+
+        // 找出 result.id 匹配的旧配方
+        var toRemove = registeredRecipes
+            .Where(r => string.Equals(r?.result?.id, resultId, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (toRemove.Count == 0)
+            return;
+
+        // 从 RegisteredRecipes 中移除并清理关联 key
+        registeredRecipes.RemoveAll(r => toRemove.Contains(r));
+
+        if (s_registeredRecipeKeysField?.GetValue(null) is HashSet<string> keys)
+        {
+            foreach (var recipe in toRemove)
+            {
+                var key = s_buildRecipeKeyMethod?.Invoke(null, [recipe]) as string;
+                if (key != null)
+                    keys.Remove(key);
+            }
+        }
+
+        // 从 Recipes.recipes（原版注入列表）中移除
+        RemoveFromRecipesList(toRemove);
+
+        LogUtil.Info("recipe.replaced", resultId, toRemove.Count);
+    }
+
+    // 从 Recipes.recipes 中移除匹配的配方
+    private static void RemoveFromRecipesList(List<global::Recipe> toRemove)
+    {
+        if (Recipes.recipes is null)
+            return;
+
+        var keysToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var recipe in toRemove)
+        {
+            var key = s_buildRecipeKeyMethod?.Invoke(null, [recipe]) as string;
+            if (key != null)
+                keysToRemove.Add(key);
+        }
+
+        if (keysToRemove.Count > 0)
+        {
+            ((List<global::Recipe>)Recipes.recipes).RemoveAll(r =>
+            {
+                var key = s_buildRecipeKeyMethod?.Invoke(null, [r]) as string;
+                return key != null && keysToRemove.Contains(key);
+            });
+        }
     }
 
     // 清除指定模组之前注册的配方（内部调 RecipeRegistry.ClearOwnerEntries）

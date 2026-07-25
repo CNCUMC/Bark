@@ -16,6 +16,8 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | [配置与本地化](configuration.md) | 选项注册、多语言，C# 和脚本两套体系               |
 | [脚本事件钩子](script-events.md) | 脚本侧可监听的所有事件钩子一览                    |
 | [C# 事件系统](csharp-events.md)  | C# 侧事件订阅/触发/自定义                         |
+| [自定义物品](items.md)           | JSON 定义自定义物品与液体，自动注册               |
+| [自定义合成表](recipe.md)        | JSON 定义合成表配方，与物品系统联动               |
 
 ## 脚本 API
 

@@ -1,0 +1,43 @@
+using Bark.Event;
+
+namespace Bark.Events;
+
+// 物品使用事件：玩家右键/使用某个物品时触发
+// 由 ItemEventListener 的 Harmony 补丁拦截游戏方法产生
+[ScriptEvent("onItemUse")]
+public class ItemUseEvent : BarkEvent
+{
+    // 物品 ID（如 "arrow"）
+    public string ItemId { get; set; } = string.Empty;
+
+    // 物品实例引用（可用于读写 condition 等）
+    public Item? Item { get; set; }
+}
+
+// 物品装备事件：物品被穿戴上时触发
+[ScriptEvent("onItemEquip")]
+public class ItemEquipEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+    public Item? Item { get; set; }
+}
+
+// 物品脱卸事件：物品被卸下时触发
+[ScriptEvent("onItemUnequip")]
+public class ItemUnequipEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+    public Item? Item { get; set; }
+}
+
+// 物品对肢体使用事件：物品被使用在某个肢体上时触发
+[ScriptEvent("onItemLimbUse")]
+public class ItemLimbUseEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+    public Item? Item { get; set; }
+    // 目标肢体的索引（Body.limbs 数组下标），-1 表示未知
+    public int LimbIndex { get; set; } = -1;
+    // 目标肢体名称
+    public string LimbName { get; set; } = string.Empty;
+}

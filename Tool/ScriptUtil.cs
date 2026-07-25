@@ -1,0 +1,43 @@
+using System.Collections.Generic;
+using System.IO;
+using Bark.Script;
+using Bark.ScriptApi;
+
+namespace Bark.Tool;
+
+// 通用脚本执行工具：按模组 ID + 文件名触发脚本执行。
+// 内部由 ScriptModLoader 在加载模组时注册，ItemScriptRunner 调用。
+// 脚本侧可通过 scriptUtil.Execute(modId, fileName) 直接使用。
+public static class ScriptUtil
+{
+    // modId → (ScriptEngine, modDir)
+    private static readonly Dictionary<string, (ScriptEngine Engine, string ModDir)> ModEngines = new();
+
+    // 注册一个模组的引擎（ScriptModLoader 在 LoadMod 后调用）
+    internal static void Register(string modId, ScriptEngine engine, string modDir)
+    {
+        ModEngines[modId] = (engine, modDir);
+    }
+
+    // 注销一个模组的引擎（ScriptModLoader 在 UnloadAll 时调用）
+    internal static void Unregister(string modId)
+    {
+        ModEngines.Remove(modId);
+    }
+
+    // 执行指定模组的脚本文件。fileName 是相对于模组目录的路径（含扩展名），
+    // itemId 可选，执行时注入 __barkItemId 供脚本侧使用。
+    [ScriptMethod]
+    public static void Execute(string modId, string fileName, string? itemId = null)
+    {
+        if (string.IsNullOrEmpty(modId)) return;
+        if (string.IsNullOrEmpty(fileName)) return;
+
+        if (!ModEngines.TryGetValue(modId, out var entry)) return;
+
+        var fullPath = Path.Combine(entry.ModDir, fileName);
+        if (!File.Exists(fullPath)) return;
+
+        entry.Engine.ExecuteFile(fullPath, itemId);
+    }
+}

@@ -17,6 +17,8 @@ localization, and configuration management.
 | [Configuration & Localization](configuration.md) | Options registration, multi-language, C# and script systems      |
 | [Script Event Hooks](script-events.md)           | All event hooks listenable from scripts                          |
 | [C# Event System](csharp-events.md)              | Event subscription / trigger / custom events from C#             |
+| [Custom Items](items.md)                         | Define custom items & liquids via JSON, auto registration        |
+| [Custom Recipes](recipe.md)                      | Define crafting recipes via JSON, integrate with custom items    |
 
 ## Script API
 

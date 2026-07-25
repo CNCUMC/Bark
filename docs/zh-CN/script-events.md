@@ -2,7 +2,7 @@
 
 # 脚本事件钩子
 
-Bark 内置了 11 个事件钩子。当游戏中发生对应事件时， Bark 自动调用你脚本里的同名函数。
+Bark 内置了 15 个事件钩子。当游戏中发生对应事件时， Bark 自动调用你脚本里的同名函数。
 
 ## 怎么用
 
@@ -60,6 +60,29 @@ function onLimbBroken() {
         }
     }
     Log.Info('骨折的肢体索引: ' + brokenList.join(', '));
+}
+```
+
+### 物品事件
+
+物品使用、装备、脱卸、对肢体使用都会触发全局钩子。
+
+| 钩子函数         | 触发时机               |
+|------------------|------------------------|
+| `onItemUse`      | 玩家使用某物品         |
+| `onItemEquip`    | 物品被穿戴上           |
+| `onItemUnequip`  | 物品被卸下             |
+| `onItemLimbUse`  | 物品被用在某个肢体上   |
+
+> ℹ️ 物品钩子不传参。如果需要知道具体是哪个物品，可以在钩子里用 `InventoryUtil` 查询当前装备/手持物品。
+
+```js
+function onItemUse() {
+    Log.Info('使用了某个物品');
+}
+
+function onItemLimbUse() {
+    Log.Info('物品被用在肢体上');
 }
 ```
 

@@ -24,6 +24,9 @@ public abstract class ScriptEngine
     // 向脚本侧发送事件：调用全局钩子函数（如 onPlayerJumpStart）
     public abstract void CallTriggerEvent(string eventName);
 
+    // 执行单个脚本文件（如物品动作脚本），失败时静默吞异常
+    public abstract void ExecuteFile(string filePath, string? itemId);
+
     // 每帧调用脚本侧的 onUpdate() 函数（脚本侧可选定义，未定义则跳过）
     public abstract void CallUpdate();
 
