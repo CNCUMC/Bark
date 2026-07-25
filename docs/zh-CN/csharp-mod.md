@@ -1,3 +1,5 @@
+[English](../en-US/csharp-mod.md) | ***简体中文***
+
 # C# 模组开发
 
 如果你更喜欢用 C# 而不是脚本语言， Bark 提供了一套完整的事件系统和工具 API，让你可以直接写 C# 代码扩展游戏功能。
@@ -40,7 +42,19 @@ public static class MyEventHandlers
 
 ## 调用工具 API
 
-`Tool/` 下的所有静态类都可以直接调用：
+`Tool/` 下的所有静态类都可以直接调用。C# 方法和脚本 API 一一对应，参考脚本侧文档即可：
+
+| 类             | 文档                                         |
+|----------------|----------------------------------------------|
+| `BodyUtil`     | [生理系统](script-api/body-system.md)          |
+| `PlayerUtil`   | [玩家](script-api/player.md)                   |
+| `LimbUtil`     | [肢体](script-api/limbs.md)                    |
+| `InventoryUtil` / `ItemUtil` | [背包与物品](script-api/inventory.md) |
+| `SkillUtil`    | [技能](script-api/skills.md)                   |
+| `WorldUtil`    | [世界编辑](script-api/world.md)                |
+| `LogUtil`      | [日志](script-api/log.md)                      |
+| `OptionsApi`   | [配置项](script-api/options.md)                |
+| `Locale`       | [多语言](script-api/locale.md)                 |
 
 ```csharp
 using Bark.Tool;

@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/limbs.md) | ***简体中文***
+
 # LimbUtil — 肢体操作
 
 LimbUtil 操作角色的每个肢体：查询状态、读取数值、施加伤害、治疗。所有单肢体操作接受 `int index` 参数。

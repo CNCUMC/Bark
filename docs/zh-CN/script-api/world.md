@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/world.md) | ***简体中文***
+
 # WorldUtil — 世界编辑
 
 WorldUtil 提供方块放置、区域填充和物品生成。只有 5 个方法，但够你改造世界了。

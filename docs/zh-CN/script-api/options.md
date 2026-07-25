@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/options.md) | ***简体中文***
+
 # OptionsApi — 读配置项
 
 OptionsApi 让脚本读取其他模组注册的配置选项。 **只读**，不能写入。

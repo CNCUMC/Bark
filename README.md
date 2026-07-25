@@ -1,4 +1,4 @@
-![Cover](Cover.png)
+![Logo](Logo.png)
 
 [中文指南](README_ZH.md)
 
@@ -16,6 +16,7 @@ _Evolved from [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib)._
 ## Table of Contents
 
 - [Overview](#overview)
+- [Documentation](#documentation)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Localization](#localization)
@@ -54,6 +55,21 @@ game utility tools.
 | [`Backgrounds`](Constant/Backgrounds.cs)      | Background ID string constants                                           |
 | [`Keys`](Constant/Keys.cs)                    | Key action constants                                                     |
 | [`Slots`](Constant/Slots.cs)                  | Inventory slot definitions                                               |
+
+---
+
+## Documentation
+
+Full documentation at [`docs/en-US/`](docs/en-US/) (and [简体中文](docs/zh-CN/)):
+
+- [Getting Started](docs/zh-CN/getting-started.md) — Installation, environment, choosing your path
+- [Script Development](docs/zh-CN/script-mod.md) — JS/Lua mods, lifecycle hooks, console commands
+- [C# Mod Development](docs/zh-CN/csharp-mod.md) — Event subscription, Harmony patches, API registration
+- [Configuration & Localization](docs/zh-CN/configuration.md) — Options registration, multi-language
+- [Script Event Hooks](docs/zh-CN/script-events.md) — All listenable event hooks
+- [C# Event System](docs/zh-CN/csharp-events.md) — Event subscription / trigger / custom events
+- [Script API Reference](docs/zh-CN/script-api/) — BodyUtil, PlayerUtil, LimbUtil, etc.
+- [C# API Reference](docs/zh-CN/csharp-api/) — EventUtil, UpdateUtil
 
 ---
 
@@ -238,91 +254,23 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 
 ## Tools Reference
 
-### LogUtil
+> Full API docs at [Script API Reference](docs/zh-CN/script-api/) and [C# API Reference](docs/zh-CN/csharp-api/). Overview below.
 
-| Method                                       | Description                     |
-|----------------------------------------------|---------------------------------|
-| `Info(text, logger)`                         | Log to console + BepInEx        |
-| `Error(text, logger)`                        | Log error                       |
-| `Warning(text, logger)`                      | Log warning                     |
-| `CheckWorld(logger?)`                        | Throw if no world loaded        |
-| `CheckBody(logger?)`                         | Throw if player body is null    |
-| `CheckArgumentCount(args, min, logger?)`     | Validate argument count         |
-| `CheckNotNullOrEmpty(val, name, logger?)`    | Validate string not empty       |
-| `CheckParseFloat(s, logger?)`                | Parse float or throw            |
-| `CheckParseInt(s, logger?)`                  | Parse int or throw              |
-| `PrintList(header, items, logger)`           | Print formatted list to console |
-| `PrintNumberedList(header, items, logger)`   | Print numbered list             |
-| `PrintKeyValueList(header, entries, logger)` | Print key-value pairs           |
-| `PrintGroupedList(header, groups, logger)`   | Print grouped items             |
-
-### PlayerUtil
-
-| Group                                               | Description                |
-|-----------------------------------------------------|----------------------------|
-| `Status.IsAlive()` / `Status.IsConscious()`         | State checks               |
-| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()` | Vital signs read/write     |
-| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`   | Raw writes                 |
-| `Movement.Teleport(x, y)`                           | Teleport player            |
-| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()` | Drugs & psychological      |
-| `Inventory.PickUpItem(id, slot, force?)`            | Add item to inventory slot |
-| `Recovery.HealAll()` / `Recovery.Feed(amount)`      | Recovery & healing         |
-| `Alert.Show(text, important, delay?)`               | UI alert                   |
-| `Body` (property)                                   | Game Body reference        |
-| `Thresholds.*`                                      | Constant threshold values  |
-
-### WorldUtil
-
-| Method                           | Description           |
-|----------------------------------|-----------------------|
-| `PlaceBlock(x, y, id)`           | Place a block         |
-| `FillBlocks(sx, sy, ex, ey, id)` | Fill area with blocks |
-| `PlaceItem(x, y, id)`            | Spawn an item         |
-
-### SkillUtil
-
-| Method                      | Description           |
-|-----------------------------|-----------------------|
-| `GetLevel(skill)`           | Get skill level       |
-| `GetExperience(skill)`      | Get XP amount         |
-| `SetLevelRaw(skill, level)` | Set level directly    |
-| `AddExperience(skill, xp)`  | Add experience        |
-| `XpMultiplier`              | Get/set XP multiplier |
-
-### LimbUtil
-
-| Method                               | Description               |
-|--------------------------------------|---------------------------|
-| `GetLimb(index/slot/name)`           | Get limb by index or name |
-| `HasBrokenBone()` / `HasInfection()` | Status checks             |
-| `HealLimb(limb)`                     | Full limb heal            |
-| `SetSkinHealthRaw(limb, value)`      | Raw writes                |
-
-### InventoryUtil
-
-| Method                   | Description           |
-|--------------------------|-----------------------|
-| `HasItem(id)`            | Check if holding item |
-| `GetItem(slot)`          | Get item by slot      |
-| `GetAllItems()`          | Get all items         |
-| `GetAllItemInfos()`      | Get all ItemInfo      |
-| `FindById(id, out item)` | Find item by ID       |
-
-### ItemUtil
-
-| Method                           | Description                 |
-|----------------------------------|-----------------------------|
-| `FindNearby(center, radius)`     | Find items in circular area |
-| `FindClosest(center, maxRadius)` | Find nearest item           |
-| `Repair(item)`                   | Repair to full condition    |
-| `SetCondition(item, val)`        | Set durability (0~1)        |
-
-### InputUtil
-
-| Method                | Description               |
-|-----------------------|---------------------------|
-| `WaitForLeftClick()`  | Coroutine: wait for click |
-| `WaitForRightClick()` | Coroutine: wait for click |
+| Class            | Description                         | Detailed Docs                                    |
+|------------------|-------------------------------------|--------------------------------------------------|
+| `LogUtil`        | Logging + validation helpers        | [Log](docs/zh-CN/script-api/log.md)              |
+| `PlayerUtil`     | Player operations                   | [Player](docs/zh-CN/script-api/player.md)        |
+| `BodyUtil`       | Body vitals system                  | [Body System](docs/zh-CN/script-api/body-system.md) |
+| `LimbUtil`       | Limb operations                     | [Limbs](docs/zh-CN/script-api/limbs.md)          |
+| `WorldUtil`      | World editing                       | [World](docs/zh-CN/script-api/world.md)          |
+| `SkillUtil`      | Skill level/XP                      | [Skills](docs/zh-CN/script-api/skills.md)        |
+| `InventoryUtil`  | Inventory queries                   | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
+| `ItemUtil`       | Item search, repair, durability     | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
+| `InputUtil`      | Input handling                      | —                                                |
+| `TextUtil`       | Rich text formatting                | —                                                |
+| `ToolsUtil`      | Argument validation, float/int parse| —                                                |
+| `EventUtil`      | Event trigger / manual registration | [EventUtil](docs/zh-CN/csharp-api/event-util.md)  |
+| `UpdateUtil`     | GitHub release version check        | [UpdateUtil](docs/zh-CN/csharp-api/update.md)     |
 
 ---
 

@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/player.md) | ***简体中文***
+
 # PlayerUtil — 玩家操作
 
 PlayerUtil 提供传送、拾取物品和提示弹窗。方法少，直接给示例。

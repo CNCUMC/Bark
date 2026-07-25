@@ -1,4 +1,4 @@
-![Cover](Cover.png)
+![Logo](Logo.png)
 
 [English Guide](README.md)
 
@@ -16,6 +16,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 ## 目录
 
 - [概述](#概述)
+- [文档](#文档)
 - [安装](#安装)
 - [快速开始](#快速开始)
 - [本地化](#本地化)
@@ -53,6 +54,21 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 | [`Backgrounds`](Constant/Backgrounds.cs)      | 背景 ID 字符串常量                                  |
 | [`Keys`](Constant/Keys.cs)                    | 按键动作常量                                        |
 | [`Slots`](Constant/Slots.cs)                  | 物品栏槽位定义                                      |
+
+---
+
+## 文档
+
+完整文档见 [`docs/zh-CN/`](docs/zh-CN/)：
+
+- [快速上手](docs/zh-CN/getting-started.md) — 安装、环境、路径选择
+- [脚本开发](docs/zh-CN/script-mod.md) — JS/Lua 写模组，生命周期、事件钩子、控制台指令
+- [C# 模组开发](docs/zh-CN/csharp-mod.md) — 事件订阅、Harmony Patch、API 注册
+- [配置与本地化](docs/zh-CN/configuration.md) — 选项注册、多语言
+- [脚本事件钩子](docs/zh-CN/script-events.md) — 所有可监听的事件钩子
+- [C# 事件系统](docs/zh-CN/csharp-events.md) — 事件订阅/触发/自定义
+- [脚本 API 参考](docs/zh-CN/script-api/) — BodyUtil、PlayerUtil、LimbUtil 等
+- [C# API 参考](docs/zh-CN/csharp-api/) — EventUtil、UpdateUtil
 
 ---
 
@@ -236,91 +252,23 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 
 ## 工具参考
 
-### LogUtil
+> 完整 API 文档见 [脚本 API 参考](docs/zh-CN/script-api/) 和 [C# API 参考](docs/zh-CN/csharp-api/)。此处仅列出概览。
 
-| 方法                                         | 说明                   |
-|----------------------------------------------|------------------------|
-| `Info(text, logger)`                         | 输出到控制台 + BepInEx |
-| `Error(text, logger)`                        | 输出错误               |
-| `Warning(text, logger)`                      | 输出警告               |
-| `CheckWorld(logger?)`                        | 世界未加载时抛异常     |
-| `CheckBody(logger?)`                         | 玩家身体为空时抛异常   |
-| `CheckArgumentCount(args, min, logger?)`     | 验证参数数量           |
-| `CheckNotNullOrEmpty(val, name, logger?)`    | 验证字符串非空         |
-| `CheckParseFloat(s, logger?)`                | 解析浮点数或抛异常     |
-| `CheckParseInt(s, logger?)`                  | 解析整数或抛异常       |
-| `PrintList(header, items, logger)`           | 格式化列表输出         |
-| `PrintNumberedList(header, items, logger)`   | 带编号列表输出         |
-| `PrintKeyValueList(header, entries, logger)` | 键值对列表输出         |
-| `PrintGroupedList(header, groups, logger)`   | 分组列表输出           |
-
-### PlayerUtil
-
-| 分组                                                | 说明             |
-|-----------------------------------------------------|------------------|
-| `Status.IsAlive()` / `Status.IsConscious()`         | 状态检查         |
-| `Vitals.GetBloodOxygen()` / `Vitals.GetHeartRate()` | 生命体征读写     |
-| `Vitals.SetHunger(val)` / `Vitals.SetThirst(val)`   | 原始写入         |
-| `Movement.Teleport(x, y)`                           | 传送玩家         |
-| `Drugs.HasPainkillers()` / `Drugs.GetCaffeinated()` | 药物与心理效果   |
-| `Inventory.PickUpItem(id, slot, force?)`            | 添加物品到物品栏 |
-| `Recovery.HealAll()` / `Recovery.Feed(amount)`      | 恢复与治疗       |
-| `Alert.Show(text, important, delay?)`               | UI 警告          |
-| `Body` (属性)                                       | 游戏 Body 引用   |
-| `Thresholds.*`                                      | 常量阈值         |
-
-### WorldUtil
-
-| 方法                             | 说明     |
-|----------------------------------|----------|
-| `PlaceBlock(x, y, id)`           | 放置方块 |
-| `FillBlocks(sx, sy, ex, ey, id)` | 填充区域 |
-| `PlaceItem(x, y, id)`            | 生成物品 |
-
-### SkillUtil
-
-| 方法                        | 说明              |
-|-----------------------------|-------------------|
-| `GetLevel(skill)`           | 获取技能等级      |
-| `GetExperience(skill)`      | 获取经验值        |
-| `SetLevelRaw(skill, level)` | 直接设置等级      |
-| `AddExperience(skill, xp)`  | 添加经验          |
-| `XpMultiplier`              | 获取/设置经验倍率 |
-
-### LimbUtil
-
-| 方法                                 | 说明           |
-|--------------------------------------|----------------|
-| `GetLimb(index/slot/name)`           | 按索引获取肢体 |
-| `HasBrokenBone()` / `HasInfection()` | 状态检查       |
-| `HealLimb(limb)`                     | 完全治愈肢体   |
-| `SetSkinHealthRaw(limb, value)`      | 原始写入       |
-
-### InventoryUtil
-
-| 方法                     | 说明             |
-|--------------------------|------------------|
-| `HasItem(id)`            | 检查是否持有物品 |
-| `GetItem(slot)`          | 按槽位获取物品   |
-| `GetAllItems()`          | 获取所有物品     |
-| `GetAllItemInfos()`      | 获取所有物品信息 |
-| `FindById(id, out item)` | 按 ID 查找物品   |
-
-### ItemUtil
-
-| 方法                             | 说明              |
-|----------------------------------|-------------------|
-| `FindNearby(center, radius)`     | 圆形范围查找物品  |
-| `FindClosest(center, maxRadius)` | 查找最近物品      |
-| `Repair(item)`                   | 修复到满耐久      |
-| `SetCondition(item, val)`        | 设置耐久度（0~1） |
-
-### InputUtil
-
-| 方法                  | 说明           |
-|-----------------------|----------------|
-| `WaitForLeftClick()`  | 协程：等待点击 |
-| `WaitForRightClick()` | 协程：等待点击 |
+| 类              | 说明                    | 详细文档                                         |
+|-----------------|-------------------------|--------------------------------------------------|
+| `LogUtil`       | 日志输出 + 校验辅助     | [日志](docs/zh-CN/script-api/log.md)             |
+| `PlayerUtil`    | 玩家操作                | [玩家](docs/zh-CN/script-api/player.md)          |
+| `BodyUtil`      | 角色生理系统            | [生理系统](docs/zh-CN/script-api/body-system.md) |
+| `LimbUtil`      | 肢体操作                | [肢体](docs/zh-CN/script-api/limbs.md)           |
+| `WorldUtil`     | 世界编辑                | [世界编辑](docs/zh-CN/script-api/world.md)       |
+| `SkillUtil`     | 技能经验/等级           | [技能](docs/zh-CN/script-api/skills.md)          |
+| `InventoryUtil` | 背包查询                | [背包与物品](docs/zh-CN/script-api/inventory.md) |
+| `ItemUtil`      | 物品搜索、耐久、修理    | [背包与物品](docs/zh-CN/script-api/inventory.md) |
+| `InputUtil`     | 输入处理                | —                                                |
+| `TextUtil`      | 富文本格式化            | —                                                |
+| `ToolsUtil`     | 参数验证、浮点/整数解析 | —                                                |
+| `EventUtil`     | 事件触发/手动注册       | [EventUtil](docs/zh-CN/csharp-api/event-util.md) |
+| `UpdateUtil`    | GitHub 版本检查         | [UpdateUtil](docs/zh-CN/csharp-api/update.md)    |
 
 ---
 

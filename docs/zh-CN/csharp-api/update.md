@@ -1,3 +1,5 @@
+[English](../../en-US/csharp-api/update.md) | ***简体中文***
+
 # UpdateUtil
 
 UpdateUtil 检查 GitHub Releases 是否有新版本，并在 BepInEx 控制台输出提示。

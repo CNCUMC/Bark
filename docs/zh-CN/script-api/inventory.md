@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/inventory.md) | ***简体中文***
+
 # InventoryUtil + ItemUtil — 背包与物品
 
 InventoryUtil 查背包里的东西，ItemUtil 修装备、改耐久、销毁物品。

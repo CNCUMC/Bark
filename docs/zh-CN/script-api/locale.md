@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/locale.md) | ***简体中文***
+
 # LocaleApi — 多语言
 
 LocaleApi 让脚本支持多语言，根据游戏当前语言显示不同文本。通过 `Log.Locale` 访问。

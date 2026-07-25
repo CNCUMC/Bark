@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/log.md) | ***简体中文***
+
 # LogApi — 日志输出
 
 LogApi 是脚本里输出日志的唯一方式，注入为全局变量 `Log`。输出同时显示在 BepInEx 控制台和写入模组日志文件。

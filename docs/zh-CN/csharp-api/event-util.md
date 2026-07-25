@@ -1,3 +1,5 @@
+[English](../../en-US/csharp-api/event-util.md) | ***简体中文***
+
 # EventUtil
 
 EventUtil 是 C# 侧的事件发射和订阅工具，所有 Bark 模组（包括 Bark 自身）都用它来触发事件和注册监听。

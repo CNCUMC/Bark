@@ -1,3 +1,5 @@
+[English](../en-US/csharp-events.md) | ***简体中文***
+
 # C# 事件系统
 
 Bark 的事件系统让 C# 模组之间解耦通信，同时桥接到脚本引擎。它基于 Attribute 扫描，零手动注册。

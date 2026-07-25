@@ -1,3 +1,5 @@
+[English](../../en-US/script-api/body-system.md) | ***简体中文***
+
 # BodyUtil — 角色生理系统
 
 BodyUtil 是调用频率最高的 API，控制角色的身体状态、生理数值、药物效果。所有方法遵循统一的命名前缀。

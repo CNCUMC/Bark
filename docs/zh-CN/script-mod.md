@@ -85,19 +85,19 @@ function onEnable() {
 
 Bark 把工具类注入为全局变量，名字和 C# 类名一致（PascalCase），直接用就行。
 
-| 变量名          | 做什么的                                                                     |
-|-----------------|------------------------------------------------------------------------------|
-| `BodyUtil`      | 角色基础生理系统（血量、饥饿、体温、意识……）                                 |
-| `PlayerUtil`    | 玩家操作（传送、拾取、提示）                                                 |
-| `LimbUtil`      | 肢体操作（骨折、脱臼、感染……）                                               |
-| `InventoryUtil` | 背包查询                                                                     |
-| `ItemUtil`      | 物品搜索、耐久、修理                                                         |
-| `SkillUtil`     | 技能经验/等级                                                                |
-| `WorldUtil`     | 世界编辑（放方块、放物品）                                                   |
-| `OptionsApi`    | 读写模组配置项                                                               |
-| `Log`           | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     |
-| `Locale`        | 多语言文本，`Locale.Get("key")`                                              |
-| `ScriptInfo`    | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` |
+| 变量名          | 做什么的                                                                     | API 文档                            |
+|-----------------|------------------------------------------------------------------------------|-------------------------------------|
+| `BodyUtil`      | 角色基础生理系统（血量、饥饿、体温、意识……）                                 | [生理系统](script-api/body-system.md) |
+| `PlayerUtil`    | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
+| `LimbUtil`      | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
+| `InventoryUtil` | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
+| `ItemUtil`      | 物品搜索、耐久、修理                                                         | [背包与物品](script-api/inventory.md) |
+| `SkillUtil`     | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
+| `WorldUtil`     | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
+| `OptionsApi`    | 读写模组配置项                                                               | [配置项](script-api/options.md)       |
+| `Log`           | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
+| `Locale`        | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
+| `ScriptInfo`    | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                   |
 
 ## 命名规则
 
