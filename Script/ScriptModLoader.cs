@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bark.Commands;
 using Bark.Items;
 using Bark.Moodle;
 using Bark.Recipe;
+using Bark.Save;
 using Bark.Tool;
 
 namespace Bark.Script;
@@ -95,6 +97,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
         foreach (var manifest in sorted)
             MoodleLoader.RegisterFromMod(manifest);
 
+        // 5.6 暂存脚本命令定义，待引擎就绪后注册到 ConsoleCommandRegistry
+        foreach (var manifest in sorted)
+            CommandLoader.RegisterFromMod(manifest);
+
         // 6. 按顺序加载模组
         foreach (var manifest in sorted)
         {
@@ -103,6 +109,8 @@ public class ScriptModLoader(string modsPath) : IDisposable
             ItemLoader.RegisterScripts(manifest);
             // 引擎就绪后，将暂存的 Moodle 脚本映射写入 MoodleScriptRegistry
             MoodleLoader.RegisterScripts(manifest);
+            // 引擎就绪后，将暂存的命令注册到 ConsoleCommandRegistry，指向脚本 onCommand
+            CommandLoader.RegisterScripts(manifest);
         }
     }
 
@@ -339,6 +347,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
             ScriptUtil.Unregister(manifest.Id);
 
         _loadedMods.Clear();
+
+        // 清理 SaveLoader 的追踪记录
+        SaveLoader.Clear();
     }
 
     // 获取已加载的模组信息

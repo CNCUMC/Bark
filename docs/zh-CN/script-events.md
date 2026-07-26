@@ -174,6 +174,26 @@ function onMainMenuLoaded(event) {
 > ⚠️ `onWorldGenerated` 是第一个可以安全访问 WorldUtil 的时机。在此之前（包括 `onLoad`）世界还没生成，调用 WorldUtil
 > 会报错。
 
+### 命令事件
+
+玩家在控制台输入脚本模组注册的自定义命令时触发。命令通过 `Command/*.json` 定义，详见 [脚本命令](script-mod/command.md)。
+
+| 字段                 | 类型       | 说明                                         |
+|----------------------|------------|----------------------------------------------|
+| `event.CommandName`  | `string`   | 触发的命令名称（不含参数）                   |
+| `event.Args`         | `string[]` | 完整输入列表（`args[0]` 为命令名，`args[1..]` 为用户参数） |
+
+| 钩子函数    | 触发时机                 |
+|-------------|--------------------------|
+| `onCommand` | 玩家输入已注册的脚本命令 |
+
+```js
+function onCommand(event) {
+    Log.Info('收到命令: ' + event.CommandName);
+    Log.Info('参数: ' + event.Args.join(', '));
+}
+```
+
 ## 物品脚本
 
 除了全局钩子，你还可以通过 JSON 为特定物品绑定脚本。当该物品触发某个动作（使用、攻击、装备等）时，Bark 执行这些脚本并

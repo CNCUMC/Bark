@@ -20,6 +20,7 @@ localization, and configuration management.
 | [Custom Items](script-mod/item.md)              | Define custom items & liquids via JSON, auto registration        |
 | [Custom Moodles](script-mod/moodle.md)          | Define custom status effects via JSON, auto registration         |
 | [Custom Recipes](script-mod/recipe.md)           | Define crafting recipes via JSON, integrate with custom items    |
+| [Script Commands](script-mod/command.md)         | Register console commands via JSON, trigger script onCommand     |
 
 ## Script API
 
@@ -46,3 +47,4 @@ C# mod tool APIs:
 |---------------------------------------|---------------------------------------------|
 | [EventUtil](csharp-api/event-util.md) | Event trigger, manual registration, cleanup |
 | [UpdateUtil](csharp-api/update.md)    | GitHub Releases version check               |
+| [SaveLoader](csharp-api/save.md)      | Save system, custom save providers          |

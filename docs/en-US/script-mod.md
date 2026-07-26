@@ -249,6 +249,12 @@ All script mods reloaded
 
 > 💡 `script reload` is the most-used command. Modify scripts, hit `rs` — no need to restart the game.
 
+### Registering Custom Commands
+
+Define your own console commands via JSON in the `Command/` directory. When entered, they trigger the `onCommand` event in your script.
+
+See [Script Commands](script-mod/command.md).
+
 ## Lua Notes
 
 Lua users only need to note these differences. Everything else is the same.

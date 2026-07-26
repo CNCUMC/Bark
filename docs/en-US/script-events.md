@@ -175,6 +175,26 @@ function onMainMenuLoaded(event) {
 > ⚠️ `onWorldGenerated` is the first moment you can safely call `WorldUtil`. Before this (including `onLoad`), the world
 > doesn't exist and calling WorldUtil will error.
 
+### Command Event
+
+Fires when the player enters a custom command registered by a script mod. Commands are defined via `Command/*.json`. See [Script Commands](script-mod/command.md) for details.
+
+| Field                | Type       | Description                                                |
+|----------------------|------------|------------------------------------------------------------|
+| `event.CommandName`  | `string`   | Triggered command name (without arguments)                 |
+| `event.Args`         | `string[]` | All input tokens (`args[0]` = command name, `args[1..]` = user arguments) |
+
+| Hook Function | Trigger                               |
+|---------------|---------------------------------------|
+| `onCommand`   | Player entered a registered script command |
+
+```js
+function onCommand(event) {
+    Log.Info('Command: ' + event.CommandName);
+    Log.Info('Args: ' + event.Args.join(', '));
+}
+```
+
 ## Item Scripts
 
 In addition to global hooks, you can attach scripts to specific items via JSON. When that item triggers an action

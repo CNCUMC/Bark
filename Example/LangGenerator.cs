@@ -591,5 +591,106 @@ internal class LangGenerator : ModLangGenMultiBase
             "状态 '{0}' 没有有效的图标来源（icon_id / icon_asset / animated），无法应用",
             "狀態 '{0}' 沒有有效的圖標來源（icon_id / icon_asset / animated），無法應用",
             "Moodle '{0}' не имеет источника иконки (icon_id / icon_asset / animated), невозможно применить");
+
+        // Log - Tile
+        Log("tiles.load_error",
+            "Error loading tile '{0}' in mod '{1}': {2}",
+            "加载物块 '{0}' 错误 (模组 '{1}')：{2}",
+            "載入方塊 '{0}' 錯誤 (模組 '{1}')：{2}",
+            "Ошибка загрузки тайла '{0}' в моде '{1}': {2}");
+        Log("tiles.parse_failed",
+            "Failed to parse tile JSON '{0}': {1}",
+            "解析物块 JSON '{0}' 失败：{1}",
+            "解析方塊 JSON '{0}' 失敗：{1}",
+            "Не удалось разобрать JSON тайла '{0}': {1}");
+        Log("tiles.missing_id",
+            "Tile missing 'id' in '{0}'",
+            "'{0}' 中物块缺少 id 字段",
+            "'{0}' 中方塊缺少 id 欄位",
+            "Тайл без 'id' в '{0}'");
+        Log("tiles.index_too_low",
+            "Tile '{0}' has tile_index={1}, must be >= 36",
+            "物块 '{0}' 的 tile_index={1}，必须 >= 36",
+            "方塊 '{0}' 的 tile_index={1}，必須 >= 36",
+            "У тайла '{0}' tile_index={1}, должен быть >= 36");
+        Log("tiles.sprite_not_found",
+            "Tile sprite not found '{0}' for tile '{1}'",
+            "未找到物块 '{1}' 的精灵图 '{0}'",
+            "未找到方塊 '{1}' 的精靈圖 '{0}'",
+            "Спрайт тайла не найден '{0}' для тайла '{1}'");
+        Log("tiles.registered",
+            "Tile '{0}' registered at index {1} (mod: {2})",
+            "物块 '{0}' 已在索引 {1} 注册 (模组: {2})",
+            "方塊 '{0}' 已在索引 {1} 註冊 (模組: {2})",
+            "Тайл '{0}' зарегистрирован по индексу {1} (мод: {2})");
+        Log("tiles.loaded_count",
+            "Mod '{0}' loaded {1} tile(s)",
+            "模组 '{0}' 加载了 {1} 个物块",
+            "模組 '{0}' 載入了 {1} 個方塊",
+            "Мод '{0}' загрузил {1} тайл(ов)");
+
+        // Log - Save
+        Log("save.provider_registered",
+            "Save provider '{0}' registered",
+            "存档 Provider '{0}' 已注册",
+            "存檔 Provider '{0}' 已註冊",
+            "Save-провайдер '{0}' зарегистрирован");
+        Log("save.provider_unregistered",
+            "Save provider '{0}' unregistered",
+            "存档 Provider '{0}' 已取消注册",
+            "存檔 Provider '{0}' 已取消註冊",
+            "Save-провайдер '{0}' разрегистрирован");
+        Log("save.capture_error",
+            "Save provider '{0}' failed to capture data: {1}",
+            "存档 Provider '{0}' 捕获数据失败：{1}",
+            "存檔 Provider '{0}' 擷取資料失敗：{1}",
+            "Save-провайдеру '{0}' не удалось захватить данные: {1}");
+        Log("save.restore_error",
+            "Save provider '{0}' failed to restore data: {1}",
+            "存档 Provider '{0}' 恢复数据失败：{1}",
+            "存檔 Provider '{0}' 恢復資料失敗：{1}",
+            "Save-провайдеру '{0}' не удалось восстановить данные: {1}");
+        Log("save.key_empty",
+            "Save provider key is empty or whitespace",
+            "存档 Provider 的 key 为空或空白",
+            "存檔 Provider 的 key 為空白",
+            "Ключ save-провайдера пуст");
+        Log("save.namespace_empty",
+            "Save provider namespace is empty or whitespace",
+            "存档 Provider 的命名空间为空或空白",
+            "存檔 Provider 的命名空間為空白",
+            "Пространство имён save-провайдера пусто");
+        Log("save.provider_null",
+            "Save provider is null",
+            "存档 Provider 为 null",
+            "存檔 Provider 為 null",
+            "Save-провайдер равен null");
+
+        // Log - Command
+        Log("command.parse_failed",
+            "Error loading command '{0}' in mod '{1}': {2}",
+            "加载命令 '{0}' 错误 (模组 '{1}')：{2}",
+            "載入命令 '{0}' 錯誤 (模組 '{1}')：{2}",
+            "Ошибка загрузки команды '{0}' в моде '{1}': {2}");
+        Log("command.name_has_spaces",
+            "Command filename '{0}' has spaces in name '{1}' — use underscores instead",
+            "'{0}' 文件名含空格，命令名 '{1}' 不能有空格 — 请用下划线",
+            "'{0}' 檔名含空格，命令名 '{1}' 不能有空格 — 請用底線",
+            "Имя файла команды '{0}' содержит пробелы в '{1}' — используйте подчёркивания");
+        Log("command.pending_count",
+            "Mod '{0}' has {1} command(s) pending registration",
+            "模组 '{0}' 有 {1} 个命令待注册",
+            "模組 '{0}' 有 {1} 個命令待註冊",
+            "Мод '{0}' имеет {1} команд(ы) ожидающих регистрации");
+        Log("command.scripts_registered",
+            "Mod '{0}' registered {1} script command(s)",
+            "模组 '{0}' 注册了 {1} 个脚本命令",
+            "模組 '{0}' 註冊了 {1} 個腳本命令",
+            "Мод '{0}' зарегистрировал {1} скриптовых команд(ы)");
+        Log("command.script_error",
+            "Command '{0}' in mod '{1}' script error: {2}",
+            "命令 '{0}' (模组 '{1}') 脚本错误：{2}",
+            "命令 '{0}' (模組 '{1}') 腳本錯誤：{2}",
+            "Ошибка скрипта команды '{0}' в моде '{1}': {2}");
     }
 }

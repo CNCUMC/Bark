@@ -19,6 +19,7 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | [自定义物品](script-mod/item.md) | JSON 定义自定义物品与液体，自动注册               |
 | [自定义 Moodle](script-mod/moodle.md) | JSON 定义自定义状态效果，自动注册             |
 | [自定义合成表](script-mod/recipe.md) | JSON 定义合成表配方，与物品系统联动           |
+| [脚本命令](script-mod/command.md) | JSON 注册控制台命令，输入后触发脚本 onCommand |
 
 ## 脚本 API
 
@@ -45,3 +46,4 @@ C# 模组可调用的工具 API：
 |---------------------------------------|--------------------------|
 | [EventUtil](csharp-api/event-util.md) | 事件触发、手动注册、清理 |
 | [UpdateUtil](csharp-api/update.md)    | GitHub Releases 版本检查 |
+| [SaveLoader](csharp-api/save.md)      | 保存系统，自定义存档 Provider |
