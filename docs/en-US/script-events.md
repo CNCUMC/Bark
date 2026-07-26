@@ -114,6 +114,46 @@ function onItemAttack(event) {
 }
 ```
 
+### Moodle Events
+
+Lifecycle events for the custom Moodle system.
+
+All Moodle events carry an `event` object with these fields (varies by event type):
+
+| Field                | Type       | Description                                   | Applicable Events            |
+|----------------------|------------|-----------------------------------------------|------------------------------|
+| `event.MoodleKey`    | `string`   | Unique Moodle identifier                      | `onMoodleGet`, `onMoodleLose` |
+| `event.MoodleName`   | `string`   | Moodle display name                           | `onMoodleGet`, `onMoodleLose` |
+| `event.Intensity`    | `int`      | Moodle intensity                              | `onMoodleGet`                |
+| `event.Critical`     | `bool`     | Whether it's critical                         | `onMoodleGet`                |
+| `event.HoldSeconds`  | `float`    | Duration in seconds                           | `onMoodleGet`                |
+| `event.ActiveKeys`   | `string[]` | List of all currently active Moodle keys      | `onMoodleIterate`            |
+
+| Hook Function     | Trigger                                |
+|-------------------|----------------------------------------|
+| `onMoodleGet`     | Moodle is applied to the player        |
+| `onMoodleIterate` | Polled (every 0.5 seconds)             |
+| `onMoodleLose`    | Moodle expires or is removed           |
+
+```js
+function onMoodleGet(event) {
+    Log.Info('Moodle gained: ' + event.MoodleKey);
+
+    if (event.Critical) {
+        PlayerUtil.Alert('Critical status: ' + event.MoodleName, true);
+    }
+}
+
+function onMoodleIterate(event) {
+    // Fires every 0.5s with all active statuses
+    Log.Debug('Active statuses: ' + event.ActiveKeys.join(', '));
+}
+
+function onMoodleLose(event) {
+    Log.Info('Moodle lost: ' + event.MoodleKey);
+}
+```
+
 ### World / Menu Events
 
 | Hook Function      | Trigger                                         | event Fields |

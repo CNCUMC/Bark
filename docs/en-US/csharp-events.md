@@ -96,6 +96,14 @@ automatic, good for static handlers.
 | `LimbDismemberedEvent`  | `int LimbIndex`, `string LimbName` | Limb severed        |
 | `LimbInfectedEvent`     | `int LimbIndex`, `string LimbName` | Wound infected      |
 
+### Moodle Events
+
+| C# Type              | Properties                                                                                    | Trigger Description      |
+|----------------------|-----------------------------------------------------------------------------------------------|--------------------------|
+| `MoodleGetEvent`     | `string MoodleKey`, `string MoodleName`, `int Intensity`, `bool Critical`, `float HoldSeconds` | Moodle applied to player |
+| `MoodleIterateEvent` | `string[] ActiveKeys`                                                                         | Polled (every 0.5s)      |
+| `MoodleLoseEvent`    | `string MoodleKey`, `string MoodleName`                                                       | Moodle expired/removed   |
+
 ### World / Menu Events
 
 | C# Type               | Properties                   | Trigger Description     |

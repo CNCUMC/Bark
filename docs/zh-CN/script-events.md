@@ -113,6 +113,46 @@ function onItemAttack(event) {
 }
 ```
 
+### Moodle 事件
+
+与自定义 Moodle 系统配套的生命周期事件。
+
+所有 Moodle 事件都携带一个 `event` 对象，包含以下字段（视事件类型不同）：
+
+| 字段                  | 类型       | 说明                     | 适用事件           |
+|-----------------------|------------|--------------------------|--------------------|
+| `event.MoodleKey`     | `string`   | Moodle 唯一标识          | `onMoodleGet`、`onMoodleLose` |
+| `event.MoodleName`    | `string`   | Moodle 显示名称          | `onMoodleGet`、`onMoodleLose` |
+| `event.Intensity`     | `int`      | Moodle 强度              | `onMoodleGet`      |
+| `event.Critical`      | `bool`     | 是否严重                 | `onMoodleGet`      |
+| `event.HoldSeconds`   | `float`    | 持续时间（秒）           | `onMoodleGet`      |
+| `event.ActiveKeys`    | `string[]` | 当前所有活跃 Moodle 的 key 列表 | `onMoodleIterate`  |
+
+| 钩子函数          | 触发时机                  |
+|-------------------|---------------------------|
+| `onMoodleGet`     | Moodle 被应用到玩家身上   |
+| `onMoodleIterate` | 轮询（每 0.5 秒触发一次） |
+| `onMoodleLose`    | Moodle 到期或被移除       |
+
+```js
+function onMoodleGet(event) {
+    Log.Info('获得状态: ' + event.MoodleKey);
+
+    if (event.Critical) {
+        PlayerUtil.Alert('严重状态: ' + event.MoodleName, true);
+    }
+}
+
+function onMoodleIterate(event) {
+    // 每 0.5 秒触发，event.ActiveKeys 包含所有活跃状态
+    Log.Debug('活跃状态: ' + event.ActiveKeys.join(', '));
+}
+
+function onMoodleLose(event) {
+    Log.Info('状态消失: ' + event.MoodleKey);
+}
+```
+
 ### 世界 / 菜单事件
 
 | 钩子函数           | 触发时机                           | event 字段 |

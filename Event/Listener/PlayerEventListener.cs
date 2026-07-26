@@ -16,6 +16,7 @@ public static class PlayerEventListener
 
     private static bool _wasAlive;
     private static bool _isJumping;
+    private static bool _worldReady;
     private static float _lastJumpTime = float.MinValue;
     private static Coroutine? _monitorCoroutine;
     private static Coroutine? _jumpMonitorCoroutine;
@@ -48,12 +49,16 @@ public static class PlayerEventListener
         }
 
         _isJumping = false;
+        _worldReady = false;
         _runner = null;
     }
 
     // Body.Jump() 被调用时触发起跳事件（仅限玩家自身，带冷却防连发）
     private static void OnJump(Body __instance)
     {
+        // 世界未就绪时忽略 Jump 调用（进入世界时游戏内部可能触发初始化跳越）
+        if (!_worldReady) return;
+
         var cam = PlayerCamera.main;
         if (cam == null) return;
         if (cam.body != __instance) return;
@@ -148,6 +153,7 @@ public static class PlayerEventListener
 
         var body = BodyUtil.Body;
         _wasAlive = body.alive;
+        _worldReady = true;
 
         while (_monitorCoroutine != null)
         {

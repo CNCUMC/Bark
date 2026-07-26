@@ -92,6 +92,14 @@ EventUtil.UnregisterAll(Plugin.Guid);
 | `LimbDismemberedEvent`  | `int LimbIndex`, `string LimbName` | 肢体截断 |
 | `LimbInfectedEvent`     | `int LimbIndex`, `string LimbName` | 伤口感染 |
 
+### Moodle 事件
+
+| C# 类型              | 属性                                                       | 触发描述             |
+|----------------------|------------------------------------------------------------|----------------------|
+| `MoodleGetEvent`     | `string MoodleKey`, `string MoodleName`, `int Intensity`, `bool Critical`, `float HoldSeconds` | Moodle 应用到玩家    |
+| `MoodleIterateEvent` | `string[] ActiveKeys`                                      | 轮询（每 0.5 秒）    |
+| `MoodleLoseEvent`    | `string MoodleKey`, `string MoodleName`                    | Moodle 到期或移除    |
+
 ### 世界 / 菜单事件
 
 | C# 类型               | 属性                    | 触发描述     |

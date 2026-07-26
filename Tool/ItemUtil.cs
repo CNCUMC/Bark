@@ -21,6 +21,9 @@ public static class ItemUtil
         if (!texture.LoadImage(bytes))
             return null;
 
+        // Point 过滤避免像素风格精灵模糊
+        texture.filterMode = FilterMode.Point;
+
         // 基准 16 PPU，importScale 越大精灵越大
         var pixelsPerUnit = 16f / importScale;
         var pivot = new Vector2(0.5f, 0.5f);

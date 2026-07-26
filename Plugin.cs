@@ -3,8 +3,10 @@ using System.IO;
 using Bark.BetterCCL;
 using Bark.Event;
 using Bark.Event.Listener;
+using Bark.Events;
 using Bark.Example;
 using Bark.Items;
+using Bark.Moodle;
 using Bark.Script;
 using Bark.ScriptApi;
 using Bark.Tool;
@@ -42,8 +44,10 @@ public class Plugin : BaseUnityPlugin
     {
         PlayerEventListener.Stop();
         LimbEventListener.Stop();
+        MoodleEventListener.Stop();
         ItemEventListener.Stop();
         ItemScriptRunner.Stop();
+        MoodleScriptRunner.Stop();
         _scriptModLoader?.Dispose();
     }
 
@@ -83,10 +87,14 @@ public class Plugin : BaseUnityPlugin
         WorldEventListener.Listen(this);
         PlayerEventListener.Listen(this);
         LimbEventListener.Listen(this);
+        // 监听 Moodle 获取/遍历/消失，触发 Moodle 脚本事件
+        MoodleEventListener.Listen(this);
         // 监听物品使用/装备/对肢体使用，触发物品脚本
         ItemEventListener.Listen(this);
         // 注册物品脚本运行器监听物品事件
         ItemScriptRunner.Listen();
+        // 注册 Moodle 脚本运行器监听 Moodle 事件
+        MoodleScriptRunner.Listen();
     }
 
     private static void DeployPuertsNativeFiles()
@@ -158,5 +166,6 @@ public class Plugin : BaseUnityPlugin
         ApiRegistry.Register(typeof(ScriptUtil));
         ApiRegistry.Register(typeof(WorldUtil));
         ApiRegistry.Register(typeof(OptionsApi));
+        ApiRegistry.Register(typeof(MoodleUtil));
     }
 }

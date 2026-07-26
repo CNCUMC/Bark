@@ -93,6 +93,7 @@ Bark injects tool classes as global variables with PascalCase names matching the
 | `LimbUtil`      | Limb operations (fractures, dislocations, infections...)                            | [Limbs](script-api/limbs.md)                 |
 | `InventoryUtil` | Inventory queries                                                                   | [Inventory & Items](script-api/inventory.md) |
 | `ItemUtil`      | Item search, durability, repair                                                     | [Inventory & Items](script-api/inventory.md) |
+| `MoodleUtil`    | Status effect apply, remove, query                                                  | [Custom Status](script-api/moodle.md)        |
 | `SkillUtil`     | Skill XP/levels                                                                     | [Skills](script-api/skills.md)               |
 | `WorldUtil`     | World editing (place blocks, items)                                                 | [World Editing](script-api/world.md)         |
 | `OptionsApi`    | Read mod config options                                                             | [Options](script-api/options.md)             |
@@ -191,6 +192,12 @@ function main(itemId, item, action) { /* full context */ }
 ```
 
 See [Custom Items](script-mod/item.md) for the JSON configuration format.
+
+## Custom Moodles
+
+Define custom status effects (bleeding, poison, infection, etc.) via JSON in the `Moodle/` directory, then apply and query them with `MoodleUtil`. Three lifecycle phases: get (obtained), iterate (polling), lose (expired).
+
+See [Custom Moodles](script-mod/moodle.md) for full documentation.
 
 ## Full Example
 

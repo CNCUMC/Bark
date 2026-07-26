@@ -91,7 +91,8 @@ Bark 把工具类注入为全局变量，名字和 C# 类名一致（PascalCase�
 | `PlayerUtil`    | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
 | `LimbUtil`      | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
 | `InventoryUtil` | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
-| `ItemUtil`      | 物品搜索、耐久、修理                                                         | [背包与物品](script-api/inventory.md) |
+| `ItemUtil`      | 物品搜索、耐久、修补                                                         | [背包与物品](script-api/inventory.md) |
+| `MoodleUtil`    | 状态效果应用、移除、查询                                                     | [自定义状态](script-api/moodle.md)     |
 | `SkillUtil`     | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
 | `WorldUtil`     | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
 | `OptionsApi`    | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
@@ -187,6 +188,12 @@ function main(itemId, item, action) { /* 完整上下文 */ }
 ```
 
 JSON 配置格式详见 [自定义物品](script-mod/item.md)。
+
+## 自定义 Moodle
+
+通过 JSON 在 `Moodle/` 目录下定义自定义状态效果（流血、中毒、感染等），用 `MoodleUtil` 在脚本中操作。支持三个生命周期阶段：get（获得）、iterate（轮询）、lose（消失）。
+
+详见 [自定义 Moodle](script-mod/moodle.md)。
 
 ## 完整示例
 

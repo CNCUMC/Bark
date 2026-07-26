@@ -18,6 +18,7 @@ localization, and configuration management.
 | [Script Event Hooks](script-events.md)           | All event hooks listenable from scripts                          |
 | [C# Event System](csharp-events.md)              | Event subscription / trigger / custom events from C#             |
 | [Custom Items](script-mod/item.md)              | Define custom items & liquids via JSON, auto registration        |
+| [Custom Moodles](script-mod/moodle.md)          | Define custom status effects via JSON, auto registration         |
 | [Custom Recipes](script-mod/recipe.md)           | Define crafting recipes via JSON, integrate with custom items    |
 
 ## Script API
@@ -30,6 +31,7 @@ Script-side (JS / Lua) tool APIs:
 | [Player](script-api/player.md)               | `PlayerUtil`                 | Teleport, pickup, alerts, save                                    |
 | [Limbs](script-api/limbs.md)                 | `LimbUtil`                   | Fractures, dislocations, infections, dismemberment, healing       |
 | [Inventory & Items](script-api/inventory.md) | `InventoryUtil` / `ItemUtil` | Inventory queries, item search, durability, repair                |
+| [Custom Status](script-api/moodle.md)        | `MoodleUtil`                 | Status effect apply, remove, query                                |
 | [Skills](script-api/skills.md)               | `SkillUtil`                  | XP, levels                                                        |
 | [World Editing](script-api/world.md)         | `WorldUtil`                  | Block placement, area fill, item spawning                         |
 | [Logging](script-api/log.md)                 | `Log`                        | Log output                                                        |

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bark.Items;
+using Bark.Moodle;
 using Bark.Recipe;
 using Bark.Tool;
 
@@ -90,12 +91,18 @@ public class ScriptModLoader(string modsPath) : IDisposable
         foreach (var manifest in sorted)
             RecipeLoader.RegisterFromMod(manifest);
 
+        // 5.5 加载自定义 Moodle 到 CUCoreLib MoodleRegistry
+        foreach (var manifest in sorted)
+            MoodleLoader.RegisterFromMod(manifest);
+
         // 6. 按顺序加载模组
         foreach (var manifest in sorted)
         {
             LoadMod(manifest);
             // 引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry
             ItemLoader.RegisterScripts(manifest);
+            // 引擎就绪后，将暂存的 Moodle 脚本映射写入 MoodleScriptRegistry
+            MoodleLoader.RegisterScripts(manifest);
         }
     }
 

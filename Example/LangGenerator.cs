@@ -387,6 +387,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "扫描并订阅了 {0} 个事件总线方法",
             "掃描並訂閱了 {0} 個事件總線方法",
             "Просканировано и подписано {0} методов событийной шины");
+        Log("event.invalid_handler",
+            "Type '{0}' method '{1}' is not a valid event handler (must be public static, single BarkEvent parameter)",
+            "类型 '{0}' 的方法 '{1}' 不是有效的事件处理器（需为 public static，参数为单个 BarkEvent 子类）",
+            "類型 '{0}' 的方法 '{1}' 不是有效的事件處理器（需為 public static，參數為單個 BarkEvent 子類）",
+            "Метод '{1}' типа '{0}' не является допустимым обработчиком событий");
+        Log("event.handler_failed",
+            "[{0}.{1}] {2}",
+            "[{0}.{1}] {2}",
+            "[{0}.{1}] {2}",
+            "[{0}.{1}] {2}");
         Log("script_event.scanned",
             "Scanned {0} script event hook(s)",
             "扫描到 {0} 个脚本事件钩子",
@@ -513,5 +523,73 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 加载了 {1} 个配方",
             "模組 '{0}' 載入了 {1} 個配方",
             "Мод '{0}' загрузил {1} рецепт(ов)");
+
+        // Log - Moodle
+        Log("moodle.load_error",
+            "Error loading '{0}' in script '{1}': {2}",
+            "加载 '{0}' 错误 (脚本 '{1}')：{2}",
+            "載入 '{0}' 錯誤 (腳本 '{1}')：{2}",
+            "Ошибка загрузки '{0}' в моде '{1}': {2}");
+        Log("moodle.read_failed",
+            "Failed to read '{0}': {1}",
+            "读取 '{0}' 失败：{1}",
+            "讀取 '{0}' 失敗：{1}",
+            "Не удалось прочитать '{0}': {1}");
+        Log("moodle.invalid_json",
+            "Invalid JSON in '{0}': {1}",
+            "'{0}' 中的 JSON 无效：{1}",
+            "'{0}' 中的 JSON 無效：{1}",
+            "Неверный JSON в '{0}': {1}");
+        Log("moodle.missing_name",
+            "Moodle missing 'name' in '{0}'",
+            "'{0}' 中状态缺少 name 字段",
+            "'{0}' 中狀態缺少 name 欄位",
+            "Moodle без 'name' в '{0}'");
+        Log("moodle.no_icon",
+            "Moodle has no icon source in '{0}'",
+            "'{0}' 中状态未指定图标来源",
+            "'{0}' 中狀態未指定圖示來源",
+            "Moodle без источника иконки в '{0}'");
+        Log("moodle.sprite_load_failed",
+            "Failed to load moodle sprite '{0}'. Moodle '{1}' may not display.",
+            "加载状态精灵图 '{0}' 失败，状态 '{1}' 可能无法显示",
+            "載入狀態精靈圖 '{0}' 失敗，狀態 '{1}' 可能無法顯示",
+            "Не удалось загрузить спрайт '{0}'. Moodle '{1}' может не отображаться.");
+        Log("moodle.registered",
+            "Moodle '{0}' registered (script: {1})",
+            "状态 '{0}' 已注册 (脚本: {1})",
+            "狀態 '{0}' 已註冊 (腳本: {1})",
+            "Moodle '{0}' зарегистрирован (мод: {1})");
+        Log("moodle.loaded_count",
+            "Script '{0}' loaded {1} moodle(s)",
+            "脚本 '{0}' 加载了 {1} 个状态",
+            "腳本 '{0}' 載入了 {1} 個狀態",
+            "Мод '{0}' загрузил {1} moodle(ов)");
+
+        // Log - Moodle Event
+        Log("moodle_event.patched",
+            "MoodleEventListener patched {0} AddMoodle/AddAnimatedMoodle method(s)",
+            "MoodleEventListener 已补丁 {0} 个 AddMoodle/AddAnimatedMoodle 方法",
+            "MoodleEventListener 已補丁 {0} 個 AddMoodle/AddAnimatedMoodle 方法",
+            "MoodleEventListener запатчил {0} методов AddMoodle/AddAnimatedMoodle");
+
+        // Log - Moodle Script
+        Log("moodle.scripts_registered",
+            "Script '{0}' registered {1} moodle script(s)",
+            "脚本 '{0}' 注册了 {1} 个状态脚本",
+            "腳本 '{0}' 註冊了 {1} 個狀態腳本",
+            "Мод '{0}' зарегистрировал {1} скрипт(ов) moodle");
+
+        // Log - Moodle Util
+        Log("moodle.apply_not_found",
+            "Moodle key '{0}' not found in loaded definitions, cannot apply",
+            "未找到状态 key '{0}' 的定义，无法应用",
+            "未找到狀態 key '{0}' 的定義，無法應用",
+            "Moodle с ключом '{0}' не найден в определениях, невозможно применить");
+        Log("moodle.apply_no_icon_source",
+            "Moodle '{0}' has no valid icon source (icon_id / icon_asset / animated), cannot apply",
+            "状态 '{0}' 没有有效的图标来源（icon_id / icon_asset / animated），无法应用",
+            "狀態 '{0}' 沒有有效的圖標來源（icon_id / icon_asset / animated），無法應用",
+            "Moodle '{0}' не имеет источника иконки (icon_id / icon_asset / animated), невозможно применить");
     }
 }
