@@ -50,9 +50,11 @@ public static class ItemScriptRegistry
     private static bool IsEmpty(ItemScriptDef def)
     {
         return def.Use.Count == 0
+               && def.UseInHand.Count == 0
                && def.Equip.Count == 0
                && def.Unequip.Count == 0
-               && def.UseOnLimb.Count == 0;
+               && def.UseOnLimb.Count == 0
+               && def.Attack.Count == 0;
     }
 }
 
@@ -62,9 +64,11 @@ public class ScriptEntry(ScriptEngine engine, ItemScriptDef scriptDef, string mo
     public ScriptEngine Engine = engine;
     public readonly string ModId = modId;
     public readonly List<string> Use = scriptDef.Use;
+    public readonly List<string> UseInHand = scriptDef.UseInHand;
     public readonly List<string> Equip = scriptDef.Equip;
     public readonly List<string> Unequip = scriptDef.Unequip;
     public readonly List<string> UseOnLimb = scriptDef.UseOnLimb;
+    public readonly List<string> Attack = scriptDef.Attack;
     public readonly string ModDir = modDir;
 
     // 将相对路径解析为绝对路径（基准为模组目录）

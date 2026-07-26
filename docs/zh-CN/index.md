@@ -11,13 +11,13 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | 文档                             | 内容                                              |
 |----------------------------------|---------------------------------------------------|
 | [快速上手](getting-started.md)   | 安装、环境、路径选择                              |
-| [脚本开发](script-mod.md)        | JS/Lua 脚本写模组，生命周期、全局变量、控制台指令 |
+| [脚本开发](script-mod.md)        | JS/Lua 脚本模组，生命周期、全局变量、控制台指令 |
 | [C# 模组开发](csharp-mod.md)     | C# 写模组，事件订阅、Harmony Patch、API 注册      |
 | [配置与本地化](configuration.md) | 选项注册、多语言，C# 和脚本两套体系               |
 | [脚本事件钩子](script-events.md) | 脚本侧可监听的所有事件钩子一览                    |
 | [C# 事件系统](csharp-events.md)  | C# 侧事件订阅/触发/自定义                         |
-| [自定义物品](items.md)           | JSON 定义自定义物品与液体，自动注册               |
-| [自定义合成表](recipe.md)        | JSON 定义合成表配方，与物品系统联动               |
+| [自定义物品](script-mod/item.md) | JSON 定义自定义物品与液体，自动注册               |
+| [自定义合成表](script-mod/recipe.md) | JSON 定义合成表配方，与物品系统联动           |
 
 ## 脚本 API
 
@@ -33,7 +33,7 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | [世界编辑](script-api/world.md)           | `WorldUtil`                  | 方块放置、区域填充、物品生成             |
 | [日志](script-api/log.md)                 | `Log`                        | 日志输出                                 |
 | [多语言](script-api/locale.md)            | `Locale`                     | 本地化文本、占位符                       |
-| [配置项](script-api/options.md)           | `OptionsApi`                 | 读写模组配置                             |
+| [配置项](script-api/options.md)           | `OptionsApi`                 | 读写脚本模组配置                         |
 
 ## C# API
 

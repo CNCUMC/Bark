@@ -14,9 +14,11 @@ public static class ItemScriptRunner
     public static void Listen()
     {
         EventUtil.On<ItemUseEvent>(OnItemUse, Plugin.Guid);
+        EventUtil.On<ItemHandUseEvent>(OnItemHandUse, Plugin.Guid);
         EventUtil.On<ItemEquipEvent>(OnItemEquip, Plugin.Guid);
         EventUtil.On<ItemUnequipEvent>(OnItemUnequip, Plugin.Guid);
         EventUtil.On<ItemLimbUseEvent>(OnItemLimbUse, Plugin.Guid);
+        EventUtil.On<ItemAttackEvent>(OnItemAttack, Plugin.Guid);
     }
 
     // 停止监听（卸载时调用）
@@ -27,26 +29,38 @@ public static class ItemScriptRunner
 
     private static void OnItemUse(ItemUseEvent evt)
     {
-        ExecuteScripts(evt.ItemId, e => e.Use);
+        ExecuteScripts(evt.ItemId, evt.Item, "use", e => e.Use);
+    }
+
+    private static void OnItemHandUse(ItemHandUseEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, evt.Item, "use_in_hand", e => e.UseInHand);
     }
 
     private static void OnItemEquip(ItemEquipEvent evt)
     {
-        ExecuteScripts(evt.ItemId, e => e.Equip);
+        ExecuteScripts(evt.ItemId, evt.Item, "equip", e => e.Equip);
     }
 
     private static void OnItemUnequip(ItemUnequipEvent evt)
     {
-        ExecuteScripts(evt.ItemId, e => e.Unequip);
+        ExecuteScripts(evt.ItemId, evt.Item, "unequip", e => e.Unequip);
     }
 
     private static void OnItemLimbUse(ItemLimbUseEvent evt)
     {
-        ExecuteScripts(evt.ItemId, e => e.UseOnLimb);
+        ExecuteScripts(evt.ItemId, evt.Item, "use_on_limb", e => e.UseOnLimb);
     }
 
-    // 从 ItemScriptRegistry 查找物品脚本，通过 ScriptUtil 按顺序执行
-    private static void ExecuteScripts(string itemId, System.Func<ScriptEntry, List<string>> getScriptList)
+    private static void OnItemAttack(ItemAttackEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, evt.Item, "attack", e => e.Attack);
+    }
+
+    // 从 ItemScriptRegistry 查找物品脚本，通过 ScriptUtil 按顺序执行。
+    // item: 当前物品实例（可为 null）；action: 触发动作名，传入脚本的 main(itemId, item, action)
+    private static void ExecuteScripts(string itemId, Item? item, string action,
+        System.Func<ScriptEntry, List<string>> getScriptList)
     {
         if (string.IsNullOrEmpty(itemId))
             return;
@@ -61,7 +75,7 @@ public static class ItemScriptRunner
 
         foreach (var relativePath in scripts.Where(relativePath => !string.IsNullOrEmpty(relativePath)))
         {
-            ScriptUtil.Execute(entry.ModId, relativePath, itemId);
+            ScriptUtil.Execute(entry.ModId, relativePath, itemId, item, action);
         }
     }
 }

@@ -15,7 +15,7 @@ ScriptMod/Mods/
     main.js        ← 入口文件固定为 main.js / main.mjs / main.lua
 ```
 
-语言由入口文件的扩展名自动判定——放 `main.js` 就是 JS 模组，放 `main.lua` 就是 Lua 模组。
+语言由入口文件的扩展名自动判定——放 `main.js` 就是 JS 脚本模组，放 `main.lua` 就是 Lua 脚本模组。
 
 ### mod.json
 
@@ -43,7 +43,7 @@ ScriptMod/Mods/
 | `description`  | string | ❌   | 模组描述                                               |
 | `bark_version` | string | ❌   | 要求的 Bark 版本（semver range）                       |
 | `game_version` | string | ❌   | 兼容的游戏版本（semver range）                         |
-| `dependencies` | array  | ❌   | 依赖的模组，格式 `[{"id": "xxx", "version": "1.0.0"}]` |
+| `dependencies` | array  | ❌   | 依赖的脚本模组，格式 `[{"id": "some_mod", "version": "1.0.0"}]` |
 
 ### 入口文件
 
@@ -57,7 +57,7 @@ function onPlayerJumpStart() {
 }
 ```
 
-保存，启动游戏。BepInEx 控制台里看到 `[你的模组名] 我的模组加载好了！` 就成功了。
+保存，启动游戏。BepInEx 控制台里看到 `[你的脚本模组名] 我的模组加载好了！` 就成功了。
 
 ## 生命周期钩子
 
@@ -94,7 +94,7 @@ Bark 把工具类注入为全局变量，名字和 C# 类名一致（PascalCase�
 | `ItemUtil`      | 物品搜索、耐久、修理                                                         | [背包与物品](script-api/inventory.md) |
 | `SkillUtil`     | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
 | `WorldUtil`     | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
-| `OptionsApi`    | 读写模组配置项                                                               | [配置项](script-api/options.md)       |
+| `OptionsApi`    | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
 | `Log`           | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
 | `Locale`        | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
 | `ScriptInfo`    | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                   |
@@ -140,29 +140,57 @@ PlayerUtil.Teleport(100, 200);   // 传送到坐标
 
 ## 事件钩子
 
-在脚本里定义一个和事件钩子同名的全局函数，事件触发时 Bark 会自动调用它。
+在脚本里定义一个和事件钩子同名的全局函数，事件触发时 Bark 会自动调用它。函数接收一个 `event` 对象，携带事件数据
+（如物品事件的 `event.ItemId` 和 `event.Item`）。不需要时可以省略参数。
 
 完整钩子列表见 [脚本事件钩子](script-events.md)，这里举几个例子：
 
 ```js
-function onPlayerJumpStart() {
+function onPlayerJumpStart(event) {
     Log.info("起跳！");
 }
 
-function onLimbBroken() {
+function onLimbBroken(event) {
     Log.info("骨头断了！");
 }
 
-function onWorldGenerated() {
+function onItemUse(event) {
+    Log.info("使用了物品: " + event.ItemId);
+    // event.Item 是 C# Item 实例
+}
+
+function onWorldGenerated(event) {
     Log.info("世界生成好了，可以开始搞事了");
 }
 ```
 
-> ⚠️ 钩子函数 **不能有参数**。需要获取具体数据时，在函数体内调用相应的工具 API。
+## 物品脚本
+
+你可以为自定义物品绑定脚本，在特定动作触发时执行。脚本中定义 `main` 函数，接收 `(itemId, item, action)` 三个参数：
+
+```js
+// arrow.js — 在 arrow.json 的 "attack" 下注册
+function main(itemId, item, action) {
+    // itemId: 物品 ID 字符串
+    // item:    C# Item 实例（可访问 .condition 等属性）
+    // action:  "attack" | "use" | "equip" | "unequip" | "use_in_hand" | "use_on_limb"
+    itemUtil.Destroy(itemId);
+    PlayerUtil.Alert("箭无虚发！", true);
+}
+```
+
+`main` 接受 0 到 3 个参数——JavaScript 和 Lua 自动忽略多余参数：
+
+```js
+function main(itemId)               { /* 只需 ID */ }
+function main(itemId, item, action) { /* 完整上下文 */ }
+```
+
+JSON 配置格式详见 [自定义物品](script-mod/item.md)。
 
 ## 完整示例
 
-一个实际可用的模组，进游戏后自动回血、受伤时弹提示：
+一个实际可用的脚本模组，进游戏后自动回血、受伤时弹提示：
 
 ```js
 // main.js
@@ -214,7 +242,7 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 
 Lua 用户只需注意以下差异，其他一切同上。
 
-**入口文件固定 `main.lua`**，放到模组文件夹里就行。
+**入口文件固定 `main.lua`**，放到脚本模组文件夹里就行。
 
 **方法调用用 `:` 而不是 `.`**：
 

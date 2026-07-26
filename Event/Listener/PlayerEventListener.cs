@@ -146,7 +146,7 @@ public static class PlayerEventListener
     {
         yield return CUCoreUtils.AwaitWorldGeneration();
 
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         _wasAlive = body.alive;
 
         while (_monitorCoroutine != null)
@@ -158,7 +158,7 @@ public static class PlayerEventListener
 
     private static void PollPlayer()
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         if (!body) return;
 
         var isAlive = body.alive;

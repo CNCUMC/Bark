@@ -140,7 +140,7 @@ public static class LimbEventListener
 
     private static void PollInfection()
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         if (!body || body.limbs == null) return;
 
         for (var i = 0; i < body.limbs.Length; i++)
@@ -167,12 +167,12 @@ public static class LimbEventListener
 
     private static bool IsPlayerLimb(Limb limb)
     {
-        return limb != null && limb.body == PlayerUtil.Body;
+        return limb != null && limb.body == BodyUtil.Body;
     }
 
     private static int GetLimbIndex(Limb limb)
     {
-        var limbs = PlayerUtil.Body.limbs;
+        var limbs = BodyUtil.Body.limbs;
         if (limbs == null) return -1;
         return Array.IndexOf(limbs, limb);
     }

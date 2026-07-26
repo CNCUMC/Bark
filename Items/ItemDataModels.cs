@@ -214,11 +214,14 @@ public class SpriteScaleDimensionsDef
 }
 
 // 物品脚本触发定义：动作名 → 脚本文件列表（路径相对于模组目录）。
-// 支持的动作键：use / equip / unequip / use_on_limb
+// 支持的动作键：use / use_in_hand / equip / unequip / use_on_limb / attack
 public class ItemScriptDef
 {
     [JsonProperty("use")]
     public List<string> Use = [];
+
+    [JsonProperty("use_in_hand")]
+    public List<string> UseInHand = [];
 
     [JsonProperty("equip")]
     public List<string> Equip = [];
@@ -228,6 +231,9 @@ public class ItemScriptDef
 
     [JsonProperty("use_on_limb")]
     public List<string> UseOnLimb = [];
+
+    [JsonProperty("attack")]
+    public List<string> Attack = [];
 }
 
 // 制作特性数据
@@ -238,6 +244,50 @@ public class QualitiesDef
 
     [JsonProperty("amount")]
     public float Amount;
+}
+
+// 物品光源配置。物品 JSON 中通过 light_data 字段声明，
+// 脚本侧在 onEquip/onUse 中读取 customData 并根据配置创建/控制 Light 组件。
+public class LightItemDef
+{
+    [JsonProperty("color")]
+    public string Color = "#FFFFFF";
+
+    [JsonProperty("x_offset")]
+    public float XOffset;
+
+    [JsonProperty("y_offset")]
+    public float YOffset;
+
+    [JsonProperty("intensity")]
+    public float Intensity = 10f;
+
+    [JsonProperty("point_light_outer_radius")]
+    public float PointLightOuterRadius = 8f;
+
+    [JsonProperty("point_light_inner_radius")]
+    public float PointLightInnerRadius;
+
+    [JsonProperty("point_light_outer_angle")]
+    public float PointLightOuterAngle = 360f;
+
+    [JsonProperty("point_light_inner_angle")]
+    public float PointLightInnerAngle = 360f;
+
+    [JsonProperty("rotation")]
+    public float Rotation = -90f;
+
+    [JsonProperty("follow_mouse")]
+    public bool FollowMouse;
+
+    [JsonProperty("add_light_item")]
+    public bool AddLightItem;
+
+    [JsonProperty("light_on_zero_condition")]
+    public bool LightOnZeroCondition;
+
+    [JsonProperty("light_type")]
+    public string LightType = "Point";
 }
 
 // 液体容器物品 JSON 数据模型，继承 ItemDef 并增加液体相关字段。

@@ -342,7 +342,7 @@ public static class ItemLoader
         }
 
         // 电池
-        if (def.BatteryData == null) return info;
+        if (def.BatteryData == null) return FinalizeItemInfo(info, def);
         var bd = def.BatteryData;
         info.Battery = new BatteryProperties
         {
@@ -371,6 +371,20 @@ public static class ItemLoader
                 }
 
                 break;
+        }
+
+        return FinalizeItemInfo(info, def);
+    }
+
+    // 根据脚本配置自动推断 usable / usableOnLimb
+    private static CustomItemInfo FinalizeItemInfo(CustomItemInfo info, ItemDef def)
+    {
+        if (def.Script != null)
+        {
+            if (def.Script.Use.Count > 0 || def.Script.UseInHand.Count > 0)
+                info.usable = true;
+            if (def.Script.UseOnLimb.Count > 0)
+                info.usableOnLimb = true;
         }
 
         return info;
@@ -462,9 +476,11 @@ public static class ItemLoader
     {
         if (scriptDef is null) return;
         var isEmpty = scriptDef.Use.Count == 0
+                      && scriptDef.UseInHand.Count == 0
                       && scriptDef.Equip.Count == 0
                       && scriptDef.Unequip.Count == 0
-                      && scriptDef.UseOnLimb.Count == 0;
+                      && scriptDef.UseOnLimb.Count == 0
+                      && scriptDef.Attack.Count == 0;
         if (isEmpty) return;
 
         if (!PendingScripts.TryGetValue(modId, out var itemScripts))

@@ -15,7 +15,7 @@ var text2 = Log.Locale.GetFormatted('damage_report', 25, 'Left Leg');
 // Matches text: "Took {0} damage to {1}"
 
 // Text from another mod
-var text3 = Log.Locale.GetFrom('other.mod.id', 'greeting');
+var text3 = Log.Locale.GetFrom('other_mod', 'greeting');
 
 // Check if key exists
 if (Log.Locale.HasKey('error_msg')) {

@@ -44,7 +44,7 @@ Language is detected from the entry file extension — `main.js` = JS mod, `main
 | `description`  | string | No       | Mod description                                              |
 | `bark_version` | string | No       | Required Bark version (semver range)                         |
 | `game_version` | string | No       | Compatible game version (semver range)                       |
-| `dependencies` | array  | No       | Dependent mods, format `[{"id": "xxx", "version": "1.0.0"}]` |
+| `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]` |
 
 ### Entry File
 
@@ -142,25 +142,55 @@ PlayerUtil.Teleport(100, 200);   // teleport to coordinates
 
 ## Event Hooks
 
-Define a global function matching the hook name, and Bark calls it when the event fires.
+Define a global function matching the hook name, and Bark calls it when the event fires. The function receives an
+`event` object with event data (such as `event.ItemId` and `event.Item` for item hooks). You can omit the parameter
+if you don't need it.
 
 Full hook list at [Script Event Hooks](script-events.md). A few examples:
 
 ```js
-function onPlayerJumpStart() {
+function onPlayerJumpStart(event) {
     Log.info("Jump started!");
 }
 
-function onLimbBroken() {
+function onLimbBroken(event) {
     Log.info("Bone broken!");
 }
 
-function onWorldGenerated() {
+function onItemUse(event) {
+    Log.info("Used item: " + event.ItemId);
+    // event.Item is the C# Item instance
+}
+
+function onWorldGenerated(event) {
     Log.info("World generated, time to cause trouble");
 }
 ```
 
-> ⚠️ Hook functions **take no parameters**. Call the appropriate tool API inside the function to get specific data.
+## Item Scripts
+
+You can attach scripts to custom items, triggered by specific actions (use, attack, equip, etc.). Define a `main`
+function that receives `(itemId, item, action)`:
+
+```js
+// arrow.js — registered in arrow.json under "attack"
+function main(itemId, item, action) {
+    // itemId: the item's ID string
+    // item:    the C# Item instance (can access .condition, etc.)
+    // action:  "attack" | "use" | "equip" | "unequip" | "use_in_hand" | "use_on_limb"
+    itemUtil.Destroy(itemId);
+    PlayerUtil.Alert("Bullseye!", true);
+}
+```
+
+`main` accepts 0 to 3 parameters — JavaScript and Lua ignore extras:
+
+```js
+function main(itemId)           { /* only need the ID */ }
+function main(itemId, item, action) { /* full context */ }
+```
+
+See [Custom Items](script-mod/item.md) for the JSON configuration format.
 
 ## Full Example
 

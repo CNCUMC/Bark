@@ -69,7 +69,7 @@ public static class ScriptEventScanner
         foreach (var (eventType, hookName) in s_scriptEvents)
         {
             var hook = hookName; // 闭包捕获
-            EventRegistry.Register(eventType, _ => engine.CallTriggerEvent(hook), manifest.Id);
+            EventRegistry.Register(eventType, evt => engine.CallTriggerEvent(hook, evt), manifest.Id);
         }
     }
 }

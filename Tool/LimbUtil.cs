@@ -15,7 +15,7 @@ public static class LimbUtil
 
     private static Body GetBody()
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         if (body.limbs == null)
             throw new InvalidOperationException(LimbLog("body_limbs_null"));
         return body;
@@ -35,7 +35,7 @@ public static class LimbUtil
 
     private static Limb? GetLimbOrNull(int index)
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         if (body.limbs == null || index < 0 || index >= body.limbs.Length)
             return null;
         return body.limbs[index];
@@ -49,7 +49,7 @@ public static class LimbUtil
 
     public static List<Limb> GetAllLimbs()
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         if (body.limbs == null) return [];
         return [.. body.limbs];
     }
@@ -271,6 +271,43 @@ public static class LimbUtil
         limb.blockedBleeding = blocked;
     }
 
+    // -- bodyNature 补全字段（内部 Limb 对象版） --
+
+    private static void SetBoneHealTimerRaw(Limb limb, float value)
+    {
+        if (limb == null || limb.dismembered) return;
+        limb.boneHealTimer = Mathf.Max(0f, value);
+    }
+
+    private static void SetDislocationTimerRaw(Limb limb, float value)
+    {
+        if (limb == null || limb.dismembered) return;
+        limb.dislocationTimer = Mathf.Max(0f, value);
+    }
+
+    private static void SetBandageSlowAmountRaw(Limb limb, float value)
+    {
+        if (limb == null || limb.dismembered) return;
+        limb.bandageSlowAmount = Mathf.Max(0f, value);
+    }
+
+    private static void SetSkinHealAmountRaw(Limb limb, float value)
+    {
+        if (limb == null || limb.dismembered) return;
+        limb.skinHealAmount = Mathf.Max(0f, value);
+    }
+
+    // 对肢体施加冷敷。chillTime 为持续时间（秒），chillMaxTime 为累计最大冷却时间。
+    private static void SetChilled(Limb limb, float chillTime, float chillMaxTime)
+    {
+        if (limb == null || limb.dismembered || limb.gameObject == null) return;
+        var chilled = limb.gameObject.GetComponent<ChilledLimb>();
+        if (chilled == null)
+            chilled = limb.gameObject.AddComponent<ChilledLimb>();
+        chilled.timeLeft = chillTime;
+        chilled.maxTime = Mathf.Max(chillMaxTime, chillTime);
+    }
+
     // ============================================================
     // 外部接口 [ScriptMethod] - 肢体状态查询（按 int index）
     // ============================================================
@@ -409,6 +446,34 @@ public static class LimbUtil
         return GetInjuryHealTime(GetLimb(index));
     }
 
+    [ScriptMethod]
+    public static float GetBoneHealTimer(int index)
+    {
+        var limb = GetLimb(index);
+        return limb.boneHealTimer;
+    }
+
+    [ScriptMethod]
+    public static float GetDislocationTimer(int index)
+    {
+        var limb = GetLimb(index);
+        return limb.dislocationTimer;
+    }
+
+    [ScriptMethod]
+    public static float GetBandageSlowAmount(int index)
+    {
+        var limb = GetLimb(index);
+        return limb.bandageSlowAmount;
+    }
+
+    [ScriptMethod]
+    public static float GetSkinHealAmount(int index)
+    {
+        var limb = GetLimb(index);
+        return limb.skinHealAmount;
+    }
+
     // ============================================================
     // 外部接口 [ScriptMethod] - 肢体修改操作（按 int index）
     // ============================================================
@@ -479,6 +544,38 @@ public static class LimbUtil
         SetBlockedBleeding(GetLimb(index), blocked);
     }
 
+    // -- bodyNature 补全字段（[ScriptMethod] int index 版） --
+
+    [ScriptMethod]
+    public static void SetBoneHealTimer(int index, float value)
+    {
+        SetBoneHealTimerRaw(GetLimb(index), value);
+    }
+
+    [ScriptMethod]
+    public static void SetDislocationTimer(int index, float value)
+    {
+        SetDislocationTimerRaw(GetLimb(index), value);
+    }
+
+    [ScriptMethod]
+    public static void SetBandageSlowAmount(int index, float value)
+    {
+        SetBandageSlowAmountRaw(GetLimb(index), value);
+    }
+
+    [ScriptMethod]
+    public static void SetSkinHealAmount(int index, float value)
+    {
+        SetSkinHealAmountRaw(GetLimb(index), value);
+    }
+
+    [ScriptMethod]
+    public static void SetChilled(int index, float chillTime, float chillMaxTime)
+    {
+        SetChilled(GetLimb(index), chillTime, chillMaxTime);
+    }
+
     // -- 骨折 / 脱臼 --
 
     [ScriptMethod]
@@ -512,7 +609,7 @@ public static class LimbUtil
     [ScriptMethod]
     public static int GetLimbCount()
     {
-        var body = PlayerUtil.Body;
+        var body = BodyUtil.Body;
         return body.limbs?.Length ?? 0;
     }
 
@@ -600,13 +697,13 @@ public static class LimbUtil
     [ScriptMethod]
     public static float GetAveragePain()
     {
-        return PlayerUtil.Body.averagePain;
+        return BodyUtil.Body.averagePain;
     }
 
     [ScriptMethod]
     public static float GetTotalBleedSpeed()
     {
-        return PlayerUtil.Body.totalBleedSpeed;
+        return BodyUtil.Body.totalBleedSpeed;
     }
 
     [ScriptMethod]
@@ -630,19 +727,19 @@ public static class LimbUtil
     [ScriptMethod]
     public static float GetTotalBloodVolume()
     {
-        return PlayerUtil.Body.bloodVolume;
+        return BodyUtil.Body.bloodVolume;
     }
 
     [ScriptMethod]
     public static float GetBloodOxygen()
     {
-        return PlayerUtil.Body.bloodOxygen;
+        return BodyUtil.Body.bloodOxygen;
     }
 
     [ScriptMethod]
     public static float GetBloodPressure()
     {
-        return PlayerUtil.Body.bloodPressure;
+        return BodyUtil.Body.bloodPressure;
     }
 
     // ============================================================

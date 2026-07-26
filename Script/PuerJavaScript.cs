@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
+using Bark.Event;
+using Bark.Items;
 using Bark.ScriptApi;
 using Bark.Tool;
 using Puerts;
@@ -107,38 +109,72 @@ public class PuerJavaScript : ScriptEngine
         Dispose();
     }
 
-    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart）
-    public override void CallTriggerEvent(string eventName)
+    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart），
+    // 传入事件数据供脚本侧 onItemUse(event) 等访问 event.ItemId / event.Item
+    public override void CallTriggerEvent(string eventName, BarkEvent? eventData = null)
     {
         if (_scriptEnv == null) return;
 
         try
         {
-            _scriptEnv.Eval($"if (typeof {eventName} === 'function') {{ {eventName}(); }}");
+            // 注入事件数据，供脚本侧通过 __barkEvent 或传参访问
+            if (eventData != null)
+            {
+                EventScriptContext.CurrentEvent = eventData;
+                _scriptEnv.Eval("var __barkEvent = CS.Bark.Script.EventScriptContext.CurrentEvent;");
+            }
+            else
+            {
+                _scriptEnv.Eval("var __barkEvent = null;");
+            }
+
+            _scriptEnv.Eval(
+                $"if (typeof {eventName} === 'function') {{ {eventName}(__barkEvent); }}");
         }
         catch (Exception ex)
         {
             LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName, ex.Message);
         }
+        finally
+        {
+            EventScriptContext.CurrentEvent = null;
+        }
     }
 
-    // 执行单个脚本文件（如物品动作脚本），执行前注入 __barkItemId 以供脚本侧使用
-    public override void ExecuteFile(string filePath, string? itemId)
+    // 执行单个脚本文件（如物品动作脚本），执行前注入上下文全局变量，
+    // 脚本可定义 function main(itemId, item, action) 接收参数
+    public override void ExecuteFile(string filePath, string? itemId, Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
+        // 暂存上下文供 JS 侧通过 CS.Bark.Items.ItemScriptContext 访问
+        ItemScriptContext.CurrentItem = item;
+        ItemScriptContext.CurrentAction = action;
+
         try
         {
-            // 注入当前物品 ID 供脚本侧引用
+            // 注入上下文全局变量（兼容旧 __barkItemId 写法）
             var escapedId = itemId != null ? EscapeString(itemId) : "null";
             _scriptEnv.Eval($"var __barkItemId = '{escapedId}';");
+            _scriptEnv.Eval("var __barkItem = CS.Bark.Items.ItemScriptContext.CurrentItem;");
+            _scriptEnv.Eval("var __barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction;");
 
+            // 执行脚本文件（注册 main 函数等定义）
             var script = File.ReadAllText(filePath);
             _scriptEnv.Eval(script);
+
+            // 调用 main(itemId, item, action) — JS 自动忽略多余/缺失参数
+            _scriptEnv.Eval(
+                $"if (typeof main === 'function') {{ main(__barkItemId, __barkItem, __barkAction); }}");
         }
         catch (Exception ex)
         {
             LogUtil.Warning("script_engine.js_exec_file_failed", Manifest.Id, filePath, ex.Message);
+        }
+        finally
+        {
+            ItemScriptContext.CurrentItem = null;
+            ItemScriptContext.CurrentAction = null;
         }
     }
 

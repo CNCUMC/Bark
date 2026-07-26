@@ -1,8 +1,9 @@
-***English*** | [简体中文](../zh-CN/recipe.md)
+***English*** | [简体中文](../../zh-CN/script-mod/recipe.md)
 
 # Custom Recipes
 
-Create a `Recipe/` folder inside your mod directory and add JSON files to register custom crafting recipes. Bark automatically scans and registers them with CUCoreLib's `RecipeRegistry` when the mod loads.
+Create a `Recipe/` folder inside your mod directory and add JSON files to register custom crafting recipes. Bark
+automatically scans and registers them with CUCoreLib's `RecipeRegistry` when the mod loads.
 
 ## Directory Structure
 
@@ -10,7 +11,7 @@ Create a `Recipe/` folder inside your mod directory and add JSON files to regist
 ScriptMod/Mods/
   MyMod/
     Recipe/
-      bandage.json       ← one recipe per JSON file
+      bandage123.json       ← one recipe per JSON file
       antidote.json
 ```
 
@@ -94,20 +95,23 @@ The `quality` field accepts the same values as the vanilla crafting system:
 // Get all loaded recipes: Dictionary<modId, List<RecipeEntry>>
 var entries = RecipeLoader.LoadedRecipes;
 
-foreach (var entry in entries["myMod"])
+foreach (var entry in entries["my_mod"])
 {
     Console.WriteLine($"{entry.Id} from {entry.FileName}");
 }
 ```
 
 `RecipeEntry` fields:
+
 - `Id`: recipe result item ID
-- `FileName`: source JSON file name (e.g. `"bandage.json"`)
+- `FileName`: source JSON file name (e.g. `"bandage123.json"`)
 
 ## Hot Reload
 
-After modifying JSON files in `Recipe/`, run `reload` in the console to reload all mod recipes. `RecipeLoader` clears the mod's old recipes before registering new ones, preventing duplicates.
+`script reload`/`rs` reloads all mod recipes — no restart needed during development. `RecipeLoader` clears the mod's
+old recipes before registering new ones, preventing duplicates.
 
 ## Integration with Items
 
-The recipe `id` can be a vanilla item or a [custom item defined under `Assets/Item/`](items.md). Together they form a complete custom item ecosystem.
+The recipe `id` can be a vanilla item or a [custom item defined under `Item/`](item.md). Together they form a complete
+custom item ecosystem.

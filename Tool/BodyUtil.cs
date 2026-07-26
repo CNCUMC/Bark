@@ -8,8 +8,8 @@ namespace Bark.Tool;
 // 方法加 [ScriptMethod] 后自动暴露给 Lua/JS 脚本
 public static class BodyUtil
 {
-    // 保留公开属性以兼容外部调用，内部逻辑使用 GetBody() 处理空安全
-    public static Body Body => PlayerCamera.main.body!;
+    // 保留公开属性以兼容外部调用；PlayerCamera.main 在未进入场景时为 null
+    public static Body Body => PlayerCamera.main?.body!;
 
     // ============================================================
     // 内部辅助 - 统一 Body 获取入口
@@ -442,6 +442,42 @@ public static class BodyUtil
         return GetBody()?.happiness ?? 0f;
     }
 
+    [ScriptMethod]
+    public static float GetBrainGrowSickness()
+    {
+        return GetBody()?.brainGrowSickness ?? 0f;
+    }
+
+    [ScriptMethod]
+    public static float GetMaxSpeed()
+    {
+        return GetBody()?.maxSpeed ?? 0f;
+    }
+
+    [ScriptMethod]
+    public static float GetJumpSpeed()
+    {
+        return GetBody()?.jumpSpeed ?? 0f;
+    }
+
+    [ScriptMethod]
+    public static float GetMoveForce()
+    {
+        return GetBody()?.moveForce ?? 0f;
+    }
+
+    [ScriptMethod]
+    public static float GetTotalEncumberance()
+    {
+        return GetBody()?.totalEncumberance ?? 0f;
+    }
+
+    [ScriptMethod]
+    public static float GetClawRegrowTime()
+    {
+        return GetBody()?.clawRegrowTime ?? 0f;
+    }
+
     // ============================================================
     // 基础生理数值设置 - 核心字段 Setter
     // ============================================================
@@ -793,6 +829,78 @@ public static class BodyUtil
     }
 
     // ============================================================
+    // 补全 bodyNature 缺失的字段 setter
+    // ============================================================
+
+    [ScriptMethod]
+    public static void SetBrainGrowSickness(float value)
+    {
+        if (GetBody() is { } b) b.brainGrowSickness = Mathf.Max(0f, value);
+    }
+
+    [ScriptMethod]
+    public static void SetMaxSpeed(float value)
+    {
+        if (GetBody() is { } b) b.maxSpeed = Mathf.Max(0f, value);
+    }
+
+    [ScriptMethod]
+    public static void SetJumpSpeed(float value)
+    {
+        if (GetBody() is { } b) b.jumpSpeed = Mathf.Max(0f, value);
+    }
+
+    [ScriptMethod]
+    public static void SetMoveForce(float value)
+    {
+        if (GetBody() is { } b) b.moveForce = Mathf.Max(0f, value);
+    }
+
+    [ScriptMethod]
+    public static void SetTotalEncumberance(float value)
+    {
+        if (GetBody() is { } b) b.totalEncumberance = Mathf.Max(0f, value);
+    }
+
+    [ScriptMethod]
+    public static void SetClawRegrowTime(float value)
+    {
+        if (GetBody() is { } b) b.clawRegrowTime = Mathf.Max(0f, value);
+    }
+
+    // -- bool 状态 setter（服务于 bodyNature 中不可逆状态） --
+
+    [ScriptMethod]
+    public static void SetHasPulmonaryEmbolism(bool value)
+    {
+        if (GetBody() is { } b) b.hasPulmonaryEmbolism = value;
+    }
+
+    [ScriptMethod]
+    public static void SetDisfigured(bool value)
+    {
+        if (GetBody() is { } b) b.disfigured = value;
+    }
+
+    [ScriptMethod]
+    public static void SetEyeGone(bool value)
+    {
+        if (GetBody() is { } b) b.eyeGone = value;
+    }
+
+    [ScriptMethod]
+    public static void SetBothEyesGone(bool value)
+    {
+        if (GetBody() is { } b) b.bothEyesGone = value;
+    }
+
+    [ScriptMethod]
+    public static void SetFibrillationForced(bool value)
+    {
+        if (GetBody() is { } b) b.fibrillationForced = value;
+    }
+
+    // ============================================================
     // 复合操作 - 修改/恢复/治疗
     // ============================================================
 
@@ -818,6 +926,27 @@ public static class BodyUtil
     public static void RestoreEnergy(float amount)
     {
         if (GetBody() is { } b) b.energy = Mathf.Clamp(b.energy + amount, 0f, 100f);
+    }
+
+    // Eat 是游戏内置的进食方法，同时处理饥饿和体重
+    [ScriptMethod]
+    public static void Eat(float hungerAmount, float weightOffset)
+    {
+        if (GetBody() is { } b) b.Eat(hungerAmount, weightOffset);
+    }
+
+    // Drink 是游戏内置的饮水方法
+    [ScriptMethod]
+    public static void Drink(float thirstAmount)
+    {
+        if (GetBody() is { } b) b.Drink(thirstAmount);
+    }
+
+    // 触发呕吐
+    [ScriptMethod]
+    public static void Vomit()
+    {
+        GetBody()?.vomiter?.Vomit();
     }
 
     [ScriptMethod]

@@ -26,9 +26,10 @@ public static class ScriptUtil
     }
 
     // 执行指定模组的脚本文件。fileName 是相对于模组目录的路径（含扩展名），
-    // itemId 可选，执行时注入 __barkItemId 供脚本侧使用。
+    // itemId 可选，执行时注入到脚本上下文。item 和 action 由 ItemScriptRunner 内部传入。
     [ScriptMethod]
-    public static void Execute(string modId, string fileName, string? itemId = null)
+    public static void Execute(string modId, string fileName, string? itemId = null,
+        Item? item = null, string? action = null)
     {
         if (string.IsNullOrEmpty(modId)) return;
         if (string.IsNullOrEmpty(fileName)) return;
@@ -38,6 +39,6 @@ public static class ScriptUtil
         var fullPath = Path.Combine(entry.ModDir, fileName);
         if (!File.Exists(fullPath)) return;
 
-        entry.Engine.ExecuteFile(fullPath, itemId);
+        entry.Engine.ExecuteFile(fullPath, itemId, item, action);
     }
 }

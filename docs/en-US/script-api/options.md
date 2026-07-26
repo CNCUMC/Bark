@@ -6,11 +6,11 @@ OptionsApi lets scripts read configuration options registered by other mods. **R
 
 ```js
 // Read another mod's config
-var enabled = OptionsApi.GetBool('some.mod.id', 'myOption');
-var volume = OptionsApi.GetFloat('some.mod.id', 'volume');
-var count = OptionsApi.GetInt('some.mod.id', 'maxItems');
-var selection = OptionsApi.GetDropdown('some.mod.id', 'quality');  // selected index
-var key = OptionsApi.GetKeybind('some.mod.id', 'hotkey');          // key name
+var enabled = OptionsApi.GetBool('some_mod', 'myOption');
+var volume = OptionsApi.GetFloat('some_mod', 'volume');
+var count = OptionsApi.GetInt('some_mod', 'maxItems');
+var selection = OptionsApi.GetDropdown('some_mod', 'quality');  // selected index
+var key = OptionsApi.GetKeybind('some_mod', 'hotkey');          // key name
 ```
 
 | Method                    | Returns  | Description      |
@@ -28,7 +28,7 @@ var key = OptionsApi.GetKeybind('some.mod.id', 'hotkey');          // key name
 ```js
 function onLoad() {
     // Read a difficulty mod's damage multiplier
-    var damageMult = OptionsApi.GetFloat('difficulty.mod', 'damageMultiplier');
+    var damageMult = OptionsApi.GetFloat('difficulty_mod', 'damageMultiplier');
     if (damageMult > 0) {
         Log.Info('Damage multiplier: ' + damageMult);
     }

@@ -213,7 +213,7 @@ CCL 注册的文本  →  Bark Fallback 默认值  →  英语 Fallback  →  �
 | `max`      | ❌   | int/float 最大值                                             |
 | `choices`  | ❌   | dropdown 选项列表                                            |
 
-`category` 不填时默认用模组 id 作为选项卡名。
+`category` 不填时默认用脚本模组 id 作为选项卡名。
 
 > ℹ️ 选项标签和描述需要通过 locale 提供（见下方）。
 

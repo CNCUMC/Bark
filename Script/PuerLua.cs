@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
+using Bark.Event;
+using Bark.Items;
 using Bark.ScriptApi;
 using Bark.Tool;
 using Puerts;
@@ -56,7 +58,7 @@ public class PuerLua : ScriptEngine
         var logsDir = EscapeString(LogsDir);
 
         var sb = new StringBuilder();
-        sb.AppendLine("local CS = require('csharp')");
+        sb.AppendLine("CS = require('csharp')");
 
         // AutoApi 生成的代理：类型名 PascalCase 作为全局变量
         foreach (var (name, _) in ApiRegistry.Proxies)
@@ -108,38 +110,72 @@ public class PuerLua : ScriptEngine
         Dispose();
     }
 
-    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart）
-    public override void CallTriggerEvent(string eventName)
+    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart），
+    // 传入事件数据供脚本侧 onItemUse(event) 等访问 event.ItemId / event.Item
+    public override void CallTriggerEvent(string eventName, BarkEvent? eventData = null)
     {
         if (_scriptEnv == null) return;
 
         try
         {
-            _scriptEnv.Eval($"if type({eventName}) == 'function' then {eventName}() end");
+            // 注入事件数据，供脚本侧通过 __barkEvent 或传参访问
+            if (eventData != null)
+            {
+                EventScriptContext.CurrentEvent = eventData;
+                _scriptEnv.Eval("__barkEvent = CS.Bark.Script.EventScriptContext.CurrentEvent");
+            }
+            else
+            {
+                _scriptEnv.Eval("__barkEvent = nil");
+            }
+
+            _scriptEnv.Eval(
+                $"if type({eventName}) == 'function' then {eventName}(__barkEvent) end");
         }
         catch (Exception ex)
         {
             LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName, ex.Message);
         }
+        finally
+        {
+            EventScriptContext.CurrentEvent = null;
+        }
     }
 
-    // 执行单个脚本文件（如物品动作脚本），执行前注入 __barkItemId 以供脚本侧使用
-    public override void ExecuteFile(string filePath, string? itemId)
+    // 执行单个脚本文件（如物品动作脚本），执行前注入上下文全局变量，
+    // 脚本可定义 function main(itemId, item, action) 接收参数
+    public override void ExecuteFile(string filePath, string? itemId, Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
+        // 暂存上下文供 Lua 侧通过 CS.Bark.Items.ItemScriptContext 访问
+        ItemScriptContext.CurrentItem = item;
+        ItemScriptContext.CurrentAction = action;
+
         try
         {
-            // 注入当前物品 ID 供脚本侧引用
-            var escapedId = itemId ?? "";
+            // 注入上下文全局变量
+            var escapedId = itemId != null ? EscapeString(itemId) : "nil";
             _scriptEnv.Eval($"__barkItemId = '{escapedId}'");
+            _scriptEnv.Eval("__barkItem = CS.Bark.Items.ItemScriptContext.CurrentItem");
+            _scriptEnv.Eval("__barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction");
 
+            // 执行脚本文件（注册 main 函数等定义）
             var script = File.ReadAllText(filePath);
             _scriptEnv.Eval(script);
+
+            // 调用 main(itemId, item, action) — Lua 自动忽略多余参数
+            _scriptEnv.Eval(
+                "if type(main) == 'function' then main(__barkItemId, __barkItem, __barkAction) end");
         }
         catch (Exception ex)
         {
             LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath, ex.Message);
+        }
+        finally
+        {
+            ItemScriptContext.CurrentItem = null;
+            ItemScriptContext.CurrentAction = null;
         }
     }
 

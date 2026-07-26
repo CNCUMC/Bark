@@ -2,8 +2,7 @@ using Bark.Event;
 
 namespace Bark.Events;
 
-// 物品使用事件：玩家右键/使用某个物品时触发
-// 由 ItemEventListener 的 Harmony 补丁拦截游戏方法产生
+// 物品使用事件：玩家在背包中使用物品时触发（补丁 Body.UseItem）
 [ScriptEvent("onItemUse")]
 public class ItemUseEvent : BarkEvent
 {
@@ -11,6 +10,14 @@ public class ItemUseEvent : BarkEvent
     public string ItemId { get; set; } = string.Empty;
 
     // 物品实例引用（可用于读写 condition 等）
+    public Item? Item { get; set; }
+}
+
+// 手持物品使用事件：玩家直接使用手中物品时触发（补丁 Body.UseItemInHand）
+[ScriptEvent("onItemHandUse")]
+public class ItemHandUseEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
     public Item? Item { get; set; }
 }
 
@@ -40,4 +47,12 @@ public class ItemLimbUseEvent : BarkEvent
     public int LimbIndex { get; set; } = -1;
     // 目标肢体名称
     public string LimbName { get; set; } = string.Empty;
+}
+
+// 物品攻击事件：手持物品进行近战攻击时触发
+[ScriptEvent("onItemAttack")]
+public class ItemAttackEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+    public Item? Item { get; set; }
 }

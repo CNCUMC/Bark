@@ -397,6 +397,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "已补丁 {0} 用于物品使用检测",
             "已補丁 {0} 用於物品使用檢測",
             "Запатчен {0} для обнаружения использования предметов");
+        Log("item_event.patch_attack_ok",
+            "Patched {0} for item attack detection",
+            "已补丁 {0} 用于物品攻击检测",
+            "已補丁 {0} 用於物品攻擊檢測",
+            "Запатчен {0} для обнаружения атак предметами");
 
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
@@ -404,6 +409,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "Lua 模组 '{0}' 加载失败: {1}",
             "Lua 模組 '{0}' 載入失敗: {1}",
             "Lua-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.lua_exec_file_failed",
+            "Lua mod '{0}' failed to execute '{1}': {2}",
+            "Lua 模组 '{0}' 执行脚本 '{1}' 失败: {2}",
+            "Lua 模組 '{0}' 執行腳本 '{1}' 失敗: {2}",
+            "Lua-мод '{0}' не удалось выполнить '{1}': {2}");
         Log("script_engine.lua_dispose_error",
             "Lua engine dispose error '{0}': {1}",
             "Lua 引擎释放错误 '{0}': {1}",
@@ -414,6 +424,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "JS 模组 '{0}' 加载失败: {1}",
             "JS 模組 '{0}' 載入失敗: {1}",
             "JS-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.js_exec_file_failed",
+            "JS mod '{0}' failed to execute '{1}': {2}",
+            "JS 模组 '{0}' 执行脚本 '{1}' 失败: {2}",
+            "JS 模組 '{0}' 執行腳本 '{1}' 失敗: {2}",
+            "JS-мод '{0}' не удалось выполнить '{1}': {2}");
         Log("script_engine.js_dispose_error",
             "JS engine dispose error '{0}': {1}",
             "JS 引擎释放错误 '{0}': {1}",

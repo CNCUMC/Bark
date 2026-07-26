@@ -14,8 +14,8 @@ var text = Log.Locale.Get('welcome_message');
 var text2 = Log.Locale.GetFormatted('damage_report', 25, '左腿');
 // 对应文本 "你受到了 {0} 点伤害，部位: {1}"
 
-// 来自其他模组的文本
-var text3 = Log.Locale.GetFrom('other.mod.id', 'greeting');
+// 来自其他脚本模组的文本
+var text3 = Log.Locale.GetFrom('other_mod', 'greeting');
 
 // 检查 key 是否存在
 if (Log.Locale.HasKey('error_msg')) {
@@ -27,13 +27,13 @@ if (Log.Locale.HasKey('error_msg')) {
 |-----------------------------------------|--------------------------------|
 | `Get(key)`                              | 取文本，不存在返回 `[key]`     |
 | `GetFormatted(key, ...args)`            | 取格式化文本，`{0}` `{1}` 替换 |
-| `GetFrom(modId, key)`                   | 读其他模组的文本               |
-| `GetFormattedFrom(modId, key, ...args)` | 读其他模组的格式化文本         |
+| `GetFrom(modId, key)`                   | 读其他脚本模组的文本           |
+| `GetFormattedFrom(modId, key, ...args)` | 读其他脚本模组的格式化文本     |
 | `HasKey(key)`                           | key 是否存在                   |
 
 ## key 的自动展开
 
-你传的 key 会自动加上模组 id 前缀。比如你的模组 id 是 `my_mod`：
+你传的 key 会自动加上脚本模组 id 前缀。比如你的脚本模组 id 是 `my_mod`：
 
 ```js
 Log.Locale.Get('hello')
@@ -54,7 +54,7 @@ Log.ErrorF('critical_error', 42);  // GetFormatted + Error
 
 ## 配置 locale 文件
 
-在你的模组目录下的 `Lang` 放 `zh-CN.json`：
+在你的脚本模组目录下的 `Lang` 放 `zh-CN.json`：
 
 ```json
 {

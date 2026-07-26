@@ -44,17 +44,17 @@ var needed = SkillUtil.GetExperienceForNextLevel("int");
 
 ## 经验倍率
 
-通过 `ScriptInfo` 可获取模组 id，然后配合选项系统控制全局经验倍率。`XpMultiplier` 是 C# 端属性，脚本侧通过 OptionsApi 等价控制。
+通过 `ScriptInfo` 可获取脚本模组 id，然后配合选项系统控制全局经验倍率。`XpMultiplier` 是 C# 端属性，脚本侧通过 OptionsApi 等价控制。
 
 ```js
-// 读取模组自己的倍率配置
+// 读取脚本模组自己的倍率配置
 var multiplier = OptionsApi.GetFloat("xp_multiplier");
 SkillUtil.AddExperience("int", 100 * multiplier);
 ```
 
 ## 完整示例
 
-一个双倍经验模组：
+一个双倍经验脚本模组：
 
 ```js
 function onLoad() {
