@@ -117,7 +117,7 @@ function onCommand(event) {
             Log.Info('Hello, ' + player + '!');
         }
 
-        PlayerUtil.Alert('Hello, ' + player + '! (x' + times + ')', true);
+        Player.Alert('Hello, ' + player + '! (x' + times + ')', true);
     }
 }
 ```
@@ -140,17 +140,17 @@ All script commands go through `onCommand`. Use `event.CommandName` to route:
 function onCommand(event) {
     switch (event.CommandName) {
         case 'heal':
-            BodyUtil.HealAll();
-            PlayerUtil.Alert('Fully healed!');
+            Body.HealAll();
+            Player.Alert('Fully healed!');
             break;
         case 'feed':
-            BodyUtil.Feed(50);
+            Body.Feed(50);
             break;
         case 'tp':
             if (event.Args.length >= 3) {
                 var x = parseFloat(event.Args[1]);
                 var y = parseFloat(event.Args[2]);
-                PlayerUtil.Teleport(x, y);
+                Player.Teleport(x, y);
             }
             break;
     }
@@ -170,8 +170,8 @@ Omit the `args` field:
 ```js
 function onCommand(event) {
     if (event.CommandName === 'full_heal') {
-        BodyUtil.HealAll();
-        PlayerUtil.Alert('Full health restored!', true);
+        Body.HealAll();
+        Player.Alert('Full health restored!', true);
     }
 }
 ```

@@ -203,7 +203,7 @@ function main(itemId, item, action) {
     // item:    C# Item instance
     // action:  "use"
 
-    PlayerUtil.Alert("Applied bandage", true);
+    Player.Alert("Applied bandage", true);
 }
 ```
 
@@ -249,8 +249,8 @@ A custom arrow that destroys itself on attack:
 
 ```js
 function main(itemId, item, action) {
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert("Bullseye!", true);
+    Item.Destroy(itemId);
+    Player.Alert("Bullseye!", true);
 }
 ```
 

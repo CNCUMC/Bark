@@ -1,8 +1,8 @@
 ***English*** | [简体中文](../../zh-CN/script-api/limbs.md)
 
-# LimbUtil — Limb Operations
+# Limb — Limb Operations
 
-LimbUtil operates on individual limbs: query status, read values, apply damage, heal. All single-limb methods accept an
+Limb operates on individual limbs: query status, read values, apply damage, heal. All single-limb methods accept an
 `int index` parameter.
 
 ## Limb Indexes
@@ -10,9 +10,9 @@ LimbUtil operates on individual limbs: query status, read values, apply damage, 
 Limbs are accessed by zero-based index.
 
 ```js
-var count = LimbUtil.GetLimbCount();  // total limb count
-var name = LimbUtil.GetLimbName(0);   // full name of limb #0
-var short = LimbUtil.GetLimbShortName(0); // short name
+var count = Limb.GetLimbCount();  // total limb count
+var name = Limb.GetLimbName(0);   // full name of limb #0
+var short = Limb.GetLimbShortName(0); // short name
 ```
 
 ## Status Queries
@@ -20,19 +20,19 @@ var short = LimbUtil.GetLimbShortName(0); // short name
 `Is*` / `Has*` boolean queries with a limb index.
 
 ```js
-if (LimbUtil.IsBroken(0)) {
+if (Limb.IsBroken(0)) {
     Log.Info('Limb #0 is fractured');
 }
-if (LimbUtil.IsDislocated(1)) {
+if (Limb.IsDislocated(1)) {
     Log.Info('Limb #1 is dislocated');
 }
-if (LimbUtil.IsInfected(2)) {
+if (Limb.IsInfected(2)) {
     Log.Info('Limb #2 is infected');
 }
-if (LimbUtil.IsDismembered(3)) {
+if (Limb.IsDismembered(3)) {
     Log.Info('Limb #3 is severed');
 }
-if (LimbUtil.IsSplinted(0)) {
+if (Limb.IsSplinted(0)) {
     Log.Info('Limb #0 is splinted');
 }
 ```
@@ -55,13 +55,13 @@ if (LimbUtil.IsSplinted(0)) {
 ## Value Queries
 
 ```js
-var skin = LimbUtil.GetSkinHealth(0);           // skin health 0-100
-var muscle = LimbUtil.GetMuscleHealth(0);       // muscle health 0-100
-var pain = LimbUtil.GetPain(0);                 // pain 0-100
-var bleed = LimbUtil.GetBleedAmount(0);         // current bleed
-var totalBleed = LimbUtil.GetTotalBleedAmount(0); // total blood lost
-var infection = LimbUtil.GetInfectionAmount(0); // infection level
-var shrapnel = LimbUtil.GetShrapnelCount(0);    // shrapnel count
+var skin = Limb.GetSkinHealth(0);           // skin health 0-100
+var muscle = Limb.GetMuscleHealth(0);       // muscle health 0-100
+var pain = Limb.GetPain(0);                 // pain 0-100
+var bleed = Limb.GetBleedAmount(0);         // current bleed
+var totalBleed = Limb.GetTotalBleedAmount(0); // total blood lost
+var infection = Limb.GetInfectionAmount(0); // infection level
+var shrapnel = Limb.GetShrapnelCount(0);    // shrapnel count
 ```
 
 ## Modification Operations
@@ -70,27 +70,27 @@ Naming: `Set*` = absolute value, `Damage*` = relative decrease, `HealLimb` = one
 
 ```js
 // Set absolute values
-LimbUtil.SetSkinHealth(0, 80);     // restore skin to 80
-LimbUtil.SetMuscleHealth(1, 100);  // max muscle
-LimbUtil.SetPain(2, 0);            // pain relief
-LimbUtil.SetBleed(0, 0);           // stop bleeding
-LimbUtil.SetInfection(1, 0);       // clear infection
-LimbUtil.SetShrapnel(3, 0);        // remove shrapnel
+Limb.SetSkinHealth(0, 80);     // restore skin to 80
+Limb.SetMuscleHealth(1, 100);  // max muscle
+Limb.SetPain(2, 0);            // pain relief
+Limb.SetBleed(0, 0);           // stop bleeding
+Limb.SetInfection(1, 0);       // clear infection
+Limb.SetShrapnel(3, 0);        // remove shrapnel
 
 // Apply damage (relative)
-LimbUtil.DamageSkin(0, 20);        // skin -20
-LimbUtil.DamageMuscle(1, 30);      // muscle -30
+Limb.DamageSkin(0, 20);        // skin -20
+Limb.DamageMuscle(1, 30);      // muscle -30
 
 // Special operations
-LimbUtil.BreakBone(0);             // fracture
-LimbUtil.MendBone(0);              // set bone
-LimbUtil.DislocateLimb(1);         // dislocate
-LimbUtil.UnDislocateLimb(1);       // relocate
-LimbUtil.SetBlockedBleeding(2, true);  // apply tourniquet
-LimbUtil.SetDisinfect(0, 60);      // disinfect for 60 sec
+Limb.BreakBone(0);             // fracture
+Limb.MendBone(0);              // set bone
+Limb.DislocateLimb(1);         // dislocate
+Limb.UnDislocateLimb(1);       // relocate
+Limb.SetBlockedBleeding(2, true);  // apply tourniquet
+Limb.SetDisinfect(0, 60);      // disinfect for 60 sec
 
 // One-click heal for one limb
-LimbUtil.HealLimb(0);              // skin + muscle max, stop bleed, mend bone, relocate, clear infection
+Limb.HealLimb(0);              // skin + muscle max, stop bleed, mend bone, relocate, clear infection
 ```
 
 ## Global Aggregate Queries
@@ -99,28 +99,28 @@ No index — check the whole body.
 
 ```js
 // Presence
-if (LimbUtil.HasBrokenBone()) {
+if (Limb.HasBrokenBone()) {
     Log.Info('Has a fracture somewhere');
 }
-if (LimbUtil.HasDislocation()) {
+if (Limb.HasDislocation()) {
     Log.Info('Has a dislocation');
 }
-if (LimbUtil.HasInfection()) {
+if (Limb.HasInfection()) {
     Log.Info('Has an infection');
 }
-if (LimbUtil.HasDismemberment()) {
+if (Limb.HasDismemberment()) {
     Log.Info('Has a dismemberment');
 }
 
 // Counts
-var brokenCount = LimbUtil.CountBroken();
-var infectedCount = LimbUtil.CountInfected();
+var brokenCount = Limb.CountBroken();
+var infectedCount = Limb.CountInfected();
 
 // Global values
-var avgPain = LimbUtil.GetAveragePain();           // average body pain
-var avgSkin = LimbUtil.GetAverageSkinHealth();      // average skin health
-var maxInfection = LimbUtil.GetMaxInfection();      // worst infection
-var bleedSpeed = LimbUtil.GetTotalBleedSpeed();     // total bleed rate
+var avgPain = Limb.GetAveragePain();           // average body pain
+var avgSkin = Limb.GetAverageSkinHealth();      // average skin health
+var maxInfection = Limb.GetMaxInfection();      // worst infection
+var bleedSpeed = Limb.GetTotalBleedSpeed();     // total bleed rate
 ```
 
 ## Full Example
@@ -129,15 +129,15 @@ Full-body health report:
 
 ```js
 function checkAllLimbs() {
-    var count = LimbUtil.GetLimbCount();
+    var count = Limb.GetLimbCount();
     var issues = [];
     for (var i = 0; i < count; i++) {
-        var name = LimbUtil.GetLimbShortName(i);
+        var name = Limb.GetLimbShortName(i);
         var parts = [];
-        if (LimbUtil.IsBroken(i)) parts.push('fracture');
-        if (LimbUtil.IsDislocated(i)) parts.push('dislocation');
-        if (LimbUtil.IsInfected(i)) parts.push('infection');
-        if (LimbUtil.GetPain(i) > 50) parts.push('severe pain');
+        if (Limb.IsBroken(i)) parts.push('fracture');
+        if (Limb.IsDislocated(i)) parts.push('dislocation');
+        if (Limb.IsInfected(i)) parts.push('infection');
+        if (Limb.GetPain(i) > 50) parts.push('severe pain');
         if (parts.length > 0) {
             issues.push(name + ': ' + parts.join('/'));
         }

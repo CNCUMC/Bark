@@ -26,18 +26,18 @@ localization, and configuration management.
 
 Script-side (JS / Lua) tool APIs:
 
-| Document                                     | Global Variable              | Coverage                                                          |
-|----------------------------------------------|------------------------------|-------------------------------------------------------------------|
-| [Body System](script-api/body-system.md)     | `BodyUtil`                   | Blood, hunger, thirst, temperature, fatigue, consciousness, drugs |
-| [Player](script-api/player.md)               | `PlayerUtil`                 | Teleport, pickup, alerts, save                                    |
-| [Limbs](script-api/limbs.md)                 | `LimbUtil`                   | Fractures, dislocations, infections, dismemberment, healing       |
-| [Inventory & Items](script-api/inventory.md) | `InventoryUtil` / `ItemUtil` | Inventory queries, item search, durability, repair                |
-| [Custom Status](script-api/moodle.md)        | `MoodleUtil`                 | Status effect apply, remove, query                                |
-| [Skills](script-api/skills.md)               | `SkillUtil`                  | XP, levels                                                        |
-| [World Editing](script-api/world.md)         | `WorldUtil`                  | Block placement, area fill, item spawning                         |
-| [Logging](script-api/log.md)                 | `Log`                        | Log output                                                        |
-| [Localization](script-api/locale.md)         | `Locale`                     | Localized text, placeholders                                      |
-| [Options](script-api/options.md)             | `OptionsApi`                 | Reading mod configuration                                         |
+| Document                                     | Global Variable      | Coverage                                                          |
+|----------------------------------------------|----------------------|-------------------------------------------------------------------|
+| [Body System](script-api/body.md)            | `Body`               | Blood, hunger, thirst, temperature, fatigue, consciousness, drugs |
+| [Player](script-api/player.md)               | `Player`             | Teleport, pickup, alerts, save                                    |
+| [Limbs](script-api/limbs.md)                 | `Limb`               | Fractures, dislocations, infections, dismemberment, healing       |
+| [Inventory & Items](script-api/inventory.md) | `Inventory` / `Item` | Inventory queries, item search, durability, repair                |
+| [Custom Status](script-api/moodle.md)        | `Moodle`             | Status effect apply, remove, query                                |
+| [Skills](script-api/skills.md)               | `Skill`              | XP, levels                                                        |
+| [World Editing](script-api/world.md)         | `World`              | Block placement, area fill, item spawning                         |
+| [Logging](script-api/log.md)                 | `Log`                | Log output                                                        |
+| [Localization](script-api/locale.md)         | `Locale`             | Localized text, placeholders                                      |
+| [Options](script-api/options.md)             | `OptionsApi`         | Reading mod configuration                                         |
 
 ## C# API
 

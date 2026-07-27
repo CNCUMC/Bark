@@ -2,7 +2,7 @@
 
 # Skills System
 
-SkillUtil operates on three skills: Strength, Resilience, Intelligence.
+Skill operates on three skills: Strength, Resilience, Intelligence.
 
 ## Skill Identifiers
 
@@ -22,22 +22,22 @@ Specify skills by string, case-insensitive. Supports short and full names:
 
 ```js
 // Read level (integer)
-var strLevel = SkillUtil.GetLevel("str");
+var strLevel = Skill.GetLevel("str");
 
 // Read current XP
-var exp = SkillUtil.GetExperience("res");
+var exp = Skill.GetExperience("res");
 
 // Read progress toward next level 0~1
-var progress = SkillUtil.GetProgress("int");
+var progress = Skill.GetProgress("int");
 
 // Add XP
-SkillUtil.AddExperience("str", 500);
+Skill.AddExperience("str", 500);
 
 // Set level (resets XP to that level's starting value)
-SkillUtil.SetLevel("res", 10);
+Skill.SetLevel("res", 10);
 
 // XP required for next level
-var needed = SkillUtil.GetExperienceForNextLevel("int");
+var needed = Skill.GetExperienceForNextLevel("int");
 ```
 
 > ⚠️ `SetLevel` resets XP to zero for the set level. Going from level 5 to 10 loses all progress between those levels.
@@ -50,7 +50,7 @@ property; scripts use OptionsApi equivalently.
 ```js
 // Read the mod's own multiplier config
 var multiplier = OptionsApi.GetFloat("xp_multiplier");
-SkillUtil.AddExperience("int", 100 * multiplier);
+Skill.AddExperience("int", 100 * multiplier);
 ```
 
 ## Full Example
@@ -67,7 +67,7 @@ function onWorldGenerated() {
     setInterval(function () {
         for (var i = 0; i < 3; i++) {
             var skill = ["str", "res", "int"][i];
-            var currentExp = SkillUtil.GetExperience(skill);
+            var currentExp = Skill.GetExperience(skill);
         }
     }, 1000);
 }

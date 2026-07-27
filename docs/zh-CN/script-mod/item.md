@@ -202,7 +202,7 @@ function main(itemId, item, action) {
     // item:    C# Item 实例
     // action:  "use"
 
-    PlayerUtil.Alert("已使用绷带", true);
+    Player.Alert("已使用绷带", true);
 }
 ```
 
@@ -248,8 +248,8 @@ function main(itemId, item, action) { /* 完整上下文 */
 
 ```js
 function main(itemId, item, action) {
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert("箭无虚发！", true);
+    Item.Destroy(itemId);
+    Player.Alert("箭无虚发！", true);
 }
 ```
 

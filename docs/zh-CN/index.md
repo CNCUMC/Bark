@@ -25,18 +25,18 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 
 脚本侧（JS / Lua）可调用的工具 API：
 
-| 文档                                      | 对应的全局变量               | 覆盖内容                                 |
-|-------------------------------------------|------------------------------|------------------------------------------|
-| [角色生理系统](script-api/body-system.md) | `BodyUtil`                   | 血量、饥饿、口渴、体温、疲劳、意识、药物 |
-| [玩家](script-api/player.md)              | `PlayerUtil`                 | 传送、拾取、提示、存档                   |
-| [肢体](script-api/limbs.md)               | `LimbUtil`                   | 骨折、脱臼、感染、截肢、治疗             |
-| [背包与物品](script-api/inventory.md)     | `InventoryUtil` / `ItemUtil` | 背包查询、物品搜索、耐久、修理           |
-| [自定义状态](script-api/moodle.md)        | `MoodleUtil`                 | 状态效果应用、移除、查询                 |
-| [技能](script-api/skills.md)              | `SkillUtil`                  | 经验值、等级                             |
-| [世界编辑](script-api/world.md)           | `WorldUtil`                  | 方块放置、区域填充、物品生成             |
-| [日志](script-api/log.md)                 | `Log`                        | 日志输出                                 |
-| [多语言](script-api/locale.md)            | `Locale`                     | 本地化文本、占位符                       |
-| [配置项](script-api/options.md)           | `OptionsApi`                 | 读写脚本模组配置                         |
+| 文档                                  | 对应的全局变量             | 覆盖内容                                 |
+|---------------------------------------|----------------------------|------------------------------------------|
+| [身体](script-api/body.md)            | `Body`                     | 血量、饥饿、口渴、体温、疲劳、意识、药物 |
+| [玩家](script-api/player.md)          | `Player`                   | 传送、拾取、提示、存档                   |
+| [肢体](script-api/limbs.md)           | `Limb`                     | 骨折、脱臼、感染、截肢、治疗             |
+| [背包与物品](script-api/inventory.md) | `Inventory` / `Item`       | 背包查询、物品搜索、耐久、修理           |
+| [自定义状态](script-api/moodle.md)    | `Moodle`                   | 状态效果应用、移除、查询                 |
+| [技能](script-api/skills.md)          | `Skill`                    | 经验值、等级                             |
+| [世界编辑](script-api/world.md)       | `World`                    | 方块放置、区域填充、物品生成             |
+| [日志](script-api/log.md)             | `Log`                      | 日志输出                                 |
+| [多语言](script-api/locale.md)        | `Locale`                   | 本地化文本、占位符                       |
+| [配置项](script-api/options.md)       | `OptionsApi`               | 读写脚本模组配置                         |
 
 ## C# API
 

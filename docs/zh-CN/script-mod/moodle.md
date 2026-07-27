@@ -96,7 +96,7 @@ key 的生成优先级：
 
 例如：文件 `Severe Bleeding.json` → key 自动为 `severe_bleeding`。
 
-> ℹ️ 两个模组定义相同 key 的 Moodle 时，后加载的覆盖先加载的。key 用于全局唯一引用，脚本中调用 `MoodleUtil.ApplyMoodle()` 时传入的就是这个 key。
+> ℹ️ 两个模组定义相同 key 的 Moodle 时，后加载的覆盖先加载的。key 用于全局唯一引用，脚本中调用 `Moodle.ApplyMoodle()` 时传入的就是这个 key。
 
 ## Moodle 脚本
 
@@ -151,7 +151,7 @@ key 的生成优先级：
 ```js
 function main(moodleKey) {
     Log.Info('玩家中毒了！key = ' + moodleKey);
-    PlayerUtil.Alert('你中毒了！快找解药', true);
+    Player.Alert('你中毒了！快找解药', true);
 }
 ```
 
@@ -160,8 +160,8 @@ function main(moodleKey) {
 ```js
 function main(moodleKey) {
     // 每次轮询造成 2 点伤害
-    var hp = BodyUtil.GetBloodVolume();
-    BodyUtil.SetBloodVolume(hp - 2);
+    var hp = Body.GetBloodVolume();
+    Body.SetBloodVolume(hp - 2);
 }
 ```
 
@@ -169,33 +169,33 @@ function main(moodleKey) {
 
 ## 在脚本中操作 Moodle
 
-通过 `MoodleUtil` 全局变量：
+通过 `Moodle` 全局变量：
 
 ```js
 // 应用 Moodle（使用 JSON 中定义的默认持续时间）
-MoodleUtil.ApplyMoodle('poison');
+Moodle.ApplyMoodle('poison');
 
 // 应用 Moodle 并覆盖持续时间（5 秒后消失）
-MoodleUtil.ApplyMoodle('bleeding', 5);
+Moodle.ApplyMoodle('bleeding', 5);
 
 // 强制移除
-MoodleUtil.RemoveMoodle('poison');
+Moodle.RemoveMoodle('poison');
 
 // 查询
-if (MoodleUtil.HasMoodle('poison')) {
+if (Moodle.HasMoodle('poison')) {
     Log.Info('玩家仍在中度');
 }
 
 // 获取所有活跃的 Moodle
-var actives = MoodleUtil.GetActiveMoodles();
-Log.Info('活跃状态数: ' + MoodleUtil.GetMoodleCount());
+var actives = Moodle.GetActiveMoodles();
+Log.Info('活跃状态数: ' + Moodle.GetMoodleCount());
 
 // 查询属性
-var intensity = MoodleUtil.GetIntensity('poison');
-var isCritical = MoodleUtil.IsCritical('poison');
+var intensity = Moodle.GetIntensity('poison');
+var isCritical = Moodle.IsCritical('poison');
 ```
 
-完整 API 见 [MoodleUtil](moodle.md)。
+完整 API 见 [Moodle](moodle.md)。
 
 ## 注意事项
 

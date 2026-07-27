@@ -1,8 +1,8 @@
-***English*** | [简体中文](../../zh-CN/script-api/body-system.md)
+***English*** | [简体中文](../../zh-CN/script-api/body.md)
 
-# BodyUtil — Body Vitals System
+# Body — Body
 
-BodyUtil is the most frequently called API. It controls body state, vital signs, and drug effects. All methods follow
+Body is the most frequently called API. It controls body state, vital signs, and drug effects. All methods follow
 consistent naming prefixes.
 
 ## State Checks
@@ -20,11 +20,11 @@ consistent naming prefixes.
 | `Successfully*` | Successfully did       | `SuccessfullyRolledLastStand()`            |
 
 ```js
-if (BodyUtil.IsDying()) {
-    PlayerUtil.Alert('You are dying!', true);
+if (Body.IsDying()) {
+    Player.Alert('You are dying!', true);
 }
 
-if (BodyUtil.HasScubaGear() && BodyUtil.IsInWater()) {
+if (Body.HasScubaGear() && Body.IsInWater()) {
     Log.Info('Safe to dive');
 }
 ```
@@ -40,10 +40,10 @@ Full list (28): `IsAlive`, `IsConscious`, `IsDying`, `IsCriticallyDying`, `IsInC
 `Get*` float queries. Returns `0f` when Body doesn't exist.
 
 ```js
-var hunger = BodyUtil.GetHunger();           // 0-125
-var bloodVolume = BodyUtil.GetBloodVolume(); // 0-200
-var temp = BodyUtil.GetTemperature();        // 20-50
-var heartRate = BodyUtil.GetHeartRate();     // 0-300
+var hunger = Body.GetHunger();           // 0-125
+var bloodVolume = Body.GetBloodVolume(); // 0-200
+var temp = Body.GetTemperature();        // 20-50
+var heartRate = Body.GetHeartRate();     // 0-300
 ```
 
 > ℹ️ `GetHappiness` maps to the `totalHappiness` field internally.
@@ -62,10 +62,10 @@ Full list (36): `GetHunger`, `GetThirst`, `GetStamina`, `GetEnergy`, `GetConscio
 `Set*` write methods. Takes `float`, values are clamped to valid ranges.
 
 ```js
-BodyUtil.SetHunger(80);       // full
-BodyUtil.SetStamina(100);     // max stamina
-BodyUtil.SetBloodVolume(90);  // restore blood
-BodyUtil.SetTemperature(37);  // normal temp
+Body.SetHunger(80);       // full
+Body.SetStamina(100);     // max stamina
+Body.SetBloodVolume(90);  // restore blood
+Body.SetTemperature(37);  // normal temp
 ```
 
 Full list (33 Setters): `SetHunger`, `SetThirst`, `SetStamina`, `SetEnergy`, `SetBloodVolume`, `SetBloodOxygen`,
@@ -85,19 +85,19 @@ Full list (33 Setters): `SetHunger`, `SetThirst`, `SetStamina`, `SetEnergy`, `Se
 
 ```js
 // Check
-if (BodyUtil.HasPainkillers()) {
+if (Body.HasPainkillers()) {
     Log.Info('Painkillers active');
 }
 
 // Remove
-BodyUtil.RemovePainkillers();       // force end painkiller effect
-BodyUtil.RemoveAntidepressants();   // end antidepressant
-BodyUtil.RemoveSleepingPills();     // end sleeping pills
+Body.RemovePainkillers();       // force end painkiller effect
+Body.RemoveAntidepressants();   // end antidepressant
+Body.RemoveSleepingPills();     // end sleeping pills
 
 // Set values
-BodyUtil.SetOpiateHappiness(50);          // opiate happiness
-BodyUtil.SetAntidepressantHappiness(80);  // antidepressant happiness
-BodyUtil.SetCaffeinated(100);             // caffeine level
+Body.SetOpiateHappiness(50);          // opiate happiness
+Body.SetAntidepressantHappiness(80);  // antidepressant happiness
+Body.SetCaffeinated(100);             // caffeine level
 ```
 
 ## Compound Operations
@@ -113,10 +113,10 @@ These methods don't follow `Get/Set` prefix — they're special operations.
 | `HealAll()`              | Full restore: heal all limbs + restore all vitals + remove all drug effects |
 
 ```js
-BodyUtil.Feed(20);             // take a bite
-BodyUtil.Hydrate(30);          // take a sip
-BodyUtil.RestoreStamina(50);   // energy drink
-BodyUtil.HealAll();            // god mode
+Body.Feed(20);             // take a bite
+Body.Hydrate(30);          // take a sip
+Body.RestoreStamina(50);   // energy drink
+Body.HealAll();            // god mode
 ```
 
 ## Examples
@@ -126,14 +126,14 @@ BodyUtil.HealAll();            // god mode
 ```js
 function onUpdate() {
     // Danger alerts
-    if (BodyUtil.IsDying()) {
-        PlayerUtil.Alert('Critically dying!', true);
+    if (Body.IsDying()) {
+        Player.Alert('Critically dying!', true);
     }
-    if (BodyUtil.GetBloodVolume() < 40) {
-        PlayerUtil.Alert('Severe blood loss!', true);
+    if (Body.GetBloodVolume() < 40) {
+        Player.Alert('Severe blood loss!', true);
     }
-    if (BodyUtil.GetBrainHealth() < 30) {
-        PlayerUtil.Alert('Severe brain damage!', true);
+    if (Body.GetBrainHealth() < 30) {
+        Player.Alert('Severe brain damage!', true);
     }
 }
 ```
@@ -144,8 +144,8 @@ function onUpdate() {
 function onLoad() {
     // Check every 5 seconds
     setInterval(function () {
-        if (BodyUtil.GetBloodVolume() < 80) {
-            BodyUtil.SetBloodVolume(90);
+        if (Body.GetBloodVolume() < 80) {
+            Body.SetBloodVolume(90);
             Log.Info('Auto-healed');
         }
     }, 5000);
@@ -158,4 +158,4 @@ function onLoad() {
 - `Set*` values are auto-clamped — overshooting is harmless
 - `HealAll()` is the ultimate recovery — it clears all negative states including drug effects
 - `Feed/Hydrate` are relative — pass negative to decrease
-- Dual-limb checks (e.g., `IsBothHandsUnusable`) check both hands; for fine-grained operations see [LimbUtil](limbs.md)
+- Dual-limb checks (e.g., `IsBothHandsUnusable`) check both hands; for fine-grained operations see [Limb](limbs.md)

@@ -85,18 +85,18 @@ function onEnable() {
 
 ## Global Variables
 
-Bark injects tool classes as global variables with PascalCase names matching the C# class names. Use them directly.
+Bark injects tool classes as global variables with PascalCase names matching the C# class names (minus the `Util` suffix). Use them directly.
 
 | Variable        | What It Does                                                                        | API Docs                                     |
 |-----------------|-------------------------------------------------------------------------------------|----------------------------------------------|
-| `BodyUtil`      | Body vitals (blood, hunger, temperature, consciousness...)                          | [Body System](script-api/body-system.md)     |
-| `PlayerUtil`    | Player actions (teleport, pickup, alerts)                                           | [Player](script-api/player.md)               |
-| `LimbUtil`      | Limb operations (fractures, dislocations, infections...)                            | [Limbs](script-api/limbs.md)                 |
-| `InventoryUtil` | Inventory queries                                                                   | [Inventory & Items](script-api/inventory.md) |
-| `ItemUtil`      | Item search, durability, repair                                                     | [Inventory & Items](script-api/inventory.md) |
-| `MoodleUtil`    | Status effect apply, remove, query                                                  | [Custom Status](script-api/moodle.md)        |
-| `SkillUtil`     | Skill XP/levels                                                                     | [Skills](script-api/skills.md)               |
-| `WorldUtil`     | World editing (place blocks, items)                                                 | [World Editing](script-api/world.md)         |
+| `Body`      | Body vitals (blood, hunger, temperature, consciousness...)                          | [Body System](script-api/body-system.md)     |
+| `Player`    | Player actions (teleport, pickup, alerts)                                           | [Player](script-api/player.md)               |
+| `Limb`      | Limb operations (fractures, dislocations, infections...)                            | [Limbs](script-api/limbs.md)                 |
+| `Inventory` | Inventory queries                                                                   | [Inventory & Items](script-api/inventory.md) |
+| `Item`      | Item search, durability, repair                                                     | [Inventory & Items](script-api/inventory.md) |
+| `Moodle`    | Status effect apply, remove, query                                                  | [Custom Status](script-api/moodle.md)        |
+| `Skill`     | Skill XP/levels                                                                     | [Skills](script-api/skills.md)               |
+| `World`     | World editing (place blocks, items)                                                 | [World Editing](script-api/world.md)         |
 | `OptionsApi`    | Read mod config options                                                             | [Options](script-api/options.md)             |
 | `Log`           | Logging: `Log.info()` / `Log.warning()` / `Log.error()`                             | [Logging](script-api/log.md)                 |
 | `Locale`        | Localized text: `Locale.Get("key")`                                                 | [Localization](script-api/locale.md)         |
@@ -109,37 +109,37 @@ memorize — let IDE autocomplete do the work.**
 
 | Prefix                                             | Meaning       | Example                                        |
 |----------------------------------------------------|---------------|------------------------------------------------|
-| `Get*`                                             | Read a value  | `BodyUtil.GetHunger()` → hunger level          |
-| `Set*`                                             | Set a value   | `BodyUtil.SetHunger(50)`                       |
-| `Is*`                                              | Is it...?     | `BodyUtil.IsAlive()` → alive?                  |
-| `Has*`                                             | Has...?       | `InventoryUtil.HasItem("axe")`                 |
-| `Can*`                                             | Can do...?    | `BodyUtil.CanTakeNap()`                        |
-| `Add*`                                             | Increment     | `SkillUtil.AddXP(100)`                         |
-| `Remove*`                                          | Remove        | `BodyUtil.RemovePainkillers()`                 |
-| `Place*`                                           | Place         | `WorldUtil.PlaceBlock("marble", 10, 5)`        |
-| `Fill*`                                            | Fill area     | `WorldUtil.FillBlocks(0, 0, 10, 10, "marble")` |
-| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | Obvious verbs | `LimbUtil.Break(0)`                            |
+| `Get*`                                             | Read a value  | `Body.GetHunger()` → hunger level          |
+| `Set*`                                             | Set a value   | `Body.SetHunger(50)`                       |
+| `Is*`                                              | Is it...?     | `Body.IsAlive()` → alive?                  |
+| `Has*`                                             | Has...?       | `Inventory.HasItem("axe")`                 |
+| `Can*`                                             | Can do...?    | `Body.CanTakeNap()`                        |
+| `Add*`                                             | Increment     | `Skill.AddXP(100)`                         |
+| `Remove*`                                          | Remove        | `Body.RemovePainkillers()`                 |
+| `Place*`                                           | Place         | `World.PlaceBlock("marble", 10, 5)`        |
+| `Fill*`                                            | Fill area     | `World.FillBlocks(0, 0, 10, 10, "marble")` |
+| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | Obvious verbs | `Limb.Break(0)`                            |
 
 **Get/Set pairs**: Everything with a Get usually has a matching Set — same name, just one more parameter.
 
 ```js
-var hunger = BodyUtil.GetHunger();   // read
-BodyUtil.SetHunger(hunger + 10);     // set
+var hunger = Body.GetHunger();   // read
+Body.SetHunger(hunger + 10);     // set
 ```
 
 **Optional parameters**: C# methods with default values can omit them in scripts.
 
 ```js
 // Alert(text, important, delay) — delay defaults to 0
-PlayerUtil.Alert("You're injured");            // normal
-PlayerUtil.Alert("Warning!", true);            // important
-PlayerUtil.Alert("Evacuate now", true, 0.5);   // all specified
+Player.Alert("You're injured");            // normal
+Player.Alert("Warning!", true);            // important
+Player.Alert("Evacuate now", true, 0.5);   // all specified
 ```
 
 **Enums**: C# enums use integers in scripts.
 
 ```js
-PlayerUtil.Teleport(100, 200);   // teleport to coordinates
+Player.Teleport(100, 200);   // teleport to coordinates
 ```
 
 ## Event Hooks
@@ -180,8 +180,8 @@ function main(itemId, item, action) {
     // itemId: the item's ID string
     // item:    the C# Item instance (can access .condition, etc.)
     // action:  "attack" | "use" | "equip" | "unequip" | "use_in_hand" | "use_on_limb"
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert("Bullseye!", true);
+    Item.Destroy(itemId);
+    Player.Alert("Bullseye!", true);
 }
 ```
 
@@ -202,7 +202,7 @@ See [Custom Tiles](script-mod/tile.md).
 
 ## Custom Moodles
 
-Define custom status effects (bleeding, poison, infection, etc.) via JSON in the `Moodle/` directory, then apply and query them with `MoodleUtil`. Three lifecycle phases: get (obtained), iterate (polling), lose (expired).
+Define custom status effects (bleeding, poison, infection, etc.) via JSON in the `Moodle/` directory, then apply and query them with `Moodle`. Three lifecycle phases: get (obtained), iterate (polling), lose (expired).
 
 See [Custom Moodles](script-mod/moodle.md) for full documentation.
 
@@ -220,15 +220,15 @@ function onLoad() {
 function onWorldGenerated() {
     // Refill health every 5 seconds
     setInterval(function () {
-        var hp = BodyUtil.GetBloodVolume();
+        var hp = Body.GetBloodVolume();
         if (hp < 100) {
-            BodyUtil.SetBloodVolume(hp + 5);
+            Body.SetBloodVolume(hp + 5);
         }
     }, 5000);
 }
 
 function onLimbBroken() {
-    PlayerUtil.Alert("Bone broken! Treat it now", true);
+    Player.Alert("Bone broken! Treat it now", true);
 }
 ```
 
@@ -271,9 +271,9 @@ Lua users only need to note these differences. Everything else is the same.
 **Method calls use `:` instead of `.`**:
 
 ```lua
--- JS: BodyUtil.GetHunger()
+-- JS: Body.GetHunger()
 -- Lua: use colon
-local hunger = BodyUtil:GetHunger()
+local hunger = Body:GetHunger()
 ```
 
 **Function definitions**:

@@ -1,8 +1,8 @@
-[English](../../en-US/script-api/body-system.md) | ***简体中文***
+[English](../../en-US/script-api/body.md) | ***简体中文***
 
-# BodyUtil — 角色生理系统
+# Body — 身体
 
-BodyUtil 是调用频率最高的 API，控制角色的身体状态、生理数值、药物效果。所有方法遵循统一的命名前缀。
+Body 是调用频率最高的 API，控制角色的身体状态、生理数值、药物效果。所有方法遵循统一的命名前缀。
 
 ## 状态检测
 
@@ -19,11 +19,11 @@ BodyUtil 是调用频率最高的 API，控制角色的身体状态、生理数�
 | `Successfully*` | 是否成功           | `SuccessfullyRolledLastStand()`            |
 
 ```js
-if (BodyUtil.IsDying()) {
-    PlayerUtil.Alert('你快死了！', true);
+if (Body.IsDying()) {
+    Player.Alert('你快死了！', true);
 }
 
-if (BodyUtil.HasScubaGear() && BodyUtil.IsInWater()) {
+if (Body.HasScubaGear() && Body.IsInWater()) {
     Log.Info('安全潜水');
 }
 ```
@@ -39,13 +39,13 @@ if (BodyUtil.HasScubaGear() && BodyUtil.IsInWater()) {
 `Get*` 开头的 float 查询。Body 不存在时返回 `0f`。
 
 ```js
-var hunger = BodyUtil.GetHunger();        // 0-125
-var bloodVolume = BodyUtil.GetBloodVolume(); // 0-200
-var temp = BodyUtil.GetTemperature();      // 20-50
-var heartRate = BodyUtil.GetHeartRate();   // 0-300
+var hunger = Body.GetHunger();        // 0-125
+var bloodVolume = Body.GetBloodVolume(); // 0-200
+var temp = Body.GetTemperature();      // 20-50
+var heartRate = Body.GetHeartRate();   // 0-300
 ```
 
-> ℹ️ `GetHappiness` 实际映射到 `BodyUtil.GetHappiness()`，背后是 `totalHappiness` 字段。
+> ℹ️ `GetHappiness` 实际映射到 `Body.GetHappiness()`，背后是 `totalHappiness` 字段。
 
 完整列表（36 个）：`GetHunger`, `GetThirst`, `GetStamina`, `GetEnergy`, `GetConsciousness`, `GetBrainHealth`,
 `GetBloodVolume`, `GetBloodOxygen`, `GetHeartRate`, `GetBloodPressure`, `GetRespiratoryRate`, `GetTemperature`,
@@ -61,10 +61,10 @@ var heartRate = BodyUtil.GetHeartRate();   // 0-300
 `Set*` 开头的写入方法。参数为 `float`，值会被 clamp 到合法范围。
 
 ```js
-BodyUtil.SetHunger(80);       // 吃饱
-BodyUtil.SetStamina(100);     // 满体力
-BodyUtil.SetBloodVolume(90);  // 补血
-BodyUtil.SetTemperature(37);  // 正常体温
+Body.SetHunger(80);       // 吃饱
+Body.SetStamina(100);     // 满体力
+Body.SetBloodVolume(90);  // 补血
+Body.SetTemperature(37);  // 正常体温
 ```
 
 完整列表（33 个 Setter）：`SetHunger`, `SetThirst`, `SetStamina`, `SetEnergy`, `SetBloodVolume`, `SetBloodOxygen`,
@@ -84,19 +84,19 @@ BodyUtil.SetTemperature(37);  // 正常体温
 
 ```js
 // 检测
-if (BodyUtil.HasPainkillers()) {
+if (Body.HasPainkillers()) {
     Log.Info('止痛药生效中');
 }
 
 // 移除
-BodyUtil.RemovePainkillers();       // 强制结束止痛药效果
-BodyUtil.RemoveAntidepressants();   // 结束抗抑郁药
-BodyUtil.RemoveSleepingPills();     // 结束安眠药
+Body.RemovePainkillers();       // 强制结束止痛药效果
+Body.RemoveAntidepressants();   // 结束抗抑郁药
+Body.RemoveSleepingPills();     // 结束安眠药
 
 // 数值
-BodyUtil.SetOpiateHappiness(50);          // 阿片类愉悦度
-BodyUtil.SetAntidepressantHappiness(80);  // 抗抑郁愉悦度
-BodyUtil.SetCaffeinated(100);             // 咖啡因
+Body.SetOpiateHappiness(50);          // 阿片类愉悦度
+Body.SetAntidepressantHappiness(80);  // 抗抑郁愉悦度
+Body.SetCaffeinated(100);             // 咖啡因
 ```
 
 ## 复合操作
@@ -112,10 +112,10 @@ BodyUtil.SetCaffeinated(100);             // 咖啡因
 | `HealAll()`              | 一键满血：治疗全部肢体 + 恢复所有生理数值 + 移除全部药物效果 |
 
 ```js
-BodyUtil.Feed(20);             // 吃一口
-BodyUtil.Hydrate(30);          // 喝一口
-BodyUtil.RestoreStamina(50);   // 喝瓶能量饮料
-BodyUtil.HealAll();            // 恢复
+Body.Feed(20);             // 吃一口
+Body.Hydrate(30);          // 喝一口
+Body.RestoreStamina(50);   // 喝瓶能量饮料
+Body.HealAll();            // 恢复
 ```
 
 ## 典型示例
@@ -125,14 +125,14 @@ BodyUtil.HealAll();            // 恢复
 ```js
 function onUpdate() {
     // 危险状态警告
-    if (BodyUtil.IsDying()) {
-        PlayerUtil.Alert('生命垂危！', true);
+    if (Body.IsDying()) {
+        Player.Alert('生命垂危！', true);
     }
-    if (BodyUtil.GetBloodVolume() < 40) {
-        PlayerUtil.Alert('失血过多！', true);
+    if (Body.GetBloodVolume() < 40) {
+        Player.Alert('失血过多！', true);
     }
-    if (BodyUtil.GetBrainHealth() < 30) {
-        PlayerUtil.Alert('脑损伤严重！', true);
+    if (Body.GetBrainHealth() < 30) {
+        Player.Alert('脑损伤严重！', true);
     }
 }
 ```
@@ -143,8 +143,8 @@ function onUpdate() {
 function onLoad() {
     // 每 5 秒检查一次
     setInterval(function () {
-        if (BodyUtil.GetBloodVolume() < 80) {
-            BodyUtil.SetBloodVolume(90);
+        if (Body.GetBloodVolume() < 80) {
+            Body.SetBloodVolume(90);
             Log.Info('自动补血');
         }
     }, 5000);
@@ -157,4 +157,4 @@ function onLoad() {
 - `Set*` 的值会被自动 clamp，超出范围也没关系
 - `HealAll()` 是终极恢复，会清除所有负面状态包括药物效果
 - `Feed/Hydrate` 是相对增减，传入负数可以降低数值
-- 复数肢体操作（如 `IsBothHandsUnusable`）检测两只手，精细操作见 [LimbUtil](limbs.md)
+- 复数肢体操作（如 `IsBothHandsUnusable`）检测两只手，精细操作见 [Limb](limbs.md)

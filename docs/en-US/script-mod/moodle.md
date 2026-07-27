@@ -96,7 +96,7 @@ Key generation priority:
 
 Example: file `Severe Bleeding.json` → auto-generated key `severe_bleeding`.
 
-> ℹ️ When two mods define the same key, the last loaded wins. The key is the global unique reference — use it when calling `MoodleUtil.ApplyMoodle()` from scripts.
+> ℹ️ When two mods define the same key, the last loaded wins. The key is the global unique reference — use it when calling `Moodle.ApplyMoodle()` from scripts.
 
 ## Moodle Scripts
 
@@ -151,7 +151,7 @@ A poison Moodle using auto-lookup for the icon:
 ```js
 function main(moodleKey) {
     Log.Info('Player poisoned! key = ' + moodleKey);
-    PlayerUtil.Alert('You are poisoned! Find an antidote', true);
+    Player.Alert('You are poisoned! Find an antidote', true);
 }
 ```
 
@@ -160,8 +160,8 @@ function main(moodleKey) {
 ```js
 function main(moodleKey) {
     // Deal 2 damage each tick
-    var hp = BodyUtil.GetBloodVolume();
-    BodyUtil.SetBloodVolume(hp - 2);
+    var hp = Body.GetBloodVolume();
+    Body.SetBloodVolume(hp - 2);
 }
 ```
 
@@ -169,33 +169,33 @@ function main(moodleKey) {
 
 ## Using Moodles in Scripts
 
-Via the `MoodleUtil` global variable:
+Via the `Moodle` global variable:
 
 ```js
 // Apply a Moodle (uses JSON-defined default duration)
-MoodleUtil.ApplyMoodle('poison');
+Moodle.ApplyMoodle('poison');
 
 // Apply with custom duration (5 seconds)
-MoodleUtil.ApplyMoodle('bleeding', 5);
+Moodle.ApplyMoodle('bleeding', 5);
 
 // Force remove
-MoodleUtil.RemoveMoodle('poison');
+Moodle.RemoveMoodle('poison');
 
 // Query
-if (MoodleUtil.HasMoodle('poison')) {
+if (Moodle.HasMoodle('poison')) {
     Log.Info('Player still poisoned');
 }
 
 // Get all active Moodles
-var actives = MoodleUtil.GetActiveMoodles();
-Log.Info('Active moodle count: ' + MoodleUtil.GetMoodleCount());
+var actives = Moodle.GetActiveMoodles();
+Log.Info('Active moodle count: ' + Moodle.GetMoodleCount());
 
 // Query properties
-var intensity = MoodleUtil.GetIntensity('poison');
-var isCritical = MoodleUtil.IsCritical('poison');
+var intensity = Moodle.GetIntensity('poison');
+var isCritical = Moodle.IsCritical('poison');
 ```
 
-Full API reference at [MoodleUtil](moodle.md).
+Full API reference at [Moodle](moodle.md).
 
 ## Notes
 

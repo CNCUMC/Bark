@@ -84,18 +84,18 @@ function onEnable() {
 
 ## 全局变量
 
-Bark 把工具类注入为全局变量，名字和 C# 类名一致（PascalCase），直接用就行。
+Bark 把工具类注入为全局变量，名字为 C# 类名去掉 `Util` 后缀（PascalCase），直接用就行。
 
 | 变量名          | 做什么的                                                                     | API 文档                            |
 |-----------------|------------------------------------------------------------------------------|-------------------------------------|
-| `BodyUtil`      | 角色基础生理系统（血量、饥饿、体温、意识……）                                 | [生理系统](script-api/body-system.md) |
-| `PlayerUtil`    | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
-| `LimbUtil`      | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
-| `InventoryUtil` | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
-| `ItemUtil`      | 物品搜索、耐久、修补                                                         | [背包与物品](script-api/inventory.md) |
-| `MoodleUtil`    | 状态效果应用、移除、查询                                                     | [自定义状态](script-api/moodle.md)     |
-| `SkillUtil`     | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
-| `WorldUtil`     | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
+| `Body`          | 角色基础生理系统（血量、饥饿、体温、意识……）                                 | [生理系统](script-api/body-system.md) |
+| `Player`        | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
+| `Limb`          | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
+| `Inventory`     | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
+| `Item`          | 物品搜索、耐久、修补                                                         | [背包与物品](script-api/inventory.md) |
+| `Moodle`        | 状态效果应用、移除、查询                                                     | [自定义状态](script-api/moodle.md)     |
+| `Skill`         | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
+| `World`         | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
 | `OptionsApi`    | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
 | `Log`           | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
 | `Locale`        | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
@@ -107,37 +107,37 @@ Bark 把工具类注入为全局变量，名字和 C# 类名一致（PascalCase�
 
 | 前缀                                               | 含义           | 例子                                           |
 |----------------------------------------------------|----------------|------------------------------------------------|
-| `Get*`                                             | 读取数值       | `BodyUtil.GetHunger()` → 饥饿度                |
-| `Set*`                                             | 设置数值       | `BodyUtil.SetHunger(50)`                       |
-| `Is*`                                              | 问「是不是」   | `BodyUtil.IsAlive()` → 还活着吗                |
-| `Has*`                                             | 问「有没有」   | `InventoryUtil.HasItem("axe")`                 |
-| `Can*`                                             | 问「能不能」   | `BodyUtil.CanTakeNap()`                        |
-| `Add*`                                             | 增减           | `SkillUtil.AddXP(100)`                         |
-| `Remove*`                                          | 移除           | `BodyUtil.RemovePainkillers()`                 |
-| `Place*`                                           | 放置           | `WorldUtil.PlaceBlock("marble", 10, 5)`        |
-| `Fill*`                                            | 填充区域       | `WorldUtil.FillBlocks(0, 0, 10, 10, "marble")` |
-| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | 一眼就懂的动词 | `LimbUtil.Break(0)`                            |
+| `Get*`                                             | 读取数值       | `Body.GetHunger()` → 饥饿度                |
+| `Set*`                                             | 设置数值       | `Body.SetHunger(50)`                       |
+| `Is*`                                              | 问「是不是」   | `Body.IsAlive()` → 还活着吗                |
+| `Has*`                                             | 问「有没有」   | `Inventory.HasItem("axe")`                 |
+| `Can*`                                             | 问「能不能」   | `Body.CanTakeNap()`                        |
+| `Add*`                                             | 增减           | `Skill.AddXP(100)`                         |
+| `Remove*`                                          | 移除           | `Body.RemovePainkillers()`                 |
+| `Place*`                                           | 放置           | `World.PlaceBlock("marble", 10, 5)`        |
+| `Fill*`                                            | 填充区域       | `World.FillBlocks(0, 0, 10, 10, "marble")` |
+| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | 一眼就懂的动词 | `Limb.Break(0)`                            |
 
 **Get/Set 对应**：能 Get 的基本都能 Set，名字一模一样，只是 Set 多一个参数。
 
 ```js
-var hunger = BodyUtil.GetHunger();   // 读取
-BodyUtil.SetHunger(hunger + 10);     // 设置
+var hunger = Body.GetHunger();   // 读取
+Body.SetHunger(hunger + 10);     // 设置
 ```
 
 **可选参数**：C# 方法有默认值的参数，脚本里可以不传。
 
 ```js
 // Alert(text, important, delay) — delay 默认 0
-PlayerUtil.Alert("你受伤了");               // 普通提示
-PlayerUtil.Alert("警告！", true);           // 重要消息
-PlayerUtil.Alert("立即撤离", true, 0.5);    // 全部指定
+Player.Alert("你受伤了");               // 普通提示
+Player.Alert("警告！", true);           // 重要消息
+Player.Alert("立即撤离", true, 0.5);    // 全部指定
 ```
 
 **枚举**：C# 的枚举在脚本里直接传数字。
 
 ```js
-PlayerUtil.Teleport(100, 200);   // 传送到坐标
+Player.Teleport(100, 200);   // 传送到坐标
 ```
 
 ## 事件钩子
@@ -176,8 +176,8 @@ function main(itemId, item, action) {
     // itemId: 物品 ID 字符串
     // item:    C# Item 实例（可访问 .condition 等属性）
     // action:  "attack" | "use" | "equip" | "unequip" | "use_in_hand" | "use_on_limb"
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert("箭无虚发！", true);
+    Item.Destroy(itemId);
+    Player.Alert("箭无虚发！", true);
 }
 ```
 
@@ -198,7 +198,7 @@ JSON 配置格式详见 [自定义物品](script-mod/item.md)。
 
 ## 自定义 Moodle
 
-通过 JSON 在 `Moodle/` 目录下定义自定义状态效果（流血、中毒、感染等），用 `MoodleUtil` 在脚本中操作。支持三个生命周期阶段：get（获得）、iterate（轮询）、lose（消失）。
+通过 JSON 在 `Moodle/` 目录下定义自定义状态效果（流血、中毒、感染等），用 `Moodle` 在脚本中操作。支持三个生命周期阶段：get（获得）、iterate（轮询）、lose（消失）。
 
 详见 [自定义 Moodle](script-mod/moodle.md)。
 
@@ -216,15 +216,15 @@ function onLoad() {
 function onWorldGenerated() {
     // 每 5 秒把血加满
     setInterval(function () {
-        var hp = BodyUtil.GetBloodVolume();
+        var hp = Body.GetBloodVolume();
         if (hp < 100) {
-            BodyUtil.SetBloodVolume(hp + 5);
+            Body.SetBloodVolume(hp + 5);
         }
     }, 5000);
 }
 
 function onLimbBroken() {
-    PlayerUtil.Alert("骨头断了！赶紧处理", true);
+    Player.Alert("骨头断了！赶紧处理", true);
 }
 ```
 
@@ -267,9 +267,9 @@ Lua 用户只需注意以下差异，其他一切同上。
 **方法调用用 `:` 而不是 `.`**：
 
 ```lua
--- JS: BodyUtil.GetHunger()
+-- JS: Body.GetHunger()
 -- Lua: 用冒号
-local hunger = BodyUtil:GetHunger()
+local hunger = Body:GetHunger()
 ```
 
 **函数定义**：

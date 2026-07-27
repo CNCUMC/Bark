@@ -54,16 +54,16 @@ function onPlayerDeath(event) {
 | `onLimbDismembered`  | 肢体截断 | —          |
 | `onLimbInfected`     | 伤口感染 | —          |
 
-> ℹ️ 肢体钩子不携带专属事件字段。如果想知道具体哪个肢体受了伤，在钩子里用 `LimbUtil` 遍历检查。比如
-> `LimbUtil.IsBroken(0)` 检查第 0 号肢体是否骨折。
+> ℹ️ 肢体钩子不携带专属事件字段。如果想知道具体哪个肢体受了伤，在钩子里用 `Limb` 遍历检查。比如
+> `Limb.IsBroken(0)` 检查第 0 号肢体是否骨折。
 
 ```js
 function onLimbBroken(event) {
     // 遍历所有肢体，找出刚断的
-    var count = LimbUtil.GetLimbCount();
+    var count = Limb.GetLimbCount();
     var brokenList = [];
     for (var i = 0; i < count; i++) {
-        if (LimbUtil.IsBroken(i)) {
+        if (Limb.IsBroken(i)) {
             brokenList.push(i);
         }
     }
@@ -139,7 +139,7 @@ function onMoodleGet(event) {
     Log.Info('获得状态: ' + event.MoodleKey);
 
     if (event.Critical) {
-        PlayerUtil.Alert('严重状态: ' + event.MoodleName, true);
+        Player.Alert('严重状态: ' + event.MoodleName, true);
     }
 }
 
@@ -171,7 +171,7 @@ function onMainMenuLoaded(event) {
 }
 ```
 
-> ⚠️ `onWorldGenerated` 是第一个可以安全访问 WorldUtil 的时机。在此之前（包括 `onLoad`）世界还没生成，调用 WorldUtil
+> ⚠️ `onWorldGenerated` 是第一个可以安全访问 World 的时机。在此之前（包括 `onLoad`）世界还没生成，调用 World
 > 会报错。
 
 ### 命令事件
@@ -207,8 +207,8 @@ function main(itemId, item, action) {
     // itemId: "arrow"
     // item:    C# Item 实例
     // action:  "attack" / "use" / "equip" / "unequip" / "use_in_hand" / "use_on_limb"
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert('箭无虚发！', true);
+    Item.Destroy(itemId);
+    Player.Alert('箭无虚发！', true);
 }
 ```
 
@@ -239,7 +239,7 @@ function onLimbBroken(event) {
     brokenCount++;
     injuredCount++;
     Log.Warning('骨折！共 ' + brokenCount + ' 次骨折，' + injuredCount + ' 次受伤');
-    PlayerUtil.Alert('又断了根骨头……', true);
+    Player.Alert('又断了根骨头……', true);
 }
 
 function onLimbInfected(event) {

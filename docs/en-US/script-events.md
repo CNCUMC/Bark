@@ -55,16 +55,16 @@ Six hooks cover all limb status changes: fracture, dislocation, infection, disme
 | `onLimbDismembered`  | Limb severed     | —            |
 | `onLimbInfected`     | Wound infected   | —            |
 
-> ℹ️ Limb hooks carry no dedicated event fields. To find which limb was affected, iterate with `LimbUtil` inside the
-> hook. e.g., `LimbUtil.IsBroken(0)` checks if limb #0 is broken.
+> ℹ️ Limb hooks carry no dedicated event fields. To find which limb was affected, iterate with `Limb` inside the
+> hook. e.g., `Limb.IsBroken(0)` checks if limb #0 is broken.
 
 ```js
 function onLimbBroken(event) {
     // Iterate all limbs to find the broken one
-    var count = LimbUtil.GetLimbCount();
+    var count = Limb.GetLimbCount();
     var brokenList = [];
     for (var i = 0; i < count; i++) {
-        if (LimbUtil.IsBroken(i)) {
+        if (Limb.IsBroken(i)) {
             brokenList.push(i);
         }
     }
@@ -140,7 +140,7 @@ function onMoodleGet(event) {
     Log.Info('Moodle gained: ' + event.MoodleKey);
 
     if (event.Critical) {
-        PlayerUtil.Alert('Critical status: ' + event.MoodleName, true);
+        Player.Alert('Critical status: ' + event.MoodleName, true);
     }
 }
 
@@ -172,8 +172,8 @@ function onMainMenuLoaded(event) {
 }
 ```
 
-> ⚠️ `onWorldGenerated` is the first moment you can safely call `WorldUtil`. Before this (including `onLoad`), the world
-> doesn't exist and calling WorldUtil will error.
+> ⚠️ `onWorldGenerated` is the first moment you can safely call `World`. Before this (including `onLoad`), the world
+> doesn't exist and calling World will error.
 
 ### Command Event
 
@@ -208,8 +208,8 @@ function main(itemId, item, action) {
     // itemId: "arrow"
     // item:    C# Item instance
     // action:  "attack" / "use" / "equip" / "unequip" / "use_in_hand" / "use_on_limb"
-    itemUtil.Destroy(itemId);
-    PlayerUtil.Alert('Bullseye!', true);
+    Item.Destroy(itemId);
+    Player.Alert('Bullseye!', true);
 }
 ```
 
@@ -240,7 +240,7 @@ function onLimbBroken(event) {
     brokenCount++;
     injuredCount++;
     Log.Warning('Fracture! Total fractures: ' + brokenCount + ', injuries: ' + injuredCount);
-    PlayerUtil.Alert('Another bone broken...', true);
+    Player.Alert('Another bone broken...', true);
 }
 
 function onLimbInfected(event) {

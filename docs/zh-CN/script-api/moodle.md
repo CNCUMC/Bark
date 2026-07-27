@@ -1,8 +1,8 @@
 [English](../../en-US/script-api/moodle.md) | ***简体中文***
 
-# MoodleUtil — 自定义状态管理
+# Moodle — 自定义状态管理
 
-MoodleUtil 用于给玩家应用、移除和查询自定义 Moodle 状态。所有 Moodle 定义来自脚本模组 `Moodle/` 目录下的 JSON 文件。
+Moodle 用于给玩家应用、移除和查询自定义 Moodle 状态。所有 Moodle 定义来自脚本模组 `Moodle/` 目录下的 JSON 文件。
 
 ## 方法一览
 
@@ -25,13 +25,13 @@ MoodleUtil 用于给玩家应用、移除和查询自定义 Moodle 状态。所�
 
 ```js
 // 使用默认持续时间（JSON 中定义的 hold_seconds）
-MoodleUtil.ApplyMoodle('bleeding');
+Moodle.ApplyMoodle('bleeding');
 
 // 覆盖持续时间：5 秒后自动消失
-MoodleUtil.ApplyMoodle('bleeding', 5);
+Moodle.ApplyMoodle('bleeding', 5);
 
 // 如果 key 未在已加载的定义中找到，输出 warning 日志，不会抛异常
-MoodleUtil.ApplyMoodle('non_existent');  // 安全，什么都不发生
+Moodle.ApplyMoodle('non_existent');  // 安全，什么都不发生
 ```
 
 `holdSeconds` 为可选参数。传入 0 或负数时使用 JSON 中定义的默认持续时间。
@@ -40,7 +40,7 @@ MoodleUtil.ApplyMoodle('non_existent');  // 安全，什么都不发生
 
 ```js
 // 标记到期，下次轮询时触发 lose 事件并移除
-var removed = MoodleUtil.RemoveMoodle('bleeding');
+var removed = Moodle.RemoveMoodle('bleeding');
 if (removed) {
     Log.Info('流血状态已移除');
 }
@@ -52,18 +52,18 @@ if (removed) {
 
 ```js
 // 检查是否活跃
-if (MoodleUtil.HasMoodle('poison')) {
+if (Moodle.HasMoodle('poison')) {
     Log.Warning('玩家中度了');
 }
 
 // 获取所有活跃 Moodle
-var keys = MoodleUtil.GetActiveMoodles();
+var keys = Moodle.GetActiveMoodles();
 for (var i = 0; i < keys.length; i++) {
     Log.Info('活跃: ' + keys[i]);
 }
 
 // 数量
-var count = MoodleUtil.GetMoodleCount();
+var count = Moodle.GetMoodleCount();
 Log.Info('当前共 ' + count + ' 个状态效果');
 ```
 
@@ -72,12 +72,12 @@ Log.Info('当前共 ' + count + ' 个状态效果');
 从已加载的 JSON 定义中读取属性（非运行时状态）：
 
 ```js
-var name = MoodleUtil.GetName('bleeding');           // 显示名称
-var desc = MoodleUtil.GetDescription('bleeding');    // 描述
-var intensity = MoodleUtil.GetIntensity('bleeding'); // 强度等级
-var duration = MoodleUtil.GetHoldSeconds('bleeding');// 默认持续时间
-var isCrit = MoodleUtil.IsCritical('bleeding');      // 是否严重
-var isImportant = MoodleUtil.IsImportant('bleeding');// 是否重要
+var name = Moodle.GetName('bleeding');           // 显示名称
+var desc = Moodle.GetDescription('bleeding');    // 描述
+var intensity = Moodle.GetIntensity('bleeding'); // 强度等级
+var duration = Moodle.GetHoldSeconds('bleeding');// 默认持续时间
+var isCrit = Moodle.IsCritical('bleeding');      // 是否严重
+var isImportant = Moodle.IsImportant('bleeding');// 是否重要
 ```
 
 如果 key 对应的定义不存在，属性方法返回安全的默认值（`0`、`false`、空字符串）。
@@ -90,17 +90,17 @@ var isImportant = MoodleUtil.IsImportant('bleeding');// 是否重要
 function onMoodleGet(event) {
     // event.MoodleKey, event.MoodleName, event.Intensity, event.Critical, event.HoldSeconds
     if (event.Critical) {
-        PlayerUtil.Alert('你获得了严重状态: ' + event.MoodleName, true);
+        Player.Alert('你获得了严重状态: ' + event.MoodleName, true);
     }
 }
 
 function onWorldGenerated() {
     // 每 2 秒检查所有严重状态
     setInterval(function() {
-        var keys = MoodleUtil.GetActiveMoodles();
+        var keys = Moodle.GetActiveMoodles();
         for (var i = 0; i < keys.length; i++) {
-            if (MoodleUtil.IsCritical(keys[i])) {
-                Log.Warning('严重状态活跃: ' + MoodleUtil.GetName(keys[i]));
+            if (Moodle.IsCritical(keys[i])) {
+                Log.Warning('严重状态活跃: ' + Moodle.GetName(keys[i]));
             }
         }
     }, 2000);
@@ -113,4 +113,4 @@ function onWorldGenerated() {
 - 同 key 的 Moodle 重复应用会刷新过期时间（重新计时）
 - `RemoveMoodle` 不会立即移除，而是标记为下个轮询周期处理（最多 0.5 秒延迟）
 - 属性查询方法读取的是 JSON 定义中的静态值，不是运行时变化的值
-- 全局变量名为 `MoodleUtil`，在 JS 和 Lua 中均可直接调用
+- 全局变量名为 `Moodle`，在 JS 和 Lua 中均可直接调用
