@@ -35,16 +35,16 @@ Language is detected from the entry file extension — `main.js` = JS mod, `main
 }
 ```
 
-| Field          | Type   | Required | Description                                                  |
-|----------------|--------|----------|--------------------------------------------------------------|
-| `id`           | string | Yes      | Unique ID, use snake_case, don't conflict with others        |
-| `name`         | string | Yes      | Display name                                                 |
-| `version`      | string | Yes      | Semver, e.g. `"1.0.0"`                                       |
-| `author`       | object | No       | Contributors, key = role (code, art, etc.), value = name     |
-| `description`  | string | No       | Mod description                                              |
-| `bark_version` | string | No       | Required Bark version (semver range)                         |
-| `game_version` | string | No       | Compatible game version (semver range)                       |
-| `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]` |
+| Field          | Type   | Required | Description                                                                       |
+|----------------|--------|----------|-----------------------------------------------------------------------------------|
+| `id`           | string | Yes      | Unique ID, use snake_case, don't conflict with others                             |
+| `name`         | string | Yes      | Display name                                                                      |
+| `version`      | string | Yes      | Semver, e.g. `"1.0.0"`                                                            |
+| `author`       | object | No       | Contributors, key = role (code, art, etc.), value = name                          |
+| `description`  | string | No       | Mod description                                                                   |
+| `bark_version` | string | No       | Required Bark version (semver range)                                              |
+| `game_version` | string | No       | Compatible game version (semver range)                                            |
+| `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]`                 |
 | `tiles`        | object | No       | Tile index mapping, e.g. `{"marble": 50}`, see [Custom Tiles](script-mod/tile.md) |
 
 ### Entry File
@@ -87,20 +87,20 @@ function onEnable() {
 
 Bark injects tool classes as global variables with PascalCase names matching the C# class names (minus the `Util` suffix). Use them directly.
 
-| Variable        | What It Does                                                                        | API Docs                                     |
-|-----------------|-------------------------------------------------------------------------------------|----------------------------------------------|
-| `Body`      | Body vitals (blood, hunger, temperature, consciousness...)                          | [Body System](script-api/body-system.md)     |
-| `Player`    | Player actions (teleport, pickup, alerts)                                           | [Player](script-api/player.md)               |
-| `Limb`      | Limb operations (fractures, dislocations, infections...)                            | [Limbs](script-api/limbs.md)                 |
-| `Inventory` | Inventory queries                                                                   | [Inventory & Items](script-api/inventory.md) |
-| `Item`      | Item search, durability, repair                                                     | [Inventory & Items](script-api/inventory.md) |
-| `Moodle`    | Status effect apply, remove, query                                                  | [Custom Status](script-api/moodle.md)        |
-| `Skill`     | Skill XP/levels                                                                     | [Skills](script-api/skills.md)               |
-| `World`     | World editing (place blocks, items)                                                 | [World Editing](script-api/world.md)         |
-| `OptionsApi`    | Read mod config options                                                             | [Options](script-api/options.md)             |
-| `Log`           | Logging: `Log.info()` / `Log.warning()` / `Log.error()`                             | [Logging](script-api/log.md)                 |
-| `Locale`        | Localized text: `Locale.Get("key")`                                                 | [Localization](script-api/locale.md)         |
-| `ScriptInfo`    | Current script metadata: `ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                            |
+| Variable     | What It Does                                                                        | API Docs                                     |
+|--------------|-------------------------------------------------------------------------------------|----------------------------------------------|
+| `Body`       | Body vitals (blood, hunger, temperature, consciousness...)                          | [Body](script-api/body.md)                   |
+| `Player`     | Player actions (teleport, pickup, alerts)                                           | [Player](script-api/player.md)               |
+| `Limb`       | Limb operations (fractures, dislocations, infections...)                            | [Limbs](script-api/limbs.md)                 |
+| `Inventory`  | Inventory queries                                                                   | [Inventory & Items](script-api/inventory.md) |
+| `Item`       | Item search, durability, repair                                                     | [Inventory & Items](script-api/inventory.md) |
+| `Moodle`     | Status effect apply, remove, query                                                  | [Custom Status](script-api/moodle.md)        |
+| `Skill`      | Skill XP/levels                                                                     | [Skills](script-api/skills.md)               |
+| `World`      | World editing (place blocks, items)                                                 | [World Editing](script-api/world.md)         |
+| `OptionsApi` | Read mod config options                                                             | [Options](script-api/options.md)             |
+| `Log`        | Logging: `Log.info()` / `Log.warning()` / `Log.error()`                             | [Logging](script-api/log.md)                 |
+| `Locale`     | Localized text: `Locale.Get("key")`                                                 | [Localization](script-api/locale.md)         |
+| `ScriptInfo` | Current script metadata: `ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                            |
 
 ## Naming Conventions
 
@@ -254,7 +254,7 @@ Script Mod List (3):
 All script mods reloaded
 ```
 
-> 💡 `script reload` is the most-used command. Modify scripts, hit `rs` — no need to restart the game.
+> 💡 `script reload` is the most-used command. Modify scripts, hit `sr` — no need to restart the game.
 
 ### Registering Custom Commands
 

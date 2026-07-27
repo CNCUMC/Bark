@@ -71,6 +71,14 @@ public static class MoodleUtil
         return MoodleEventListener.ForceExpire(moodleKey);
     }
 
+    // heal 时清除所有 can_heal=false 的自定义 Moodle。返回清除数量。
+    // can_heal 默认 false，即新 Moodle 默认会被 heal 移除；设为 true 则在 heal 后保留。
+    [ScriptMethod]
+    public static int ClearMoodlesOnHeal()
+    {
+        return MoodleEventListener.ClearMoodlesOnHeal();
+    }
+
     // ============================================================
     // 属性：获取已加载 Moodle 定义的属性
     // ============================================================

@@ -26,6 +26,18 @@ public static class WorldUtil
         PlaceBlock(new Vector2(x, y), block);
     }
 
+    // 接受物块 ID 字符串（如 "copper"、"marble"），自动解析为索引
+    [ScriptMethod(Name = "PlaceBlock")]
+    public static void PlaceBlock(int x, int y, string block)
+    {
+        if (string.IsNullOrEmpty(block))
+            return;
+        if (TileUtil.TryResolveIndex(block, out var index))
+            PlaceBlock(x, y, index);
+        else
+            LogUtil.Warning("world.tile_not_found", block);
+    }
+
     public static void PlaceBlock(Vector2 pos, ushort block)
     {
         CheckUtil.CheckWorld(Plugin.Logger);
@@ -53,6 +65,18 @@ public static class WorldUtil
         for (var cx = csx / WorldGeneration.CHUNKSIZE; cx <= cex / WorldGeneration.CHUNKSIZE; cx++)
         for (var cy = csy / WorldGeneration.CHUNKSIZE; cy <= cey / WorldGeneration.CHUNKSIZE; cy++)
             World.UpdateChunk(new Vector2Int(cx, cy));
+    }
+
+    // 接受物块 ID 字符串（如 "copper"、"marble"），自动解析为索引
+    [ScriptMethod(Name = "FillBlocks")]
+    public static void FillBlocks(int startX, int startY, int endX, int endY, string block)
+    {
+        if (string.IsNullOrEmpty(block))
+            return;
+        if (TileUtil.TryResolveIndex(block, out var index))
+            FillBlocks(startX, startY, endX, endY, index);
+        else
+            LogUtil.Warning("world.tile_not_found", block);
     }
 
     [ScriptMethod]

@@ -12,6 +12,10 @@ public class TileDef
     [JsonProperty("name")]
     public string Name = string.Empty;
 
+    // 物块描述文本（注册为 other.{id}_description 的本地化条目）
+    [JsonProperty("description")]
+    public string? Description;
+
     // 精灵图着色，支持 RGBA hex 如 "#FF0000" 或 "#FF0000FF"，默认白色
     [JsonProperty("color")]
     public string? Color;
@@ -87,9 +91,9 @@ public class TileDef
     [JsonProperty("script")]
     public TileScriptDef? Script;
 
-    // 精灵图导入放大倍数，默认 8.0
+    // 精灵图导入放大倍数，默认 1.0
     [JsonProperty("sprite_import_scale")]
-    public float SpriteImportScale = 8f;
+    public float SpriteImportScale = 2f;
 }
 
 // 物块脚本触发定义：动作名 → 脚本文件列表（路径相对于模组目录）。

@@ -55,7 +55,6 @@ public class PuerLua : ScriptEngine
         var id = EscapeString(Manifest.Id);
         var version = EscapeString(Manifest.Version);
         var scriptName = EscapeString(Manifest.Name);
-        var logsDir = EscapeString(LogsDir);
 
         var sb = new StringBuilder();
         sb.AppendLine("CS = require('csharp')");
@@ -65,7 +64,7 @@ public class PuerLua : ScriptEngine
             sb.AppendLine($"{name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}')");
 
         // 特殊 API：Log / Locale / ScriptInfo
-        sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}')");
+        sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{id}')");
         sb.AppendLine("Log = _logApi");
         sb.AppendLine("Locale = _logApi.Locale");
         sb.AppendLine($"ScriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");

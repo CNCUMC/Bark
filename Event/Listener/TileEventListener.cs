@@ -96,11 +96,12 @@ public static class TileEventListener
 
     private static void TryPatchSetBlock()
     {
+        // 游戏方法签名为 SetBlock(Vector2Int, ushort)
         var method = AccessTools.Method(typeof(WorldGeneration), "SetBlock",
-            [typeof(Vector2Int), typeof(int)]);
+            [typeof(Vector2Int), typeof(ushort)]);
         if (method == null)
         {
-            // 回退：尝试无参数的参数重载
+            // 回退：尝试无类型参数匹配
             method = AccessTools.Method(typeof(WorldGeneration), "SetBlock");
         }
 
@@ -118,9 +119,11 @@ public static class TileEventListener
         }
     }
 
-    private static void OnSetBlockPrefix(WorldGeneration __instance, Vector2Int pos, int index)
+    private static void OnSetBlockPrefix(WorldGeneration __instance, Vector2Int pos, ushort block)
     {
         if (__instance == null || !WorldReady()) return;
+
+        var index = (int)block;
 
         // 获取旧物块索引
         var oldIndex = GetBlockAt(__instance, pos);
@@ -174,27 +177,34 @@ public static class TileEventListener
     private static void TryPatchDamageBlock()
     {
         // 尝试常见的伤害方法名。
-        // 由于游戏 API 未知，不预设参数类型，直接尝试匹配。
+        // 部分方法可能存在重载，遍历所有匹配项逐一尝试。
         foreach (var methodName in new[] { "DamageBlock", "HitBlock", "DamageTile", "BreakBlock" })
         {
-            var method = AccessTools.Method(typeof(WorldGeneration), methodName)
-                         ?? AccessTools.Method(typeof(BlockInfo), methodName);
-            if (method == null) continue;
+            var candidates = AccessTools.GetDeclaredMethods(typeof(WorldGeneration));
+            if (candidates == null) continue;
 
-            try
+            var patched = false;
+            foreach (var method in candidates)
             {
-                // 使用通用的 __args 方式捕获原始参数
-                var postfix = new HarmonyMethod(typeof(TileEventListener), nameof(OnDamageBlockPostfix));
-                var harmony = new Harmony("Bark.TileDamageListener");
-                harmony.Patch(method, postfix: postfix);
-                _damageBlockMethod = method;
-                LogUtil.Info("item_event.patch_use_ok", $"{method.DeclaringType?.Name}.{methodName}");
-                break;
+                if (method.Name != methodName) continue;
+
+                try
+                {
+                    var postfix = new HarmonyMethod(typeof(TileEventListener), nameof(OnDamageBlockPostfix));
+                    var harmony = new Harmony("Bark.TileDamageListener");
+                    harmony.Patch(method, postfix: postfix);
+                    _damageBlockMethod = method;
+                    LogUtil.Info("item_event.patch_use_ok", $"{method.DeclaringType?.Name}.{methodName}");
+                    patched = true;
+                    break;
+                }
+                catch
+                {
+                    // ignored, try next overload
+                }
             }
-            catch
-            {
-                // ignored
-            }
+
+            if (patched) break;
         }
     }
 

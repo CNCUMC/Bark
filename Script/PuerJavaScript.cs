@@ -55,7 +55,6 @@ public class PuerJavaScript : ScriptEngine
         var id = EscapeString(Manifest.Id);
         var version = EscapeString(Manifest.Version);
         var scriptName = EscapeString(Manifest.Name);
-        var logsDir = EscapeString(LogsDir);
 
         var sb = new StringBuilder();
 
@@ -64,7 +63,7 @@ public class PuerJavaScript : ScriptEngine
             sb.AppendLine($"var {name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}');");
 
         // 特殊 API
-        sb.AppendLine($"var logApi = new CS.Bark.ScriptApi.LogApi('{scriptName}', '{logsDir}', '{id}');");
+        sb.AppendLine($"var logApi = new CS.Bark.ScriptApi.LogApi('{scriptName}', '{id}');");
         sb.AppendLine("var Log = logApi;");
         sb.AppendLine("var Locale = logApi.Locale;");
         sb.AppendLine($"var ScriptInfo = {{ Id: '{id}', Version: '{version}', Name: '{scriptName}' }};");

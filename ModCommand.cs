@@ -7,7 +7,7 @@ using BepInEx;
 using CUCoreLib.Helpers;
 using CUCoreLib.Registries;
 
-namespace Bark.Example;
+namespace Bark;
 
 public static class ModCommand
 {
@@ -117,10 +117,10 @@ public static class ModCommand
 
     private static void MessageCommand(string key, params object[] args)
     {
-        LogUtil.Message(LocaleCommand(key, args));
+        LogUtil.Message($"script.{key}", args);
     }
     private static string LocaleCommand(string key, params object[] args)
     {
-        return BetterLocale.GetCommand($"script.{key}", args);
+        return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.{key}", args);
     }
 }

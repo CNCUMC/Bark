@@ -86,20 +86,20 @@ function onEnable() {
 
 Bark 把工具类注入为全局变量，名字为 C# 类名去掉 `Util` 后缀（PascalCase），直接用就行。
 
-| 变量名          | 做什么的                                                                     | API 文档                            |
-|-----------------|------------------------------------------------------------------------------|-------------------------------------|
-| `Body`          | 角色基础生理系统（血量、饥饿、体温、意识……）                                 | [生理系统](script-api/body-system.md) |
-| `Player`        | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
-| `Limb`          | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
-| `Inventory`     | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
-| `Item`          | 物品搜索、耐久、修补                                                         | [背包与物品](script-api/inventory.md) |
-| `Moodle`        | 状态效果应用、移除、查询                                                     | [自定义状态](script-api/moodle.md)     |
-| `Skill`         | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
-| `World`         | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
-| `OptionsApi`    | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
-| `Log`           | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
-| `Locale`        | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
-| `ScriptInfo`    | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                   |
+| 变量名       | 做什么的                                                                     | API 文档                              |
+|--------------|------------------------------------------------------------------------------|---------------------------------------|
+| `Body`       | 角色基础生理系统（血量、饥饿、体温、意识……）                                 | [身体](script-api/body.md)            |
+| `Player`     | 玩家操作（传送、拾取、提示）                                                 | [玩家](script-api/player.md)          |
+| `Limb`       | 肢体操作（骨折、脱臼、感染……）                                               | [肢体](script-api/limbs.md)           |
+| `Inventory`  | 背包查询                                                                     | [背包与物品](script-api/inventory.md) |
+| `Item`       | 物品搜索、耐久、修补                                                         | [背包与物品](script-api/inventory.md) |
+| `Moodle`     | 状态效果应用、移除、查询                                                     | [自定义状态](script-api/moodle.md)    |
+| `Skill`      | 技能经验/等级                                                                | [技能](script-api/skills.md)          |
+| `World`      | 世界编辑（放方块、放物品）                                                   | [世界编辑](script-api/world.md)       |
+| `OptionsApi` | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
+| `Log`        | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
+| `Locale`     | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
+| `ScriptInfo` | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                     |
 
 ## 命名规则
 
@@ -250,7 +250,7 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 所有脚本模组已重新加载
 ```
 
-> 💡 `script reload` 是最常用的指令。改了脚本不需要重启游戏，输一下 `rs` 就能看到效果。
+> 💡 `script reload` 是最常用的指令。改了脚本不需要重启游戏，输一下 `sr` 就能看到效果。
 
 ### 注册自定义命令
 

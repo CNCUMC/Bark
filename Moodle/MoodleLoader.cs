@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Bark.Script;
 using Bark.Tool;
-using CUCoreLib.Registries;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -20,9 +19,9 @@ public class MoodleEntry(string key, string fileName)
     public string FileName = fileName;
 }
 
-// 自定义 Moodle 加载器：扫描 ModDir/Moodle/*.json，调用 MoodleRegistry 注册。
-// MoodleRegistry 使用队列机制（到期自动消失），故无 BeginOwnerRegistration 模式。
-// 热重载时直接重新注册即可（同 key 会覆盖旧队列条目）。
+// 自定义 Moodle 加载器：扫描 ModDir/Moodle/*.json，加载精灵图并缓存定义。
+// 注册阶段不调用 MoodleRegistry.AddMoodle（那会直接应用状态到玩家），
+// 仅在 MoodleUtil.ApplyMoodle 被脚本显式调用时才真正应用状态。
 // 脚本映射分两阶段：RegisterFromMod 先注册 Moodle 与暂存脚本定义，
 // RegisterScripts 在引擎就绪后写入 MoodleScriptRegistry。
 public static class MoodleLoader
@@ -145,63 +144,32 @@ public static class MoodleLoader
         }
 
         // 生成 key：优先用定义中的 key，否则从文件名 + mod_id 自动生成
-        var key = BuildMoodleKey(def, jsonFile, modId);
+        var key = BuildMoodleKey(def, jsonFile);
 
-        // 根据图标来源调用不同的注册方法
+        // 加载精灵图资源并缓存（供运行时 ApplyMoodle 使用），但不调用 MoodleRegistry.AddMoodle。
+        // 注册阶段仅存储定义，状态的真正应用由 MoodleUtil.ApplyMoodle 在脚本调用时完成。
         if (def.Animated && !string.IsNullOrWhiteSpace(def.AnimationId))
         {
-            MoodleRegistry.AddAnimatedMoodle(
-                def.Intensity,
-                def.AnimationId,
-                def.Name,
-                def.Description,
-                def.Critical,
-                def.ChippedOnly,
-                def.Important,
-                key,
-                def.HoldSeconds);
+            // 动画 Moodle：animation_id 由游戏运行时解析，无需预加载
         }
         else if (!string.IsNullOrWhiteSpace(def.IconId))
         {
-            MoodleRegistry.AddMoodle(
-                def.Intensity,
-                def.IconId,
-                def.Name,
-                def.Description,
-                def.Critical,
-                def.ChippedOnly,
-                def.Important,
-                key,
-                def.HoldSeconds);
+            // 内置图标 ID：由游戏运行时解析，无需预加载
         }
         else if (!string.IsNullOrWhiteSpace(def.IconAsset))
         {
             // 自定义精灵图：Assets/Moodle/{icon_asset}
             var spritePath = Path.Combine(assetsDir, def.IconAsset);
-            // 如果不是绝对路径，从模组 assets 拼接
             if (!Path.IsPathRooted(def.IconAsset))
                 spritePath = Path.Combine(assetsDir, def.IconAsset);
 
             var sprite = ItemUtil.LoadSprite(spritePath, def.SpriteScale);
             if (sprite != null)
             {
-                // 缓存精灵图供运行时 ApplyMoodle 复用
                 LoadedMoodleSprites[key] = sprite;
-
-                MoodleRegistry.AddMoodle(
-                    def.Intensity,
-                    sprite,
-                    def.Name,
-                    def.Description,
-                    def.Critical,
-                    def.ChippedOnly,
-                    def.Important,
-                    key,
-                    def.HoldSeconds);
             }
             else
             {
-                // 精灵加载失败，降级使用 icon_id（如果提供）或跳过
                 LogUtil.Warning("moodle.sprite_load_failed", spritePath, key);
             }
         }
@@ -212,19 +180,7 @@ public static class MoodleLoader
             var autoSprite = ItemUtil.LoadSprite(autoSpritePath, def.SpriteScale);
             if (autoSprite != null)
             {
-                // 缓存精灵图供运行时 ApplyMoodle 复用
                 LoadedMoodleSprites[key] = autoSprite;
-
-                MoodleRegistry.AddMoodle(
-                    def.Intensity,
-                    autoSprite,
-                    def.Name,
-                    def.Description,
-                    def.Critical,
-                    def.ChippedOnly,
-                    def.Important,
-                    key,
-                    def.HoldSeconds);
             }
             else
             {
@@ -264,7 +220,7 @@ public static class MoodleLoader
     }
 
     // 构建 Moodle key：优先用 def.Key，否则用文件名（去扩展名、snake_case 化）
-    private static string BuildMoodleKey(MoodleDef def, string jsonFile, string modId)
+    private static string BuildMoodleKey(MoodleDef def, string jsonFile)
     {
         if (!string.IsNullOrWhiteSpace(def.Key))
             return def.Key.Trim().ToLowerInvariant();
@@ -272,7 +228,7 @@ public static class MoodleLoader
         var baseName = Path.GetFileNameWithoutExtension(jsonFile);
         var sanitized = SnakeCaseSanitizer.Replace(baseName, "_");
         // 合并连续下划线
-        sanitized = Regex.Replace(sanitized, @"_+", "_");
+        sanitized = Regex.Replace(sanitized, "_+", "_");
         sanitized = sanitized.Trim('_').ToLowerInvariant();
         return sanitized;
     }

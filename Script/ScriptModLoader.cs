@@ -51,7 +51,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
 
         // 创建目录结构
         var modsDir = Path.Combine(modsPath, "Mods");
-        var logsDir = Path.Combine(modsPath, "Logs");
         var configsDir = Path.Combine(modsPath, "Configs");
 
         if (!Directory.Exists(modsPath))
@@ -61,7 +60,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
         }
 
         Directory.CreateDirectory(modsDir);
-        Directory.CreateDirectory(logsDir);
         Directory.CreateDirectory(configsDir);
 
         // 1. 扫描 Mods/ 子目录

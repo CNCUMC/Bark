@@ -36,15 +36,6 @@ Log.Divider();             // default divider "---------------------------"
 Log.Divider('=', 40);     // custom divider
 ```
 
-## Log Files
-
-Logs are written to `ScriptMod/Logs/`:
-
-- `ScriptMod/Logs/.latest.log` — latest session log
-- `ScriptMod/Logs/2026-07-25_14.30.00.log` — timestamped archive
-
-Each startup overwrites `.latest.log` and creates a new archive.
-
 ## Log.Locale
 
 `Log.Locale` provides the localization API. See [LocaleApi](locale.md) for details.

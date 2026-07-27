@@ -1,42 +1,16 @@
-using System;
-using System.IO;
 using Bark.Tool;
 
 namespace Bark.ScriptApi;
 
+// 脚本侧 Log 全局变量：封装 LogUtil，自动添加 [模组名] 前缀
 public class LogApi
 {
-    private static StreamWriter? _sharedLatestWriter;
-    private static readonly object _latestLock = new();
-    private readonly StreamWriter? _archiveWriter;
     private readonly string _modName;
 
-    public LogApi(string modName, string logsDir, string modId)
+    public LogApi(string modName, string modId)
     {
         _modName = modName;
         Locale = new LocaleApi(modId, modName);
-
-        try
-        {
-            Directory.CreateDirectory(logsDir);
-
-            lock (_latestLock)
-            {
-                if (_sharedLatestWriter == null)
-                {
-                    var latestPath = Path.Combine(logsDir, ".latest.log");
-                    _sharedLatestWriter = new StreamWriter(latestPath, false) { AutoFlush = true };
-                }
-            }
-
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var archivePath = Path.Combine(logsDir, $"{timestamp}.log");
-            _archiveWriter = new StreamWriter(archivePath, true) { AutoFlush = true };
-        }
-        catch
-        {
-            // ignored
-        }
     }
 
     // 本地化访问器
@@ -54,37 +28,27 @@ public class LogApi
 
     public void Info(string msg)
     {
-        var text = Format(msg);
-        LogUtil.Info(text, Plugin.Logger);
-        WriteToFile("INFO", text);
+        LogUtil.Info(Format(msg), Plugin.Logger);
     }
 
     public void Error(string msg)
     {
-        var text = Format(msg);
-        LogUtil.Error(text, Plugin.Logger);
-        WriteToFile("ERROR", text);
+        LogUtil.Error(Format(msg), Plugin.Logger);
     }
 
     public void Warning(string msg)
     {
-        var text = Format(msg);
-        LogUtil.Warning(text, Plugin.Logger);
-        WriteToFile("WARNING", text);
+        LogUtil.Warning(Format(msg), Plugin.Logger);
     }
 
     public void Debug(string msg)
     {
-        var text = Format(msg);
-        LogUtil.Debug(text, Plugin.Logger);
-        WriteToFile("DEBUG", text);
+        LogUtil.Debug(Format(msg), Plugin.Logger);
     }
 
     public void Message(string msg)
     {
-        var text = Format(msg);
-        LogUtil.Message(text, Plugin.Logger);
-        WriteToFile("MESSAGE", text);
+        LogUtil.Message(Format(msg), Plugin.Logger);
     }
 
     // 便捷方法：日志 + 本地化一步完成
@@ -116,30 +80,5 @@ public class LogApi
     private string Format(string msg)
     {
         return $"[{_modName}] {msg}";
-    }
-
-    private void WriteToFile(string type, string text)
-    {
-        var line = $"[{DateTime.Now:HH:mm:ss}] [{type}] {text}";
-        lock (_latestLock)
-        {
-            try
-            {
-                _sharedLatestWriter?.WriteLine(line);
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        try
-        {
-            _archiveWriter?.WriteLine(line);
-        }
-        catch
-        {
-            // ignored
-        }
     }
 }

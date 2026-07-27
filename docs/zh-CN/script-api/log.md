@@ -35,15 +35,6 @@ Log.Divider();             // 默认分隔线 "---------------------------"
 Log.Divider('=', 40);     // 自定义分隔线
 ```
 
-## 日志文件
-
-日志自动写入 `ScriptMod/Logs/` 目录：
-
-- `ScriptMod/Logs/.latest.log` — 最新一次启动的日志
-- `ScriptMod/Logs/2026-07-25_14.30.00.log` — 带时间戳的归档日志
-
-每次启动覆盖 `.latest.log`，同时创建新的归档。
-
 ## Log.Locale
 
 `Log.Locale` 提供本地化 API，详见 [LocaleApi](locale.md)。

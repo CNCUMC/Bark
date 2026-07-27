@@ -20,29 +20,6 @@ ScriptMod/Mods/
       mahogany.png
 ```
 
-## 物块索引
-
-物块索引是 `TileRegistry.Register(index, def)` 的注册参数， **不属于 `CustomTileDefinition`**，因此在 `mod.json` 的
-`tiles` 字段中集中声明，而非写在单个物块 JSON 里。
-
-```json
-{
-  "id": "my_mod",
-  "name": "我的模组",
-  "version": "1.0.0",
-  "tiles": {
-    "marble": 50,
-    "mahogany": 51
-  }
-}
-```
-
-| 字段    | 类型                 | 必填 | 说明                                                                  |
-|---------|----------------------|------|-----------------------------------------------------------------------|
-| `tiles` | `object<string,int>` | ❌   | 物块索引映射。key 为文件名（不含 `.json`），value 为 >= 36 的整数索引 |
-
-> ⚠️ 索引会写入存档，选好后不要改动。各模组的索引不能冲突。
-
 ## JSON 格式
 
 `Tile/{name}.json` 字段与 `CustomTileDefinition` 一一对应：
@@ -199,7 +176,7 @@ end
 
 ## 注意事项
 
-- 索引必须在 `mod.json` 的 `tiles` 字段中声明，且 >= 36（0~35 为原版保留）
-- 如果两个模组注册了相同的 `tile_index`，后加载的会覆盖前者
+- 物块索引由 Bark 自动分配（>= 36），模组无需在 `mod.json` 中声明
+- 物块 ID 取自 JSON 文件名（不含扩展名），按字母排序以确定索引分配顺序
 - JSON 字段使用 `snake_case`
 - 开发时无需重启游戏，`script reload` / `rs` 会重载物块定义

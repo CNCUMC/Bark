@@ -8,28 +8,19 @@ namespace Bark.Tool;
 public static class InventoryUtil
 {
     // ============================================================
-    // 内部辅助 - 统一 Body 获取入口
-    // ============================================================
-
-    private static Body? GetBody()
-    {
-        return PlayerCamera.main?.body;
-    }
-
-    // ============================================================
     // 手部物品查询
     // ============================================================
 
     [ScriptMethod]
     public static int GetHandSlot()
     {
-        return GetBody()?.handSlot ?? 0;
+        return BodyUtil.Body.handSlot;
     }
 
     public static Item? GetItemInHand()
     {
-        var body = GetBody();
-        return body?.GetItem(body.handSlot);
+        var body = BodyUtil.Body;
+        return body.GetItem(body.handSlot);
     }
 
     public static ItemInfo? GetItemInfoInHand()
@@ -82,13 +73,13 @@ public static class InventoryUtil
     [ScriptMethod]
     public static int GetSlotCount()
     {
-        return GetBody()?.slots?.Length ?? 0;
+        return BodyUtil.Body.slots?.Length ?? 0;
     }
 
     [ScriptMethod]
     public static bool IsSlotOccupied(int slot)
     {
-        return GetBody()?.HoldingItem(slot) ?? false;
+        return BodyUtil.Body.HoldingItem(slot);
     }
 
     [ScriptMethod]
@@ -99,7 +90,7 @@ public static class InventoryUtil
 
     public static Item? GetItem(int slot)
     {
-        return GetBody()?.GetItem(slot);
+        return BodyUtil.Body.GetItem(slot);
     }
 
     public static ItemInfo? GetItemInfo(int slot)
@@ -116,7 +107,7 @@ public static class InventoryUtil
     [ScriptMethod]
     public static int FindFirstEmptySlot()
     {
-        return GetBody()?.FirstEmptySlot() ?? -1;
+        return BodyUtil.Body.FirstEmptySlot() ?? -1;
     }
 
     // ============================================================
@@ -127,13 +118,13 @@ public static class InventoryUtil
     public static bool HasItem(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return GetBody()?.HoldingItem(id) ?? false;
+        return BodyUtil.Body.HoldingItem(id);
     }
 
     public static bool HasItem(Predicate<ItemInfo> predicate)
     {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-        if (GetBody() is not { } body) return false;
+        if (BodyUtil.Body is not { } body) return false;
         for (var i = 0; i < body.slots.Length; i++)
         {
             var info = body.GetItem(i)?.Stats;
@@ -159,14 +150,14 @@ public static class InventoryUtil
     public static bool HasAnyItem(string[] ids)
     {
         if (ids is not { Length: > 0 }) return false;
-        return GetBody() is { } body && ids.Any(body.HoldingItem);
+        return BodyUtil.Body is { } body && ids.Any(body.HoldingItem);
     }
 
     [ScriptMethod]
     public static int CountItem(string id)
     {
         if (string.IsNullOrWhiteSpace(id)) return 0;
-        if (GetBody() is not { } body) return 0;
+        if (BodyUtil.Body is not { } body) return 0;
         var c = 0;
         for (var i = 0; i < body.slots.Length; i++)
             if (body.GetItem(i)?.id == id)
@@ -180,7 +171,7 @@ public static class InventoryUtil
 
     public static List<Item> GetAllItems()
     {
-        return GetBody()?.GetAllItems() ?? [];
+        return BodyUtil.Body.GetAllItems() ?? [];
     }
 
     public static List<ItemInfo> GetAllItemInfos()
@@ -244,7 +235,7 @@ public static class InventoryUtil
     {
         item = null;
         if (string.IsNullOrWhiteSpace(id)) return false;
-        return GetBody() is { } body && body.FindByIdSurface(id, out item);
+        return BodyUtil.Body is { } body && body.FindByIdSurface(id, out item);
     }
 
     // ============================================================
@@ -253,7 +244,7 @@ public static class InventoryUtil
 
     public static List<Item> GetWearables()
     {
-        return GetBody()?.GetAllWearables() ?? [];
+        return BodyUtil.Body.GetAllWearables() ?? [];
     }
 
     public static List<ItemInfo> GetWearableInfos()
@@ -337,7 +328,7 @@ public static class InventoryUtil
     public static bool HasItemThorough(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
-        return GetBody() is { } body && body.FindByIdThorough(id, out _);
+        return BodyUtil.Body is { } body && body.FindByIdThorough(id, out _);
     }
 
     public static bool HasItemThoroughByTag(string tag)
@@ -352,7 +343,7 @@ public static class InventoryUtil
 
     public static List<Item> GetAllItemsThorough()
     {
-        return GetBody()?.GetAllItemsThorough() ?? [];
+        return BodyUtil.Body.GetAllItemsThorough() ?? [];
     }
 
     public static List<ItemInfo> GetAllItemInfosThorough()
@@ -392,7 +383,7 @@ public static class InventoryUtil
     {
         item = null;
         if (string.IsNullOrWhiteSpace(id)) return false;
-        return GetBody() is { } body && body.FindByIdThorough(id, out item);
+        return BodyUtil.Body is { } body && body.FindByIdThorough(id, out item);
     }
 
     // ============================================================
@@ -401,7 +392,7 @@ public static class InventoryUtil
 
     public static List<Item> GetAllItemsAll()
     {
-        if (GetBody() is not { } body) return [];
+        if (BodyUtil.Body is not { } body) return [];
         var items = new List<Item>();
         var hand = GetItemInHand();
         if (hand != null) items.Add(hand);

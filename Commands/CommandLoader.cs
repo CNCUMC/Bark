@@ -10,13 +10,13 @@ using CUCoreLib.Registries;
 namespace Bark.Commands;
 
 // 脚本命令加载器：扫描 ModDir/Command/*.json，注册到 ConsoleCommandRegistry，
-// 输入命令时通过 engine.CallTriggerEvent 调用脚本侧的 onCommand(event)。
+// 输入命令时通过 EventUtil.Trigger 分发到事件总线，所有脚本引擎均可接收 onCommand。
 public static class CommandLoader
 {
     // 所有已注册的命令追踪（供调试/重载用）
     public static readonly Dictionary<string, CommandEntry> RegisteredCommands = new();
 
-    // 暂存的命令定义：modId → 命令名 → (引擎, manifest)，待引擎就绪后注册
+    // 暂存的命令定义：modId → 命令名 → (manifest, def)，待引擎就绪后注册
     private static readonly Dictionary<string, Dictionary<string, (ScriptManifest manifest, CommandDef def)>>
         PendingCommands = new();
 
@@ -73,21 +73,18 @@ public static class CommandLoader
         LogUtil.Info("command.pending_count", manifest.Id, loadedCount);
     }
 
-    // 引擎就绪后，将暂存的命令注册到 ConsoleCommandRegistry，动作分发到脚本侧
+    // 引擎就绪后，将暂存的命令注册到 ConsoleCommandRegistry，通过事件系统分发给所有脚本
     public static void RegisterScripts(ScriptManifest manifest)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
-        if (manifest.Engine is null)
-            return;
 
         if (!PendingCommands.Remove(manifest.Id, out var modCommands) || modCommands.Count == 0)
             return;
 
-        var engine = manifest.Engine;
         var registeredCount = 0;
 
-        foreach (var (name, (mod, def)) in modCommands)
+        foreach (var (name, (_, def)) in modCommands)
         {
             // 构建参数自动完成
             var argAutofill = BuildArgAutofill(def);
@@ -98,18 +95,11 @@ public static class CommandLoader
                 def.Description ?? string.Empty,
                 args =>
                 {
-                    try
+                    EventUtil.Trigger(new CommandEvent
                     {
-                        engine.CallTriggerEvent("onCommand", new CommandEvent
-                        {
-                            CommandName = name,
-                            Args = [.. args]
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        LogUtil.Warning("command.script_error", name, mod.Id, ex.Message);
-                    }
+                        CommandName = name,
+                        Args = [.. args]
+                    });
                 },
                 argAutofill,
                 argDescriptions);

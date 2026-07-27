@@ -25,6 +25,10 @@ public class MoodleDef
     [JsonProperty("critical")]
     public bool Critical;
 
+    // 治疗时是否可被清除。默认 false，即 heal 时自动移除该 Moodle；设为 true 则 heal 后依然保留
+    [JsonProperty("can_heal")]
+    public bool CanHeal;
+
     // 仅消耗品显示
     [JsonProperty("chipped_only")]
     public bool ChippedOnly;

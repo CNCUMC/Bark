@@ -20,30 +20,6 @@ ScriptMod/Mods/
       mahogany.png
 ```
 
-## Tile Index
-
-The tile index is the registration parameter for `TileRegistry.Register(index, def)` — it is **not** a
-`CustomTileDefinition` field. Declare indices centrally in `mod.json`'s `tiles` section, not in individual tile JSONs.
-
-```json
-{
-  "id": "my_mod",
-  "name": "My Mod",
-  "version": "1.0.0",
-  "tiles": {
-    "marble": 50,
-    "mahogany": 51
-  }
-}
-```
-
-| Field   | Type                 | Required | Notes                                                                   |
-|---------|----------------------|----------|-------------------------------------------------------------------------|
-| `tiles` | `object<string,int>` | No       | Tile index mapping. Key = filename (without `.json`), value = int >= 36 |
-
-> ⚠️ Indices are written to save files. Pick them carefully and never change them. Indices must not conflict across
-> mods.
-
 ## JSON Format
 
 `Tile/{name}.json` fields map 1:1 to `CustomTileDefinition`:
@@ -202,7 +178,7 @@ You can also expose data to scripts via `custom_data`:
 
 ## Notes
 
-- Indices must be declared in `mod.json`'s `tiles` section, and must be >= 36 (0~35 reserved for vanilla)
-- If two mods register the same `tile_index`, the last loaded wins
+- Tile indices are auto-assigned by Bark (>= 36). Do NOT declare them in `mod.json`.
+- Tile ID comes from the JSON filename (without extension). Files are sorted alphabetically for deterministic assignment.
 - JSON fields use `snake_case`
 - `script reload` / `rs` reloads tile definitions — no restart needed during development

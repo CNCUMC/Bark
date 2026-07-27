@@ -990,5 +990,8 @@ public static class BodyUtil
         if (body.TryGetComponent<Painkillers>(out var pk)) Object.Destroy(pk);
         if (body.TryGetComponent<SleepingPills>(out var sp)) Object.Destroy(sp);
         if (body.TryGetComponent<Antidepressants>(out var ad)) Object.Destroy(ad);
+
+        // 清除所有 can_heal=false 的自定义 Moodle（can_heal=true 的状态保留）
+        MoodleUtil.ClearMoodlesOnHeal();
     }
 }

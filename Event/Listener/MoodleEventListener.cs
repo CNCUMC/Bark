@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bark.Events;
+using Bark.Moodle;
 using Bark.Tool;
 using CUCoreLib.Registries;
 using HarmonyLib;
@@ -106,9 +107,12 @@ public static class MoodleEventListener
         if (string.IsNullOrEmpty(key))
             return;
 
+        // 查找自定义 MoodleDef 以获取 can_heal 标记。非自定义 moodle 视为 can_heal=true（heal 时保留）
+        var canHeal = MoodleLoader.LoadedMoodleDefs.TryGetValue(key, out var def) && def.CanHeal;
+
         // 记录或更新追踪信息（同 key 刷新会覆盖旧的过期时间）
         var expireTime = Time.time + holdSeconds;
-        ActiveMoodles[key] = new MoodleTracker(key, name, intensity, critical, expireTime);
+        ActiveMoodles[key] = new MoodleTracker(key, name, intensity, critical, expireTime, canHeal);
 
         EventUtil.Trigger(new MoodleGetEvent
         {
@@ -198,6 +202,24 @@ public static class MoodleEventListener
         return true;
     }
 
+    // heal 时清除所有 can_heal=false 的自定义 Moodle（即"可被治疗清除"的状态）
+    // can_heal=true 的 moodle 视为需要保留的状态（如永久效果、特殊标记等）
+    internal static int ClearMoodlesOnHeal()
+    {
+        var keysToExpire = ActiveMoodles
+            .Where(kv => !kv.Value.CanHeal)
+            .Select(kv => kv.Key)
+            .ToList();
+
+        foreach (var key in keysToExpire)
+        {
+            if (ActiveMoodles.TryGetValue(key, out var tracker))
+                tracker.ExpireTime = Time.time - 1f;
+        }
+
+        return keysToExpire.Count;
+    }
+
     // ============================================================
     // 内部类型
     // ============================================================
@@ -207,12 +229,14 @@ public static class MoodleEventListener
         string name,
         int intensity,
         bool critical,
-        float expireTime)
+        float expireTime,
+        bool canHeal)
     {
         public readonly string Key = key;
         public readonly string Name = name;
         public readonly int Intensity = intensity;
         public readonly bool Critical = critical;
         public float ExpireTime = expireTime;
+        public bool CanHeal = canHeal;
     }
 }
