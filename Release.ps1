@@ -216,15 +216,15 @@ if (Test-Path $localPluginsDir)
 $puertPath = Join-Path $scriptDir "Puer"
 if (Test-Path $puertPath -PathType Container)
 {
-    # DLL 文件
-    $puertDlls = Get-ChildItem $puertPath -File -Filter "*.dll"
-    foreach ($puertDll in $puertDlls)
+    # 根目录所有文件（DLL 和 JS 等）
+    $puertFiles = Get-ChildItem $puertPath -File
+    foreach ($puertFile in $puertFiles)
     {
-        Copy-Item $puertDll.FullName $packageDir -Force
-        Write-OK "已添加 PuerTS: $( $puertDll.Name )"
+        Copy-Item $puertFile.FullName $packageDir -Force
+        Write-OK "已添加 PuerTS: $( $puertFile.Name )"
     }
 
-    # 运行时文件
+    # 运行时文件（puerts/ 子目录递归）
     $puertRuntimePath = Join-Path $puertPath "puerts"
     if (Test-Path $puertRuntimePath -PathType Container)
     {
