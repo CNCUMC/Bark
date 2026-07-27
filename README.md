@@ -60,7 +60,7 @@ game utility tools.
 
 ## Documentation
 
-Full documentation at [`docs/en-US/`](docs/en-US/) (and [简体中文](docs/zh-CN/)):
+Full documentation at [`docs/en-US/`](docs/en-US) (and [简体中文](docs/zh-CN)):
 
 - [Getting Started](docs/zh-CN/getting-started.md) — Installation, environment, choosing your path
 - [Script Development](docs/zh-CN/script-mod.md) — JS/Lua mods, lifecycle hooks, console commands
@@ -68,8 +68,8 @@ Full documentation at [`docs/en-US/`](docs/en-US/) (and [简体中文](docs/zh-C
 - [Configuration & Localization](docs/zh-CN/configuration.md) — Options registration, multi-language
 - [Script Event Hooks](docs/zh-CN/script-events.md) — All listenable event hooks
 - [C# Event System](docs/zh-CN/csharp-events.md) — Event subscription / trigger / custom events
-- [Script API Reference](docs/zh-CN/script-api/) — BodyUtil, PlayerUtil, LimbUtil, etc.
-- [C# API Reference](docs/zh-CN/csharp-api/) — EventUtil, UpdateUtil
+- [Script API Reference](docs/zh-CN/script-api) — BodyUtil, PlayerUtil, LimbUtil, etc.
+- [C# API Reference](docs/zh-CN/csharp-api) — EventUtil, UpdateUtil
 
 ---
 
@@ -112,13 +112,13 @@ string text = BetterLocale.GetOther("bark.feature.enabled");
 
 // Define fallback translations via language generators:
 // EnLangGenerator.cs
-Other("bark.feature.enabled", "Enable Feature");
+Other("feature.enabled", "Enable Feature");
 
 // ZhCnLangGenerator.cs
-Other("bark.feature.enabled", "启用功能");
+Other("eature.enabled", "启用功能");
 ```
 
-See [Example/Lang/](Example/Lang) for sample generators.
+See [Example/Lang/](Example/LangGenerator.cs) for sample generators.
 
 ### 3. Register a Setting
 
@@ -254,23 +254,24 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 
 ## Tools Reference
 
-> Full API docs at [Script API Reference](docs/zh-CN/script-api/) and [C# API Reference](docs/zh-CN/csharp-api/). Overview below.
+> Full API docs at [Script API Reference](docs/zh-CN/script-api) and [C# API Reference](docs/zh-CN/csharp-api).
+> Overview below.
 
-| Class            | Description                         | Detailed Docs                                    |
-|------------------|-------------------------------------|--------------------------------------------------|
-| `LogUtil`        | Logging + validation helpers        | [Log](docs/zh-CN/script-api/log.md)              |
-| `PlayerUtil`     | Player operations                   | [Player](docs/zh-CN/script-api/player.md)        |
-| `BodyUtil`       | Body vitals system                  | [Body System](docs/zh-CN/script-api/body-system.md) |
-| `LimbUtil`       | Limb operations                     | [Limbs](docs/zh-CN/script-api/limbs.md)          |
-| `WorldUtil`      | World editing                       | [World](docs/zh-CN/script-api/world.md)          |
-| `SkillUtil`      | Skill level/XP                      | [Skills](docs/zh-CN/script-api/skills.md)        |
-| `InventoryUtil`  | Inventory queries                   | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
-| `ItemUtil`       | Item search, repair, durability     | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
-| `InputUtil`      | Input handling                      | —                                                |
-| `TextUtil`       | Rich text formatting                | —                                                |
-| `ToolsUtil`      | Argument validation, float/int parse| —                                                |
-| `EventUtil`      | Event trigger / manual registration | [EventUtil](docs/zh-CN/csharp-api/event-util.md)  |
-| `UpdateUtil`     | GitHub release version check        | [UpdateUtil](docs/zh-CN/csharp-api/update.md)     |
+| Class           | Description                          | Detailed Docs                                           |
+|-----------------|--------------------------------------|---------------------------------------------------------|
+| `LogUtil`       | Logging + validation helpers         | [Log](docs/zh-CN/script-api/log.md)                     |
+| `PlayerUtil`    | Player operations                    | [Player](docs/zh-CN/script-api/player.md)               |
+| `BodyUtil`      | Body vitals system                   | [Body System](docs/zh-CN/script-api/body-system.md)     |
+| `LimbUtil`      | Limb operations                      | [Limbs](docs/zh-CN/script-api/limbs.md)                 |
+| `WorldUtil`     | World editing                        | [World](docs/zh-CN/script-api/world.md)                 |
+| `SkillUtil`     | Skill level/XP                       | [Skills](docs/zh-CN/script-api/skills.md)               |
+| `InventoryUtil` | Inventory queries                    | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
+| `ItemUtil`      | Item search, repair, durability      | [Inventory & Items](docs/zh-CN/script-api/inventory.md) |
+| `InputUtil`     | Input handling                       | —                                                       |
+| `TextUtil`      | Rich text formatting                 | —                                                       |
+| `ToolsUtil`     | Argument validation, float/int parse | —                                                       |
+| `EventUtil`     | Event trigger / manual registration  | [EventUtil](docs/zh-CN/csharp-api/event-util.md)        |
+| `UpdateUtil`    | GitHub release version check         | [UpdateUtil](docs/zh-CN/csharp-api/update.md)           |
 
 ---
 

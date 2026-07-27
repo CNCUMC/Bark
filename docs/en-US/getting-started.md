@@ -12,7 +12,7 @@
   version will break things.
 - Something went wrong? Check in this order:
     1. Reloaded / restarted? → 2. Files in the right place? → 3. Saved? → 4. Typos / brackets / semicolons Still
-       broken? → [Troubleshooting Guide](troubleshooting.md)
+       broken? → Ask others.
 
 ## Installation
 
@@ -21,9 +21,8 @@
 **CCL**: [NexusMods](https://www.nexusmods.com/scavprototype/mods/341?tab=files) / [GitHub Releases](https://github.com/jimmyking9999999/CUCoreLib/releases)
 > Try the [Nightly Build](https://github.com/jimmyking9999999/CUCoreLib/actions) for cutting-edge features, but stable
 > releases may not include nightly content.
-3.
-**Bark**: [NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
-4. **IDE**: [VS Code](https://code.visualstudio.com/) for scripts, [Rider](https://www.jetbrains.com/rider/)
+3.**Bark**: [NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
+4.**IDE**: [VS Code](https://code.visualstudio.com/) for scripts, [Rider](https://www.jetbrains.com/rider/)
    or [Visual Studio](https://visualstudio.microsoft.com/) for C# mods
 
 Start the game. If you see `[Bark]` prefixed messages in the BepInEx console, you're all set.
@@ -33,6 +32,6 @@ Start the game. If you see `[Bark]` prefixed messages in the BepInEx console, yo
 - Write JS or Lua scripts → [Script Development](script-mod.md)
 - Write C# mods → [C# Mod Development](csharp-mod.md)
 - See available events → [Script Event Hooks](script-events.md) / [C# Events](csharp-events.md)
-- Look up an API → [API Reference](script-api/)
+- Look up an API → [API Reference](script-api)
 
 Happy modding!

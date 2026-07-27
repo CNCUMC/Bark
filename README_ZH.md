@@ -59,7 +59,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 
 ## 文档
 
-完整文档见 [`docs/zh-CN/`](docs/zh-CN/)：
+完整文档见 [`docs/zh-CN/`](docs/zh-CN)：
 
 - [快速上手](docs/zh-CN/getting-started.md) — 安装、环境、路径选择
 - [脚本开发](docs/zh-CN/script-mod.md) — JS/Lua 写模组，生命周期、事件钩子、控制台指令
@@ -67,8 +67,8 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 - [配置与本地化](docs/zh-CN/configuration.md) — 选项注册、多语言
 - [脚本事件钩子](docs/zh-CN/script-events.md) — 所有可监听的事件钩子
 - [C# 事件系统](docs/zh-CN/csharp-events.md) — 事件订阅/触发/自定义
-- [脚本 API 参考](docs/zh-CN/script-api/) — BodyUtil、PlayerUtil、LimbUtil 等
-- [C# API 参考](docs/zh-CN/csharp-api/) — EventUtil、UpdateUtil
+- [脚本 API 参考](docs/zh-CN/script-api) — BodyUtil、PlayerUtil、LimbUtil 等
+- [C# API 参考](docs/zh-CN/csharp-api) — EventUtil、UpdateUtil
 
 ---
 
@@ -110,13 +110,13 @@ string text = BetterLocale.GetOther("bark.feature.enabled");
 
 // 通过语言生成器定义回退翻译：
 // EnLangGenerator.cs
-Other("bark.feature.enabled", "Enable Feature");
+Other("feature.enabled", "Enable Feature");
 
 // ZhCnLangGenerator.cs
-Other("bark.feature.enabled", "启用功能");
+Other("feature.enabled", "启用功能");
 ```
 
-见 [Example/Lang/](Example/Lang) 示例生成器。
+见 [Example/LangGenerator](Example/LangGenerator.cs) 示例生成器。
 
 ### 3. 注册设置
 
@@ -252,7 +252,7 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 
 ## 工具参考
 
-> 完整 API 文档见 [脚本 API 参考](docs/zh-CN/script-api/) 和 [C# API 参考](docs/zh-CN/csharp-api/)。此处仅列出概览。
+> 完整 API 文档见 [脚本 API 参考](docs/zh-CN/script-api) 和 [C# API 参考](docs/zh-CN/csharp-api)。此处仅列出概览。
 
 | 类              | 说明                    | 详细文档                                         |
 |-----------------|-------------------------|--------------------------------------------------|
