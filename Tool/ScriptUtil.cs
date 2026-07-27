@@ -25,7 +25,22 @@ public static class ScriptUtil
         ModEngines.Remove(modId);
     }
 
-    // 执行指定模组的脚本文件。fileName 是相对于模组目录的路径（含扩展名），
+    // 尝试获取指定模组的引擎与目录，供 TileScriptRunner 等内部组件直接访问
+    internal static bool TryGetEngine(string modId, out ScriptEngine engine, out string modDir)
+    {
+        if (ModEngines.TryGetValue(modId, out var entry))
+        {
+            engine = entry.Engine;
+            modDir = entry.ModDir;
+            return true;
+        }
+
+        engine = null!;
+        modDir = string.Empty;
+        return false;
+    }
+
+    // 执行指定模组的物品脚本文件。fileName 是相对于模组目录的路径（含扩展名），
     // itemId 可选，执行时注入到脚本上下文。item 和 action 由 ItemScriptRunner 内部传入。
     [ScriptMethod]
     public static void Execute(string modId, string fileName, string? itemId = null,
@@ -39,6 +54,23 @@ public static class ScriptUtil
         var fullPath = Path.Combine(entry.ModDir, fileName);
         if (!File.Exists(fullPath)) return;
 
-        entry.Engine.ExecuteFile(fullPath, itemId, item, action);
+        entry.Engine.ExecuteItemFile(fullPath, itemId, item, action);
+    }
+
+    // 执行指定模组的物块脚本文件。fileName 是相对于模组目录的路径（含扩展名）。
+    // tileId 为物块 ID，context 包含物块索引和世界坐标，action 为触发动作名。
+    // TileScriptRunner 内部传入，不接受 null。
+    internal static void ExecuteTile(string modId, string fileName,
+        string tileId, Tile.TileScriptContext context, string action)
+    {
+        if (string.IsNullOrEmpty(modId)) return;
+        if (string.IsNullOrEmpty(fileName)) return;
+
+        if (!ModEngines.TryGetValue(modId, out var entry)) return;
+
+        var fullPath = Path.Combine(entry.ModDir, fileName);
+        if (!File.Exists(fullPath)) return;
+
+        entry.Engine.ExecuteTileFile(fullPath, tileId, context, action);
     }
 }

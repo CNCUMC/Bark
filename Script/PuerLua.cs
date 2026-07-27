@@ -142,9 +142,9 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 执行单个脚本文件（如物品动作脚本），执行前注入上下文全局变量，
+    // 执行单个物品脚本文件，执行前注入上下文全局变量，
     // 脚本可定义 function main(itemId, item, action) 接收参数
-    public override void ExecuteFile(string filePath, string? itemId, Item? item = null, string? action = null)
+    public override void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
@@ -176,6 +176,40 @@ public class PuerLua : ScriptEngine
         {
             ItemScriptContext.CurrentItem = null;
             ItemScriptContext.CurrentAction = null;
+        }
+    }
+
+    // 执行单个物块脚本文件，注入 tileId / tileContext / action 到脚本全局
+    public override void ExecuteTileFile(string filePath, string? tileId, Tile.TileScriptContext? context = null,
+        string? action = null)
+    {
+        if (_scriptEnv == null || !File.Exists(filePath)) return;
+
+        // 暂存上下文供 Lua 侧通过 CS.Bark.Tile.TileScriptContext 访问
+        Tile.TileScriptContext.CurrentContext = context;
+        Tile.TileScriptContext.CurrentAction = action;
+
+        try
+        {
+            var escapedId = tileId != null ? EscapeString(tileId) : "nil";
+            _scriptEnv.Eval($"__barkTileId = '{escapedId}'");
+            _scriptEnv.Eval("__barkTileContext = CS.Bark.Tile.TileScriptContext.CurrentContext");
+            _scriptEnv.Eval("__barkAction = CS.Bark.Tile.TileScriptContext.CurrentAction");
+
+            var script = File.ReadAllText(filePath);
+            _scriptEnv.Eval(script);
+
+            _scriptEnv.Eval(
+                "if type(main) == 'function' then main(__barkTileId, __barkTileContext, __barkAction) end");
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath, ex.Message);
+        }
+        finally
+        {
+            Tile.TileScriptContext.CurrentContext = null;
+            Tile.TileScriptContext.CurrentAction = null;
         }
     }
 

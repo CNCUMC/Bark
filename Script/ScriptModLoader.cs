@@ -8,6 +8,7 @@ using Bark.Items;
 using Bark.Moodle;
 using Bark.Recipe;
 using Bark.Save;
+using Bark.Tile;
 using Bark.Tool;
 
 namespace Bark.Script;
@@ -89,6 +90,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
         foreach (var manifest in sorted)
             ItemLoader.RegisterFromMod(manifest);
 
+        // 5.35 加载自定义物块到 CUCoreLib TileRegistry
+        foreach (var manifest in sorted)
+            TileLoader.RegisterFromMod(manifest);
+
         // 5.4 加载自定义合成表到 CUCoreLib RecipeRegistry（必须在物品注册之后）
         foreach (var manifest in sorted)
             RecipeLoader.RegisterFromMod(manifest);
@@ -107,6 +112,8 @@ public class ScriptModLoader(string modsPath) : IDisposable
             LoadMod(manifest);
             // 引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry
             ItemLoader.RegisterScripts(manifest);
+            // 引擎就绪后，将暂存的物块脚本映射写入 TileScriptRegistry
+            TileLoader.RegisterScripts(manifest);
             // 引擎就绪后，将暂存的 Moodle 脚本映射写入 MoodleScriptRegistry
             MoodleLoader.RegisterScripts(manifest);
             // 引擎就绪后，将暂存的命令注册到 ConsoleCommandRegistry，指向脚本 onCommand
@@ -350,6 +357,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
 
         // 清理 SaveLoader 的追踪记录
         SaveLoader.Clear();
+
+        // 清理 TileLoader 的追踪记录
+        TileLoader.LoadedTiles.Clear();
     }
 
     // 获取已加载的模组信息

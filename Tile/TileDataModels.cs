@@ -4,24 +4,13 @@ using Newtonsoft.Json;
 namespace Bark.Tile;
 
 // 自定义物块 JSON 数据模型。字段与 CUCoreLib CustomTileDefinition 一一对应，
-// JSON 字段一律使用 snake_case。
+// JSON 字段一律使用 snake_case。物块索引在 mod.json 的 tiles 映射中声明，
+// 不属于 CustomTileDefinition。
 public class TileDef
 {
-    // 物块索引（必须 >= 36，且与其他模组不冲突）
-    [JsonProperty("tile_index")]
-    public int TileIndex;
-
-    // 稳定的本地化键值，同时作为默认 Unity 瓦片名
-    [JsonProperty("id")]
-    public string Id = string.Empty;
-
     // 物块显示名称（注册为 other.ID 的本地化条目）
     [JsonProperty("name")]
     public string Name = string.Empty;
-
-    // 可选的 Unity 对象名，不填则沿用 id
-    [JsonProperty("tile_name")]
-    public string? TileName;
 
     // 精灵图着色，支持 RGBA hex 如 "#FF0000" 或 "#FF0000FF"，默认白色
     [JsonProperty("color")]
@@ -94,9 +83,30 @@ public class TileDef
     [JsonProperty("custom_data")]
     public Dictionary<string, object>? CustomData;
 
+    // 物块脚本（可选），定义各触发动作对应的脚本文件
+    [JsonProperty("script")]
+    public TileScriptDef? Script;
+
     // 精灵图导入放大倍数，默认 8.0
     [JsonProperty("sprite_import_scale")]
     public float SpriteImportScale = 8f;
+}
+
+// 物块脚本触发定义：动作名 → 脚本文件列表（路径相对于模组目录）。
+// 支持的动作键：on_place / on_exist / on_damaging / on_destroyed
+public class TileScriptDef
+{
+    [JsonProperty("on_place")]
+    public List<string> OnPlace = [];
+
+    [JsonProperty("on_exist")]
+    public List<string> OnExist = [];
+
+    [JsonProperty("on_damaging")]
+    public List<string> OnDamaging = [];
+
+    [JsonProperty("on_destroyed")]
+    public List<string> OnDestroyed = [];
 }
 
 // 物块掉落物品定义

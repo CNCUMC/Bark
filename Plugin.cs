@@ -9,6 +9,7 @@ using Bark.Items;
 using Bark.Moodle;
 using Bark.Script;
 using Bark.ScriptApi;
+using Bark.Tile;
 using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
@@ -48,6 +49,8 @@ public class Plugin : BaseUnityPlugin
         ItemEventListener.Stop();
         ItemScriptRunner.Stop();
         MoodleScriptRunner.Stop();
+        TileEventListener.Stop();
+        TileScriptRunner.Stop();
         _scriptModLoader?.Dispose();
     }
 
@@ -95,6 +98,10 @@ public class Plugin : BaseUnityPlugin
         ItemScriptRunner.Listen();
         // 注册 Moodle 脚本运行器监听 Moodle 事件
         MoodleScriptRunner.Listen();
+        // 监听物块放置/破坏/受击，触发物块脚本
+        TileEventListener.Listen(this);
+        // 注册物块脚本运行器监听物块事件
+        TileScriptRunner.Listen();
     }
 
     private static void DeployPuertsNativeFiles()

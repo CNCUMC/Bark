@@ -45,6 +45,7 @@ Language is detected from the entry file extension — `main.js` = JS mod, `main
 | `bark_version` | string | No       | Required Bark version (semver range)                         |
 | `game_version` | string | No       | Compatible game version (semver range)                       |
 | `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]` |
+| `tiles`        | object | No       | Tile index mapping, e.g. `{"marble": 50}`, see [Custom Tiles](script-mod/tile.md) |
 
 ### Entry File
 
@@ -192,6 +193,12 @@ function main(itemId, item, action) { /* full context */ }
 ```
 
 See [Custom Items](script-mod/item.md) for the JSON configuration format.
+
+## Custom Tiles
+
+Define custom tiles (ground/wall blocks) via JSON in the `Tile/` directory, with sprites in `Assets/Tile/`. Bark auto-scans and registers them with `TileRegistry`.
+
+See [Custom Tiles](script-mod/tile.md).
 
 ## Custom Moodles
 

@@ -28,6 +28,10 @@ public class ScriptManifest
     // 依赖的其他模组列表
     [JsonProperty("dependencies")] public List<ModDependency> Dependencies { get; set; } = [];
 
+    // 物块索引映射（tileId → tileIndex），仅当模组包含 Tile/ 目录时需要。
+    // tileId 等于 Tile/{name}.json 的文件名（不含扩展名），tileIndex 必须 >= 36。
+    [JsonProperty("tiles")] public Dictionary<string, int> Tiles { get; set; } = new();
+
     // 模组所在目录路径（运行时填充）
     [JsonIgnore] public string Directory { get; set; } = string.Empty;
 

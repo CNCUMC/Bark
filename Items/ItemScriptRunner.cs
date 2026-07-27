@@ -10,21 +10,23 @@ namespace Bark.Items;
 // 在 Plugin.Awake() 中调用 Listen() 注册事件处理器。
 public static class ItemScriptRunner
 {
+    private const string Guid = Plugin.Guid + ".items";
+
     // 注册事件处理器（应在所有模组加载完成后调用）
     public static void Listen()
     {
-        EventUtil.On<ItemUseEvent>(OnItemUse, Plugin.Guid);
-        EventUtil.On<ItemHandUseEvent>(OnItemHandUse, Plugin.Guid);
-        EventUtil.On<ItemEquipEvent>(OnItemEquip, Plugin.Guid);
-        EventUtil.On<ItemUnequipEvent>(OnItemUnequip, Plugin.Guid);
-        EventUtil.On<ItemLimbUseEvent>(OnItemLimbUse, Plugin.Guid);
-        EventUtil.On<ItemAttackEvent>(OnItemAttack, Plugin.Guid);
+        EventUtil.On<ItemUseEvent>(OnItemUse, Guid);
+        EventUtil.On<ItemHandUseEvent>(OnItemHandUse, Guid);
+        EventUtil.On<ItemEquipEvent>(OnItemEquip, Guid);
+        EventUtil.On<ItemUnequipEvent>(OnItemUnequip, Guid);
+        EventUtil.On<ItemLimbUseEvent>(OnItemLimbUse, Guid);
+        EventUtil.On<ItemAttackEvent>(OnItemAttack, Guid);
     }
 
     // 停止监听（卸载时调用）
     public static void Stop()
     {
-        EventUtil.UnregisterAll(Plugin.Guid);
+        EventUtil.UnregisterAll(Guid);
     }
 
     private static void OnItemUse(ItemUseEvent evt)
@@ -60,7 +62,7 @@ public static class ItemScriptRunner
     // 从 ItemScriptRegistry 查找物品脚本，通过 ScriptUtil 按顺序执行。
     // item: 当前物品实例（可为 null）；action: 触发动作名，传入脚本的 main(itemId, item, action)
     private static void ExecuteScripts(string itemId, Item? item, string action,
-        System.Func<ScriptEntry, List<string>> getScriptList)
+        System.Func<ItemScriptEntry, List<string>> getScriptList)
     {
         if (string.IsNullOrEmpty(itemId))
             return;

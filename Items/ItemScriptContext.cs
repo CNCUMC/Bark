@@ -1,8 +1,8 @@
 namespace Bark.Items;
 
-// 物品脚本执行上下文：在 ExecuteFile 时暂存当前物品引用和动作名，
+// 物品脚本执行上下文：在 ExecuteItemFile 时暂存当前物品引用和动作名，
 // 供 PuerTS JS/Lua 侧通过 CS.Bark.Items.ItemScriptContext.CurrentItem 等方式访问。
-// ExecuteFile 在 eval 前设置，main() 调用后清除。
+// ExecuteItemFile 在 eval 前设置，main() 调用后清除。
 public static class ItemScriptContext
 {
     // 当前执行的物品实例（可为 null）

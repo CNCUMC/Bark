@@ -603,11 +603,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "解析物块 JSON '{0}' 失败：{1}",
             "解析方塊 JSON '{0}' 失敗：{1}",
             "Не удалось разобрать JSON тайла '{0}': {1}");
-        Log("tiles.missing_id",
-            "Tile missing 'id' in '{0}'",
-            "'{0}' 中物块缺少 id 字段",
-            "'{0}' 中方塊缺少 id 欄位",
-            "Тайл без 'id' в '{0}'");
         Log("tiles.index_too_low",
             "Tile '{0}' has tile_index={1}, must be >= 36",
             "物块 '{0}' 的 tile_index={1}，必须 >= 36",
@@ -628,6 +623,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 加载了 {1} 个物块",
             "模組 '{0}' 載入了 {1} 個方塊",
             "Мод '{0}' загрузил {1} тайл(ов)");
+        Log("tiles.no_index",
+            "Tile '{0}' has no index mapping in mod '{1}' (mod.json tiles section)",
+            "物块 '{0}' 在模组 '{1}' 中没有索引映射（mod.json 的 tiles 字段）",
+            "方塊 '{0}' 在模組 '{1}' 中沒有索引映射（mod.json 的 tiles 欄位）",
+            "У тайла '{0}' нет индекса в моде '{1}' (секция tiles в mod.json)");
+        Log("tiles.scripts_pending",
+            "Mod '{0}' has {1} tile(s) with pending scripts",
+            "模组 '{0}' 有 {1} 个物块包含待注册脚本",
+            "模組 '{0}' 有 {1} 個方塊包含待註冊腳本",
+            "Мод '{0}' имеет {1} тайл(ов) с ожидающими скриптами");
+        Log("tiles.scripts_registered",
+            "Mod '{0}' registered scripts for {1} tile(s)",
+            "模组 '{0}' 为 {1} 个物块注册了脚本",
+            "模組 '{0}' 為 {1} 個方塊註冊了腳本",
+            "Мод '{0}' зарегистрировал скрипты для {1} тайл(ов)");
 
         // Log - Save
         Log("save.provider_registered",

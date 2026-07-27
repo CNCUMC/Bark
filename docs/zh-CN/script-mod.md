@@ -44,6 +44,7 @@ ScriptMod/Mods/
 | `bark_version` | string | ❌   | 要求的 Bark 版本（semver range）                       |
 | `game_version` | string | ❌   | 兼容的游戏版本（semver range）                         |
 | `dependencies` | array  | ❌   | 依赖的脚本模组，格式 `[{"id": "some_mod", "version": "1.0.0"}]` |
+| `tiles`        | object | ❌   | 物块索引映射，如 `{"marble": 50}`，详见[自定义物块](script-mod/tile.md) |
 
 ### 入口文件
 
@@ -188,6 +189,12 @@ function main(itemId, item, action) { /* 完整上下文 */ }
 ```
 
 JSON 配置格式详见 [自定义物品](script-mod/item.md)。
+
+## 自定义物块
+
+通过 JSON 在 `Tile/` 目录下定义自定义物块（地面/墙壁方块），精灵图放在 `Assets/Tile/` 下。Bark 自动扫描并注册到 `TileRegistry`。
+
+详见 [自定义物块](script-mod/tile.md)。
 
 ## 自定义 Moodle
 

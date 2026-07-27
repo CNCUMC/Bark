@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Bark.Script;
 
 namespace Bark.Moodle;
@@ -65,10 +64,4 @@ public class MoodleScriptEntry(ScriptEngine engine, MoodleScriptDef scriptDef, s
     public readonly List<string> Iterate = scriptDef.Iterate;
     public readonly List<string> Lose = scriptDef.Lose;
     public readonly string ModDir = modDir;
-
-    // 将相对路径解析为绝对路径（基准为模组目录）
-    public string ResolvePath(string relativePath)
-    {
-        return Path.Combine(ModDir, relativePath);
-    }
 }

@@ -11,18 +11,20 @@ namespace Bark.Moodle;
 // 与全局 onMoodleGet/onMoodleIterate/onMoodleLose 钩子（由 ScriptEventScanner 桥接）互补。
 public static class MoodleScriptRunner
 {
+    private const string Guid = Plugin.Guid + ".moodles";
+
     // 注册事件处理器（应在所有模组加载完成后调用）
     public static void Listen()
     {
-        EventUtil.On<MoodleGetEvent>(OnMoodleGet, Plugin.Guid);
-        EventUtil.On<MoodleIterateEvent>(OnMoodleIterate, Plugin.Guid);
-        EventUtil.On<MoodleLoseEvent>(OnMoodleLose, Plugin.Guid);
+        EventUtil.On<MoodleGetEvent>(OnMoodleGet, Guid);
+        EventUtil.On<MoodleIterateEvent>(OnMoodleIterate, Guid);
+        EventUtil.On<MoodleLoseEvent>(OnMoodleLose, Guid);
     }
 
     // 停止监听（卸载时调用）
     public static void Stop()
     {
-        EventUtil.UnregisterAll(Plugin.Guid);
+        EventUtil.UnregisterAll(Guid);
     }
 
     private static void OnMoodleGet(MoodleGetEvent evt)

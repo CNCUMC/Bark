@@ -162,7 +162,7 @@ public static class ItemEventListener
     }
 
     // 检查物品是否有指定脚本注册
-    private static bool HasScript(string itemId, System.Func<ScriptEntry, bool> predicate)
+    private static bool HasScript(string itemId, System.Func<ItemScriptEntry, bool> predicate)
     {
         var entry = ItemScriptRegistry.GetEntry(itemId);
         return entry != null && predicate(entry);
