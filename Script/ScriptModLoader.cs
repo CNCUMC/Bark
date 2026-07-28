@@ -21,7 +21,8 @@ public class ScriptModLoader(string modsPath) : IDisposable
     {
         { ".js", ScriptLanguage.JavaScript },
         { ".mjs", ScriptLanguage.JavaScript },
-        { ".lua", ScriptLanguage.Lua }
+        { ".lua", ScriptLanguage.Lua },
+        { ".py", ScriptLanguage.Python }
     };
 
     private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
@@ -36,6 +37,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
     // 已加载的 Lua 模组
     public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
+
+    // 已加载的 Python 模组
+    public IReadOnlyList<ScriptManifest> LoadedPythonMods =>
+        _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Python).ToList().AsReadOnly();
 
     // 卸载所有已加载的模组并释放资源
     public void Dispose()
@@ -224,6 +229,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
                 case ScriptLanguage.Lua:
                     engine = LoadLuaMod(manifest);
                     break;
+                case ScriptLanguage.Python:
+                    engine = LoadPythonMod(manifest);
+                    break;
                 default:
                     LogUtil.Warning("script_mod_loader.unsupported_language", manifest.Language, manifest.Id);
                     return;
@@ -245,6 +253,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
             {
                 case PuerJavaScript js: js.Enable(); break;
                 case PuerLua lua: lua.Enable(); break;
+                case PuerPython py: py.Enable(); break;
             }
         }
         catch (Exception ex)
@@ -271,6 +280,13 @@ public class ScriptModLoader(string modsPath) : IDisposable
     {
         LogUtil.Message("script_mod_loader.mod_loading", "Lua", manifest.Name, manifest.Version);
         var engine = new PuerLua();
+        return engine.Load(manifest) ? engine : null;
+    }
+
+    private static PuerPython? LoadPythonMod(ScriptManifest manifest)
+    {
+        LogUtil.Message("script_mod_loader.mod_loading", "Python", manifest.Name, manifest.Version);
+        var engine = new PuerPython();
         return engine.Load(manifest) ? engine : null;
     }
 
@@ -337,6 +353,10 @@ public class ScriptModLoader(string modsPath) : IDisposable
                     case PuerLua lua:
                         lua.Disable();
                         lua.Unload();
+                        break;
+                    case PuerPython py:
+                        py.Disable();
+                        py.Unload();
                         break;
                 }
 

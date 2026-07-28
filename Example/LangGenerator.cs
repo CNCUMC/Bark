@@ -228,6 +228,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "已将 puerts/ 运行时文件夹复制到游戏根目录",
             "已將 puerts/ 運行時資料夾複製到遊戲根目錄",
             "Папка运行时 puerts/ скопирована в корневую директорию игры");
+        Log("puerpython.bundled_ready",
+            "Python runtime ready at {0}",
+            "Python 运行环境已就绪 {0}",
+            "Python 執行環境已就緒 {0}",
+            "Среда выполнения Python готова в {0}");
+        Log("puerpython.system_not_found",
+            "Python runtime not found in Python/Python3142/, Python scripts will be skipped",
+            "Python/Python3142/ 中未找到 Python 运行环境，Python 脚本将被跳过",
+            "Python/Python3142/ 中未找到 Python 執行環境，Python 腳本將被跳過",
+            "Среда выполнения Python не найдена в Python/Python3142/, скрипты Python будут пропущены");
+        Log("puerpython.wrong_version",
+            "Python version mismatch: expected 3.14.2, got {0}. Python scripts will be skipped",
+            "Python 版本不匹配：需要 3.14.2，当前 {0}。Python 脚本将被跳过",
+            "Python 版本不符：需要 3.14.2，當前 {0}。Python 腳本將被跳過",
+            "Несовместимая версия Python: требуется 3.14.2, найдена {0}. Скрипты Python будут пропущены");
         Log("script_mod_loader.dir_not_found",
             "ScriptMods directory not found: {0}",
             "ScriptMods 目录不存在: {0}",
@@ -444,6 +459,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "JS 引擎释放错误 '{0}': {1}",
             "JS 引擎釋放錯誤 '{0}': {1}",
             "Ошибка освобождения JS-движка '{0}': {1}");
+        Log("script_engine.py_load_failed",
+            "Python mod '{0}' failed to load: {1}",
+            "Python 模组 '{0}' 加载失败: {1}",
+            "Python 模組 '{0}' 載入失敗: {1}",
+            "Python-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.py_exec_file_failed",
+            "Python mod '{0}' failed to execute '{1}': {2}",
+            "Python 模组 '{0}' 执行脚本 '{1}' 失败: {2}",
+            "Python 模組 '{0}' 執行腳本 '{1}' 失敗: {2}",
+            "Python-мод '{0}' не удалось выполнить '{1}': {2}");
+        Log("script_engine.py_dispose_error",
+            "Python engine dispose error '{0}': {1}",
+            "Python 引擎释放错误 '{0}': {1}",
+            "Python 引擎釋放錯誤 '{0}': {1}",
+            "Ошибка освобождения Python-движка '{0}': {1}");
 
         // Log - Items
         Log("items.load_error",
@@ -592,51 +622,51 @@ internal class LangGenerator : ModLangGenMultiBase
             "狀態 '{0}' 沒有有效的圖標來源（icon_id / icon_asset / animated），無法應用",
             "Moodle '{0}' не имеет источника иконки (icon_id / icon_asset / animated), невозможно применить");
 
-        // Log - Tile
+        // Log - Tile（索引由 Bark 自动分配，从 36 开始递增）
         Log("tiles.load_error",
             "Error loading tile '{0}' in mod '{1}': {2}",
             "加载物块 '{0}' 错误 (模组 '{1}')：{2}",
-            "載入方塊 '{0}' 錯誤 (模組 '{1}')：{2}",
+            "載入物塊 '{0}' 錯誤 (模組 '{1}')：{2}",
             "Ошибка загрузки тайла '{0}' в моде '{1}': {2}");
         Log("tiles.parse_failed",
             "Failed to parse tile JSON '{0}': {1}",
             "解析物块 JSON '{0}' 失败：{1}",
-            "解析方塊 JSON '{0}' 失敗：{1}",
+            "解析物塊 JSON '{0}' 失敗：{1}",
             "Не удалось разобрать JSON тайла '{0}': {1}");
         Log("tiles.index_too_low",
-            "Tile '{0}' has tile_index={1}, must be >= 36",
-            "物块 '{0}' 的 tile_index={1}，必须 >= 36",
-            "方塊 '{0}' 的 tile_index={1}，必須 >= 36",
-            "У тайла '{0}' tile_index={1}, должен быть >= 36");
+            "Tile '{0}' auto-assigned index {1} is below 36, check _nextTileIndex",
+            "物块 '{0}' 自动分配的索引 {1} 低于 36，请检查 _nextTileIndex",
+            "物塊 '{0}' 自動分配的索引 {1} 低於 36，請檢查 _nextTileIndex",
+            "У тайла '{0}' автоматически назначенный индекс {1} меньше 36, проверьте _nextTileIndex");
         Log("tiles.sprite_not_found",
             "Tile sprite not found '{0}' for tile '{1}'",
             "未找到物块 '{1}' 的精灵图 '{0}'",
-            "未找到方塊 '{1}' 的精靈圖 '{0}'",
+            "未找到物塊 '{1}' 的精靈圖 '{0}'",
             "Спрайт тайла не найден '{0}' для тайла '{1}'");
         Log("tiles.registered",
-            "Tile '{0}' registered at index {1} (mod: {2})",
-            "物块 '{0}' 已在索引 {1} 注册 (模组: {2})",
-            "方塊 '{0}' 已在索引 {1} 註冊 (模組: {2})",
-            "Тайл '{0}' зарегистрирован по индексу {1} (мод: {2})");
+            "Tile '{0}' auto-assigned to index {1} (mod: {2})",
+            "物块 '{0}' 已自动分配索引 {1} 并注册 (模组: {2})",
+            "物塊 '{0}' 已自動分配索引 {1} 並註冊 (模組: {2})",
+            "Тайл '{0}' автоматически назначен индексу {1} (мод: {2})");
         Log("tiles.loaded_count",
             "Mod '{0}' loaded {1} tile(s)",
             "模组 '{0}' 加载了 {1} 个物块",
-            "模組 '{0}' 載入了 {1} 個方塊",
+            "模組 '{0}' 載入了 {1} 個物塊",
             "Мод '{0}' загрузил {1} тайл(ов)");
         Log("tiles.no_index",
-            "Tile '{0}' has no index mapping in mod '{1}' (mod.json tiles section)",
-            "物块 '{0}' 在模组 '{1}' 中没有索引映射（mod.json 的 tiles 字段）",
-            "方塊 '{0}' 在模組 '{1}' 中沒有索引映射（mod.json 的 tiles 欄位）",
-            "У тайла '{0}' нет индекса в моде '{1}' (секция tiles в mod.json)");
+            "Tile '{0}' in mod '{1}' was not assigned an index (Bark auto-assignment skipped)",
+            "物块 '{0}' 未分配索引 (模组 '{1}')，Bark 自动分配已跳过",
+            "物塊 '{0}' 未分配索引 (模組 '{1}')，Bark 自動分配已跳過",
+            "Тайл '{0}' в моде '{1}' не получил индекс (автоназначение Bark пропущено)");
         Log("tiles.scripts_pending",
             "Mod '{0}' has {1} tile(s) with pending scripts",
             "模组 '{0}' 有 {1} 个物块包含待注册脚本",
-            "模組 '{0}' 有 {1} 個方塊包含待註冊腳本",
+            "模組 '{0}' 有 {1} 個物塊包含待註冊腳本",
             "Мод '{0}' имеет {1} тайл(ов) с ожидающими скриптами");
         Log("tiles.scripts_registered",
             "Mod '{0}' registered scripts for {1} tile(s)",
             "模组 '{0}' 为 {1} 个物块注册了脚本",
-            "模組 '{0}' 為 {1} 個方塊註冊了腳本",
+            "模組 '{0}' 為 {1} 個物塊註冊了腳本",
             "Мод '{0}' зарегистрировал скрипты для {1} тайл(ов)");
 
         // Log - Save

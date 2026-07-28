@@ -2,7 +2,7 @@
 
 # Bark Documentation
 
-Bark is a BepInEx mod utility library for Casualties Unknown, providing an event system, dual-scripting engine (JS/Lua),
+Bark is a BepInEx mod utility library for Casualties Unknown, providing an event system, triple-scripting engine (JS/Lua/Python),
 localization, and configuration management.
 
 > Start with [Getting Started](getting-started.md) for installation and path selection.
@@ -12,7 +12,7 @@ localization, and configuration management.
 | Document                                         | Content                                                          |
 |--------------------------------------------------|------------------------------------------------------------------|
 | [Getting Started](getting-started.md)            | Installation, environment, choosing your path                    |
-| [Script Development](script-mod.md)              | JS/Lua mods, lifecycle hooks, global variables, console commands |
+| [Script Development](script-mod.md)              | JS/Lua/Python mods, lifecycle hooks, global variables, console commands |
 | [C# Mod Development](csharp-mod.md)              | C# mods, event subscription, Harmony patches, API registration   |
 | [Configuration & Localization](configuration.md) | Options registration, multi-language, C# and script systems      |
 | [Script Event Hooks](script-events.md)           | All event hooks listenable from scripts                          |
@@ -24,7 +24,7 @@ localization, and configuration management.
 
 ## Script API
 
-Script-side (JS / Lua) tool APIs:
+Script-side (JS / Lua / Python) tool APIs:
 
 | Document                                     | Global Variable      | Coverage                                                          |
 |----------------------------------------------|----------------------|-------------------------------------------------------------------|

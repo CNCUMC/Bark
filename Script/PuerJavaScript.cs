@@ -16,7 +16,7 @@ public class PuerJavaScript : ScriptEngine
     private bool _isLoaded;
     private ScriptEnv? _scriptEnv;
 
-    // 加载并执行 JS 模组，返回是否成功
+    // 加载并执行 JS 脚本，返回是否成功
     public override bool Load(ScriptManifest manifest)
     {
         base.Load(manifest);

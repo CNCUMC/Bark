@@ -2,7 +2,7 @@
 
 # 脚本开发
 
-Bark 支持用 JavaScript 或 Lua 写脚本。本文用 JavaScript 作为示例语言，Lua 用户看 [Lua 备注](#lua-备注) 小节即可。
+Bark 支持用 JavaScript、Lua 或 Python 写脚本。本文用 JavaScript 作为示例语言，Lua 用户看 [Lua 备注](#lua-备注)，Python 用户看 [Python 备注](#python-备注)。
 
 ## 创建脚本
 
@@ -282,4 +282,54 @@ end
 function onPlayerJumpStart()
     Log:info("起跳！")
 end
+```
+
+## Python 备注
+
+Python 用户需额外部署 CPython 运行时，Bark 不自带。
+
+### 运行时要求
+
+| 要求 | 说明 |
+|------|------|
+| **版本** | 严格限定 **CPython 3.14.2**，其他版本（如 3.14.6）会导致崩溃 |
+| **下载** | [Python 3.14.2 官方下载](https://www.python.org/downloads/release/python-3142/) |
+| **目录名** | 必须为 `Python3142`（带版本后缀），放在**游戏根目录**下 |
+| **路径** | `<游戏根目录>/Python3142/` |
+
+> 为什么是 `Python3142` 而不是 `Python314`？因为 `Python314` 无法区分小版本（3.14.2 和 3.14.6），
+> 用错版本会让 `PapiPython.dll` 崩溃。加上小版本号避免混淆。
+
+### 所需文件
+
+在 `Python3142/` 目录下放入以下文件：
+
+| 文件 | 干什么的 |
+|------|----------|
+| `python3.dll` | 加载桩，`PapiPython.dll` 直接依赖 |
+| `python314.dll` | CPython 核心（解释器、内存管理、类型系统） |
+| `python314.zip` | 标准库（没有它 `import os`、`import sys` 都不行） |
+| `*.pyd` | C 扩展模块（`_socket`、`_ssl`、`_ctypes` 等），视脚本依赖而定 |
+
+> 这些文件从 PuerTS Python 3.14.2 的 NuGet 包 `puerts.python.nativeassets.win32` 中提取。
+
+### 入口文件
+
+入口文件固定为 `main.py`，语法同标准 Python：
+
+```python
+def onLoad():
+    Log.info("加载完毕")
+
+def onPlayerJumpStart():
+    Log.info("起跳！")
+```
+
+### 方法调用
+
+Python 中的 API 调用使用 `.`（和 JS 一样）：
+
+```python
+hunger = Body.GetHunger()   # 读取
+Body.SetHunger(hunger + 10)  # 设置
 ```

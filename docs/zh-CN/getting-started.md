@@ -27,7 +27,7 @@
 
 ## 你想做什么
 
-- 用 JS 或 Lua 写脚本 → [脚本开发](script-mod.md)
+- 用 JS / Lua / Python 写脚本 → [脚本开发](script-mod.md)
 - 用 C# 写模组 → [C# 模组开发](csharp-mod.md)
 - 查有哪些事件能接 → [脚本事件钩子](script-events.md) / [C# 事件](csharp-events.md)
 - 查某个 API → [API 参考](script-api)
