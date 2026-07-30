@@ -14,6 +14,33 @@ var name = Limb.GetLimbName(0);   // 第 0 号肢体的全名
 var short = Limb.GetLimbShortName(0); // 简称
 ```
 
+## 肢体名称校验
+
+无需索引，按名称查询和校验肢体。
+
+```js
+// 检查名称是否有效（不区分大小写）
+if (Limb.IsValidLimbName("FootF")) {
+    Log.Info('FootF 是有效肢体');
+}
+if (!Limb.IsValidLimbName("feet")) {
+    Log.Warning('"feet" 无效——应使用 FootF 或 FootB');
+}
+
+// 获取全部 15 个有效肢体名
+var names = Limb.GetAllLimbNames();
+// ["Head", "UpTorso", "DownTorso", "UpArmF", "DownArmF", "HandF",
+//  "UpArmB", "DownArmB", "HandB", "ThighF", "CrusF", "FootF",
+//  "ThighB", "CrusB", "FootB"]
+```
+
+| 方法                       | 返回类型         | 说明                                         |
+|----------------------------|------------------|----------------------------------------------|
+| `IsValidLimbName(name)`    | `bool`           | `name` 是否匹配已知肢体名（不区分大小写）    |
+| `GetAllLimbNames()`        | `List<string>`   | 全部 15 个有效肢体名列表                     |
+
+游戏已知 15 个肢体：`Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`
+
 ## 状态查询
 
 `Is*` / `Has*` 开头的布尔查询，传入肢体索引。

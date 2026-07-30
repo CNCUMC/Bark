@@ -81,11 +81,43 @@ ScriptMod/Mods/
 {
   "wearable": true,
   "wearable_can_be_held": true,
-  "wear_slot_id": "head",
+  "wear_slot_id": "Head",
+  "desired_wear_limb": "Head",
   "wearable_armor": 0.3,
-  "wearable_isolation": 0.1
+  "wearable_isolation": 0.1,
+  "wearable_hit_durability_loss_multiplier": 1.0,
+  "wearable_sorting_order": 0,
+  "wearable_visual_offset": 5,
+  "worn_sprite_offset_x": 0,
+  "worn_sprite_offset_y": 0,
+  "multi_worn": {
+    "FootF": {
+      "worn_sprite_offset_x": 2,
+      "worn_sprite_offset_y": 1
+    }
+  }
 }
 ```
+
+| 字段                                      | 类型                    | 默认值  | 说明                                                |
+|-------------------------------------------|-------------------------|---------|-----------------------------------------------------|
+| `wearable`                                | bool                    | `false` | 是否可装备                                          |
+| `wearable_can_be_held`                    | bool                    | `false` | 装备后是否仍可手持                                  |
+| `wear_slot_id`                            | string                  | `""`    | 占用哪个肢体槽位（见下方有效值列表）                |
+| `desired_wear_limb`                       | string                  | `""`    | 优先装备到哪个肢体（见下方有效值列表）              |
+| `wearable_armor`                          | float                   | `0`     | 护甲值（0–1）                                       |
+| `wearable_isolation`                      | float                   | `0`     | 保暖值（0–1）                                       |
+| `wearable_hit_durability_loss_multiplier` | float                   | `0`     | 受击耐久损失倍率                                    |
+| `wearable_sorting_order`                  | int?                    | null    | 装备贴图渲染排序                                    |
+| `wearable_visual_offset`                  | int                     | `5`     | 视觉层级偏移                                        |
+| `worn_sprite_offset_x`                    | float                   | `0`     | 装备贴图水平偏移                                    |
+| `worn_sprite_offset_y`                    | float                   | `0`     | 装备贴图垂直偏移                                    |
+| `multi_worn`                              | object（肢体名 → 偏移） | null    | 额外肢体贴图及偏移（使用 `{itemId}_mw_{肢体}.png`） |
+
+> ⚠️ **有效肢体名**：`wear_slot_id` 和 `desired_wear_limb` 必须是游戏已知的 15 个肢体之一：
+> `Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`。
+> 无效肢体名在加载时触发警告，并可能导致装备时游戏崩溃。
+> 可使用 `Limb.IsValidLimbName()` 在运行时校验（参见 [Limb API](../script-api/limbs.md)）。
 
 ### 容器字段
 
@@ -272,6 +304,10 @@ function main(itemId, item, action) {
 | `{itemId}_fill.png`      | 液体填充遮罩     |
 
 所有精灵图放在 `Assets/Item/` 下。如果 `{itemId}.png` 不存在，Bark 会回退到 `origin_prefab` *（也就是默认的地生果）* 精灵图。
+
+> 💡 **装备贴图回退**：如果可穿戴物品未提供 `{itemId}_worn.png`，Bark 会自动使用物品主贴图作为
+> 装备后的贴图（`{itemId}.png`）。仅当两者都不存在时才会阻止装备并发出警告。因此大多数物品
+> 可以完全省略 `_worn.png`，装备后直接复用背包精灵图。
 
 ## 注意事项
 

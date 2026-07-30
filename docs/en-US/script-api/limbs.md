@@ -15,6 +15,33 @@ var name = Limb.GetLimbName(0);   // full name of limb #0
 var short = Limb.GetLimbShortName(0); // short name
 ```
 
+## Limb Name Validation
+
+Query and validate limb names without relying on indexes.
+
+```js
+// Check if a name is valid (case-insensitive)
+if (Limb.IsValidLimbName("FootF")) {
+    Log.Info('FootF is a valid limb');
+}
+if (!Limb.IsValidLimbName("feet")) {
+    Log.Warning('"feet" is not valid — use FootF or FootB');
+}
+
+// Get all 15 valid limb names
+var names = Limb.GetAllLimbNames();
+// ["Head", "UpTorso", "DownTorso", "UpArmF", "DownArmF", "HandF",
+//  "UpArmB", "DownArmB", "HandB", "ThighF", "CrusF", "FootF",
+//  "ThighB", "CrusB", "FootB"]
+```
+
+| Method                     | Returns          | Description                                       |
+|----------------------------|------------------|---------------------------------------------------|
+| `IsValidLimbName(name)`    | `bool`           | `true` if `name` matches a known limb (case-insensitive) |
+| `GetAllLimbNames()`        | `List<string>`   | All 15 valid limb names in a list                 |
+
+The 15 known limbs: `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
+
 ## Status Queries
 
 `Is*` / `Has*` boolean queries with a limb index.

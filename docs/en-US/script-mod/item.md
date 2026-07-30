@@ -82,11 +82,43 @@ To make an item wearable, add:
 {
   "wearable": true,
   "wearable_can_be_held": true,
-  "wear_slot_id": "head",
+  "wear_slot_id": "Head",
+  "desired_wear_limb": "Head",
   "wearable_armor": 0.3,
-  "wearable_isolation": 0.1
+  "wearable_isolation": 0.1,
+  "wearable_hit_durability_loss_multiplier": 1.0,
+  "wearable_sorting_order": 0,
+  "wearable_visual_offset": 5,
+  "worn_sprite_offset_x": 0,
+  "worn_sprite_offset_y": 0,
+  "multi_worn": {
+    "FootF": {
+      "worn_sprite_offset_x": 2,
+      "worn_sprite_offset_y": 1
+    }
+  }
 }
 ```
+
+| Field                                     | Type                        | Default | Notes                                                           |
+|-------------------------------------------|-----------------------------|---------|-----------------------------------------------------------------|
+| `wearable`                                | bool                        | `false` | Enables equipping                                               |
+| `wearable_can_be_held`                    | bool                        | `false` | Can also be held in hand when worn                              |
+| `wear_slot_id`                            | string                      | `""`    | Which limb slot to occupy (see valid list below)                |
+| `desired_wear_limb`                       | string                      | `""`    | Preferred limb to equip onto (see valid list below)             |
+| `wearable_armor`                          | float                       | `0`     | Armor protection (0–1)                                          |
+| `wearable_isolation`                      | float                       | `0`     | Thermal isolation (0–1)                                         |
+| `wearable_hit_durability_loss_multiplier` | float                       | `0`     | Durability loss on hit multiplier                               |
+| `wearable_sorting_order`                  | int?                        | null    | Render sorting order for equipped sprite                        |
+| `wearable_visual_offset`                  | int                         | `5`     | Visual layer offset                                             |
+| `worn_sprite_offset_x`                    | float                       | `0`     | Horizontal offset for worn sprite                               |
+| `worn_sprite_offset_y`                    | float                       | `0`     | Vertical offset for worn sprite                                 |
+| `multi_worn`                              | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`) |
+
+> ⚠️ **Valid limb names**: `wear_slot_id` and `desired_wear_limb` must be one of the 15 game limbs:
+> `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
+> Invalid limb names will trigger a warning at load time and may cause the game to crash on equip.
+> Use `Limb.IsValidLimbName()` to validate names at runtime (see [Limb API](../script-api/limbs.md)).
 
 ### Container Fields
 
@@ -275,6 +307,11 @@ in your mod's main script.
 
 All sprites go in `Assets/Item/`. If `{itemId}.png` is missing, Bark falls back to `origin_prefab` *(i.e. the default
 geofruit)* sprite.
+
+> 💡 **Worn sprite fallback**: If `{itemId}_worn.png` is not provided for a wearable item, Bark automatically falls
+> back to the main item texture (`{itemId}.png`) as the worn sprite. Only if both are missing is equipping blocked
+> with a warning. This means you can skip `_worn.png` entirely for most items — the inventory sprite will be
+> reused when equipped.
 
 ## Notes
 

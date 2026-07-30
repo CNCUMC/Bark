@@ -24,6 +24,27 @@
   内置的 JetBrains.Annotations），告知 Rider / VS+ReSharper / VS Code 被标记的类型及成员均通过反射使用——
   所有 IDE 不再误报「未使用」警告。
 
+- **`LimbUtil` 名称查询 API**：`LimbNames`（公开的 15 个已知肢体名 `HashSet<string>`，不区分大小写）、
+  `IsValidLimbName(name)`（`[ScriptMethod]` — 校验名称是否匹配游戏肢体）和
+  `GetAllLimbNames()`（`[ScriptMethod]` — 返回全部有效肢体名的 `List<string>`）。这些 API 替代了
+  各处的硬编码肢体名列表，C# 和脚本侧统一使用同一数据源。
+
+- **可穿戴物品 `desired_wear_limb` 校验**：`ItemLoader.FinalizeItemInfo` 现在通过
+  `LimbUtil.IsValidLimbName()` 校验 `desired_wear_limb`。无效肢体名在加载时触发警告（locale key
+  `item_event.wear_slot_invalid`），在装备崩溃前即可发现配置错误。
+
+- **装备贴图自动回退**：当可穿戴物品缺少 `{itemId}_worn.png` 时，Bark 自动使用物品主贴图
+  （`{itemId}.png`）作为穿着贴图。仅当两者都不存在时才将物品加入 `WearableWithoutWornSprite`
+  黑名单，让 `_worn.png` 对大多数物品真正可选。
+
+- **WearWearable 三层防线**（`ItemEventListener`）：`Body.WearWearable` 的 Harmony 补丁现在包含：
+  1. **Prefix 空值检查** — `item`、`item.id` 或 `Body` 为 null 时阻止装备
+  2. **Prefix 运行时贴图检查** — 通过 `Traverse` 读取 `item.stats.WornSprite`，为 null 时阻止
+  3. **Finalizer 兜底吞异常** — 捕获 `WearWearable` 内部任何异常，记录错误日志后返回 null，
+     防止游戏崩溃
+
+  这避免了因无效 `wear_slot_id`、缺失贴图等运行时问题导致的 NullReferenceException 崩溃。
+
 ### Changed
 
 - **选项定义与数据分离**（`OptionsUtil` 重写）：选项定义现在存放在
@@ -50,3 +71,7 @@
 
 - `gun_event.patch_ok` 和 `api.scanned` 本地化条目缺少 `{0}` 占位符，导致 5 条枪械补丁日志全部输出
   相同的原始 key 而无法显示具体方法名。现已正确模板化。
+
+- `ItemLoader.FinalizeItemInfo` 中的 `LimbUtil.GetAllLimbs().Contains(limbName)` 将
+  `List<Limb>` 与 `string` 比较，始终返回 `false`，导致每个有 `desired_wear_limb` 的物品
+  都触发虚假警告。已替换为 `LimbUtil.IsValidLimbName()`。
