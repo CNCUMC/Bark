@@ -112,8 +112,36 @@ public static class JumpPatch
 
 ## Registering as a Script API (Advanced)
 
-If your C# mod wants to expose its own utility methods to JS/Lua scripts, mark them with `[ScriptMethod]` and register
-in `Awake()`:
+To expose your C# utility methods to JS/Lua scripts, you have two options.
+
+### Using [ScriptApi] Auto-Registration (Recommended)
+
+For pure `public static` utility classes, just annotate with `[ScriptApi]` and Bark auto-scans and registers at
+startup — no `ApiRegistry.Register()` call needed.
+
+```csharp
+using Bark.ScriptApi;
+
+[ScriptApi]
+public static class MyMathTool
+{
+    [ScriptMethod]
+    public static int Double(int value) => value * 2;
+
+    [ScriptMethod]
+    public static string Greet(string name) => $"Hello, {name}!";
+}
+```
+
+Scripts access it via a camelCase global: `myMathTool.Double(5)`.
+
+- The variable name defaults to the class name minus any `Util` suffix (e.g. `BodyUtil` → `Body`). Override with
+  `[ScriptApi(Name = "MyApi")]`.
+- Nothing to do in `Awake()` — Bark's `ApiRegistry.ScanAndRegister()` finds all `[ScriptApi]` classes automatically.
+
+### Manual Registration (Compatibility)
+
+If you need to control registration timing or do extra initialization, `ApiRegistry.Register()` still works:
 
 ```csharp
 using Bark.ScriptApi;

@@ -258,6 +258,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "没有发现脚本模组",
             "沒有發現腳本模組",
             "Скриптовые моды не найдены");
+        Log("script_mod_loader.zip_extracted",
+            "Extracted zip mod '{0}' to cache",
+            "已将 zip 模组 '{0}' 解压到缓存",
+            "已將 zip 模組 '{0}' 解壓到快取",
+            "Zip-мод '{0}' распакован в кэш");
+        Log("script_mod_loader.zip_extract_failed",
+            "Failed to extract zip mod '{0}': {1}",
+            "解压 zip 模组 '{0}' 失败: {1}",
+            "解壓 zip 模組 '{0}' 失敗: {1}",
+            "Не удалось распаковать zip-мод '{0}': {1}");
+        Log("script_mod_loader.cache_cleaned",
+            "Cleaned orphaned cache '{0}' (zip no longer exists)",
+            "已清理孤儿缓存 '{0}'（zip 已被删除）",
+            "已清理孤兒快取 '{0}'（zip 已被刪除）",
+            "Очищен потерянный кэш '{0}' (zip больше не существует)");
         Log("script_mod_loader.found_manifests",
             "Found {0} mod manifest(s)",
             "发现 {0} 个模组清单",

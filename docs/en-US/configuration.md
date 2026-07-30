@@ -2,8 +2,8 @@
 
 # Configuration & Localization
 
-Bark provides two configuration systems: `BetterOptions` + `LangGenerator` for C# mods, and `config.json` +
-`locale.json` for script mods.
+Bark provides two configuration systems: `BetterOptions` + `LangGenerator` for C# mods, and `options.json` +
+`Lang/` locale files for script mods.
 
 ## C# Mods
 
@@ -166,10 +166,10 @@ If nothing matches, show the raw key.
 
 ### Registering Config Options
 
-Option **definitions** live in the mod's `Config/options.json` (shipped with the mod, read-only). User **saved values**
+Option **definitions** live in `options.json` alongside `mod.json` (shipped with the mod, read-only). User **saved values**
 are written to `ScriptMod/Configs/{modId}.json` as a simple key-value map.
 
-**`ScriptMod/Mods/MyMod/Config/options.json`** (option definitions, shipped with the mod):
+**`ScriptMod/Mods/MyMod/options.json`** (option definitions, shipped with the mod):
 
 ```json
 {
@@ -257,10 +257,10 @@ ScriptMod/Mods/MyMod/
 ```json
 {
   "option": {
-    "my_mod.enable_auto_heal": "Auto Heal",
-    "my_mod.enable_auto_healdsc": "Enable periodic health regen",
-    "my_mod.heal_amount": "Heal Amount",
-    "my_mod.heal_amountdsc": "HP restored per tick"
+    "my_mod.game.enable_auto_heal": "Auto Heal",
+    "my_mod.game.enable_auto_healdsc": "Enable periodic health regen",
+    "my_mod.game.heal_amount": "Heal Amount",
+    "my_mod.game.heal_amountdsc": "HP restored per tick"
   },
   "log": {
     "welcome": "Welcome to this mod!",
@@ -270,6 +270,8 @@ ScriptMod/Mods/MyMod/
 ```
 
 Option locale key format: `{modId}.{category}.{optionKey}`, append `dsc` for description.
+When `category` is omitted it defaults to the mod id (e.g. `my_mod.my_mod.heal_amount`). Explicit standard
+categories (`game`/`audio`/`input`/`video`) or custom strings are used as-is.
 
 Bark automatically loads locale data into CCL on load, so the options menu shows the correct text.
 

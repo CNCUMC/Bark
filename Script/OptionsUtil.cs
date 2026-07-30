@@ -12,7 +12,7 @@ using UnityEngine;
 namespace Bark.Script;
 
 // 脚本配置 ↔ CCL 游戏设置桥接器
-// 选项定义从 Mods/{modId}/Config/options.json 读取（模组自带，只读），
+// 选项定义从 mod.json 同层的 options.json 读取（模组自带，只读），
 // 用户保存值写入 ScriptMod/Configs/{modId}.json（简单 key-value 格式）。
 // 加载时合并：用户保存值覆盖定义中的默认值。
 public static class OptionsUtil
@@ -45,8 +45,8 @@ public static class OptionsUtil
         if (configsDir is null)
             throw new ArgumentNullException(nameof(configsDir));
 
-        // 1. 读取选项定义：Mods/{modId}/Config/options.json
-        var defPath = Path.Combine(modDir, "Config", "options.json");
+        // 1. 读取选项定义：{modDir}/options.json
+        var defPath = Path.Combine(modDir, "options.json");
         if (!File.Exists(defPath))
             return;
 

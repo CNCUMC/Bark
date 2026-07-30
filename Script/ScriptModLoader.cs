@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bark.Commands;
@@ -10,12 +11,16 @@ using Bark.Recipe;
 using Bark.Save;
 using Bark.Tile;
 using Bark.Tool;
+using BepInEx;
 
 namespace Bark.Script;
 
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath) : IDisposable
 {
+    // zip 模组解压到 BepInEx 缓存目录下的子目录
+    private static readonly string ZipCacheDir = Path.Combine(Paths.CachePath, "Bark", "ScriptMods");
+
     // 支持的入口文件扩展名 → 语言映射
     private static readonly Dictionary<string, ScriptLanguage> ExtensionMap = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -65,50 +70,60 @@ public class ScriptModLoader(string modsPath) : IDisposable
         Directory.CreateDirectory(modsDir);
         Directory.CreateDirectory(configsDir);
 
-        // 1. 扫描 Mods/ 子目录
-        var modDirectories = Directory.GetDirectories(modsDir);
-        if (modDirectories.Length == 0)
+        // 1. 解压 zip 模组到 BepInEx 缓存目录
+        ExtractZipMods(modsDir);
+
+        // 2. 收集所有模组目录：Mods/*/ + 缓存中的 zip 解压目录
+        var modDirectories = Directory.GetDirectories(modsDir).ToList();
+
+        if (Directory.Exists(ZipCacheDir))
+            modDirectories.AddRange(Directory.GetDirectories(ZipCacheDir));
+
+        if (modDirectories.Count == 0)
         {
             LogUtil.Info("script_mod_loader.no_mods");
             return;
         }
 
-        // 2. JSON 加载器：读取所有 mod.json
+        // 3. JSON 加载器：读取所有 mod.json
         var manifests = modDirectories.Select(LoadManifest).OfType<ScriptManifest>().ToList();
 
-        // 3. 依赖检查 + 拓扑排序
+        // 3.5 去重：目录版模组优先于同 ID 的 zip 版（开发模式覆盖）
+        manifests = DeduplicateMods(manifests);
+
+        // 4. 依赖检查 + 拓扑排序
         var sorted = TopologicalSort(manifests);
 
-        // 4. 加载各模组的语言文件
+        // 5. 加载各模组的语言文件
         foreach (var manifest in sorted)
             ScriptLocaleManager.LoadModLocale(manifest.Directory, manifest.Id);
 
-        // 5. 注册配置选项到游戏设置系统（必须在引擎创建前完成）
-        // 选项定义来自 Mods/{modId}/Config/options.json，用户保存值写入 Configs/{modId}.json
+        // 6. 注册配置选项到游戏设置系统（必须在引擎创建前完成）
+        // 选项定义来自 {modDir}/options.json（与 mod.json 同层），用户保存值写入 Configs/{modId}.json
         foreach (var manifest in sorted)
             OptionsUtil.RegisterFromMod(manifest, manifest.Directory, configsDir);
 
-        // 5.3 加载自定义物品到 CUCoreLib ItemRegistry / LiquidRegistry
+        // 6.3 加载自定义物品到 CUCoreLib ItemRegistry / LiquidRegistry
         foreach (var manifest in sorted)
             ItemLoader.RegisterFromMod(manifest);
 
-        // 5.35 加载自定义物块到 CUCoreLib TileRegistry
+        // 6.35 加载自定义物块到 CUCoreLib TileRegistry
         foreach (var manifest in sorted)
             TileLoader.RegisterFromMod(manifest);
 
-        // 5.4 加载自定义合成表到 CUCoreLib RecipeRegistry（必须在物品注册之后）
+        // 6.4 加载自定义合成表到 CUCoreLib RecipeRegistry（必须在物品注册之后）
         foreach (var manifest in sorted)
             RecipeLoader.RegisterFromMod(manifest);
 
-        // 5.5 加载自定义 Moodle 到 CUCoreLib MoodleRegistry
+        // 6.5 加载自定义 Moodle 到 CUCoreLib MoodleRegistry
         foreach (var manifest in sorted)
             MoodleLoader.RegisterFromMod(manifest);
 
-        // 5.6 暂存脚本命令定义，待引擎就绪后注册到 ConsoleCommandRegistry
+        // 6.6 暂存脚本命令定义，待引擎就绪后注册到 ConsoleCommandRegistry
         foreach (var manifest in sorted)
             CommandLoader.RegisterFromMod(manifest);
 
-        // 6. 按顺序加载模组
+        // 7. 按顺序加载模组
         foreach (var manifest in sorted)
         {
             LoadMod(manifest);
@@ -123,6 +138,83 @@ public class ScriptModLoader(string modsPath) : IDisposable
         }
     }
 
+
+    // 解压 Mods/*.zip 到 BepInEx 缓存目录（仅首次，已存在则跳过）
+    // 清理已删除 zip 对应的孤儿缓存
+    private static void ExtractZipMods(string modsDir)
+    {
+        var zipFiles = Directory.GetFiles(modsDir, "*.zip");
+
+        if (zipFiles.Length == 0)
+        {
+            // 没有 zip 模组，清理整个缓存目录
+            if (Directory.Exists(ZipCacheDir))
+                Directory.Delete(ZipCacheDir, true);
+            return;
+        }
+
+        Directory.CreateDirectory(ZipCacheDir);
+        var validCachePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var zipPath in zipFiles)
+        {
+            var modName = Path.GetFileNameWithoutExtension(zipPath);
+            var targetDir = Path.Combine(ZipCacheDir, modName);
+            validCachePaths.Add(targetDir);
+
+            // 已解压过且包含 mod.json，跳过
+            if (Directory.Exists(targetDir) && File.Exists(Path.Combine(targetDir, "mod.json")))
+                continue;
+
+            try
+            {
+                // 清理旧解压残留
+                if (Directory.Exists(targetDir))
+                    Directory.Delete(targetDir, true);
+
+                ZipFile.ExtractToDirectory(zipPath, targetDir);
+                LogUtil.Info("script_mod_loader.zip_extracted", modName);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.Warning("script_mod_loader.zip_extract_failed", zipPath, ex.Message);
+            }
+        }
+
+        // 清理孤儿缓存（zip 已被删除）
+        if (Directory.Exists(ZipCacheDir))
+        {
+            foreach (var dir in Directory.GetDirectories(ZipCacheDir))
+            {
+                if (validCachePaths.Contains(dir))
+                    continue;
+
+                Directory.Delete(dir, true);
+                LogUtil.Info("script_mod_loader.cache_cleaned", Path.GetFileName(dir));
+            }
+        }
+    }
+
+    // 去重：同 ID 的目录版模组优先于 zip 解压版（开发模式覆盖）
+    private static List<ScriptManifest> DeduplicateMods(List<ScriptManifest> manifests)
+    {
+        return manifests
+            .GroupBy(m => m.Id)
+            .Select(g =>
+            {
+                var list = g.ToList();
+                // 优先选非 zip 缓存的版本（即用户放 Mods/ 目录的）
+                var preferred = list.FirstOrDefault(m => !IsFromZipCache(m.Directory!));
+                return preferred ?? list.First();
+            })
+            .ToList();
+    }
+
+    // 判断目录是否在 zip 缓存路径下
+    private static bool IsFromZipCache(string dir)
+    {
+        return dir.StartsWith(ZipCacheDir, StringComparison.OrdinalIgnoreCase);
+    }
 
     // 读取单个模组的 mod.json
     private static ScriptManifest? LoadManifest(string modDir)

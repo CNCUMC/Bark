@@ -266,6 +266,30 @@ in your script.
 
 See [Script Commands](script-mod/command.md).
 
+## Distributing as a Zip
+
+To distribute your mod to players, zip the entire mod folder and drop it into `ScriptMod/Mods/`:
+
+```
+ScriptMod/Mods/
+  MyMod.zip          ← packaged mod
+```
+
+Bark automatically extracts `.zip` files to the BepInEx cache directory (`Paths.CachePath`) on startup — no manual
+unzipping required.
+
+| Behavior | Detail |
+|----------|--------|
+| First load | Extracts once, skips on subsequent runs (unless zip is replaced) |
+| Directory priority | If both `Mods/MyMod/` and `MyMod.zip` exist with the same id, **the directory wins** (dev-friendly) |
+| Deleting the zip | Cache is auto-cleaned on next startup, no orphaned files |
+| Hot reload | Not supported for zip mods — zips are distribution artifacts. To edit, extract to a directory |
+
+**Dev workflow**: develop as a loose directory, package as `.zip` for release. When both coexist, the directory
+overrides the zip so your changes take effect immediately.
+
+> 💡 Zip is for distribution only, not development. Use the directory format for hot reloading and editing.
+
 ## Lua Notes
 
 Lua users only need to note these differences. Everything else is the same.

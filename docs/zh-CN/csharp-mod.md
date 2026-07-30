@@ -108,7 +108,35 @@ public static class JumpPatch
 
 ## 注册为脚本 API（高级）
 
-如果你的 C# 模组想把自己的工具方法暴露给 JS/Lua 脚本调用，用 `[ScriptMethod]` 标记方法，然后在 `Awake()` 里注册：
+如果你的 C# 模组想把自己的工具方法暴露给 JS/Lua 脚本调用，有两种方式。
+
+### 使用 [ScriptApi] 自动注册（推荐）
+
+工具类是纯 `public static` 方法的，给类打上 `[ScriptApi]` 即可——Bark 启动时自动扫描注册，不需要手动调用
+`ApiRegistry.Register()`。
+
+```csharp
+using Bark.ScriptApi;
+
+[ScriptApi]
+public static class MyMathTool
+{
+    [ScriptMethod]
+    public static int Double(int value) => value * 2;
+
+    [ScriptMethod]
+    public static string Greet(string name) => $"你好, {name}!";
+}
+```
+
+脚本侧通过小驼峰命名的全局变量访问：`myMathTool.Double(5)`。
+
+- 全局变量名默认取类名去掉 `Util` 后缀（如 `BodyUtil` → `Body`），也可通过 `[ScriptApi(Name = "MyApi")]` 手动指定。
+- 不需要在 `Awake()` 里做任何事——Bark 的 `ApiRegistry.ScanAndRegister()` 会自动找到所有 `[ScriptApi]` 类。
+
+### 手动注册（兼容旧方式）
+
+如果需要在代码里控制注册时机或做额外初始化，仍可用 `ApiRegistry.Register()`：
 
 ```csharp
 using Bark.ScriptApi;
