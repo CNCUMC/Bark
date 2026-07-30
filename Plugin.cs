@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using Bark.BetterCCL;
 using Bark.Event;
 using Bark.Event.Listener;
@@ -65,7 +64,6 @@ public class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
 
         DeployPuertsNativeFiles();
-        InitializePythonEnvironment();
 
         // 扫描注解驱动的事件：
         // 1. C# 模组的 [EventBusSubscriber]（方法参数为 BarkEvent 子类即自动注册）
@@ -116,43 +114,6 @@ public class Plugin : BaseUnityPlugin
         CopyPuertsRuntime(barkDir, gameRoot);
     }
 
-    // 配置 Python 运行环境，指向 <游戏根目录>/Python/Python3142/
-    // PapiPython.dll 需要配套的 python3.dll，通过 SetDllDirectory 和 PYTHONHOME 指定
-    // 版本锁定 3.14.2：读取 python314.dll 文件版本，不匹配则跳过
-    private static void InitializePythonEnvironment()
-    {
-        var barkDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? string.Empty;
-        var gameRoot = Path.GetDirectoryName(barkDir) ?? string.Empty;
-        gameRoot = Path.GetDirectoryName(Path.GetDirectoryName(gameRoot)) ?? gameRoot;
-
-        var pythonDir = Path.Combine(gameRoot, "Python");
-        if (!Directory.Exists(pythonDir) || !File.Exists(Path.Combine(pythonDir, "python3.dll")))
-        {
-            LogUtil.Warning("puerpython.system_not_found");
-            return;
-        }
-
-        // 版本校验：读取 python314.dll 文件版本，确保是 3.14.2
-        var dllPath = Path.Combine(pythonDir, "python314.dll");
-        if (File.Exists(dllPath))
-        {
-            var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(dllPath);
-            if (versionInfo.FileVersion != null && !versionInfo.FileVersion.StartsWith("3.14.2"))
-            {
-                LogUtil.Warning("puerpython.wrong_version", versionInfo.FileVersion);
-                return;
-            }
-        }
-
-        SetDllDirectory(pythonDir);
-        Environment.SetEnvironmentVariable("PYTHONHOME", pythonDir);
-
-        LogUtil.Info("puerpython.bundled_ready", pythonDir);
-    }
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern bool SetDllDirectory(string lpPathName);
-
     // Papi* 和 PuertsCore 是原生 C++ 库，需要复制到游戏根目录
     // Puerts.* 是托管 .NET 程序集，由 BepInEx 从 plugins 目录加载
     private static void CopyNativeDlls(string sourceDir, string destDir)
@@ -161,8 +122,7 @@ public class Plugin : BaseUnityPlugin
                  {
                      "PuertsCore.dll",
                      "PapiV8.dll",
-                     "PapiLua.dll",
-                     "PapiPython.dll"
+                     "PapiLua.dll"
                  })
         {
             var source = Path.Combine(sourceDir, dll);

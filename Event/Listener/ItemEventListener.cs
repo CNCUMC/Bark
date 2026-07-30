@@ -46,6 +46,9 @@ public static class ItemEventListener
         // 尝试 Harmony 补丁攻击方法
         TryPatchItemAttack();
 
+        // 尝试 Harmony 补丁 WearWearable：防止缺 WornSprite 导致 NRE
+        TryPatchWearWearable();
+
         // 启动轮询检测
         _useCoroutine ??= runner.StartCoroutine(PollItemUse());
         _equipCoroutine ??= runner.StartCoroutine(PollEquipChange());
@@ -350,6 +353,30 @@ public static class ItemEventListener
     {
         PatchMethod(typeof(Body), "Attack", nameof(OnItemAttackHarmony),
             "Bark.ItemAttackEventListener");
+    }
+
+    // Harmony 前缀：检查 wearable 在装备前是否有有效 WornSprite，
+    // 缺贴图时跳过原始 WearWearable 避免 NRE
+    private static void TryPatchWearWearable()
+    {
+        PatchMethod(typeof(Body), "WearWearable", nameof(OnWearWearablePrefix),
+            "Bark.WearWearableGuard");
+    }
+
+    private static bool OnWearWearablePrefix(Body __instance, Item item)
+    {
+        if (item == null || string.IsNullOrEmpty(item.id)) return false;
+
+        // 检查是否为已记录的缺贴图 wearable，是则跳过原始调用避免 NRE
+        if (ItemLoader.WearableWithoutWornSprite.Contains(item.id))
+        {
+            LogUtil.Warning("item_event.wear_blocked_no_sprite",
+                item.id,
+                item.fullName ?? item.id);
+            return false;
+        }
+
+        return true;
     }
 
     // Harmony 补丁回调：统一处理 Item/Body 攻击方法

@@ -33,6 +33,9 @@ public static class ItemLoader
     // 模组已加载的物品列表（modId → 物品记录），供外部查询
     public static readonly Dictionary<string, List<ItemEntry>> LoadedItems = new();
 
+    // 已注册为 wearable 但缺少穿戴贴图的物品 ID 集合，供热 Harmony 守卫跳过装备防止 NRE
+    public static readonly HashSet<string> WearableWithoutWornSprite = new();
+
     // 暂存的脚本映射（modId → itemId → (scriptDef, modDir)），待引擎创建后注册
     private static readonly Dictionary<string, Dictionary<string, (ItemScriptDef def, string modDir)>> PendingScripts =
         new();
@@ -281,6 +284,13 @@ public static class ItemLoader
 
         // 穿戴贴图: Assets/Item/{itemId}_worn.png
         info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), def.SpriteImportScale);
+        if (def.Wearable && info.WornSprite == null)
+        {
+            WearableWithoutWornSprite.Add(itemId);
+            LogUtil.Warning("item_loader.wearable_no_worn_sprite",
+                def.FullName ?? itemId,
+                $"Assets/Item/{itemId}_worn.png");
+        }
         info.WornSpriteOffset = new Vector2(def.WornSpriteOffsetX, def.WornSpriteOffsetY);
 
         // MultiWorn: Assets/Item/{itemId}_mw_{key}.png
@@ -465,6 +475,13 @@ public static class ItemLoader
     // 清除指定模组之前注册的物品与液体（内部调 ItemRegistry / LiquidRegistry 的 ClearOwnerEntries）
     private static void ClearModItems(string ownerId)
     {
+        // 清除该 owner 在 WearableWithoutWornSprite 中的条目
+        if (LoadedItems.TryGetValue(ownerId, out var items))
+        {
+            foreach (var entry in items)
+                WearableWithoutWornSprite.Remove(entry.Id);
+        }
+
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);
         s_clearLiquidOwnerEntries?.Invoke(null, [ownerId, null!]);
         LoadedItems.Remove(ownerId);

@@ -63,6 +63,8 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 
 - [快速上手](docs/zh-CN/getting-started.md) — 安装、环境、路径选择
 - [脚本开发](docs/zh-CN/script-mod.md) — JS/Lua 写模组，生命周期、事件钩子、控制台指令
+  > **注：** PuerTS 支持 Python，但 Python 运行时包体约 22MB，暂缓处理。
+  > 如有需求会在大版本中更新。相关实现已归档至 `TodoPython/` 目录。
 - [C# 模组开发](docs/zh-CN/csharp-mod.md) — 事件订阅、Harmony Patch、API 注册
 - [配置与本地化](docs/zh-CN/configuration.md) — 选项注册、多语言
 - [脚本事件钩子](docs/zh-CN/script-events.md) — 所有可监听的事件钩子

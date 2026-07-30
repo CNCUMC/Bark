@@ -26,7 +26,7 @@ public static class LogUtil
 
     public static void Info(string text, ManualLogSource? logger)
     {
-        LogToConsole(text);
+        LogToConsole($"[INFO] {text}");
         logger?.LogInfo(text);
     }
 

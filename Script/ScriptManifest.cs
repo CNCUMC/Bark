@@ -52,9 +52,10 @@ public class ModDependency
 }
 
 // 脚本语言类型
+// Python 暂缓：Puerts.Python.Complete 包体约 22MB，待玩家反馈需求后在大版本中启用。
+// 相关实现已归档至 TodoPython/ 目录。
 public enum ScriptLanguage
 {
     JavaScript,
-    Lua,
-    Python
+    Lua
 }

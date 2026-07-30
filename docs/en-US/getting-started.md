@@ -29,7 +29,7 @@ Start the game. If you see `[Bark]` prefixed messages in the BepInEx console, yo
 
 ## What Do You Want to Do
 
-- Write JS / Lua / Python scripts → [Script Development](script-mod.md)
+- Write JS / Lua scripts → [Script Development](script-mod.md)
 - Write C# mods → [C# Mod Development](csharp-mod.md)
 - See available events → [Script Event Hooks](script-events.md) / [C# Events](csharp-events.md)
 - Look up an API → [API Reference](script-api)

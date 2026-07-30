@@ -64,6 +64,10 @@ Full documentation at [`docs/en-US/`](docs/en-US) (and [简体中文](docs/zh-CN
 
 - [Getting Started](docs/zh-CN/getting-started.md) — Installation, environment, choosing your path
 - [Script Development](docs/zh-CN/script-mod.md) — JS/Lua mods, lifecycle hooks, console commands
+  > **Note:** Puerts supports Python, but the Python runtime (~22 MB) currently bundled
+  > with the package is too large and has been put on hold. Python support will be
+  > considered in a future major release if there is user demand. See `TodoPython/`
+  > for archived implementation.
 - [C# Mod Development](docs/zh-CN/csharp-mod.md) — Event subscription, Harmony patches, API registration
 - [Configuration & Localization](docs/zh-CN/configuration.md) — Options registration, multi-language
 - [Script Event Hooks](docs/zh-CN/script-events.md) — All listenable event hooks

@@ -2,8 +2,8 @@
 
 # Script Development
 
-Bark supports writing mods in JavaScript, Lua, or Python. This guide uses JavaScript for examples. Lua users see
-the [Lua Notes](#lua-notes) section; Python users see [Python Notes](#python-notes).
+Bark supports writing mods in JavaScript or Lua. This guide uses JavaScript for examples. Lua users see
+the [Lua Notes](#lua-notes) section.
 
 ## Creating a Script
 
@@ -290,50 +290,6 @@ end
 
 ## Python Notes
 
-Python users need to deploy the CPython runtime separately — Bark does not bundle it.
-
-### Runtime Requirements
-
-| Requirement | Details |
-|-------------|---------|
-| **Version** | Strictly **CPython 3.14.2** only. Other versions (e.g. 3.14.6) will cause crashes |
-| **Download** | [Python 3.14.2 Official Release](https://www.python.org/downloads/release/python-3142/) |
-| **Directory name** | Must be `Python3142` (with version suffix), placed in the **game root directory** |
-| **Path** | `<game root>/Python3142/` |
-
-> Why `Python3142` instead of `Python314`? `Python314` can't distinguish minor versions (3.14.2 vs 3.14.6).
-> Using the wrong version will crash `PapiPython.dll`. The minor version suffix avoids confusion.
-
-### Required Files
-
-Place these files in the `Python3142/` directory:
-
-| File | Purpose |
-|------|---------|
-| `python3.dll` | Loader stub — `PapiPython.dll` directly depends on it |
-| `python314.dll` | CPython core (interpreter, memory management, type system) |
-| `python314.zip` | Standard library (without it `import os`, `import sys` won't work) |
-| `*.pyd` | C extension modules (`_socket`, `_ssl`, `_ctypes`, etc.), depending on script needs |
-
-> Extract these files from the PuerTS Python 3.14.2 NuGet package `puerts.python.nativeassets.win32`.
-
-### Entry File
-
-The entry file is always `main.py`, using standard Python syntax:
-
-```python
-def onLoad():
-    Log.info("Loaded")
-
-def onPlayerJumpStart():
-    Log.info("Jump started!")
-```
-
-### Method Calls
-
-Python API calls use `.` (same as JS):
-
-```python
-hunger = Body.GetHunger()    # read
-Body.SetHunger(hunger + 10)  # set
-```
+PuerTS supports Python, but the Python runtime is relatively large (~22 MB) and has been put on hold.
+It will be considered in a future major release if there is user demand. The related implementation
+has been archived in the source repository's `TodoPython/` directory.

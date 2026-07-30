@@ -2,7 +2,7 @@
 
 # Bark 文档
 
-Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、三脚本引擎（JS/Lua/Python）、本地化和配置管理。
+Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、双脚本引擎（JS/Lua）、本地化和配置管理。
 
 > 先看 [快速上手](getting-started.md)，知道怎么装、怎么选路径。
 
@@ -11,7 +11,7 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | 文档                                  | 内容                                            |
 |---------------------------------------|-------------------------------------------------|
 | [快速上手](getting-started.md)        | 安装、环境、路径选择                            |
-| [脚本开发](script-mod.md)             | JS/Lua/Python 脚本模组，生命周期、全局变量、控制台指令 |
+| [脚本开发](script-mod.md)             | JS/Lua 脚本模组，生命周期、全局变量、控制台指令 |
 | [C# 模组开发](csharp-mod.md)          | C# 写模组，事件订阅、Harmony Patch、API 注册    |
 | [配置与本地化](configuration.md)      | 选项注册、多语言，C# 和脚本两套体系             |
 | [脚本事件钩子](script-events.md)      | 脚本侧可监听的所有事件钩子一览                  |
@@ -23,7 +23,7 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 
 ## 脚本 API
 
-脚本侧（JS / Lua / Python）可调用的工具 API：
+脚本侧（JS / Lua）可调用的工具 API：
 
 | 文档                                  | 对应的全局变量             | 覆盖内容                                 |
 |---------------------------------------|----------------------------|------------------------------------------|

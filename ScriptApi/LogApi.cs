@@ -3,18 +3,10 @@ using Bark.Tool;
 namespace Bark.ScriptApi;
 
 // 脚本侧 Log 全局变量：封装 LogUtil，自动添加 [模组名] 前缀
-public class LogApi
+public class LogApi(string modName, string modId)
 {
-    private readonly string _modName;
-
-    public LogApi(string modName, string modId)
-    {
-        _modName = modName;
-        Locale = new LocaleApi(modId, modName);
-    }
-
     // 本地化访问器
-    public LocaleApi Locale { get; }
+    public LocaleApi Locale { get; } = new(modId, modName);
 
     public void NewLine()
     {
@@ -79,6 +71,6 @@ public class LogApi
 
     private string Format(string msg)
     {
-        return $"[{_modName}] {msg}";
+        return $"[{modName}] {msg}";
     }
 }
