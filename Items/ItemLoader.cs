@@ -34,7 +34,7 @@ public static class ItemLoader
     public static readonly Dictionary<string, List<ItemEntry>> LoadedItems = new();
 
     // 已注册为 wearable 但缺少穿戴贴图的物品 ID 集合，供热 Harmony 守卫跳过装备防止 NRE
-    public static readonly HashSet<string> WearableWithoutWornSprite = new();
+    public static readonly HashSet<string> WearableWithoutWornSprite = [];
 
     // 暂存的脚本映射（modId → itemId → (scriptDef, modDir)），待引擎创建后注册
     private static readonly Dictionary<string, Dictionary<string, (ItemScriptDef def, string modDir)>> PendingScripts =
@@ -286,7 +286,7 @@ public static class ItemLoader
         {
             WearableWithoutWornSprite.Add(itemId);
             LogUtil.Warning("item_loader.wearable_no_worn_sprite",
-                def.FullName ?? itemId,
+                def.FullName,
                 $"Assets/Item/{itemId}_worn.png");
         }
 
@@ -388,6 +388,14 @@ public static class ItemLoader
                 info.usable = true;
             if (def.Script.UseOnLimb.Count > 0)
                 info.usableOnLimb = true;
+        }
+
+        // 校验 desired_wear_limb 是否为游戏已知肢体，防止装备到无效肢体导致 Body.WearWearable NRE
+        if (!string.IsNullOrEmpty(def.DesiredWearLimb) && !LimbUtil.IsValidLimbName(def.DesiredWearLimb))
+        {
+            LogUtil.Warning("item_event.wear_slot_invalid",
+                def.DesiredWearLimb,
+                def.FullName);
         }
 
         return info;

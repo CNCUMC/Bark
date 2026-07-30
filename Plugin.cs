@@ -18,6 +18,7 @@ namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
 [BepInDependency("net.cucorelib", "1.0.3")]
+[BepInDependency("KrokoshaCasualtiesMP", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
@@ -77,6 +78,9 @@ public class Plugin : BaseUnityPlugin
         RegisterScriptApis();
 
         LoadScriptMods();
+
+        // 多人游戏脚本模组同步（KrokMP 未安装时零开销）
+        NetworkModSync.Initialize(ScriptModsPath);
 
         // 脚本模组加载完后，将 Lang 本地化刷新到 CCL 的 locale 文件，确保选项标签/描述在游戏 UI 中可见
         BetterLocale.Flush();

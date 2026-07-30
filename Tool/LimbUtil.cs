@@ -10,6 +10,29 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class LimbUtil
 {
+    // 游戏已知的全体 15 个肢体名，供校验、脚本查询等使用
+    // OrdinalIgnoreCase 避免大小写不一致导致的匹配问题
+    public static readonly HashSet<string> LimbNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Head", "UpTorso", "DownTorso",
+        "UpArmF", "DownArmF", "HandF",
+        "UpArmB", "DownArmB", "HandB",
+        "ThighF", "CrusF", "FootF",
+        "ThighB", "CrusB", "FootB"
+    };
+
+    [ScriptMethod]
+    public static bool IsValidLimbName(string name)
+    {
+        return !string.IsNullOrEmpty(name) && LimbNames.Contains(name);
+    }
+
+    [ScriptMethod]
+    public static List<string> GetAllLimbNames()
+    {
+        return [.. LimbNames];
+    }
+
     // ============================================================
     // 底层逻辑 - Limb 对象级操作（内部实现，不暴露给脚本）
     // ============================================================

@@ -28,6 +28,13 @@ public class ScriptManifest
     // 依赖的其他模组列表
     [JsonProperty("dependencies")] public List<ModDependency> Dependencies { get; set; } = [];
 
+    // GitHub 仓库地址，用于多人游戏时客户端自动下载模组
+    // 格式: https://github.com/user/repo 或 user/repo
+    [JsonProperty("repository")] public string? Repository { get; set; }
+
+    // 多人同步模式: "optional" (默认, 可不同步), "required" (客户端必须下载), "server_only" (仅服务端运行)
+    [JsonProperty("network_sync")] public string? NetworkSync { get; set; }
+
     // 模组所在目录路径（运行时填充）
     [JsonIgnore] public string Directory { get; set; } = string.Empty;
 

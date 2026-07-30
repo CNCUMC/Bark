@@ -454,6 +454,49 @@ internal class LangGenerator : ModLangGenMultiBase
             "已补丁 {0} 用于物品攻击检测",
             "已補丁 {0} 用於物品攻擊檢測",
             "Запатчен {0} для обнаружения атак предметами");
+        Log("item_event.wear_blocked_null_item",
+            "Cannot equip: item is null",
+            "无法装备：物品为空",
+            "無法裝備：物品為空",
+            "Невозможно надеть: предмет равен null");
+        Log("item_event.wear_blocked_empty_id",
+            "Cannot equip: item id is empty",
+            "无法装备：物品 ID 为空",
+            "無法裝備：物品 ID 為空",
+            "Невозможно надеть: id предмета пуст");
+        Log("item_event.wear_blocked_null_body",
+            "Cannot equip '{0}': player body is null",
+            "无法装备 '{0}'：玩家身体为空",
+            "無法裝備 '{0}'：玩家身體為空",
+            "Невозможно надеть '{0}': тело игрока равно null");
+        Log("item_event.wear_blocked_no_sprite",
+            "Cannot equip '{0}': {1}_worn.png not found, equip blocked to prevent crash",
+            "无法装备 '{0}'：{1}_worn.png 不存在，已阻止装备防止崩溃",
+            "無法裝備 '{0}'：{1}_worn.png 不存在，已阻止裝備防止崩潰",
+            "Невозможно надеть '{0}': {1}_worn.png не найден, надевание заблокировано");
+        Log("item_event.wear_blocked_null_sprite",
+            "Cannot equip '{0}': WornSprite is null (check {1}_worn.png)",
+            "无法装备 '{0}'：WornSprite 为空（请检查 {1}_worn.png）",
+            "無法裝備 '{0}'：WornSprite 為空（請檢查 {1}_worn.png）",
+            "Невозможно надеть '{0}': WornSprite равен null (проверьте {1}_worn.png)");
+        Log("item_event.wear_slot_invalid",
+            "Wear limb '{0}' for '{1}' is not a valid game limb. Valid: Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
+            "物品 '{1}' 的穿戴肢体 '{0}' 不是有效的游戏肢体。有效值：Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
+            "物品 '{1}' 的穿戴肢體 '{0}' 不是有效的遊戲肢體。有效值：Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
+            "Лимб '{0}' для '{1}' не является допустимым. Допустимые: Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB");
+        Log("item_event.wear_exception",
+            "Equip '{0}' ({1}) crashed: {2}: {3}",
+            "装备 '{0}' ({1}) 异常：{2}：{3}",
+            "裝備 '{0}' ({1}) 異常：{2}：{3}",
+            "Надевание '{0}' ({1}) вызвало ошибку: {2}: {3}");
+
+        // Log - Item Loader
+        Log("item_loader.wearable_no_worn_sprite",
+            "Wearable '{0}' has no _worn texture ({1}) and no fallback item texture ({2}), equip blocked",
+            "可穿戴物品 '{0}' 缺少 _worn 贴图 ({1}) 且无回退主贴图 ({2})，装备已阻止",
+            "可穿戴物品 '{0}' 缺少 _worn 貼圖 ({1}) 且無回退主貼圖 ({2})，裝備已阻止",
+            "Надеваемый '{0}': нет _worn ({1}) и нет запасной текстуры ({2}), надевание заблокировано");
+
         Log("gun_event.patch_ok",
             "Patched GunScript.{0}",
             "已补丁 GunScript.{0}",
@@ -764,5 +807,67 @@ internal class LangGenerator : ModLangGenMultiBase
             "命令 '{0}' (模组 '{1}') 脚本错误：{2}",
             "命令 '{0}' (模組 '{1}') 腳本錯誤：{2}",
             "Ошибка скрипта команды '{0}' в моде '{1}': {2}");
+
+        // Log - Network Mod Sync
+        Log("network_sync.ready",
+            "Network mod sync registered (multiplayer bridge ready)",
+            "网络模组同步已注册（多人游戏网桥就绪）",
+            "網路模組同步已註冊（多人遊戲網橋就緒）",
+            "Сетевая синхронизация модов зарегистрирована (мост готов)");
+        Log("network_sync.requesting",
+            "Requesting mod list from host...",
+            "正在向主机请求模组列表...",
+            "正在向主機請求模組列表...",
+            "Запрос списка модов у хоста...");
+        Log("network_sync.no_host_mods",
+            "No script mods on host, sync skipped",
+            "主机上没有脚本模组，跳过同步",
+            "主機上沒有腳本模組，跳過同步",
+            "На хосте нет скриптовых модов, синхронизация пропущена");
+        Log("network_sync.skip_server_only",
+            "Mod '{0}' is server-only, skipping download",
+            "模组 '{0}' 为服务端专属，跳过下载",
+            "模組 '{0}' 為伺服器專屬，跳過下載",
+            "Мод '{0}' только для сервера, пропускаю загрузку");
+        Log("network_sync.no_repo",
+            "Mod '{0}' has no repository URL, cannot auto-download",
+            "模组 '{0}' 未配置 GitHub 仓库地址，无法自动下载",
+            "模組 '{0}' 未設定 GitHub 儲存庫地址，無法自動下載",
+            "Мод '{0}' не имеет URL репозитория, невозможно скачать автоматически");
+        Log("network_sync.already_match",
+            "All {0} script mod(s) match the host, nothing to download",
+            "全部 {0} 个脚本模组与主机一致，无需下载",
+            "全部 {0} 個腳本模組與主機一致，無需下載",
+            "Все {0} мод(ов) совпадают с хостом, загрузка не требуется");
+        Log("network_sync.found_missing",
+            "Found {0} missing script mod(s) (local: {1}), downloading...",
+            "发现 {0} 个缺失的脚本模组 (本地: {1})，开始下载...",
+            "發現 {0} 個缺失的腳本模組 (本地: {1})，開始下載...",
+            "Найдено {0} отсутствующих мод(ов) (локально: {1}), загрузка...");
+        Log("network_sync.downloading",
+            "Downloading mod '{0}' v{1} from GitHub...",
+            "正在从 GitHub 下载模组 '{0}' v{1}...",
+            "正在從 GitHub 下載模組 '{0}' v{1}...",
+            "Загрузка мода '{0}' v{1} с GitHub...");
+        Log("network_sync.downloaded",
+            "Downloaded '{0}', saved to ScriptMod/Mods/",
+            "已下载 '{0}'，保存到 ScriptMod/Mods/",
+            "已下載 '{0}'，儲存至 ScriptMod/Mods/",
+            "Мод '{0}' загружен и сохранён в ScriptMod/Mods/");
+        Log("network_sync.download_failed",
+            "Failed to download mod '{0}': {1}",
+            "模组 '{0}' 下载失败: {1}",
+            "模組 '{0}' 下載失敗: {1}",
+            "Не удалось загрузить мод '{0}': {1}");
+        Log("network_sync.summary",
+            "Mod sync complete: {0} downloaded, {1} failed",
+            "模组同步完成: {0} 下载成功, {1} 失败",
+            "模組同步完成: {0} 下載成功, {1} 失敗",
+            "Синхронизация модов завершена: {0} загружено, {1} ошибок");
+        Log("network_sync.reloading",
+            "Reloading script mods after download...",
+            "正在重载脚本模组...",
+            "正在重載腳本模組...",
+            "Перезагрузка скриптовых модов после загрузки...");
     }
 }
