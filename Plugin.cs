@@ -81,9 +81,7 @@ public class Plugin : BaseUnityPlugin
         BetterLocale.Flush();
 
         ModCommand.RegisterCommands();
-
-        UpdateUtil.Check("CNCUMC/Bark", Name, Version, Logger);
-
+        
         // 监听主菜单加载完成后触发事件
         MainMenuEventListener.Listen(this);
         // 监听世界生成完成后触发事件
