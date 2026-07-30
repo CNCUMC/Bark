@@ -46,7 +46,7 @@
 param(
     [string]$ModNamespace = "Bark",
     [string]$ModDisplayName = "Bark",
-    [string]$ModVersion = "2.0.0",
+    [string]$ModVersion = "2.0.1",
     [int]$NexusModId = 362,
     [string]$Configuration = "Release",
     [string]$NexusApiKey = $env:NEXUS_API_KEY,

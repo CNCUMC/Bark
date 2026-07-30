@@ -6,11 +6,14 @@
 
 ---
 
-## v2.0.0
+## v2.0.1
 
 ### Added
 
-- 脚本系统：基于 PuerTS 的双引擎（V8 + Lua），支持热重载、AutoApi IL-emit 代理和模组依赖解析。
-  详见 [docs/Script.md](docs/Script.md)。
-- 事件系统：通过 `BarkEvent` + `[ScriptEvent]` 特性将游戏动作桥接到 C# 和脚本模组。
-  详见 [docs/Event.md](docs/Event.md)。
+- Python 支持暂缓处理：Puerts.Python.Complete 绑定的 Python 运行时（~22 MB）包体过大，不适合当前发布规模。相关实现已归档至
+  `TodoPython/`，如有需求会在大版本中重新启用。
+
+### Fixed
+
+- Lua 脚本引擎缺少 `Log:Info()` 辅助方法，导致 Lua 模组中 `Log:Info()` 调用失败。
+- 可穿戴物品加载时缺少 `_worn.png` 纹理会报错，现已改为优雅降级而非崩溃。
