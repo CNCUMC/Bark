@@ -100,10 +100,8 @@ public static class TileEventListener
         var method = AccessTools.Method(typeof(WorldGeneration), "SetBlock",
             [typeof(Vector2Int), typeof(ushort)]);
         if (method == null)
-        {
             // 回退：尝试无类型参数匹配
             method = AccessTools.Method(typeof(WorldGeneration), "SetBlock");
-        }
 
         if (method == null) return;
 
@@ -253,8 +251,8 @@ public static class TileEventListener
 
             // 玩家位置 → 格子坐标
             var playerPos = world.WorldToBlockPos(body.transform.position);
-            var px = (int)playerPos.x;
-            var py = (int)playerPos.y;
+            var px = playerPos.x;
+            var py = playerPos.y;
 
             // 扫描半径内的物块
             for (var x = px - ScanRadius; x <= px + ScanRadius; x++)
@@ -298,8 +296,8 @@ public static class TileEventListener
             if (world == null) continue;
 
             var playerPos = world.WorldToBlockPos(body.transform.position);
-            var px = (int)playerPos.x;
-            var py = (int)playerPos.y;
+            var px = playerPos.x;
+            var py = playerPos.y;
 
             // 检查已知追踪物块是否被破坏
             var destroyed = new List<long>();
@@ -320,7 +318,6 @@ public static class TileEventListener
                     // 物块已消失/被替换
                     var tileId = FindTileIdByIndex(tileIndex);
                     if (tileId != null)
-                    {
                         EventUtil.Trigger(new TileDestroyedEvent
                         {
                             TileId = tileId,
@@ -328,7 +325,6 @@ public static class TileEventListener
                             PosX = x,
                             PosY = y
                         });
-                    }
 
                     destroyed.Add(hash);
                 }
@@ -365,7 +361,6 @@ public static class TileEventListener
             {
                 var blocks = _blocksField.GetValue(world);
                 if (blocks is Array blockArray)
-                {
                     if (pos.x >= 0 && pos.x < blockArray.GetLength(0)
                                    && pos.y >= 0 && pos.y < blockArray.GetLength(1))
                     {
@@ -384,7 +379,6 @@ public static class TileEventListener
                         if (block is int blockIndex)
                             return blockIndex;
                     }
-                }
             }
         }
         catch

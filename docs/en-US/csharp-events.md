@@ -98,11 +98,11 @@ automatic, good for static handlers.
 
 ### Moodle Events
 
-| C# Type              | Properties                                                                                    | Trigger Description      |
-|----------------------|-----------------------------------------------------------------------------------------------|--------------------------|
+| C# Type              | Properties                                                                                     | Trigger Description      |
+|----------------------|------------------------------------------------------------------------------------------------|--------------------------|
 | `MoodleGetEvent`     | `string MoodleKey`, `string MoodleName`, `int Intensity`, `bool Critical`, `float HoldSeconds` | Moodle applied to player |
-| `MoodleIterateEvent` | `string[] ActiveKeys`                                                                         | Polled (every 0.5s)      |
-| `MoodleLoseEvent`    | `string MoodleKey`, `string MoodleName`                                                       | Moodle expired/removed   |
+| `MoodleIterateEvent` | `string[] ActiveKeys`                                                                          | Polled (every 0.5s)      |
+| `MoodleLoseEvent`    | `string MoodleKey`, `string MoodleName`                                                        | Moodle expired/removed   |
 
 ### World / Menu Events
 

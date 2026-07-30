@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bark.Events;
@@ -47,7 +48,7 @@ public static class MoodleScriptRunner
     // 从 MoodleScriptRegistry 查找 Moodle 脚本，通过 ScriptUtil 按顺序执行。
     // moodleKey: Moodle 唯一标识；action: get / iterate / lose
     private static void ExecuteScripts(string moodleKey, string action,
-        System.Func<MoodleScriptEntry, List<string>> getScriptList)
+        Func<MoodleScriptEntry, List<string>> getScriptList)
     {
         if (string.IsNullOrEmpty(moodleKey))
             return;
@@ -61,9 +62,7 @@ public static class MoodleScriptRunner
             return;
 
         foreach (var relativePath in scripts.Where(relativePath => !string.IsNullOrEmpty(relativePath)))
-        {
             // 复用 ScriptUtil.Execute，moodleKey 作为 itemId 传入供脚本侧访问
             ScriptUtil.Execute(entry.ModId, relativePath, moodleKey, null, action);
-        }
     }
 }

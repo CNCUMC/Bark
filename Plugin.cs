@@ -22,7 +22,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.0.1";
+    public const string Version = "2.0.2";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
@@ -81,7 +81,7 @@ public class Plugin : BaseUnityPlugin
         BetterLocale.Flush();
 
         ModCommand.RegisterCommands();
-        
+
         // 监听主菜单加载完成后触发事件
         MainMenuEventListener.Listen(this);
         // 监听世界生成完成后触发事件

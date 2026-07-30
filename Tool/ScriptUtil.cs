@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Bark.Script;
 using Bark.ScriptApi;
+using Bark.Tile;
 
 namespace Bark.Tool;
 
@@ -61,7 +62,7 @@ public static class ScriptUtil
     // tileId 为物块 ID，context 包含物块索引和世界坐标，action 为触发动作名。
     // TileScriptRunner 内部传入，不接受 null。
     internal static void ExecuteTile(string modId, string fileName,
-        string tileId, Tile.TileScriptContext context, string action)
+        string tileId, TileScriptContext context, string action)
     {
         if (string.IsNullOrEmpty(modId)) return;
         if (string.IsNullOrEmpty(fileName)) return;

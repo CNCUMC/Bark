@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bark.Event;
 using Bark.Events;
 using Bark.Tool;
 
@@ -62,7 +62,7 @@ public static class ItemScriptRunner
     // 从 ItemScriptRegistry 查找物品脚本，通过 ScriptUtil 按顺序执行。
     // item: 当前物品实例（可为 null）；action: 触发动作名，传入脚本的 main(itemId, item, action)
     private static void ExecuteScripts(string itemId, Item? item, string action,
-        System.Func<ItemScriptEntry, List<string>> getScriptList)
+        Func<ItemScriptEntry, List<string>> getScriptList)
     {
         if (string.IsNullOrEmpty(itemId))
             return;
@@ -76,8 +76,6 @@ public static class ItemScriptRunner
             return;
 
         foreach (var relativePath in scripts.Where(relativePath => !string.IsNullOrEmpty(relativePath)))
-        {
             ScriptUtil.Execute(entry.ModId, relativePath, itemId, item, action);
-        }
     }
 }

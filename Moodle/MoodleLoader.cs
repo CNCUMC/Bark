@@ -12,11 +12,11 @@ namespace Bark.Moodle;
 // 已加载 Moodle 的记录项
 public class MoodleEntry(string key, string fileName)
 {
-    // Moodle key
-    public string Key = key;
-
     // 来源文件名（如 "bleeding.json"）
     public string FileName = fileName;
+
+    // Moodle key
+    public string Key = key;
 }
 
 // 自定义 Moodle 加载器：扫描 ModDir/Moodle/*.json，加载精灵图并缓存定义。
@@ -36,8 +36,9 @@ public static class MoodleLoader
     internal static readonly Dictionary<string, Sprite> LoadedMoodleSprites = new();
 
     // 暂存的脚本映射（modId → moodleKey → (scriptDef, modDir)），待引擎创建后注册
-    private static readonly Dictionary<string, Dictionary<string, (MoodleScriptDef def, string modDir)>> PendingScripts =
-        new();
+    private static readonly Dictionary<string, Dictionary<string, (MoodleScriptDef def, string modDir)>>
+        PendingScripts =
+            new();
 
     // 用于将 Moodle 名称 snake_case 化
     private static readonly Regex SnakeCaseSanitizer = new("[^a-z0-9_]", RegexOptions.Compiled);
@@ -70,7 +71,6 @@ public static class MoodleLoader
         var loadedCount = 0;
 
         foreach (var jsonFile in jsonFiles)
-        {
             try
             {
                 var entry = LoadAndRegister(jsonFile, assetsMoodleDir, manifest.Id, manifest.Directory);
@@ -82,7 +82,6 @@ public static class MoodleLoader
             {
                 LogUtil.Error("moodle.load_error", jsonFile, manifest.Id, ex.Message);
             }
-        }
 
         LoadedMoodles[manifest.Id] = loadedList;
 
@@ -165,13 +164,9 @@ public static class MoodleLoader
 
             var sprite = ItemUtil.LoadSprite(spritePath, def.SpriteScale);
             if (sprite != null)
-            {
                 LoadedMoodleSprites[key] = sprite;
-            }
             else
-            {
                 LogUtil.Warning("moodle.sprite_load_failed", spritePath, key);
-            }
         }
         else
         {

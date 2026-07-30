@@ -165,7 +165,7 @@ public static class ItemEventListener
     }
 
     // 检查物品是否有指定脚本注册
-    private static bool HasScript(string itemId, System.Func<ItemScriptEntry, bool> predicate)
+    private static bool HasScript(string itemId, Func<ItemScriptEntry, bool> predicate)
     {
         var entry = ItemScriptRegistry.GetEntry(itemId);
         return entry != null && predicate(entry);
@@ -248,13 +248,11 @@ public static class ItemEventListener
                  let instanceId = item.GetInstanceID()
                  where currentIds.Contains(instanceId) && !KnownWearableIds.Contains(instanceId)
                  select item)
-        {
             EventUtil.Trigger(new ItemEquipEvent
             {
                 ItemId = item.id,
                 Item = item
             });
-        }
 
         // 检测卸下装备：用缓存的副本遍历，避免修改冲突
         var toRemove = KnownWearableIds.Where(id => !currentIds.Contains(id)).ToList();
@@ -321,7 +319,6 @@ public static class ItemEventListener
 
             // 肢体状况改善（出血减少、感染减少）且手上有物品 → 可能使用了物品
             if (prevScore > currentScore + 0.1f && handItem != null && !string.IsNullOrEmpty(handItem.id))
-            {
                 EventUtil.Trigger(new ItemLimbUseEvent
                 {
                     ItemId = handItem.id,
@@ -329,7 +326,6 @@ public static class ItemEventListener
                     LimbIndex = i,
                     LimbName = limb.fullName ?? string.Empty
                 });
-            }
 
             LimbConditionTracker[key] = currentScore;
         }

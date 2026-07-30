@@ -38,19 +38,15 @@ public static class MoodleEventListener
             .ToArray();
 
         foreach (var method in addMoodleMethods)
-        {
             _harmony.Patch(method,
-                prefix: new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodle)));
-        }
+                new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodle)));
 
         // 补丁 MoodleRegistry.AddAnimatedMoodle
         var addAnimMethod = typeof(MoodleRegistry).GetMethod("AddAnimatedMoodle",
             BindingFlags.Public | BindingFlags.Static);
         if (addAnimMethod != null)
-        {
             _harmony.Patch(addAnimMethod,
-                prefix: new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddAnimatedMoodle)));
-        }
+                new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddAnimatedMoodle)));
 
         _pollCoroutine = runner.StartCoroutine(PollMoodles());
     }
@@ -212,10 +208,8 @@ public static class MoodleEventListener
             .ToList();
 
         foreach (var key in keysToExpire)
-        {
             if (ActiveMoodles.TryGetValue(key, out var tracker))
                 tracker.ExpireTime = Time.time - 1f;
-        }
 
         return keysToExpire.Count;
     }
@@ -232,11 +226,11 @@ public static class MoodleEventListener
         float expireTime,
         bool canHeal)
     {
+        public readonly bool CanHeal = canHeal;
+        public readonly bool Critical = critical;
+        public readonly int Intensity = intensity;
         public readonly string Key = key;
         public readonly string Name = name;
-        public readonly int Intensity = intensity;
-        public readonly bool Critical = critical;
         public float ExpireTime = expireTime;
-        public bool CanHeal = canHeal;
     }
 }

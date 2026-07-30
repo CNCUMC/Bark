@@ -2,8 +2,8 @@
 
 # Script Event Hooks
 
-Bark provides built-in event hooks. When the corresponding event occurs in-game, Bark automatically calls the
-matching global function in your script, passing an `event` object with relevant data.
+Bark provides built-in event hooks. When the corresponding event occurs in-game, Bark automatically calls the matching
+global function in your script, passing an `event` object with relevant data.
 
 ## How to Use
 
@@ -78,26 +78,26 @@ Global hooks for item use, hand-use, equip, unequip, limb use, and attack.
 
 All item events pass an `event` object with these fields:
 
-| Field          | Type     | Description                        |
-|----------------|----------|------------------------------------|
-| `event.ItemId` | `string` | The item ID (e.g. `"arrow"`)       |
-| `event.Item`   | `Item`   | The C# Item instance               |
+| Field          | Type     | Description                  |
+|----------------|----------|------------------------------|
+| `event.ItemId` | `string` | The item ID (e.g. `"arrow"`) |
+| `event.Item`   | `Item`   | The C# Item instance         |
 
 `onItemLimbUse` additionally provides:
 
-| Field              | Type     | Description                   |
-|--------------------|----------|-------------------------------|
-| `event.LimbIndex`  | `int`    | Target limb index, -1 unknown |
-| `event.LimbName`   | `string` | Target limb name              |
+| Field             | Type     | Description                   |
+|-------------------|----------|-------------------------------|
+| `event.LimbIndex` | `int`    | Target limb index, -1 unknown |
+| `event.LimbName`  | `string` | Target limb name              |
 
-| Hook Function    | Trigger                              |
-|------------------|--------------------------------------|
-| `onItemUse`      | Player used an item from inventory   |
-| `onItemHandUse`  | Player used an item held in hand     |
-| `onItemEquip`    | Item was equipped                    |
-| `onItemUnequip`  | Item was unequipped                  |
-| `onItemLimbUse`  | Item was used on a limb              |
-| `onItemAttack`   | Melee attack with an item            |
+| Hook Function   | Trigger                            |
+|-----------------|------------------------------------|
+| `onItemUse`     | Player used an item from inventory |
+| `onItemHandUse` | Player used an item held in hand   |
+| `onItemEquip`   | Item was equipped                  |
+| `onItemUnequip` | Item was unequipped                |
+| `onItemLimbUse` | Item was used on a limb            |
+| `onItemAttack`  | Melee attack with an item          |
 
 ```js
 function onItemUse(event) {
@@ -120,20 +120,20 @@ Lifecycle events for the custom Moodle system.
 
 All Moodle events carry an `event` object with these fields (varies by event type):
 
-| Field                | Type       | Description                                   | Applicable Events            |
-|----------------------|------------|-----------------------------------------------|------------------------------|
-| `event.MoodleKey`    | `string`   | Unique Moodle identifier                      | `onMoodleGet`, `onMoodleLose` |
-| `event.MoodleName`   | `string`   | Moodle display name                           | `onMoodleGet`, `onMoodleLose` |
-| `event.Intensity`    | `int`      | Moodle intensity                              | `onMoodleGet`                |
-| `event.Critical`     | `bool`     | Whether it's critical                         | `onMoodleGet`                |
-| `event.HoldSeconds`  | `float`    | Duration in seconds                           | `onMoodleGet`                |
-| `event.ActiveKeys`   | `string[]` | List of all currently active Moodle keys      | `onMoodleIterate`            |
+| Field               | Type       | Description                              | Applicable Events             |
+|---------------------|------------|------------------------------------------|-------------------------------|
+| `event.MoodleKey`   | `string`   | Unique Moodle identifier                 | `onMoodleGet`, `onMoodleLose` |
+| `event.MoodleName`  | `string`   | Moodle display name                      | `onMoodleGet`, `onMoodleLose` |
+| `event.Intensity`   | `int`      | Moodle intensity                         | `onMoodleGet`                 |
+| `event.Critical`    | `bool`     | Whether it's critical                    | `onMoodleGet`                 |
+| `event.HoldSeconds` | `float`    | Duration in seconds                      | `onMoodleGet`                 |
+| `event.ActiveKeys`  | `string[]` | List of all currently active Moodle keys | `onMoodleIterate`             |
 
-| Hook Function     | Trigger                                |
-|-------------------|----------------------------------------|
-| `onMoodleGet`     | Moodle is applied to the player        |
-| `onMoodleIterate` | Polled (every 0.5 seconds)             |
-| `onMoodleLose`    | Moodle expires or is removed           |
+| Hook Function     | Trigger                         |
+|-------------------|---------------------------------|
+| `onMoodleGet`     | Moodle is applied to the player |
+| `onMoodleIterate` | Polled (every 0.5 seconds)      |
+| `onMoodleLose`    | Moodle expires or is removed    |
 
 ```js
 function onMoodleGet(event) {
@@ -177,15 +177,16 @@ function onMainMenuLoaded(event) {
 
 ### Command Event
 
-Fires when the player enters a custom command registered by a script mod. Commands are defined via `Command/*.json`. See [Script Commands](script-mod/command.md) for details.
+Fires when the player enters a custom command registered by a script mod. Commands are defined via `Command/*.json`.
+See [Script Commands](script-mod/command.md) for details.
 
-| Field                | Type       | Description                                                |
-|----------------------|------------|------------------------------------------------------------|
-| `event.CommandName`  | `string`   | Triggered command name (without arguments)                 |
-| `event.Args`         | `string[]` | All input tokens (`args[0]` = command name, `args[1..]` = user arguments) |
+| Field               | Type       | Description                                                               |
+|---------------------|------------|---------------------------------------------------------------------------|
+| `event.CommandName` | `string`   | Triggered command name (without arguments)                                |
+| `event.Args`        | `string[]` | All input tokens (`args[0]` = command name, `args[1..]` = user arguments) |
 
-| Hook Function | Trigger                               |
-|---------------|---------------------------------------|
+| Hook Function | Trigger                                    |
+|---------------|--------------------------------------------|
 | `onCommand`   | Player entered a registered script command |
 
 ```js
@@ -197,8 +198,8 @@ function onCommand(event) {
 
 ## Item Scripts
 
-In addition to global hooks, you can attach scripts to specific items via JSON. When that item triggers an action
-(use, attack, equip, etc.), Bark executes the script and calls its `main()` function with arguments.
+In addition to global hooks, you can attach scripts to specific items via JSON. When that item triggers an action (use,
+attack, equip, etc.), Bark executes the script and calls its `main()` function with arguments.
 
 See [Custom Items](script-mod/item.md) for setup. The script side looks like this:
 

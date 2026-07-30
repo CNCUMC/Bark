@@ -2,9 +2,11 @@
 
 # Custom Moodles
 
-Define custom status effects (Moodles) like bleeding, infection, poison, etc. via JSON. Place JSON files in your mod's `Moodle/` directory and sprite images in `Assets/Moodle/`.
+Define custom status effects (Moodles) like bleeding, infection, poison, etc. via JSON. Place JSON files in your mod's
+`Moodle/` directory and sprite images in `Assets/Moodle/`.
 
-The Moodle system is built on the game's status queue mechanism — each applied Moodle auto-expires after `hold_seconds`, and disappears automatically, triggering the `onMoodleLose` event.
+The Moodle system is built on the game's status queue mechanism — each applied Moodle auto-expires after `hold_seconds`,
+and disappears automatically, triggering the `onMoodleLose` event.
 
 ## Directory Layout
 
@@ -43,39 +45,41 @@ ScriptMod/Mods/
 
 ### Fields
 
-| Field           | Type     | Default    | Description                                                                          |
-|-----------------|----------|------------|--------------------------------------------------------------------------------------|
-| `intensity`     | int      | `1`        | Intensity level, affects icon display size and priority                              |
-| `name`          | string   | required   | Display name, supports localization (matches `moodle.{key}.name` in locale)         |
-| `description`   | string   | `""`       | Tooltip text, supports localization (matches `moodle.{key}.description` in locale)  |
-| `critical`      | bool     | `false`    | Whether it's a critical condition, affects UI warning intensity                      |
-| `chipped_only`  | bool     | `false`    | Consumable-only display mode                                                         |
-| `important`     | bool     | `true`     | Show in main area (true) or sidebar (false)                                          |
-| `key`           | string   | auto       | Unique Moodle ID. Auto-generated from filename if omitted                            |
-| `hold_seconds`  | float    | `0.75`     | Duration in seconds, auto-expires afterwards                                         |
-| `icon_id`       | string   | null       | Built-in game icon ID, e.g. `"bleeding"`, `"hunger"`                                 |
-| `icon_asset`    | string   | null       | Custom sprite path, e.g. `"Assets/Moodle/bleeding.png"`. Mutually exclusive with `icon_id` (icon_id preferred) |
-| `sprite_scale`  | float    | `0.5`      | Custom sprite scale. Larger = bigger sprite.1 = 16 PPU baseline                      |
-| `animated`      | bool     | `false`    | Use animated Moodle.Ignores `icon_id` / `icon_asset` when enabled                    |
-| `animation_id`  | string   | null       | Animation ID (only when `animated = true`)                                           |
-| `script`        | object   | null       | Script trigger definitions (see below)                                               |
+| Field          | Type   | Default  | Description                                                                                                    |
+|----------------|--------|----------|----------------------------------------------------------------------------------------------------------------|
+| `intensity`    | int    | `1`      | Intensity level, affects icon display size and priority                                                        |
+| `name`         | string | required | Display name, supports localization (matches `moodle.{key}.name` in locale)                                    |
+| `description`  | string | `""`     | Tooltip text, supports localization (matches `moodle.{key}.description` in locale)                             |
+| `critical`     | bool   | `false`  | Whether it's a critical condition, affects UI warning intensity                                                |
+| `chipped_only` | bool   | `false`  | Consumable-only display mode                                                                                   |
+| `important`    | bool   | `true`   | Show in main area (true) or sidebar (false)                                                                    |
+| `key`          | string | auto     | Unique Moodle ID. Auto-generated from filename if omitted                                                      |
+| `hold_seconds` | float  | `0.75`   | Duration in seconds, auto-expires afterwards                                                                   |
+| `icon_id`      | string | null     | Built-in game icon ID, e.g. `"bleeding"`, `"hunger"`                                                           |
+| `icon_asset`   | string | null     | Custom sprite path, e.g. `"Assets/Moodle/bleeding.png"`. Mutually exclusive with `icon_id` (icon_id preferred) |
+| `sprite_scale` | float  | `0.5`    | Custom sprite scale. Larger = bigger sprite.1 = 16 PPU baseline                                                |
+| `animated`     | bool   | `false`  | Use animated Moodle.Ignores `icon_id` / `icon_asset` when enabled                                              |
+| `animation_id` | string | null     | Animation ID (only when `animated = true`)                                                                     |
+| `script`       | object | null     | Script trigger definitions (see below)                                                                         |
 
 ## Icon Source Priority (highest first)
 
 The icon is resolved in this order, stopping at the first match:
 
-| Priority | Source                                      | Description                                   |
-|----------|---------------------------------------------|-----------------------------------------------|
-| 1        | `animated` + `animation_id`                 | Animated moodle                               |
-| 2        | `icon_id`                                   | Built-in game icon                            |
-| 3        | `icon_asset`                                | Custom sprite path                            |
-| 4        | Auto-lookup `Assets/Moodle/{key}.png`       | Same auto-lookup as items (`Assets/Item/{id}.png`) |
+| Priority | Source                                | Description                                        |
+|----------|---------------------------------------|----------------------------------------------------|
+| 1        | `animated` + `animation_id`           | Animated moodle                                    |
+| 2        | `icon_id`                             | Built-in game icon                                 |
+| 3        | `icon_asset`                          | Custom sprite path                                 |
+| 4        | Auto-lookup `Assets/Moodle/{key}.png` | Same auto-lookup as items (`Assets/Item/{id}.png`) |
 
-If all fail, the Moodle is **skipped** with a warning log. This means you don't even need to specify any icon field — just place a `.png` file with the same name as the key under `Assets/Moodle/`.
+If all fail, the Moodle is **skipped** with a warning log. This means you don't even need to specify any icon field —
+just place a `.png` file with the same name as the key under `Assets/Moodle/`.
 
 ### Sprite Scaling
 
-When using custom sprites (via `icon_asset` or auto-lookup), `sprite_scale` controls the sprite's rendering scale. Baseline is 1 (16 PPU). Smaller values make the sprite larger:
+When using custom sprites (via `icon_asset` or auto-lookup), `sprite_scale` controls the sprite's rendering scale.
+Baseline is 1 (16 PPU). Smaller values make the sprite larger:
 
 ```json
 {
@@ -96,19 +100,21 @@ Key generation priority:
 
 Example: file `Severe Bleeding.json` → auto-generated key `severe_bleeding`.
 
-> ℹ️ When two mods define the same key, the last loaded wins. The key is the global unique reference — use it when calling `Moodle.ApplyMoodle()` from scripts.
+> ℹ️ When two mods define the same key, the last loaded wins. The key is the global unique reference — use it when
+> calling `Moodle.ApplyMoodle()` from scripts.
 
 ## Moodle Scripts
 
-The `script` field binds script files to Moodle's three lifecycle phases. When a phase triggers, Bark executes each script in order.
+The `script` field binds script files to Moodle's three lifecycle phases. When a phase triggers, Bark executes each
+script in order.
 
 ### Lifecycle Phases
 
-| Key       | Trigger                                      | Corresponding Event Hook |
-|-----------|----------------------------------------------|--------------------------|
-| `get`     | Moodle is applied to the player              | `onMoodleGet`            |
-| `iterate` | While Moodle is active (polled every 0.5s)   | `onMoodleIterate`        |
-| `lose`    | Moodle expires or is removed                 | `onMoodleLose`           |
+| Key       | Trigger                                    | Corresponding Event Hook |
+|-----------|--------------------------------------------|--------------------------|
+| `get`     | Moodle is applied to the player            | `onMoodleGet`            |
+| `iterate` | While Moodle is active (polled every 0.5s) | `onMoodleIterate`        |
+| `lose`    | Moodle expires or is removed               | `onMoodleLose`           |
 
 ### Script Paths
 

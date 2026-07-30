@@ -7,7 +7,6 @@ using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Data;
 using CUCoreLib.Registries;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -16,14 +15,14 @@ namespace Bark.Tile;
 // 已加载物块的记录项
 public class TileEntry(int tileIndex, string tileId, string fileName)
 {
-    // 物块索引（与 CustomTileDefinition 绑定的 int 索引）
-    public int TileIndex = tileIndex;
+    // 来源文件名（如 "marble.json"）
+    public string FileName = fileName;
 
     // 物块 ID
     public string TileId = tileId;
 
-    // 来源文件名（如 "marble.json"）
-    public string FileName = fileName;
+    // 物块索引（与 CustomTileDefinition 绑定的 int 索引）
+    public int TileIndex = tileIndex;
 }
 
 // 自定义物块加载器：扫描 ModDir/Tile/*.json，
@@ -44,10 +43,13 @@ public static class TileLoader
     // TileRegistry 内部字典缓存：直接操作以支持热重载（ClearOwnerEntries 在当前 CUCoreLib 版本中不存在）
     private static readonly FieldInfo? s_registeredDefinitionsField = typeof(TileRegistry).GetField(
         "RegisteredDefinitions", BindingFlags.NonPublic | BindingFlags.Static);
+
     private static readonly FieldInfo? s_registeredTilesField = typeof(TileRegistry).GetField(
         "RegisteredTiles", BindingFlags.NonPublic | BindingFlags.Static);
+
     private static readonly FieldInfo? s_registeredDefinitionIdsField = typeof(TileRegistry).GetField(
         "RegisteredDefinitionIds", BindingFlags.NonPublic | BindingFlags.Static);
+
     private static readonly FieldInfo? s_resolvedHitSoundsField = typeof(TileRegistry).GetField(
         "ResolvedHitSounds", BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -83,7 +85,6 @@ public static class TileLoader
         Array.Sort(jsonFiles);
 
         foreach (var jsonFile in jsonFiles)
-        {
             try
             {
                 var tileId = Path.GetFileNameWithoutExtension(jsonFile);
@@ -91,13 +92,9 @@ public static class TileLoader
                 // 自动分配索引：热重载复用旧索引，否则使用下一个可用索引
                 ushort tileIndex;
                 if (oldIndices != null && oldIndices.TryGetValue(tileId, out var oldIndex))
-                {
                     tileIndex = (ushort)oldIndex;
-                }
                 else
-                {
                     tileIndex = _nextTileIndex++;
-                }
 
                 var entry = LoadAndRegister(jsonFile, assetsTileDir, manifest.Id, tileId, tileIndex);
                 if (entry == null) continue;
@@ -108,7 +105,6 @@ public static class TileLoader
             {
                 LogUtil.Error("tiles.load_error", jsonFile, manifest.Id, ex.Message);
             }
-        }
 
         LoadedTiles[manifest.Id] = loadedList;
 
@@ -169,7 +165,7 @@ public static class TileLoader
         LogUtil.Info("tiles.registered", tileId, tileIndex, modId);
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
-        StashScript(tileId, def.Script, modId, modDir: Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty);
+        StashScript(tileId, def.Script, modId, Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty);
 
         var fileName = Path.GetFileName(jsonFile);
         return new TileEntry(tileIndex, tileId, fileName);
@@ -201,7 +197,7 @@ public static class TileLoader
             Metallic = def.Metallic,
             Toxicity = def.Toxicity,
             Slippery = def.Slippery,
-            SpawnAmount = def.SpawnAmount,
+            SpawnAmount = def.SpawnAmount
         };
 
         if (!string.IsNullOrWhiteSpace(def.Color))
@@ -209,15 +205,11 @@ public static class TileLoader
 
         if (!string.IsNullOrWhiteSpace(def.ColliderType)
             && Enum.TryParse<UnityEngine.Tilemaps.Tile.ColliderType>(def.ColliderType, true, out var colliderType))
-        {
             result.ColliderType = colliderType;
-        }
 
         if (!string.IsNullOrWhiteSpace(def.SleepQuality)
             && Enum.TryParse<Body.SleepQuality>(def.SleepQuality, true, out var sleepQuality))
-        {
             result.SleepQuality = sleepQuality;
-        }
 
         // 生成层
         if (def.SpawnLayers is { Length: > 0 })
@@ -227,9 +219,7 @@ public static class TileLoader
         if (def.GenerationStyle is { Length: > 0 }
             && Enum.TryParse<TileGenerationStyle>(
                 string.Join(",", def.GenerationStyle), true, out var genStyle))
-        {
             result.GenerationStyle = genStyle;
-        }
 
         // 掉落物品
         if (def.Drops is { Length: > 0 })

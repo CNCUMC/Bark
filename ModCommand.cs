@@ -108,7 +108,7 @@ public static class ModCommand
         foreach (var mod in mods)
             MessageCommand("list.item", mod.Name, mod.Version, mod.Language, mod.Id);
     }
-    
+
     private static void ReloadScripts()
     {
         Plugin._scriptModLoader?.ReloadAll();
@@ -119,6 +119,7 @@ public static class ModCommand
     {
         LogUtil.Message($"script.{key}", args);
     }
+
     private static string LocaleCommand(string key, params object[] args)
     {
         return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.{key}", args);

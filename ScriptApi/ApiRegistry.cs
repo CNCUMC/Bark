@@ -37,6 +37,4 @@ public static class ApiRegistry
     {
         s_proxies.Clear();
     }
-
-
 }

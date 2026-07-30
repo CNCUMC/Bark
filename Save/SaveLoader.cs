@@ -4,7 +4,6 @@ using Bark.BetterCCL;
 using Bark.Tool;
 using CUCoreLib.Registries;
 using CUCoreLib.Saving;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bark.Save;
@@ -38,11 +37,13 @@ public static class SaveLoader
             var msg = BetterLocale.GetLog("bark.save.namespace_empty");
             throw new ArgumentException(msg, nameof(nameSpace));
         }
+
         if (string.IsNullOrWhiteSpace(key))
         {
             var msg = BetterLocale.GetLog("bark.save.key_empty");
             throw new ArgumentException(msg, nameof(key));
         }
+
         if (provider is null)
         {
             var msg = BetterLocale.GetLog("bark.save.provider_null");
@@ -97,33 +98,18 @@ public abstract class BaseSaveProvider<T> : ICustomSaveProvider where T : class
             var msg = BetterLocale.GetLog("bark.save.namespace_empty");
             throw new ArgumentException(msg, nameof(nameSpace));
         }
+
         if (string.IsNullOrWhiteSpace(key))
         {
             var msg = BetterLocale.GetLog("bark.save.key_empty");
             throw new ArgumentException(msg, nameof(key));
         }
-        _fullKey = $"{nameSpace}.{key}";
-    }
 
-    // 注册当前 Provider 到 SaveRegistry
-    public void Register()
-    {
-        SaveRegistry.RegisterGlobalProvider(_fullKey, this);
-        SaveLoader.RegisteredProviders[_fullKey] = new SaveProviderEntry(_fullKey, GetType());
-        LogUtil.Info("save.provider_registered", _fullKey);
+        _fullKey = $"{nameSpace}.{key}";
     }
 
     // 负载结构的版本号。数据格式变更时递增。
     public abstract int GetVersion();
-
-    // 保存时调用：返回要保存的自定义数据对象
-    // 基类自动将其序列化为 JToken
-    protected abstract T CaptureData();
-
-    // 加载时调用：将保存的数据恢复到运行时状态
-    // data: 反序列化后的数据对象
-    // context: 保存恢复上下文
-    protected abstract void RestoreData(T data, SaveRestoreContext context);
 
     // ---- ICustomSaveProvider 实现 ----
 
@@ -154,4 +140,21 @@ public abstract class BaseSaveProvider<T> : ICustomSaveProvider where T : class
             LogUtil.Error("save.restore_error", _fullKey, ex.Message);
         }
     }
+
+    // 注册当前 Provider 到 SaveRegistry
+    public void Register()
+    {
+        SaveRegistry.RegisterGlobalProvider(_fullKey, this);
+        SaveLoader.RegisteredProviders[_fullKey] = new SaveProviderEntry(_fullKey, GetType());
+        LogUtil.Info("save.provider_registered", _fullKey);
+    }
+
+    // 保存时调用：返回要保存的自定义数据对象
+    // 基类自动将其序列化为 JToken
+    protected abstract T CaptureData();
+
+    // 加载时调用：将保存的数据恢复到运行时状态
+    // data: 反序列化后的数据对象
+    // context: 保存恢复上下文
+    protected abstract void RestoreData(T data, SaveRestoreContext context);
 }

@@ -3,7 +3,6 @@ using Bark.Event.Listener;
 using Bark.Moodle;
 using Bark.ScriptApi;
 using CUCoreLib.Registries;
-using UnityEngine;
 
 namespace Bark.Tool;
 
@@ -148,7 +147,6 @@ public static class MoodleUtil
     private static void ApplyMoodleInternal(string key, MoodleDef def, float holdSeconds)
     {
         if (def.Animated && !string.IsNullOrWhiteSpace(def.AnimationId))
-        {
             MoodleRegistry.AddAnimatedMoodle(
                 def.Intensity,
                 def.AnimationId,
@@ -159,9 +157,7 @@ public static class MoodleUtil
                 def.Important,
                 key,
                 holdSeconds);
-        }
         else if (!string.IsNullOrWhiteSpace(def.IconId))
-        {
             MoodleRegistry.AddMoodle(
                 def.Intensity,
                 def.IconId,
@@ -172,9 +168,7 @@ public static class MoodleUtil
                 def.Important,
                 key,
                 holdSeconds);
-        }
         else if (MoodleLoader.LoadedMoodleSprites.TryGetValue(key, out var cachedSprite))
-        {
             // 使用加载阶段缓存的自定义精灵图
             MoodleRegistry.AddMoodle(
                 def.Intensity,
@@ -186,10 +180,7 @@ public static class MoodleUtil
                 def.Important,
                 key,
                 holdSeconds);
-        }
         else
-        {
             LogUtil.Warning("moodle.apply_no_icon_source", key);
-        }
     }
 }

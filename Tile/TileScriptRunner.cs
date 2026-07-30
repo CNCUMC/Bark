@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bark.Event;
 using Bark.Events;
 using Bark.Tool;
 
@@ -53,7 +53,7 @@ public static class TileScriptRunner
 
     // 从 TileScriptRegistry 查找物块脚本，通过 ScriptUtil 按顺序执行
     private static void ExecuteScripts(string tileId, int tileIndex, int posX, int posY,
-        string action, System.Func<TileScriptEntry, List<string>> getScriptList)
+        string action, Func<TileScriptEntry, List<string>> getScriptList)
     {
         if (string.IsNullOrEmpty(tileId))
             return;
@@ -70,8 +70,6 @@ public static class TileScriptRunner
         var context = new TileScriptContext(tileIndex, posX, posY);
 
         foreach (var relativePath in scripts.Where(relativePath => !string.IsNullOrEmpty(relativePath)))
-        {
             ScriptUtil.ExecuteTile(entry.ModId, relativePath, tileId, context, action);
-        }
     }
 }

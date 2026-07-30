@@ -28,11 +28,11 @@ ScriptMod/Mods/
 
 Item type is auto-detected from the JSON fields:
 
-| Fields present          | Type          |
-|-------------------------|---------------|
-| `capacity`              | Liquid container |
-| `color` (no `weight`)  | Pure liquid   |
-| Otherwise               | Normal item   |
+| Fields present        | Type             |
+|-----------------------|------------------|
+| `capacity`            | Liquid container |
+| `color` (no `weight`) | Pure liquid      |
+| Otherwise             | Normal item      |
 
 ### Common Fields
 
@@ -57,20 +57,20 @@ Item type is auto-detected from the JSON fields:
 }
 ```
 
-| Field            | Type      | Default           | Notes                                        |
-|------------------|-----------|-------------------|----------------------------------------------|
-| `full_name`      | string    | `""`              | Display name                                 |
-| `description`    | string    | `""`              | Tooltip text                                 |
-| `category`       | string    | `""`              | Inventory category                           |
-| `weight`         | float     | `0`               | Weight in kg                                 |
-| `value`          | int       | `0`               | Monetary value                               |
-| `tags`           | string    | `""`              | Comma-separated tags                         |
-| `sprite_scale`   | float     | `0`               | Sprite render scale                          |
-| `origin_prefab`  | string    | `"geofruit"`      | Fallback prefab for sprite size              |
-| `drop_pool`      | string[]  | null              | Loot table pools                             |
-| `spawn_frequency`| int       | `0`               | World spawn weight                           |
-| `script`         | object    | null              | Action → script mapping (see below)          |
-| `custom_data`    | object    | null              | Arbitrary data for scripts to read           |
+| Field             | Type     | Default      | Notes                               |
+|-------------------|----------|--------------|-------------------------------------|
+| `full_name`       | string   | `""`         | Display name                        |
+| `description`     | string   | `""`         | Tooltip text                        |
+| `category`        | string   | `""`         | Inventory category                  |
+| `weight`          | float    | `0`          | Weight in kg                        |
+| `value`           | int      | `0`          | Monetary value                      |
+| `tags`            | string   | `""`         | Comma-separated tags                |
+| `sprite_scale`    | float    | `0`          | Sprite render scale                 |
+| `origin_prefab`   | string   | `"geofruit"` | Fallback prefab for sprite size     |
+| `drop_pool`       | string[] | null         | Loot table pools                    |
+| `spawn_frequency` | int      | `0`          | World spawn weight                  |
+| `script`          | object   | null         | Action → script mapping (see below) |
+| `custom_data`     | object   | null         | Arbitrary data for scripts to read  |
 
 > 📝 Item ID is the filename without `.json` (e.g. `bandage123.json` → ID `"bandage123"`). It is NOT a JSON field.
 
@@ -134,11 +134,11 @@ Add `capacity` to make an item hold liquids:
 }
 ```
 
-| Field           | Type                   | Notes                                |
-|-----------------|------------------------|--------------------------------------|
-| `capacity`      | float                  | Max liquid volume in ml              |
-| `auto_fill`     | bool                   | Auto-fill on spawn (default true)    |
-| `default_liquid`| object (id → ml)       | Starting contents                    |
+| Field            | Type             | Notes                             |
+|------------------|------------------|-----------------------------------|
+| `capacity`       | float            | Max liquid volume in ml           |
+| `auto_fill`      | bool             | Auto-fill on spawn (default true) |
+| `default_liquid` | object (id → ml) | Starting contents                 |
 
 ## Pure Liquid
 
@@ -153,12 +153,12 @@ Define with `color` and omit `weight`:
 }
 ```
 
-| Field              | Type   | Notes                    |
-|--------------------|--------|--------------------------|
-| `color`            | string | Hex color (#RRGGBB)      |
-| `value_per_liter`  | float  | Value per 1000ml         |
-| `health_usable`    | bool   | Can be used for healing  |
-| `injectable`       | bool   | Can be injected          |
+| Field             | Type   | Notes                   |
+|-------------------|--------|-------------------------|
+| `color`           | string | Hex color (#RRGGBB)     |
+| `value_per_liter` | float  | Value per 1000ml        |
+| `health_usable`   | bool   | Can be used for healing |
+| `injectable`      | bool   | Can be injected         |
 
 ## Item Scripts
 
@@ -167,14 +167,14 @@ The `script` field binds script files to item actions. When the action fires, Ba
 
 ### Supported Actions
 
-| Key            | Trigger                           |
-|----------------|-----------------------------------|
-| `use`          | Used from inventory               |
-| `use_in_hand`  | Used while held in hand           |
-| `equip`        | Equipped (put on)                 |
-| `unequip`      | Unequipped (taken off)            |
-| `use_on_limb`  | Used on a specific limb           |
-| `attack`       | Melee attack with this item       |
+| Key           | Trigger                     |
+|---------------|-----------------------------|
+| `use`         | Used from inventory         |
+| `use_in_hand` | Used while held in hand     |
+| `equip`       | Equipped (put on)           |
+| `unequip`     | Unequipped (taken off)      |
+| `use_on_limb` | Used on a specific limb     |
+| `attack`      | Melee attack with this item |
 
 ### Script Path
 
@@ -209,11 +209,11 @@ function main(itemId, item, action) {
 
 The `main` function receives three arguments:
 
-| Parameter  | Type     | Description                                 |
-|------------|----------|---------------------------------------------|
-| `itemId`   | string   | The item's ID                               |
-| `item`     | Item     | C# Item instance (null if unavailable)      |
-| `action`   | string   | Action: `"use"`, `"attack"`, `"equip"`, etc.|
+| Parameter | Type   | Description                                  |
+|-----------|--------|----------------------------------------------|
+| `itemId`  | string | The item's ID                                |
+| `item`    | Item   | C# Item instance (null if unavailable)       |
+| `action`  | string | Action: `"use"`, `"attack"`, `"equip"`, etc. |
 
 You can accept any subset — JavaScript and Lua ignore extra arguments:
 
@@ -266,14 +266,15 @@ in your mod's main script.
 
 ## Sprite Assets
 
-| File pattern                | Purpose                          |
-|-----------------------------|----------------------------------|
-| `{itemId}.png`              | Inventory / world sprite         |
-| `{itemId}_worn.png`         | Worn (equipped) sprite           |
-| `{itemId}_mw_{limb}.png`    | Multi-worn sprite for extra limb |
-| `{itemId}_fill.png`         | Liquid fill mask                 |
+| File pattern             | Purpose                          |
+|--------------------------|----------------------------------|
+| `{itemId}.png`           | Inventory / world sprite         |
+| `{itemId}_worn.png`      | Worn (equipped) sprite           |
+| `{itemId}_mw_{limb}.png` | Multi-worn sprite for extra limb |
+| `{itemId}_fill.png`      | Liquid fill mask                 |
 
-All sprites go in `Assets/Item/`. If `{itemId}.png` is missing, Bark falls back to `origin_prefab` *(i.e. the default geofruit)* sprite.
+All sprites go in `Assets/Item/`. If `{itemId}.png` is missing, Bark falls back to `origin_prefab` *(i.e. the default
+geofruit)* sprite.
 
 ## Notes
 

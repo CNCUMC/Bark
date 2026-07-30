@@ -4,6 +4,7 @@ using System.Text;
 using Bark.Event;
 using Bark.Items;
 using Bark.ScriptApi;
+using Bark.Tile;
 using Bark.Tool;
 using Puerts;
 
@@ -164,7 +165,7 @@ public class PuerJavaScript : ScriptEngine
 
             // 调用 main(itemId, item, action) — JS 自动忽略多余/缺失参数
             _scriptEnv.Eval(
-                $"if (typeof main === 'function') {{ main(__barkItemId, __barkItem, __barkAction); }}");
+                "if (typeof main === 'function') { main(__barkItemId, __barkItem, __barkAction); }");
         }
         catch (Exception ex)
         {
@@ -178,14 +179,14 @@ public class PuerJavaScript : ScriptEngine
     }
 
     // 执行单个物块脚本文件，注入 tileId / tileContext / action 到脚本全局
-    public override void ExecuteTileFile(string filePath, string? tileId, Tile.TileScriptContext? context = null,
+    public override void ExecuteTileFile(string filePath, string? tileId, TileScriptContext? context = null,
         string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
         // 暂存上下文供 JS 侧通过 CS.Bark.Tile.TileScriptContext 访问
-        Tile.TileScriptContext.CurrentContext = context;
-        Tile.TileScriptContext.CurrentAction = action;
+        TileScriptContext.CurrentContext = context;
+        TileScriptContext.CurrentAction = action;
 
         try
         {
@@ -206,8 +207,8 @@ public class PuerJavaScript : ScriptEngine
         }
         finally
         {
-            Tile.TileScriptContext.CurrentContext = null;
-            Tile.TileScriptContext.CurrentAction = null;
+            TileScriptContext.CurrentContext = null;
+            TileScriptContext.CurrentAction = null;
         }
     }
 

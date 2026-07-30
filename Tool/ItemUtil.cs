@@ -1,4 +1,4 @@
-using System;
+using System.Globalization;
 using System.IO;
 using Bark.ScriptApi;
 using UnityEngine;
@@ -40,11 +40,11 @@ public static class ItemUtil
         if (hex.Length < 6)
             return Color.white;
 
-        var r = (byte)int.Parse(hex[..2], System.Globalization.NumberStyles.HexNumber);
-        var g = (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        var b = (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        var r = (byte)int.Parse(hex[..2], NumberStyles.HexNumber);
+        var g = (byte)int.Parse(hex.Substring(2, 2), NumberStyles.HexNumber);
+        var b = (byte)int.Parse(hex.Substring(4, 2), NumberStyles.HexNumber);
         var a = hex.Length >= 8
-            ? (byte)int.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber)
+            ? (byte)int.Parse(hex.Substring(6, 2), NumberStyles.HexNumber)
             : (byte)255;
 
         return new Color(r / 255f, g / 255f, b / 255f, a / 255f);

@@ -85,7 +85,8 @@ function onEnable() {
 
 ## Global Variables
 
-Bark injects tool classes as global variables with PascalCase names matching the C# class names (minus the `Util` suffix). Use them directly.
+Bark injects tool classes as global variables with PascalCase names matching the C# class names (minus the `Util`
+suffix). Use them directly.
 
 | Variable     | What It Does                                                                        | API Docs                                     |
 |--------------|-------------------------------------------------------------------------------------|----------------------------------------------|
@@ -107,8 +108,8 @@ Bark injects tool classes as global variables with PascalCase names matching the
 All tool methods follow consistent prefixes. Once you know the prefix, you know what the method does. **No need to
 memorize — let IDE autocomplete do the work.**
 
-| Prefix                                             | Meaning       | Example                                        |
-|----------------------------------------------------|---------------|------------------------------------------------|
+| Prefix                                             | Meaning       | Example                                    |
+|----------------------------------------------------|---------------|--------------------------------------------|
 | `Get*`                                             | Read a value  | `Body.GetHunger()` → hunger level          |
 | `Set*`                                             | Set a value   | `Body.SetHunger(50)`                       |
 | `Is*`                                              | Is it...?     | `Body.IsAlive()` → alive?                  |
@@ -145,8 +146,8 @@ Player.Teleport(100, 200);   // teleport to coordinates
 ## Event Hooks
 
 Define a global function matching the hook name, and Bark calls it when the event fires. The function receives an
-`event` object with event data (such as `event.ItemId` and `event.Item` for item hooks). You can omit the parameter
-if you don't need it.
+`event` object with event data (such as `event.ItemId` and `event.Item` for item hooks). You can omit the parameter if
+you don't need it.
 
 Full hook list at [Script Event Hooks](script-events.md). A few examples:
 
@@ -196,13 +197,15 @@ See [Custom Items](script-mod/item.md) for the JSON configuration format.
 
 ## Custom Tiles
 
-Define custom tiles (ground/wall blocks) via JSON in the `Tile/` directory, with sprites in `Assets/Tile/`. Bark auto-scans and registers them with `TileRegistry`.
+Define custom tiles (ground/wall blocks) via JSON in the `Tile/` directory, with sprites in `Assets/Tile/`. Bark
+auto-scans and registers them with `TileRegistry`.
 
 See [Custom Tiles](script-mod/tile.md).
 
 ## Custom Moodles
 
-Define custom status effects (bleeding, poison, infection, etc.) via JSON in the `Moodle/` directory, then apply and query them with `Moodle`. Three lifecycle phases: get (obtained), iterate (polling), lose (expired).
+Define custom status effects (bleeding, poison, infection, etc.) via JSON in the `Moodle/` directory, then apply and
+query them with `Moodle`. Three lifecycle phases: get (obtained), iterate (polling), lose (expired).
 
 See [Custom Moodles](script-mod/moodle.md) for full documentation.
 
@@ -258,7 +261,8 @@ All script mods reloaded
 
 ### Registering Custom Commands
 
-Define your own console commands via JSON in the `Command/` directory. When entered, they trigger the `onCommand` event in your script.
+Define your own console commands via JSON in the `Command/` directory. When entered, they trigger the `onCommand` event
+in your script.
 
 See [Script Commands](script-mod/command.md).
 
@@ -290,6 +294,6 @@ end
 
 ## Python Notes
 
-PuerTS supports Python, but the Python runtime is relatively large (~22 MB) and has been put on hold.
-It will be considered in a future major release if there is user demand. The related implementation
-has been archived in the source repository's `TodoPython/` directory.
+PuerTS supports Python, but the Python runtime is relatively large (~22 MB) and has been put on hold. It will be
+considered in a future major release if there is user demand. The related implementation has been archived in the source
+repository's `TodoPython/` directory.

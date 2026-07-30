@@ -2,24 +2,25 @@
 
 # Moodle — Custom Status Management
 
-Moodle is used to apply, remove, and query custom Moodle statuses on the player. All Moodle definitions come from JSON files in your mod's `Moodle/` directory.
+Moodle is used to apply, remove, and query custom Moodle statuses on the player. All Moodle definitions come from JSON
+files in your mod's `Moodle/` directory.
 
 ## Methods Overview
 
-| Method                                | Description                          |
-|---------------------------------------|--------------------------------------|
-| `ApplyMoodle(key, holdSeconds?)`      | Apply a defined Moodle               |
-| `RemoveMoodle(key)`                   | Remove a specific Moodle             |
-| `HasMoodle(key)`                      | Check if a Moodle is active          |
-| `GetActiveMoodles()`                  | Get all active Moodle keys           |
-| `GetMoodleCount()`                    | Get active Moodle count              |
-| `GetIntensity(key)`                   | Get intensity                        |
-| `GetName(key)`                        | Get name                             |
-| `GetDescription(key)`                 | Get description                      |
-| `GetHoldSeconds(key)`                 | Get default duration                 |
-| `IsCritical(key)`                     | Whether it's critical                |
-| `IsChippedOnly(key)`                  | Whether it's chipped-only            |
-| `IsImportant(key)`                    | Whether it's important               |
+| Method                           | Description                 |
+|----------------------------------|-----------------------------|
+| `ApplyMoodle(key, holdSeconds?)` | Apply a defined Moodle      |
+| `RemoveMoodle(key)`              | Remove a specific Moodle    |
+| `HasMoodle(key)`                 | Check if a Moodle is active |
+| `GetActiveMoodles()`             | Get all active Moodle keys  |
+| `GetMoodleCount()`               | Get active Moodle count     |
+| `GetIntensity(key)`              | Get intensity               |
+| `GetName(key)`                   | Get name                    |
+| `GetDescription(key)`            | Get description             |
+| `GetHoldSeconds(key)`            | Get default duration        |
+| `IsCritical(key)`                | Whether it's critical       |
+| `IsChippedOnly(key)`             | Whether it's chipped-only   |
+| `IsImportant(key)`               | Whether it's important      |
 
 ## Applying Moodles
 

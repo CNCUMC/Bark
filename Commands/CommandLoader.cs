@@ -6,6 +6,7 @@ using Bark.Events;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Registries;
+using Newtonsoft.Json;
 
 namespace Bark.Commands;
 
@@ -149,36 +150,31 @@ public class CommandDef
     // 命令名由文件名决定（如 greet.json → 命令名 "greet"），无需 JSON 中声明
 
     // 帮助描述
-    [Newtonsoft.Json.JsonProperty("description")]
-    public string? Description { get; set; }
+    [JsonProperty("description")] public string? Description { get; set; }
 
     // 参数定义
-    [Newtonsoft.Json.JsonProperty("args")]
-    public ArgDef[]? Args { get; set; }
+    [JsonProperty("args")] public ArgDef[]? Args { get; set; }
 }
 
 // 命令参数定义
 public class ArgDef
 {
     // 参数名称（简短描述）
-    [Newtonsoft.Json.JsonProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [JsonProperty("name")] public string Name { get; set; } = string.Empty;
 
     // 参数详细描述
-    [Newtonsoft.Json.JsonProperty("description")]
-    public string? Description { get; set; }
+    [JsonProperty("description")] public string? Description { get; set; }
 
     // 自动完成候选值
-    [Newtonsoft.Json.JsonProperty("suggestions")]
-    public string[]? Suggestions { get; set; }
+    [JsonProperty("suggestions")] public string[]? Suggestions { get; set; }
 }
 
 // 已注册命令的记录项
 public class CommandEntry(string name, string description)
 {
-    // 命令名称
-    public string Name = name;
-
     // 命令描述
     public string Description = description;
+
+    // 命令名称
+    public string Name = name;
 }

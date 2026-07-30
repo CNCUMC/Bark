@@ -24,6 +24,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
         { ".lua", ScriptLanguage.Lua }
     };
 
+    // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
+    private static readonly Regex SnakeCaseRegex = new(@"^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
+
     private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
 
     // 所有已加载的模组（只读）
@@ -195,9 +198,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
         var ext = Path.GetExtension(filePath);
         return ExtensionMap.GetValueOrDefault(ext, ScriptLanguage.JavaScript);
     }
-
-    // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
-    private static readonly Regex SnakeCaseRegex = new(@"^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
 
     private static bool IsSnakeCase(string id)
     {

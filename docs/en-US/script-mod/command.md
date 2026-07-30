@@ -2,7 +2,9 @@
 
 # Script Commands
 
-Register console commands via JSON in the `Command/` directory. When a player enters a command, Bark dispatches it to your script via the `onCommand` event. Commands are registered through the game's built-in `ConsoleCommandRegistry`, with support for argument descriptions and auto-completion.
+Register console commands via JSON in the `Command/` directory. When a player enters a command, Bark dispatches it to
+your script via the `onCommand` event. Commands are registered through the game's built-in `ConsoleCommandRegistry`,
+with support for argument descriptions and auto-completion.
 
 ## Directory Layout
 
@@ -40,18 +42,18 @@ The command name is derived from the filename — no need to declare it in JSON.
 
 ### Fields
 
-| Field         | Type               | Required | Description                                               |
-|---------------|--------------------|----------|-----------------------------------------------------------|
-| `description` | string             | No       | Help text, shown on Tab or help command                   |
-| `args`        | ArgDef[]           | No       | Argument definitions, in order                            |
+| Field         | Type     | Required | Description                             |
+|---------------|----------|----------|-----------------------------------------|
+| `description` | string   | No       | Help text, shown on Tab or help command |
+| `args`        | ArgDef[] | No       | Argument definitions, in order          |
 
 ### ArgDef Fields
 
-| Field         | Type     | Required | Description                                               |
-|---------------|----------|----------|-----------------------------------------------------------|
-| `name`        | string   | Yes      | Argument name (short label), e.g. `"player"`              |
-| `description` | string   | No       | Detailed argument description                             |
-| `suggestions` | string[] | No       | Auto-completion hint list, press Tab to cycle through      |
+| Field         | Type     | Required | Description                                           |
+|---------------|----------|----------|-------------------------------------------------------|
+| `name`        | string   | Yes      | Argument name (short label), e.g. `"player"`          |
+| `description` | string   | No       | Detailed argument description                         |
+| `suggestions` | string[] | No       | Auto-completion hint list, press Tab to cycle through |
 
 ### Naming Rules
 
@@ -75,10 +77,10 @@ function onCommand(event) {
 
 **event fields**:
 
-| Field                | Type       | Description                                                |
-|----------------------|------------|------------------------------------------------------------|
-| `event.CommandName`  | `string`   | Triggered command name (without arguments)                 |
-| `event.Args`         | `string[]` | All input tokens (`args[0]` = command name, `args[1..]` = user arguments) |
+| Field               | Type       | Description                                                               |
+|---------------------|------------|---------------------------------------------------------------------------|
+| `event.CommandName` | `string`   | Triggered command name (without arguments)                                |
+| `event.Args`        | `string[]` | All input tokens (`args[0]` = command name, `args[1..]` = user arguments) |
 
 ## Full Example
 

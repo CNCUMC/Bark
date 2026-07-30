@@ -1,4 +1,5 @@
 using Bark.Event;
+using Bark.Tile;
 
 namespace Bark.Script;
 
@@ -28,7 +29,7 @@ public abstract class ScriptEngine
 
     // 执行单个物块脚本文件，注入 tileId / tileContext / action 到脚本全局，
     // 脚本可定义 function main(tileId, context, action)
-    public abstract void ExecuteTileFile(string filePath, string? tileId, Tile.TileScriptContext? context = null,
+    public abstract void ExecuteTileFile(string filePath, string? tileId, TileScriptContext? context = null,
         string? action = null);
 
     // 每帧调用脚本侧的 onUpdate() 函数（脚本侧可选定义，未定义则跳过）

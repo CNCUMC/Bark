@@ -1,3 +1,4 @@
+using System;
 using Bark.Event;
 
 namespace Bark.Events;
@@ -8,12 +9,16 @@ public class MoodleGetEvent : BarkEvent
 {
     // Moodle key（如 "bleeding"、"my_mod.bleeding"）
     public string MoodleKey { get; set; } = string.Empty;
+
     // Moodle 名称（可用于本地化查询）
     public string MoodleName { get; set; } = string.Empty;
+
     // 强度
     public int Intensity { get; set; }
+
     // 是否严重
     public bool Critical { get; set; }
+
     // 持续时间（秒），到期后自动消失
     public float HoldSeconds { get; set; }
 }
@@ -23,7 +28,7 @@ public class MoodleGetEvent : BarkEvent
 public class MoodleIterateEvent : BarkEvent
 {
     // 当前所有活跃 Moodle 的 key 列表
-    public string[] ActiveKeys { get; set; } = System.Array.Empty<string>();
+    public string[] ActiveKeys { get; set; } = Array.Empty<string>();
 }
 
 // Moodle 失去事件：Moodle 到期或玩家身上 Moodle 移除时触发（轮询检测）
@@ -32,6 +37,7 @@ public class MoodleLoseEvent : BarkEvent
 {
     // 被移除的 Moodle key
     public string MoodleKey { get; set; } = string.Empty;
+
     // Moodle 名称
     public string MoodleName { get; set; } = string.Empty;
 }

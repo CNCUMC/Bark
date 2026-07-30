@@ -179,6 +179,7 @@ You can also expose data to scripts via `custom_data`:
 ## Notes
 
 - Tile indices are auto-assigned by Bark (>= 36). Do NOT declare them in `mod.json`.
-- Tile ID comes from the JSON filename (without extension). Files are sorted alphabetically for deterministic assignment.
+- Tile ID comes from the JSON filename (without extension). Files are sorted alphabetically for deterministic
+  assignment.
 - JSON fields use `snake_case`
 - `script reload` / `rs` reloads tile definitions — no restart needed during development

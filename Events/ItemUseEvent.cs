@@ -42,9 +42,12 @@ public class ItemUnequipEvent : BarkEvent
 public class ItemLimbUseEvent : BarkEvent
 {
     public string ItemId { get; set; } = string.Empty;
+
     public Item? Item { get; set; }
+
     // 目标肢体的索引（Body.limbs 数组下标），-1 表示未知
     public int LimbIndex { get; set; } = -1;
+
     // 目标肢体名称
     public string LimbName { get; set; } = string.Empty;
 }

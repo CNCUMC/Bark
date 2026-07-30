@@ -2,13 +2,16 @@
 
 # SaveLoader
 
-SaveLoader wraps CUCoreLib's `SaveRegistry.RegisterGlobalProvider` with logging, input validation, and a simplified Provider base class.
+SaveLoader wraps CUCoreLib's `SaveRegistry.RegisterGlobalProvider` with logging, input validation, and a simplified
+Provider base class.
 
-> ℹ️ This is a C#-only API. The save system is based on the `ICustomSaveProvider` interface and requires C# implementation.
+> ℹ️ This is a C#-only API. The save system is based on the `ICustomSaveProvider` interface and requires C#
+> implementation.
 
 ## Key Namespace
 
-Following `BetterLocale`'s key management pattern, the save system separates `nameSpace` and `key`. The final registration key is `nameSpace.key`:
+Following `BetterLocale`'s key management pattern, the save system separates `nameSpace` and `key`. The final
+registration key is `nameSpace.key`:
 
 ```csharp
 // ✅ Recommended: explicit namespace
@@ -27,7 +30,8 @@ Following `BetterLocale`'s key management pattern, the save system separates `na
 
 ### Approach 1: Implement ICustomSaveProvider Directly (Flexible)
 
-If you need full control over JToken serialization, implement the interface and register with `SaveLoader.RegisterGlobalProvider`:
+If you need full control over JToken serialization, implement the interface and register with
+`SaveLoader.RegisterGlobalProvider`:
 
 ```csharp
 using Bark.Save;
@@ -105,7 +109,8 @@ provider.Register(); // same as SaveLoader.RegisterGlobalProvider("mymod", "econ
 
 ## Version Migration
 
-Increment `GetVersion()` when your data format changes, and handle compatibility in `RestoreData` using `context.Version`:
+Increment `GetVersion()` when your data format changes, and handle compatibility in `RestoreData` using
+`context.Version`:
 
 ```csharp
 public override int GetVersion() => 2; // upgraded from 1 to 2
@@ -127,21 +132,21 @@ protected override void RestoreData(EconomySaveData data, SaveRestoreContext con
 
 ### SaveLoader
 
-| Method | Description |
-|--------|-------------|
+| Method                                                                                | Description                                                                                                 |
+|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `RegisterGlobalProvider(string nameSpace, string key, ICustomSaveProvider? provider)` | Register a save provider. nameSpace and key must be non-empty, provider non-null. Final key = nameSpace.key |
-| `Unregister(string fullKey)` | Remove from local tracking (note: SaveRegistry may not support runtime unregistration) |
-| `Clear()` | Clear all tracking records (called automatically on reload) |
+| `Unregister(string fullKey)`                                                          | Remove from local tracking (note: SaveRegistry may not support runtime unregistration)                      |
+| `Clear()`                                                                             | Clear all tracking records (called automatically on reload)                                                 |
 
 ### BaseSaveProvider\<T\>
 
-| Member | Description |
-|--------|-------------|
-| `BaseSaveProvider(string nameSpace, string key)` | Constructor, final registration key = nameSpace.key |
-| `Register()` | Register this provider with SaveRegistry |
-| `abstract int GetVersion()` | Save data version number |
-| `abstract T CaptureData()` | Called on save, return your data object |
-| `abstract void RestoreData(T data, SaveRestoreContext context)` | Called on load, restore your data |
+| Member                                                          | Description                                         |
+|-----------------------------------------------------------------|-----------------------------------------------------|
+| `BaseSaveProvider(string nameSpace, string key)`                | Constructor, final registration key = nameSpace.key |
+| `Register()`                                                    | Register this provider with SaveRegistry            |
+| `abstract int GetVersion()`                                     | Save data version number                            |
+| `abstract T CaptureData()`                                      | Called on save, return your data object             |
+| `abstract void RestoreData(T data, SaveRestoreContext context)` | Called on load, restore your data                   |
 
 ## Notes
 

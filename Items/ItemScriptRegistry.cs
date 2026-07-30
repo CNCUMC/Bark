@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Bark.Script;
-using Bark.Tool;
 
 namespace Bark.Items;
 
@@ -14,7 +13,8 @@ public static class ItemScriptRegistry
 
     // 注册一个物品的脚本映射。itemId 为物品 ID，scriptDef 为 JSON 反序列化的脚本定义，
     // engine 为模组的 ScriptEngine（每个模组一个），modId 为模组 ID，modDir 为模组目录。
-    public static void Register(string itemId, ItemScriptDef scriptDef, ScriptEngine engine, string modId, string modDir)
+    public static void Register(string itemId, ItemScriptDef scriptDef, ScriptEngine engine, string modId,
+        string modDir)
     {
         if (string.IsNullOrEmpty(itemId))
             throw new ArgumentNullException(nameof(itemId));
@@ -60,13 +60,13 @@ public static class ItemScriptRegistry
 // 单个物品的脚本映射记录：包含引擎引用、模组 ID、脚本文件路径列表（按动作分组）、模组目录
 public class ItemScriptEntry(ScriptEngine engine, ItemScriptDef scriptDef, string modId, string modDir)
 {
-    public ScriptEngine Engine = engine;
+    public readonly List<string> Attack = scriptDef.Attack;
+    public readonly List<string> Equip = scriptDef.Equip;
+    public readonly string ModDir = modDir;
     public readonly string ModId = modId;
+    public readonly List<string> Unequip = scriptDef.Unequip;
     public readonly List<string> Use = scriptDef.Use;
     public readonly List<string> UseInHand = scriptDef.UseInHand;
-    public readonly List<string> Equip = scriptDef.Equip;
-    public readonly List<string> Unequip = scriptDef.Unequip;
     public readonly List<string> UseOnLimb = scriptDef.UseOnLimb;
-    public readonly List<string> Attack = scriptDef.Attack;
-    public readonly string ModDir = modDir;
+    public ScriptEngine Engine = engine;
 }

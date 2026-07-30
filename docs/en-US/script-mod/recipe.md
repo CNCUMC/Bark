@@ -54,30 +54,30 @@ A complete recipe JSON:
 
 ### Recipe Result
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `id` | string | (required) | Result item ID |
-| `int` | int | 0 | Intelligence required for crafting |
-| `category` | string | `"Materials"` | Blueprint category: `Materials`, `Tools`, `Medicine`, `Utilities`, `Food` |
-| `amount` | int | 1 | Items produced per craft |
-| `is_liquid` | bool | false | Whether the result is a liquid |
-| `result_condition` | float | 1.0 | Default condition (1.0 = 100%) |
-| `is_repair` | bool | false | Whether this is a repair recipe |
-| `dont_drain_result_liquid` | bool | false | Don't consume ingredient liquids |
-| `replace_original_recipe` | bool | false | Replace vanilla recipe with the same ID |
+| Field                      | Type   | Default       | Description                                                               |
+|----------------------------|--------|---------------|---------------------------------------------------------------------------|
+| `id`                       | string | (required)    | Result item ID                                                            |
+| `int`                      | int    | 0             | Intelligence required for crafting                                        |
+| `category`                 | string | `"Materials"` | Blueprint category: `Materials`, `Tools`, `Medicine`, `Utilities`, `Food` |
+| `amount`                   | int    | 1             | Items produced per craft                                                  |
+| `is_liquid`                | bool   | false         | Whether the result is a liquid                                            |
+| `result_condition`         | float  | 1.0           | Default condition (1.0 = 100%)                                            |
+| `is_repair`                | bool   | false         | Whether this is a repair recipe                                           |
+| `dont_drain_result_liquid` | bool   | false         | Don't consume ingredient liquids                                          |
+| `replace_original_recipe`  | bool   | false         | Replace vanilla recipe with the same ID                                   |
 
 ### Ingredients (`items[i]`)
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `specific` | bool | false | `true` = match exact item ID, `false` = match by `quality` |
-| `specific_id` | string | `""` | Target item ID when `specific=true` |
-| `quality` | string | `""` | Crafting quality keyword — any item with this quality counts |
-| `quality_condition` | float | 1.0 | Amount of quality to consume |
-| `minimum_condition` | float | 0.9 | Minimum condition for the ingredient |
-| `destroy_item` | bool | true | Whether the ingredient is consumed after crafting |
-| `is_liquid` | bool | false | Whether this ingredient is a liquid |
-| `ignored_id` | string | `""` | Specific item ID to exclude |
+| Field               | Type   | Default | Description                                                  |
+|---------------------|--------|---------|--------------------------------------------------------------|
+| `specific`          | bool   | false   | `true` = match exact item ID, `false` = match by `quality`   |
+| `specific_id`       | string | `""`    | Target item ID when `specific=true`                          |
+| `quality`           | string | `""`    | Crafting quality keyword — any item with this quality counts |
+| `quality_condition` | float  | 1.0     | Amount of quality to consume                                 |
+| `minimum_condition` | float  | 0.9     | Minimum condition for the ingredient                         |
+| `destroy_item`      | bool   | true    | Whether the ingredient is consumed after crafting            |
+| `is_liquid`         | bool   | false   | Whether this ingredient is a liquid                          |
+| `ignored_id`        | string | `""`    | Specific item ID to exclude                                  |
 
 ### Supported Crafting Qualities
 
@@ -108,8 +108,8 @@ foreach (var entry in entries["my_mod"])
 
 ## Hot Reload
 
-`script reload`/`rs` reloads all mod recipes — no restart needed during development. `RecipeLoader` clears the mod's
-old recipes before registering new ones, preventing duplicates.
+`script reload`/`rs` reloads all mod recipes — no restart needed during development. `RecipeLoader` clears the mod's old
+recipes before registering new ones, preventing duplicates.
 
 ## Integration with Items
 

@@ -6,18 +6,17 @@ using System.Reflection;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Registries;
-using UnityEngine;
 
 namespace Bark.Recipe;
 
 // 已加载配方的记录项
 public class RecipeEntry(string id, string fileName)
 {
-    // 配方产物 ID
-    public string Id = id;
-
     // 配方来源文件名（如 "bandage.json"）
     public string FileName = fileName;
+
+    // 配方产物 ID
+    public string Id = id;
 }
 
 // 自定义合成表加载器：扫描 ModDir/Recipe/*.json，
@@ -66,7 +65,6 @@ public static class RecipeLoader
         using (RecipeRegistry.BeginOwnerRegistration(manifest.Id))
         {
             foreach (var jsonFile in jsonFiles)
-            {
                 try
                 {
                     var entry = LoadAndRegister(jsonFile);
@@ -78,7 +76,6 @@ public static class RecipeLoader
                 {
                     LogUtil.Error("recipe.load_error", jsonFile, manifest.Id, ex.Message);
                 }
-            }
         }
 
         LoadedRecipes[manifest.Id] = loadedList;
@@ -119,7 +116,7 @@ public static class RecipeLoader
                 : new CraftingQuality(ing.Quality.ToLowerInvariant(), ing.QualityCondition),
             minimumCondition = ing.MinimumCondition,
             destroyItem = ing.DestroyItem,
-            ignoredId = ing.IgnoredId,
+            ignoredId = ing.IgnoredId
         }));
 
         // 解析蓝图分类枚举
@@ -135,11 +132,11 @@ public static class RecipeLoader
                 amount = def.Amount,
                 isLiquid = def.IsLiquid,
                 resultCondition = def.ResultCondition,
-                dontDrainResultLiquid = def.DontDrainResultLiquid,
+                dontDrainResultLiquid = def.DontDrainResultLiquid
             },
             category = category,
             isRepair = def.IsRepair,
-            items = recipeItems,
+            items = recipeItems
         };
 
         // 替换原版同名合成表
@@ -171,12 +168,9 @@ public static class RecipeLoader
         registeredRecipes.RemoveAll(toRemove.Contains);
 
         if (s_registeredRecipeKeysField?.GetValue(null) is HashSet<string> keys)
-        {
-            foreach (var key in toRemove.Select(recipe => s_buildRecipeKeyMethod?.Invoke(null, [recipe])).OfType<string>())
-            {
+            foreach (var key in toRemove.Select(recipe => s_buildRecipeKeyMethod?.Invoke(null, [recipe]))
+                         .OfType<string>())
                 keys.Remove(key);
-            }
-        }
 
         // 从 Recipes.recipes（原版注入列表）中移除
         RemoveFromRecipesList(toRemove);
@@ -192,18 +186,14 @@ public static class RecipeLoader
 
         var keysToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var key in toRemove.Select(recipe => s_buildRecipeKeyMethod?.Invoke(null, [recipe])).OfType<string>())
-        {
             keysToRemove.Add(key);
-        }
 
         if (keysToRemove.Count > 0)
-        {
             ((List<global::Recipe>)Recipes.recipes).RemoveAll(r =>
             {
                 var key = s_buildRecipeKeyMethod?.Invoke(null, [r]) as string;
                 return key != null && keysToRemove.Contains(key);
             });
-        }
     }
 
     // 清除指定模组之前注册的配方（内部调 RecipeRegistry.ClearOwnerEntries）

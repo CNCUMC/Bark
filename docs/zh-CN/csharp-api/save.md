@@ -129,21 +129,21 @@ protected override void RestoreData(EconomySaveData data, SaveRestoreContext con
 
 ### SaveLoader
 
-| 方法 | 说明 |
-|------|------|
+| 方法                                                                                  | 说明                                                                                 |
+|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | `RegisterGlobalProvider(string nameSpace, string key, ICustomSaveProvider? provider)` | 注册保存 Provider，nameSpace 和 key 均非空、provider 非 null，最终键 = nameSpace.key |
-| `Unregister(string fullKey)` | 从本地追踪列表中移除（注意 SaveRegistry 可能不支持运行时取消注册） |
-| `Clear()` | 清空所有追踪记录（热重载时自动调用） |
+| `Unregister(string fullKey)`                                                          | 从本地追踪列表中移除（注意 SaveRegistry 可能不支持运行时取消注册）                   |
+| `Clear()`                                                                             | 清空所有追踪记录（热重载时自动调用）                                                 |
 
 ### BaseSaveProvider\<T\>
 
-| 成员 | 说明 |
-|------|------|
-| `BaseSaveProvider(string nameSpace, string key)` | 构造函数，最终注册键 = nameSpace.key |
-| `Register()` | 注册当前 Provider 到 SaveRegistry |
-| `abstract int GetVersion()` | 存档数据版本号 |
-| `abstract T CaptureData()` | 保存时调用，返回数据对象 |
-| `abstract void RestoreData(T data, SaveRestoreContext context)` | 加载时调用，恢复数据 |
+| 成员                                                            | 说明                                 |
+|-----------------------------------------------------------------|--------------------------------------|
+| `BaseSaveProvider(string nameSpace, string key)`                | 构造函数，最终注册键 = nameSpace.key |
+| `Register()`                                                    | 注册当前 Provider 到 SaveRegistry    |
+| `abstract int GetVersion()`                                     | 存档数据版本号                       |
+| `abstract T CaptureData()`                                      | 保存时调用，返回数据对象             |
+| `abstract void RestoreData(T data, SaveRestoreContext context)` | 加载时调用，恢复数据                 |
 
 ## 注意事项
 

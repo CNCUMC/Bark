@@ -58,10 +58,10 @@ public static class MoodleScriptRegistry
 // 单个 Moodle 的脚本映射记录：包含引擎引用、模组 ID、脚本文件路径列表（按动作分组）、模组目录
 public class MoodleScriptEntry(ScriptEngine engine, MoodleScriptDef scriptDef, string modId, string modDir)
 {
-    public ScriptEngine Engine = engine;
-    public readonly string ModId = modId;
     public readonly List<string> Get = scriptDef.Get;
     public readonly List<string> Iterate = scriptDef.Iterate;
     public readonly List<string> Lose = scriptDef.Lose;
     public readonly string ModDir = modDir;
+    public readonly string ModId = modId;
+    public ScriptEngine Engine = engine;
 }

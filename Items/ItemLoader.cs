@@ -75,7 +75,6 @@ public static class ItemLoader
         using (LiquidRegistry.BeginOwnerRegistration(manifest.Id))
         {
             foreach (var jsonFile in jsonFiles)
-            {
                 try
                 {
                     var entry = LoadAndRegister(jsonFile, assetsItemDir, manifest.Id);
@@ -87,7 +86,6 @@ public static class ItemLoader
                 {
                     LogUtil.Error("items.load_error", jsonFile, manifest.Id, ex.Message);
                 }
-            }
         }
 
         LoadedItems[manifest.Id] = loadedList;
@@ -254,7 +252,7 @@ public static class ItemLoader
             SpawnFrequency = def.SpawnFrequency,
             WorldSpawnPerChunk = def.WorldSpawnPerChunk,
             SpriteScale = def.SpriteScale,
-            InventoryIconScale = def.InventoryIconScale,
+            InventoryIconScale = def.InventoryIconScale
         };
 
         // Sprite 缩放维度：优先用 JSON 配置，未配置则回退到 prefab 精灵尺寸
@@ -291,11 +289,11 @@ public static class ItemLoader
                 def.FullName ?? itemId,
                 $"Assets/Item/{itemId}_worn.png");
         }
+
         info.WornSpriteOffset = new Vector2(def.WornSpriteOffsetX, def.WornSpriteOffsetY);
 
         // MultiWorn: Assets/Item/{itemId}_mw_{key}.png
         if (def.MultiWorn != null)
-        {
             foreach (var kv in def.MultiWorn)
             {
                 var multiSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_mw_" + kv.Key + ".png"),
@@ -305,11 +303,9 @@ public static class ItemLoader
                 info.MultiWornSpriteOffsets[kv.Key] = new Vector2(
                     kv.Value.WornSpriteOffsetX, kv.Value.WornSpriteOffsetY);
             }
-        }
 
         // DropPool
         if (def.DropPool is { Length: > 0 })
-        {
             try
             {
                 info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", def.DropPool));
@@ -318,7 +314,6 @@ public static class ItemLoader
             {
                 // 无效的 DropPool 值忽略
             }
-        }
 
         // 腐烂速度
         if (def.RotSpeed.HasValue)
@@ -328,14 +323,12 @@ public static class ItemLoader
 
         // 制作特性
         if (def.Qualities != null)
-        {
             info.qualities =
             [
                 .. def.Qualities
                     .Where(q => !string.IsNullOrEmpty(q.Id))
                     .Select(q => new CraftingQuality(q.Id.ToLowerInvariant(), q.Amount))
             ];
-        }
 
         // 容器
         if (def.ContainerData != null)
@@ -347,7 +340,7 @@ public static class ItemLoader
                 MaxWeightPerItem = cd.MaxWeightPerItem,
                 ItemsVisible = cd.ItemsVisible,
                 TagRestriction = cd.TagRestriction,
-                EncumbranceReduction = cd.EncumbranceMult,
+                EncumbranceReduction = cd.EncumbranceMult
             };
         }
 
@@ -356,7 +349,7 @@ public static class ItemLoader
         var bd = def.BatteryData;
         info.Battery = new BatteryProperties
         {
-            SpawnWithBattery = bd.SpawnWithBattery,
+            SpawnWithBattery = bd.SpawnWithBattery
         };
 
         switch (bd.Preset.ToLowerInvariant())
@@ -440,7 +433,7 @@ public static class ItemLoader
             healthUsable = def.HealthUsable,
             injectable = def.Injectable,
             injectionSickness = def.InjectionSicknessMultiplier,
-            localeFromItem = def.LocaleFromItem,
+            localeFromItem = def.LocaleFromItem
         };
 
         // 制作特性
@@ -477,10 +470,8 @@ public static class ItemLoader
     {
         // 清除该 owner 在 WearableWithoutWornSprite 中的条目
         if (LoadedItems.TryGetValue(ownerId, out var items))
-        {
             foreach (var entry in items)
                 WearableWithoutWornSprite.Remove(entry.Id);
-        }
 
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);
         s_clearLiquidOwnerEntries?.Invoke(null, [ownerId, null!]);

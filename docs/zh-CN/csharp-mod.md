@@ -12,7 +12,8 @@
 
 ## 订阅事件
 
-用 `[EventBusSubscriber]` 标记你的类，再写 `public static` 方法，参数是 `BarkEvent` 子类。Bark 启动时自动扫描并注册，不需要手动 `+=`。
+用 `[EventBusSubscriber]` 标记你的类，再写 `public static` 方法，参数是 `BarkEvent` 子类。Bark 启动时自动扫描并注册，不需要手动
+`+=`。
 
 ```csharp
 using Bark.Event;
@@ -44,17 +45,17 @@ public static class MyEventHandlers
 
 `Tool/` 下的所有静态类都可以直接调用。C# 方法和脚本 API 一一对应，参考脚本侧文档即可：
 
-| 类             | 文档                                         |
-|----------------|----------------------------------------------|
-| `BodyUtil`     | [生理系统](script-api/body-system.md)          |
-| `PlayerUtil`   | [玩家](script-api/player.md)                   |
-| `LimbUtil`     | [肢体](script-api/limbs.md)                    |
+| 类                           | 文档                                  |
+|------------------------------|---------------------------------------|
+| `BodyUtil`                   | [生理系统](script-api/body-system.md) |
+| `PlayerUtil`                 | [玩家](script-api/player.md)          |
+| `LimbUtil`                   | [肢体](script-api/limbs.md)           |
 | `InventoryUtil` / `ItemUtil` | [背包与物品](script-api/inventory.md) |
-| `SkillUtil`    | [技能](script-api/skills.md)                   |
-| `WorldUtil`    | [世界编辑](script-api/world.md)                |
-| `LogUtil`      | [日志](script-api/log.md)                      |
-| `OptionsApi`   | [配置项](script-api/options.md)                |
-| `Locale`       | [多语言](script-api/locale.md)                 |
+| `SkillUtil`                  | [技能](script-api/skills.md)          |
+| `WorldUtil`                  | [世界编辑](script-api/world.md)       |
+| `LogUtil`                    | [日志](script-api/log.md)             |
+| `OptionsApi`                 | [配置项](script-api/options.md)       |
+| `Locale`                     | [多语言](script-api/locale.md)        |
 
 ```csharp
 using Bark.Tool;
@@ -79,7 +80,8 @@ PlayerUtil.Alert("你有一封新邮件", true);
 
 ## 写 Harmony Patch
 
-Bark 本身就是一个 Harmony 模组，`Plugin.Awake()` 里已经执行了 `_harmony.PatchAll()`，所以你的程序集里所有 `[HarmonyPatch]` 都会自动生效。
+Bark 本身就是一个 Harmony 模组，`Plugin.Awake()` 里已经执行了 `_harmony.PatchAll()`，所以你的程序集里所有 `[HarmonyPatch]`
+都会自动生效。
 
 ```csharp
 using HarmonyLib;
@@ -101,7 +103,8 @@ public static class JumpPatch
 }
 ```
 
-> 💡 Harmony Patch 配合 `EventUtil.Trigger()` 使用是推荐模式——在 Patch 里发事件，让其他模组通过事件系统响应，而不是都在同一个 Patch 里塞逻辑。
+> 💡 Harmony Patch 配合 `EventUtil.Trigger()` 使用是推荐模式——在 Patch 里发事件，让其他模组通过事件系统响应，而不是都在同一个
+> Patch 里塞逻辑。
 
 ## 注册为脚本 API（高级）
 

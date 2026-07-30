@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using Bark.BetterCCL;
 using Bark.Tool;
 using CUCoreLib.Data;
 using CUCoreLib.Registries;

@@ -6,20 +6,20 @@ Moodle 用于给玩家应用、移除和查询自定义 Moodle 状态。所有 M
 
 ## 方法一览
 
-| 方法                                  | 说明                     |
-|---------------------------------------|--------------------------|
-| `ApplyMoodle(key, holdSeconds?)`      | 应用一个已定义的 Moodle  |
-| `RemoveMoodle(key)`                   | 移除指定 Moodle          |
-| `HasMoodle(key)`                      | 检查 Moodle 是否活跃     |
-| `GetActiveMoodles()`                  | 获取所有活跃 Moodle 的 key 列表 |
-| `GetMoodleCount()`                    | 获取活跃 Moodle 数量     |
-| `GetIntensity(key)`                   | 获取强度                 |
-| `GetName(key)`                        | 获取名称                 |
-| `GetDescription(key)`                 | 获取描述                 |
-| `GetHoldSeconds(key)`                 | 获取持续时间             |
-| `IsCritical(key)`                     | 是否为严重状态           |
-| `IsChippedOnly(key)`                  | 是否仅消耗品显示         |
-| `IsImportant(key)`                    | 是否重要状态             |
+| 方法                             | 说明                            |
+|----------------------------------|---------------------------------|
+| `ApplyMoodle(key, holdSeconds?)` | 应用一个已定义的 Moodle         |
+| `RemoveMoodle(key)`              | 移除指定 Moodle                 |
+| `HasMoodle(key)`                 | 检查 Moodle 是否活跃            |
+| `GetActiveMoodles()`             | 获取所有活跃 Moodle 的 key 列表 |
+| `GetMoodleCount()`               | 获取活跃 Moodle 数量            |
+| `GetIntensity(key)`              | 获取强度                        |
+| `GetName(key)`                   | 获取名称                        |
+| `GetDescription(key)`            | 获取描述                        |
+| `GetHoldSeconds(key)`            | 获取持续时间                    |
+| `IsCritical(key)`                | 是否为严重状态                  |
+| `IsChippedOnly(key)`             | 是否仅消耗品显示                |
+| `IsImportant(key)`               | 是否重要状态                    |
 
 ## 应用 Moodle
 

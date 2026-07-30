@@ -9,19 +9,20 @@
 - Bark 提供 API 给你调用， **不会直接修改游戏逻辑**。想改游戏行为？自己写 Harmony Patch。
 - Bark 依赖 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)（CCL）， **版本必须匹配**。装错了会炸。
 - 出问题了？按这个顺序查：
-    1. 重载/重启了没 → 2. 文件放对位置了没 → 3. 保存了没 → 4. 拼写/括号/分号
-       全排完还是不行 → 问别人。
+    1. 重载/重启了没 → 2. 文件放对位置了没 → 3. 保存了没 → 4. 拼写/括号/分号 全排完还是不行 → 问别人。
 
 ## 安装
 
-1. **游戏**：Steam 最新版 Casualties Unknown 
-2. **CCL**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/341?tab=files) / [GitHub Releases](https://github.com/jimmyking9999999/CUCoreLib/releases)
+1. **游戏**：Steam 最新版 Casualties Unknown
+2.
+**CCL**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/341?tab=files) / [GitHub Releases](https://github.com/jimmyking9999999/CUCoreLib/releases)
 
 > 想尝鲜可以试试 [Nightly Build](https://github.com/jimmyking9999999/CUCoreLib/actions)，但正式版不保证包含 Nightly 内容。
 
-3. **Bark**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
+3.
+**Bark**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
 4. **IDE**：写脚本用 [VS Code](https://code.visualstudio.com/)，写模组用 [Rider](https://www.jetbrains.com/rider/)
-或 [Visual Studio](https://visualstudio.microsoft.com/)
+   或 [Visual Studio](https://visualstudio.microsoft.com/)
 
 启动游戏，BepInEx 控制台出现 `[Bark]` 开头的日志即安装成功。
 

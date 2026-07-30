@@ -2,7 +2,8 @@
 
 # 自定义合成表
 
-在脚本模组目录下创建 `Recipe/` 文件夹，放入 JSON 文件即可注册自定义合成表。Bark 会在脚本模组加载时自动扫描并注册到 CUCoreLib 的
+在脚本模组目录下创建 `Recipe/` 文件夹，放入 JSON 文件即可注册自定义合成表。Bark 会在脚本模组加载时自动扫描并注册到
+CUCoreLib 的
 `RecipeRegistry`。
 
 ## 目录结构

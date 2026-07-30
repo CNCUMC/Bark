@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Bark.Script;
-using Bark.Tool;
 
 namespace Bark.Tile;
 
@@ -13,7 +12,8 @@ public static class TileScriptRegistry
     private static readonly Dictionary<string, TileScriptEntry> Entries = new();
 
     // 注册一个物块的脚本映射
-    public static void Register(string tileId, TileScriptDef scriptDef, ScriptEngine engine, string modId, string modDir)
+    public static void Register(string tileId, TileScriptDef scriptDef, ScriptEngine engine, string modId,
+        string modDir)
     {
         if (string.IsNullOrEmpty(tileId))
             throw new ArgumentNullException(nameof(tileId));
@@ -58,10 +58,10 @@ public static class TileScriptRegistry
 public class TileScriptEntry(ScriptEngine engine, TileScriptDef scriptDef, string modId, string modDir)
 {
     public readonly ScriptEngine Engine = engine;
+    public readonly string ModDir = modDir;
     public readonly string ModId = modId;
-    public readonly List<string> OnPlace = scriptDef.OnPlace;
-    public readonly List<string> OnExist = scriptDef.OnExist;
     public readonly List<string> OnDamaging = scriptDef.OnDamaging;
     public readonly List<string> OnDestroyed = scriptDef.OnDestroyed;
-    public readonly string ModDir = modDir;
+    public readonly List<string> OnExist = scriptDef.OnExist;
+    public readonly List<string> OnPlace = scriptDef.OnPlace;
 }

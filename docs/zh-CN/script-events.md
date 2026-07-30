@@ -77,26 +77,26 @@ function onLimbBroken(event) {
 
 所有物品事件都携带一个 `event` 对象，包含以下字段：
 
-| 字段            | 类型     | 说明                    |
-|-----------------|----------|-------------------------|
-| `event.ItemId`  | `string` | 物品 ID（如 `"arrow"`） |
-| `event.Item`    | `Item`   | C# Item 实例            |
+| 字段           | 类型     | 说明                    |
+|----------------|----------|-------------------------|
+| `event.ItemId` | `string` | 物品 ID（如 `"arrow"`） |
+| `event.Item`   | `Item`   | C# Item 实例            |
 
 `onItemLimbUse` 额外携带：
 
-| 字段               | 类型     | 说明                 |
-|--------------------|----------|----------------------|
-| `event.LimbIndex`  | `int`    | 目标肢体索引，-1 未知 |
-| `event.LimbName`   | `string` | 目标肢体名称          |
+| 字段              | 类型     | 说明                  |
+|-------------------|----------|-----------------------|
+| `event.LimbIndex` | `int`    | 目标肢体索引，-1 未知 |
+| `event.LimbName`  | `string` | 目标肢体名称          |
 
-| 钩子函数         | 触发时机               |
-|------------------|------------------------|
-| `onItemUse`      | 玩家从背包中使用某物品 |
-| `onItemHandUse`  | 玩家使用手中持有的物品 |
-| `onItemEquip`    | 物品被穿戴上           |
-| `onItemUnequip`  | 物品被卸下             |
-| `onItemLimbUse`  | 物品被用在某个肢体上   |
-| `onItemAttack`   | 手持物品进行近战攻击   |
+| 钩子函数        | 触发时机               |
+|-----------------|------------------------|
+| `onItemUse`     | 玩家从背包中使用某物品 |
+| `onItemHandUse` | 玩家使用手中持有的物品 |
+| `onItemEquip`   | 物品被穿戴上           |
+| `onItemUnequip` | 物品被卸下             |
+| `onItemLimbUse` | 物品被用在某个肢体上   |
+| `onItemAttack`  | 手持物品进行近战攻击   |
 
 ```js
 function onItemUse(event) {
@@ -119,14 +119,14 @@ function onItemAttack(event) {
 
 所有 Moodle 事件都携带一个 `event` 对象，包含以下字段（视事件类型不同）：
 
-| 字段                  | 类型       | 说明                     | 适用事件           |
-|-----------------------|------------|--------------------------|--------------------|
-| `event.MoodleKey`     | `string`   | Moodle 唯一标识          | `onMoodleGet`、`onMoodleLose` |
-| `event.MoodleName`    | `string`   | Moodle 显示名称          | `onMoodleGet`、`onMoodleLose` |
-| `event.Intensity`     | `int`      | Moodle 强度              | `onMoodleGet`      |
-| `event.Critical`      | `bool`     | 是否严重                 | `onMoodleGet`      |
-| `event.HoldSeconds`   | `float`    | 持续时间（秒）           | `onMoodleGet`      |
-| `event.ActiveKeys`    | `string[]` | 当前所有活跃 Moodle 的 key 列表 | `onMoodleIterate`  |
+| 字段                | 类型       | 说明                            | 适用事件                      |
+|---------------------|------------|---------------------------------|-------------------------------|
+| `event.MoodleKey`   | `string`   | Moodle 唯一标识                 | `onMoodleGet`、`onMoodleLose` |
+| `event.MoodleName`  | `string`   | Moodle 显示名称                 | `onMoodleGet`、`onMoodleLose` |
+| `event.Intensity`   | `int`      | Moodle 强度                     | `onMoodleGet`                 |
+| `event.Critical`    | `bool`     | 是否严重                        | `onMoodleGet`                 |
+| `event.HoldSeconds` | `float`    | 持续时间（秒）                  | `onMoodleGet`                 |
+| `event.ActiveKeys`  | `string[]` | 当前所有活跃 Moodle 的 key 列表 | `onMoodleIterate`             |
 
 | 钩子函数          | 触发时机                  |
 |-------------------|---------------------------|
@@ -178,10 +178,10 @@ function onMainMenuLoaded(event) {
 
 玩家在控制台输入脚本模组注册的自定义命令时触发。命令通过 `Command/*.json` 定义，详见 [脚本命令](script-mod/command.md)。
 
-| 字段                 | 类型       | 说明                                         |
-|----------------------|------------|----------------------------------------------|
-| `event.CommandName`  | `string`   | 触发的命令名称（不含参数）                   |
-| `event.Args`         | `string[]` | 完整输入列表（`args[0]` 为命令名，`args[1..]` 为用户参数） |
+| 字段                | 类型       | 说明                                                       |
+|---------------------|------------|------------------------------------------------------------|
+| `event.CommandName` | `string`   | 触发的命令名称（不含参数）                                 |
+| `event.Args`        | `string[]` | 完整输入列表（`args[0]` 为命令名，`args[1..]` 为用户参数） |
 
 | 钩子函数    | 触发时机                 |
 |-------------|--------------------------|
@@ -196,8 +196,8 @@ function onCommand(event) {
 
 ## 物品脚本
 
-除了全局钩子，你还可以通过 JSON 为特定物品绑定脚本。当该物品触发某个动作（使用、攻击、装备等）时，Bark 执行这些脚本并
-调用其中的 `main()` 函数，传入参数。
+除了全局钩子，你还可以通过 JSON 为特定物品绑定脚本。当该物品触发某个动作（使用、攻击、装备等）时，Bark 执行这些脚本并 调用其中的
+`main()` 函数，传入参数。
 
 详见 [自定义物品](script-mod/item.md) 了解如何配置。脚本侧写法如下：
 
