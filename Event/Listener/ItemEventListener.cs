@@ -17,7 +17,7 @@ public static class ItemEventListener
     // 轮询间隔（秒）
     private const float PollInterval = 0.5f;
 
-    private static readonly HashSet<int> KnownWearableIds = new();
+    private static readonly HashSet<int> KnownWearableIds = [];
     private static readonly Dictionary<int, float> LimbConditionTracker = new();
 
     private static Coroutine? _useCoroutine;
@@ -130,17 +130,14 @@ public static class ItemEventListener
         if (!IsPlayerItem(item)) return true;
 
         // 有 use 脚本的物品跳过原始 UseItem，仅触发脚本
-        if (HasScript(item.id, e => e.Use.Count > 0))
+        if (!HasScript(item.id, e => e.Use.Count > 0)) return true;
+        EventUtil.Trigger(new ItemUseEvent
         {
-            EventUtil.Trigger(new ItemUseEvent
-            {
-                ItemId = item.id,
-                Item = item
-            });
-            return false;
-        }
+            ItemId = item.id,
+            Item = item
+        });
+        return false;
 
-        return true;
     }
 
     // 手持物品使用（Body.UseItemInHand() → 无参数，从 __instance 取手部物品）
@@ -151,17 +148,14 @@ public static class ItemEventListener
         if (item == null || string.IsNullOrEmpty(item.id)) return true;
         if (!IsPlayerItem(item)) return true;
 
-        if (HasScript(item.id, e => e.UseInHand.Count > 0))
+        if (!HasScript(item.id, e => e.UseInHand.Count > 0)) return true;
+        EventUtil.Trigger(new ItemHandUseEvent
         {
-            EventUtil.Trigger(new ItemHandUseEvent
-            {
-                ItemId = item.id,
-                Item = item
-            });
-            return false;
-        }
+            ItemId = item.id,
+            Item = item
+        });
+        return false;
 
-        return true;
     }
 
     // 检查物品是否有指定脚本注册
@@ -306,7 +300,7 @@ public static class ItemEventListener
         for (var i = 0; i < body.limbs.Length; i++)
         {
             var limb = body.limbs[i];
-            if (limb == null || limb.dismembered) continue;
+            if (!limb || limb.dismembered) continue;
 
             var key = limb.GetInstanceID();
             var currentScore = GetLimbConditionScore(limb);
@@ -359,20 +353,17 @@ public static class ItemEventListener
             "Bark.WearWearableGuard");
     }
 
-    private static bool OnWearWearablePrefix(Body __instance, Item item)
+    private static bool OnWearWearablePrefix(Item item)
     {
         if (item == null || string.IsNullOrEmpty(item.id)) return false;
 
         // 检查是否为已记录的缺贴图 wearable，是则跳过原始调用避免 NRE
-        if (ItemLoader.WearableWithoutWornSprite.Contains(item.id))
-        {
-            LogUtil.Warning("item_event.wear_blocked_no_sprite",
-                item.id,
-                item.fullName ?? item.id);
-            return false;
-        }
+        if (!ItemLoader.WearableWithoutWornSprite.Contains(item.id)) return true;
+        LogUtil.Warning("item_event.wear_blocked_no_sprite",
+            item.id,
+            item.fullName ?? item.id);
+        return false;
 
-        return true;
     }
 
     // Harmony 补丁回调：统一处理 Item/Body 攻击方法

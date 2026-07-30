@@ -153,6 +153,66 @@ function onMoodleLose(event) {
 }
 ```
 
+### 枪械事件
+
+6 个钩子覆盖枪械操作全流程：开火、拉栓、保险、装弹、卸弹、卡壳。所有枪械事件均携带 `event.GunItem` 字段，返回开火的枪械 Item 对象。
+
+| 字段                   | 类型     | 说明                                                 | 适用事件            |
+|------------------------|----------|------------------------------------------------------|---------------------|
+| `event.GunItem`        | `Item`   | 操作的枪械 C# Item 实例                              | 全部                |
+| `event.Suicide`        | `bool`   | 是否为自杀射击（枪口对准自己）                       | `onGunFire`         |
+| `event.Racked`         | `bool`   | 拉栓后的状态（true = 已拉栓/空仓挂机，false = 复位） | `onGunRack`         |
+| `event.Safe`           | `bool`   | 保险状态（true = 已开启保险，false = 关闭保险）      | `onGunSafetyToggle` |
+| `event.AmmoItemId`     | `string` | 装填的弹药或弹匣 ID                                  | `onGunLoadAmmo`     |
+| `event.Rounds`         | `int`    | 装填的弹药数量                                       | `onGunLoadAmmo`     |
+| `event.RoundsUnloaded` | `int`    | 卸下的弹药数量                                       | `onGunUnload`       |
+
+| 钩子函数               | 触发时机                                    |
+|------------------------|---------------------------------------------|
+| `onGunFire`            | 枪械开火（Fire() 被调用）                   |
+| `onGunRack`            | 拉枪栓 / 枪栓复位（TryRack() 被调用）       |
+| `onGunSafetyToggle`    | 保险切换（ToggleSafety() 被调用）           |
+| `onGunLoadAmmo`        | 装弹（LoadMag() 成功装填后触发）            |
+| `onGunUnload`          | 卸弹（UnloadMag() 成功卸下弹匣时触发）      |
+| `onGunJam`             | 卡壳（拉栓未抛壳或复位未上膛，轮询检测）    |
+
+```js
+function onGunFire(event) {
+    var itemId = event.GunItem.id;
+    if (event.Suicide) {
+        Log.Warning('玩家用 ' + itemId + ' 自杀！');
+        Player.Alert('一切归于沉寂……', true);
+        return;
+    }
+    Log.Info('开火: ' + itemId);
+}
+
+function onGunLoadAmmo(event) {
+    Log.Info(event.GunItem.id + ' 装填了 ' + event.Rounds + ' 发 ' + event.AmmoItemId);
+}
+
+function onGunRack(event) {
+    var action = event.Racked ? '拉栓' : '复位';
+    Log.Debug(event.GunItem.id + ' ' + action);
+}
+
+function onGunSafetyToggle(event) {
+    var state = event.Safe ? '开启保险' : '关闭保险';
+    Log.Debug(event.GunItem.id + ' ' + state);
+}
+
+function onGunUnload(event) {
+    Log.Info(event.GunItem.id + ' 卸下弹匣，共 ' + event.RoundsUnloaded + ' 发');
+}
+
+function onGunJam(event) {
+    Log.Warning(event.GunItem.id + ' 卡壳了！');
+    Player.Alert('枪卡壳了！快处理！', true);
+}
+```
+
+> ℹ️ `onGunJam` 通过每 0.2 秒轮询 `GunScript` 状态检测卡壳，而非 Harmony 补丁。检测逻辑：拉栓后弹膛未排空 → 卡壳；枪栓复位后弹匣有弹但仍未上膛 → 卡壳。
+
 ### 世界 / 菜单事件
 
 | 钩子函数           | 触发时机                           | event 字段 |

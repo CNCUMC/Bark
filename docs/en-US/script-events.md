@@ -154,6 +154,69 @@ function onMoodleLose(event) {
 }
 ```
 
+### Gun Events
+
+Six hooks cover the full firearm lifecycle: fire, rack, safety, load, unload, and jam. All gun events carry the
+`event.GunItem` field, which returns the C# Item instance of the firearm.
+
+| Field                  | Type      | Description                                                      | Applicable Events                                                      |
+|------------------------|-----------|------------------------------------------------------------------|------------------------------------------------------------------------|
+| `event.GunItem`        | `Item`    | C# Item instance of the firearm                                  | All                                                                    |
+| `event.Suicide`        | `bool`    | Whether this is a suicide shot (gun pointed at self)             | `onGunFire`                                                            |
+| `event.Racked`         | `bool`    | Rack state after toggle (true = racked/open, false = closed)     | `onGunRack`                                                            |
+| `event.Safe`           | `bool`    | Safety state (true = safety on, false = safety off)              | `onGunSafetyToggle`                                                    |
+| `event.AmmoItemId`     | `string`  | ID of the loaded ammo or magazine                                | `onGunLoadAmmo`                                                        |
+| `event.Rounds`         | `int`     | Number of rounds loaded                                          | `onGunLoadAmmo`                                                        |
+| `event.RoundsUnloaded` | `int`     | Number of rounds unloaded                                        | `onGunUnload`                                                          |
+
+| Hook Function           | Trigger                                                         |
+|-------------------------|-----------------------------------------------------------------|
+| `onGunFire`             | Gun fired (Fire() called)                                       |
+| `onGunRack`             | Bolt racked / returned (TryRack() called)                       |
+| `onGunSafetyToggle`     | Safety toggled (ToggleSafety() called)                          |
+| `onGunLoadAmmo`         | Ammo loaded (fires after LoadMag() successfully loads rounds)   |
+| `onGunUnload`           | Magazine unloaded (fires when UnloadMag() drops a loaded mag)   |
+| `onGunJam`              | Gun jammed (polling detects failure to extract or chamber)      |
+
+```js
+function onGunFire(event) {
+    var itemId = event.GunItem.id;
+    if (event.Suicide) {
+        Log.Warning('Player committed suicide with ' + itemId + '!');
+        Player.Alert('It all fades to silence...', true);
+        return;
+    }
+    Log.Info('Fired: ' + itemId);
+}
+
+function onGunLoadAmmo(event) {
+    Log.Info(event.GunItem.id + ' loaded ' + event.Rounds + ' rounds of ' + event.AmmoItemId);
+}
+
+function onGunRack(event) {
+    var action = event.Racked ? 'racked' : 'returned';
+    Log.Debug(event.GunItem.id + ' bolt ' + action);
+}
+
+function onGunSafetyToggle(event) {
+    var state = event.Safe ? 'safety on' : 'safety off';
+    Log.Debug(event.GunItem.id + ' ' + state);
+}
+
+function onGunUnload(event) {
+    Log.Info(event.GunItem.id + ' magazine removed, ' + event.RoundsUnloaded + ' rounds');
+}
+
+function onGunJam(event) {
+    Log.Warning(event.GunItem.id + ' jammed!');
+    Player.Alert('Gun jammed! Clear it!', true);
+}
+```
+
+> ℹ️ `onGunJam` detects jams by polling `GunScript` state every 0.2 seconds rather than via a Harmony patch.
+> Detection logic: racking fails to eject the round in chamber → jam; bolt return fails to chamber a new round
+> despite rounds in magazine → jam.
+
 ### World / Menu Events
 
 | Hook Function      | Trigger                                         | event Fields |

@@ -50,6 +50,7 @@ public class Plugin : BaseUnityPlugin
         MoodleScriptRunner.Stop();
         TileEventListener.Stop();
         TileScriptRunner.Stop();
+        GunEventListener.Stop();
         _scriptModLoader?.Dispose();
     }
 
@@ -100,6 +101,8 @@ public class Plugin : BaseUnityPlugin
         TileEventListener.Listen(this);
         // 注册物块脚本运行器监听物块事件
         TileScriptRunner.Listen();
+        // 监听枪械操作（开火/拉栓/保险/装弹/卸弹/卡壳），触发枪械事件
+        GunEventListener.Listen(this);
     }
 
     private static void DeployPuertsNativeFiles()
