@@ -6,6 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
+[ScriptApi]
 public static class ItemUtil
 {
     // 从 PNG 文件加载 Sprite，失败返回 null。

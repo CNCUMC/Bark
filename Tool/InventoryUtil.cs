@@ -5,6 +5,7 @@ using Bark.ScriptApi;
 
 namespace Bark.Tool;
 
+[ScriptApi]
 public static class InventoryUtil
 {
     // ============================================================

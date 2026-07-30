@@ -355,6 +355,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "Python рантайм недоступен, пропуск мода '{0}'");
 
         // Log - OptionsUtil
+        Log("options_util.def_parse_failed",
+            "Option definition parse failed for mod '{0}': {1}",
+            "模组 '{0}' 的选项定义解析失败: {1}",
+            "模組 '{0}' 的選項定義解析失敗: {1}",
+            "Ошибка разбора определения опций мода '{0}': {1}");
         Log("options_util.config_parse_failed",
             "Config parse failed for '{0}': {1}",
             "配置解析失败 '{0}': {1}",
@@ -396,6 +401,13 @@ internal class LangGenerator : ModLangGenMultiBase
             "檢測到配置變更，需要重新啟動遊戲才能生效",
             "Обнаружены изменения конфига, требуется перезапуск игры");
 
+        // Log - Api
+        Log("api.scanned",
+            "Scanned and registered {0} script API class(es)",
+            "扫描并注册了 {0} 个脚本 API 类",
+            "掃描並註冊了 {0} 個腳本 API 類",
+            "Просканировано и зарегистрировано {0} классов скриптовых API");
+
         // Log - Event
         Log("event.scanned",
             "Scanned and subscribed {0} event bus method(s)",
@@ -427,6 +439,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "已补丁 {0} 用于物品攻击检测",
             "已補丁 {0} 用於物品攻擊檢測",
             "Запатчен {0} для обнаружения атак предметами");
+        Log("gun_event.patch_ok",
+            "Patched GunScript.{0}",
+            "已补丁 GunScript.{0}",
+            "已補丁 GunScript.{0}",
+            "Запатчен GunScript.{0}");
 
         // Log - Script Engine
         Log("script_engine.lua_load_failed",

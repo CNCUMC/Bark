@@ -6,6 +6,7 @@ namespace Bark.Tool;
 
 // 玩家身体：状态检测、生理数值、药物、恢复、医疗阈值
 // 方法加 [ScriptMethod] 后自动暴露给 Lua/JS 脚本
+[ScriptApi]
 public static class BodyUtil
 {
     // 保留公开属性以兼容外部调用；PlayerCamera.main 在未进入场景时为 null

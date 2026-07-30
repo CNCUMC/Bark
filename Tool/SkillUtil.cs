@@ -11,6 +11,7 @@ public enum SkillType
 }
 
 // 技能操作：等级、经验、进度读取/设置
+[ScriptApi]
 public static class SkillUtil
 {
     // ============================================================

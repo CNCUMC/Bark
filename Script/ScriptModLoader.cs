@@ -25,19 +25,19 @@ public class ScriptModLoader(string modsPath) : IDisposable
     };
 
     // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
-    private static readonly Regex SnakeCaseRegex = new(@"^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
+    private static readonly Regex SnakeCaseRegex = new("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
 
-    private readonly Dictionary<string, ScriptManifest> _loadedMods = new();
+    private static readonly Dictionary<string, ScriptManifest> _loadedMods = new();
 
     // 所有已加载的模组（只读）
-    public IReadOnlyDictionary<string, ScriptManifest> LoadedMods => _loadedMods;
+    public static IReadOnlyDictionary<string, ScriptManifest> LoadedScriptMods => _loadedMods;
 
     // 已加载的 JS 模组
-    public IReadOnlyList<ScriptManifest> LoadedJavaScriptMods =>
+    public static IReadOnlyList<ScriptManifest> LoadedJavaScriptMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.JavaScript).ToList().AsReadOnly();
 
     // 已加载的 Lua 模组
-    public IReadOnlyList<ScriptManifest> LoadedLuaMods =>
+    public static IReadOnlyList<ScriptManifest> LoadedLuaMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
 
     // 卸载所有已加载的模组并释放资源
@@ -84,8 +84,9 @@ public class ScriptModLoader(string modsPath) : IDisposable
             ScriptLocaleManager.LoadModLocale(manifest.Directory, manifest.Id);
 
         // 5. 注册配置选项到游戏设置系统（必须在引擎创建前完成）
+        // 选项定义来自 Mods/{modId}/Config/options.json，用户保存值写入 Configs/{modId}.json
         foreach (var manifest in sorted)
-            OptionsUtil.RegisterFromMod(manifest, configsDir);
+            OptionsUtil.RegisterFromMod(manifest, manifest.Directory, configsDir);
 
         // 5.3 加载自定义物品到 CUCoreLib ItemRegistry / LiquidRegistry
         foreach (var manifest in sorted)
@@ -352,7 +353,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
             ScriptUtil.Unregister(manifest.Id);
 
         _loadedMods.Clear();
-
         // 清理 SaveLoader 的追踪记录
         SaveLoader.Clear();
 

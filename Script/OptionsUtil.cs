@@ -12,8 +12,9 @@ using UnityEngine;
 namespace Bark.Script;
 
 // 脚本配置 ↔ CCL 游戏设置桥接器
-// 解析 ScriptMod/Configs/{modId}.json 中 _options 段落，注册到 BetterOptions 使其出现在游戏 UI，
-// 并通过 apply 回调将用户修改回写到配置文件；脚本侧通过 [ScriptMethod] getter 读取当前值
+// 选项定义从 Mods/{modId}/Config/options.json 读取（模组自带，只读），
+// 用户保存值写入 ScriptMod/Configs/{modId}.json（简单 key-value 格式）。
+// 加载时合并：用户保存值覆盖定义中的默认值。
 public static class OptionsUtil
 {
     // "{modId}.{key}" → value
@@ -26,6 +27,7 @@ public static class OptionsUtil
     public static bool RestartNeeded { get; private set; }
 
     // ---- 通用冷重启提示（非专属于脚本设置，其他场景也可调用） ----
+
     public static void ShowRestartRequired(string reasonKey)
     {
         RestartNeeded = true;
@@ -34,32 +36,40 @@ public static class OptionsUtil
 
     // ---- 配置 → 设置桥接入口，由 ScriptModLoader.LoadAll() 在引擎创建前调用 ----
 
-    public static void RegisterFromMod(ScriptManifest manifest, string configsDir)
+    public static void RegisterFromMod(ScriptManifest manifest, string modDir, string configsDir)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
+        if (modDir is null)
+            throw new ArgumentNullException(nameof(modDir));
         if (configsDir is null)
             throw new ArgumentNullException(nameof(configsDir));
 
-        var configPath = Path.Combine(configsDir, $"{manifest.Id}.json");
-        if (!File.Exists(configPath))
+        // 1. 读取选项定义：Mods/{modId}/Config/options.json
+        var defPath = Path.Combine(modDir, "Config", "options.json");
+        if (!File.Exists(defPath))
             return;
 
-        JObject config;
+        JObject defJson;
         try
         {
-            config = JObject.Parse(File.ReadAllText(configPath));
+            defJson = JObject.Parse(File.ReadAllText(defPath));
         }
         catch (Exception ex)
         {
-            Warn("options_util.config_parse_failed",
+            Warn("options_util.def_parse_failed",
                 manifest.Id, ex.Message);
             return;
         }
 
-        if (config["_options"] is not JObject optionsDef)
+        if (defJson["_options"] is not JObject optionsDef)
             return;
 
+        // 2. 读取用户保存值：ScriptMod/Configs/{modId}.json
+        var savePath = Path.Combine(configsDir, $"{manifest.Id}.json");
+        var savedValues = LoadSavedValues(savePath, manifest.Id);
+
+        // 3. 遍历选项定义，合并保存值后注册
         var modId = manifest.Id;
         var registeredCount = 0;
         var duplicateCount = 0;
@@ -79,7 +89,11 @@ public static class OptionsUtil
             }
 
             var type = (typeToken.Value<string>() ?? string.Empty).ToLowerInvariant();
-            if (RegisterSingle(modId, key, type, configPath, optionMeta, manifest.Name))
+
+            // 合并：用户保存值覆盖定义默认值
+            var mergedMeta = MergeDefault(optionMeta, key, savedValues);
+
+            if (RegisterSingle(modId, key, type, savePath, mergedMeta, manifest.Name))
                 registeredCount++;
             else
                 duplicateCount++;
@@ -117,6 +131,35 @@ public static class OptionsUtil
 
     // ---- 内部实现 ----
 
+    // 读取用户保存值：{ "key": value } 格式
+    private static Dictionary<string, JToken>? LoadSavedValues(string savePath, string modId)
+    {
+        if (!File.Exists(savePath))
+            return null;
+
+        try
+        {
+            return JsonConvert.DeserializeObject<Dictionary<string, JToken>>(File.ReadAllText(savePath));
+        }
+        catch (Exception ex)
+        {
+            Warn("options_util.config_parse_failed",
+                modId, ex.Message);
+            return null;
+        }
+    }
+
+    // 合并保存值到定义元数据：若用户有保存值则用它覆盖 meta["default"]
+    private static JObject MergeDefault(JObject meta, string key, Dictionary<string, JToken>? savedValues)
+    {
+        if (savedValues == null || !savedValues.TryGetValue(key, out var savedToken))
+            return meta;
+
+        var merged = (JObject)meta.DeepClone();
+        merged["default"] = savedToken;
+        return merged;
+    }
+
     private static T GetCachedValue<T>(string modId, string key) where T : struct
     {
         var cacheKey = $"{modId}.{key}";
@@ -136,7 +179,7 @@ public static class OptionsUtil
     // 注册单个选项，返回 true 表示成功，false 表示重复（CCL 拒绝）
     // modName 仅用于自定义选项卡的显示名称，不影响内部 ID 和本地化 key
     private static bool RegisterSingle(string modId, string key, string type,
-        string configPath, JObject optionMeta, string modName)
+        string savePath, JObject optionMeta, string modName)
     {
         // category: JSON 中显式指定的用原值，未指定则用 modId（内部 ID 不变）
         var hasExplicitCategory = optionMeta["category"] != null;
@@ -162,19 +205,19 @@ public static class OptionsUtil
         {
             case "bool":
                 return RegisterBool(id, descId, isStandard, standardCategory, displayCategory,
-                    valueToken, modId, key, configPath);
+                    valueToken, modId, key, savePath);
             case "int":
                 return RegisterInt(id, descId, isStandard, standardCategory, displayCategory,
-                    valueToken, optionMeta, modId, key, configPath);
+                    valueToken, optionMeta, modId, key, savePath);
             case "float":
                 return RegisterFloat(id, descId, isStandard, standardCategory, displayCategory,
-                    valueToken, optionMeta, modId, key, configPath);
+                    valueToken, optionMeta, modId, key, savePath);
             case "dropdown":
                 return RegisterDropdown(id, descId, isStandard, standardCategory, displayCategory,
-                    valueToken, optionMeta, modId, key, configPath);
+                    valueToken, optionMeta, modId, key, savePath);
             case "keybind":
                 return RegisterKeybind(id, descId, isStandard, standardCategory, displayCategory,
-                    valueToken, modId, key, configPath);
+                    valueToken, modId, key, savePath);
             default:
                 Warn("options_util.unknown_type",
                     modId, key, type);
@@ -184,7 +227,7 @@ public static class OptionsUtil
 
     private static bool RegisterBool(string id, string desc,
         bool isStandard, Setting.SettingCategory standardCategory, string displayCategory,
-        JToken? valueToken, string modId, string key, string configPath)
+        JToken? valueToken, string modId, string key, string savePath)
     {
         var defaultValue = valueToken?.Value<bool>() ?? false;
         var cacheKey = $"{modId}.{key}";
@@ -193,17 +236,17 @@ public static class OptionsUtil
         var registered = isStandard
             ? ModOptionsRegistry.Register(ModOptionDefinition.Bool(id, id, desc,
                 standardCategory, defaultValue,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)))
+                val => ApplyAndWrite(cacheKey, val, savePath)))
             : ModOptionsRegistry.Register(ModOptionDefinition.Bool(id, id, desc,
                 displayCategory, defaultValue,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)));
+                val => ApplyAndWrite(cacheKey, val, savePath)));
 
         return registered;
     }
 
     private static bool RegisterInt(string id, string desc,
         bool isStandard, Setting.SettingCategory standardCategory, string displayCategory,
-        JToken? valueToken, JObject optionMeta, string modId, string key, string configPath)
+        JToken? valueToken, JObject optionMeta, string modId, string key, string savePath)
     {
         var defaultValue = valueToken?.Value<int>() ?? 0;
         var min = optionMeta["min"]?.Value<int>() ?? 0;
@@ -214,17 +257,17 @@ public static class OptionsUtil
         var registered = isStandard
             ? ModOptionsRegistry.Register(ModOptionDefinition.Int(id, id, desc,
                 standardCategory, defaultValue, min, max,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)))
+                val => ApplyAndWrite(cacheKey, val, savePath)))
             : ModOptionsRegistry.Register(ModOptionDefinition.Int(id, id, desc,
                 displayCategory, defaultValue, min, max,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)));
+                val => ApplyAndWrite(cacheKey, val, savePath)));
 
         return registered;
     }
 
     private static bool RegisterFloat(string id, string desc,
         bool isStandard, Setting.SettingCategory standardCategory, string displayCategory,
-        JToken? valueToken, JObject optionMeta, string modId, string key, string configPath)
+        JToken? valueToken, JObject optionMeta, string modId, string key, string savePath)
     {
         var defaultValue = valueToken?.Value<float>() ?? 0f;
         var min = optionMeta["min"]?.Value<float>() ?? 0f;
@@ -235,17 +278,17 @@ public static class OptionsUtil
         var registered = isStandard
             ? ModOptionsRegistry.Register(ModOptionDefinition.Float(id, id, desc,
                 standardCategory, defaultValue, min, max,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)))
+                val => ApplyAndWrite(cacheKey, val, savePath)))
             : ModOptionsRegistry.Register(ModOptionDefinition.Float(id, id, desc,
                 displayCategory, defaultValue, min, max,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)));
+                val => ApplyAndWrite(cacheKey, val, savePath)));
 
         return registered;
     }
 
     private static bool RegisterDropdown(string id, string desc,
         bool isStandard, Setting.SettingCategory standardCategory, string displayCategory,
-        JToken? valueToken, JObject optionMeta, string modId, string key, string configPath)
+        JToken? valueToken, JObject optionMeta, string modId, string key, string savePath)
     {
         var choicesToken = optionMeta["choices"];
         if (choicesToken is not JArray choicesArray || choicesArray.Count == 0)
@@ -272,17 +315,17 @@ public static class OptionsUtil
         var registered = isStandard
             ? ModOptionsRegistry.Register(ModOptionDefinition.Dropdown(id, id, desc,
                 standardCategory, defaultValue, choices,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)))
+                val => ApplyAndWrite(cacheKey, val, savePath)))
             : ModOptionsRegistry.Register(ModOptionDefinition.Dropdown(id, id, desc,
                 displayCategory, defaultValue, choices,
-                val => ApplyAndWrite(cacheKey, val, configPath, key)));
+                val => ApplyAndWrite(cacheKey, val, savePath)));
 
         return registered;
     }
 
     private static bool RegisterKeybind(string id, string desc,
         bool isStandard, Setting.SettingCategory standardCategory, string displayCategory,
-        JToken? valueToken, string modId, string key, string configPath)
+        JToken? valueToken, string modId, string key, string savePath)
     {
         var keyStr = valueToken?.Value<string>() ?? string.Empty;
         var defaultValue = ParseKeyCode(keyStr);
@@ -292,10 +335,10 @@ public static class OptionsUtil
         var registered = isStandard
             ? ModOptionsRegistry.Register(ModOptionDefinition.Keybind(id, id, desc,
                 standardCategory, defaultValue,
-                val => ApplyAndWrite(cacheKey, KeyCodeToString(val), configPath, key)))
+                val => ApplyAndWrite(cacheKey, KeyCodeToString(val), savePath)))
             : ModOptionsRegistry.Register(ModOptionDefinition.Keybind(id, id, desc,
                 displayCategory, defaultValue,
-                val => ApplyAndWrite(cacheKey, KeyCodeToString(val), configPath, key)));
+                val => ApplyAndWrite(cacheKey, KeyCodeToString(val), savePath)));
 
         return registered;
     }
@@ -310,47 +353,41 @@ public static class OptionsUtil
         LogUtil.Info(key, args);
     }
 
-    // apply 回调：更新缓存 + 回写配置文件
-    private static void ApplyAndWrite(string cacheKey, object value, string configPath, string key)
+    // apply 回调：更新缓存 + 写回用户配置
+    private static void ApplyAndWrite(string cacheKey, object value, string savePath)
     {
         s_cache[cacheKey] = value;
-        WriteBackConfig(configPath, key, value);
+        WriteConfigFile(savePath);
     }
 
-    private static void WriteBackConfig(string configPath, string key, object value)
+    // 将 s_cache 中以 modId 打头的所有 key 写入 {configsDir}/{modId}.json
+    private static void WriteConfigFile(string savePath)
     {
+        // 从 savePath 反推 modId（savePath = ".../Configs/{modId}.json"）
+        var modId = Path.GetFileNameWithoutExtension(savePath);
+        var prefix = $"{modId}.";
+
+        var data = new Dictionary<string, object>();
+        foreach (var kv in s_cache)
+        {
+            if (!kv.Key.StartsWith(prefix, StringComparison.Ordinal))
+                continue;
+
+            var key = kv.Key.Substring(prefix.Length);
+            data[key] = kv.Value;
+        }
+
         try
         {
-            var text = File.ReadAllText(configPath);
-            var config = JObject.Parse(text);
-            if (config["_options"] is not JObject options || options[key] is not JObject optMeta) return;
-            optMeta["default"] = ValueToToken(value);
-            File.WriteAllText(configPath, FormatJson(config));
+            Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+            File.WriteAllText(savePath,
+                JsonConvert.SerializeObject(data, Formatting.Indented) + Environment.NewLine);
         }
         catch (Exception ex)
         {
             Warn("options_util.write_config_failed",
-                configPath, key, ex.Message);
+                savePath, ex.Message);
         }
-    }
-
-    private static JToken ValueToToken(object value)
-    {
-        return value switch
-        {
-            bool b => new JValue(b),
-            int i => new JValue(i),
-            float f => new JValue(f),
-            double d => new JValue(d),
-            string s => new JValue(s),
-            _ => JValue.CreateNull()
-        };
-    }
-
-    // 保持 JSON 格式化一致（缩进 + 末尾换行）
-    private static string FormatJson(JObject config)
-    {
-        return JsonConvert.SerializeObject(config, Formatting.Indented) + Environment.NewLine;
     }
 
     // 生成 CCL 选项 ID（与 BetterOptions.MakeId() 逻辑保持一致）

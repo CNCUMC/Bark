@@ -9,6 +9,7 @@ namespace Bark.Tool;
 // 通用脚本执行工具：按模组 ID + 文件名触发脚本执行。
 // 内部由 ScriptModLoader 在加载模组时注册，ItemScriptRunner 调用。
 // 脚本侧可通过 Script.Execute(modId, fileName) 直接使用。
+[ScriptApi]
 public static class ScriptUtil
 {
     // modId → (ScriptEngine, modDir)

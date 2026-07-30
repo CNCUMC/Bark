@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Bark.Tool;
 
+[ScriptApi]
 public static class WorldUtil
 {
     public static WorldGeneration World => WorldGeneration.world;

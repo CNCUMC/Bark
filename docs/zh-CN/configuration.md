@@ -162,7 +162,10 @@ CCL 注册的文本  →  Bark Fallback 默认值  →  英语 Fallback  →  �
 
 ### 注册配置项
 
-脚本模组的配置不在 `mod.json` 里，而是用单独的 `config.json`。放在 `ScriptMod/Configs/{你的模组id}.json`：
+脚本模组的选项**定义**放在模组目录下的 `Config/options.json` 中（模组自带，只读）。用户修改后的**保存值**
+写入 `ScriptMod/Configs/{模组id}.json`（简单 key-value 格式）。
+
+**`ScriptMod/Mods/MyMod/Config/options.json`**（选项定义，随模组分发）：
 
 ```json
 {
@@ -204,6 +207,20 @@ CCL 注册的文本  →  Bark Fallback 默认值  →  英语 Fallback  →  �
 }
 ```
 
+**`ScriptMod/Configs/MyMod.json`**（用户保存值，游戏自动生成/更新）：
+
+```json
+{
+  "enable_auto_heal": false,
+  "heal_amount": 42,
+  "speed_multiplier": 1.5,
+  "mode": 1,
+  "hotkey": "F6"
+}
+```
+
+加载时 Bark 合并两层数据：用户保存值覆盖定义默认值后注册到游戏设置 UI。
+
 | 字段       | 必填 | 说明                                                         |
 |------------|------|--------------------------------------------------------------|
 | `type`     | ✅   | `bool` / `int` / `float` / `dropdown` / `keybind`            |
@@ -235,10 +252,10 @@ ScriptMod/Mods/MyMod/
 ```json
 {
   "option": {
-    "my_mod.game.enable_auto_heal": "自动回血",
-    "my_mod.game.enable_auto_healdsc": "开启后每秒回复一定血量",
-    "my_mod.game.heal_amount": "回血量",
-    "my_mod.game.heal_amountdsc": "每次回复的血量值"
+    "my_mod.enable_auto_heal": "自动回血",
+    "my_mod.enable_auto_healdsc": "开启后每秒回复一定血量",
+    "my_mod.heal_amount": "回血量",
+    "my_mod.heal_amountdsc": "每次回复的血量值"
   },
   "log": {
     "welcome": "欢迎使用本模组！",

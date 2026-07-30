@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Bark.Tool;
 
 namespace Bark.ScriptApi;
 
@@ -13,13 +15,40 @@ public static class ApiRegistry
     // 只读视图，供脚本引擎遍历注入
     public static IReadOnlyDictionary<string, object> Proxies => s_proxies;
 
+    // 扫描所有已加载程序集，注册标注了 [ScriptApi] 的静态类
+    public static void ScanAndRegister()
+    {
+        s_proxies.Clear();
+
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var registeredCount = 0;
+
+        foreach (var assembly in assemblies)
+            try
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    var attr = type.GetCustomAttribute<ScriptApiAttribute>();
+                    if (attr == null) continue;
+
+                    var name = attr.Name ?? DeriveApiName(type.Name);
+                    s_proxies[name] = AutoApi.CreateProxy(type);
+                    registeredCount++;
+                }
+            }
+            catch (ReflectionTypeLoadException)
+            {
+                // 跳过无法加载的程序集
+            }
+
+        LogUtil.Info("api.scanned", registeredCount.ToString());
+    }
+
     // 注册一个 utility 类型：自动去除 "Util" 后缀作为 registry key（BodyUtil → Body）
     public static void Register(Type utilityType)
     {
         if (utilityType is null) throw new ArgumentNullException(nameof(utilityType));
-        var name = utilityType.Name ?? string.Empty;
-        if (name.EndsWith("Util", StringComparison.Ordinal))
-            name = name[..^4];
+        var name = DeriveApiName(utilityType.Name);
         s_proxies[name] = AutoApi.CreateProxy(utilityType);
     }
 
@@ -36,5 +65,13 @@ public static class ApiRegistry
     public static void Clear()
     {
         s_proxies.Clear();
+    }
+
+    // 从类名推导脚本侧 API 名称：默认去掉 "Util" 后缀
+    private static string DeriveApiName(string typeName)
+    {
+        return typeName.EndsWith("Util", StringComparison.Ordinal)
+            ? typeName[..^4]
+            : typeName;
     }
 }

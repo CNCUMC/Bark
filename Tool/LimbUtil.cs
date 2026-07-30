@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Bark.Tool;
 
+[ScriptApi]
 public static class LimbUtil
 {
     // ============================================================

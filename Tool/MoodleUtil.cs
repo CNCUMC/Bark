@@ -9,6 +9,7 @@ namespace Bark.Tool;
 // Moodle 状态管理工具：给玩家添加/去掉 Moodle、查询 Moodle 属性。
 // 所有 Moodle 定义来自 ScriptMod/Moods 下的 JSON 文件（由 MoodleLoader 加载）。
 // 方法加 [ScriptMethod] 后自动暴露给 Lua/JS 脚本。
+[ScriptApi]
 public static class MoodleUtil
 {
     // ============================================================

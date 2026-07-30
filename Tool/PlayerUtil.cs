@@ -7,6 +7,7 @@ using UnityEngine;
 namespace Bark.Tool;
 
 // 玩家通用操作：传送、物品、警告
+[ScriptApi]
 public static class PlayerUtil
 {
     public const int MaxInventorySlots = 8;

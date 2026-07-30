@@ -22,7 +22,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.0.2";
+    public const string Version = "2.1.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
@@ -160,19 +160,10 @@ public class Plugin : BaseUnityPlugin
         _scriptModLoader.LoadAll();
     }
 
-    // 注册所有带 [ScriptMethod] 的 Tool 类型到 ApiRegistry
+    // 注册所有带 [ScriptApi] 的类到 ApiRegistry
     // ApiRegistry 为每个类型生成 AutoApi 代理，脚本引擎按 camelCase 类名直接注入全局
     private static void RegisterScriptApis()
     {
-        ApiRegistry.Register(typeof(BodyUtil));
-        ApiRegistry.Register(typeof(PlayerUtil));
-        ApiRegistry.Register(typeof(InventoryUtil));
-        ApiRegistry.Register(typeof(ItemUtil));
-        ApiRegistry.Register(typeof(LimbUtil));
-        ApiRegistry.Register(typeof(SkillUtil));
-        ApiRegistry.Register(typeof(ScriptUtil));
-        ApiRegistry.Register(typeof(WorldUtil));
-        ApiRegistry.Register(typeof(OptionsApi));
-        ApiRegistry.Register(typeof(MoodleUtil));
+        ApiRegistry.ScanAndRegister();
     }
 }

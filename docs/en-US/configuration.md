@@ -166,7 +166,10 @@ If nothing matches, show the raw key.
 
 ### Registering Config Options
 
-Script mod config goes in a separate `config.json` file at `ScriptMod/Configs/{modId}.json`:
+Option **definitions** live in the mod's `Config/options.json` (shipped with the mod, read-only). User **saved values**
+are written to `ScriptMod/Configs/{modId}.json` as a simple key-value map.
+
+**`ScriptMod/Mods/MyMod/Config/options.json`** (option definitions, shipped with the mod):
 
 ```json
 {
@@ -208,6 +211,21 @@ Script mod config goes in a separate `config.json` file at `ScriptMod/Configs/{m
 }
 ```
 
+**`ScriptMod/Configs/MyMod.json`** (user saved values, auto-generated/updated by the game):
+
+```json
+{
+  "enable_auto_heal": false,
+  "heal_amount": 42,
+  "speed_multiplier": 1.5,
+  "mode": 1,
+  "hotkey": "F6"
+}
+```
+
+On load, Bark merges both layers: user saved values override the definition defaults before registering with the game
+settings UI.
+
 | Field      | Required | Description                                                           |
 |------------|----------|-----------------------------------------------------------------------|
 | `type`     | Yes      | `bool` / `int` / `float` / `dropdown` / `keybind`                     |
@@ -239,10 +257,10 @@ ScriptMod/Mods/MyMod/
 ```json
 {
   "option": {
-    "my_mod.game.enable_auto_heal": "Auto Heal",
-    "my_mod.game.enable_auto_healdsc": "Enable periodic health regen",
-    "my_mod.game.heal_amount": "Heal Amount",
-    "my_mod.game.heal_amountdsc": "HP restored per tick"
+    "my_mod.enable_auto_heal": "Auto Heal",
+    "my_mod.enable_auto_healdsc": "Enable periodic health regen",
+    "my_mod.heal_amount": "Heal Amount",
+    "my_mod.heal_amountdsc": "HP restored per tick"
   },
   "log": {
     "welcome": "Welcome to this mod!",

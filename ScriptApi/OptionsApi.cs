@@ -5,6 +5,7 @@ namespace Bark.ScriptApi;
 
 // 脚本配置读取 API：暴露给 JS/Lua 脚本侧的 [ScriptMethod] getter，
 // 从 OptionsUtil 的内部缓存中读取当前选项值
+[ScriptApi]
 public static class OptionsApi
 {
     [ScriptMethod]
