@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Bark.Items.Templates;
 using Bark.Liquid;
 using Bark.Script;
 using Bark.Tool;
@@ -146,6 +147,18 @@ public static class ItemLoader
             return null;
         }
 
+        // 模板解析：合并 template 引用的预设模板后再进行类型检测
+        var templateNode = obj["template"];
+        if (templateNode is JObject templateObj)
+        {
+            var merged = TemplateLoader.ResolveAndMerge(obj, templateObj);
+            if (merged != null)
+            {
+                json = merged.ToString(Formatting.None);
+                obj = merged;
+            }
+        }
+
         var modDir = Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty;
 
         // 自动检测类型：capacity → 液体容器, color 且无 weight → 纯液体, 否则 → 普通物品
@@ -181,6 +194,12 @@ public static class ItemLoader
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         StashScript(itemId, def, modId, modDir);
+
+        // 模板物品：缓存 runtime 元数据，供脚本侧查询
+        GunTemplate.CacheGunItem(itemId, def.CustomData);
+        MagTemplate.CacheMagItem(itemId, def.CustomData);
+        AmmunitionTemplate.CacheAmmoItem(itemId, def.CustomData);
+        CasingTemplate.CacheCasingItem(itemId, def.CustomData);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -283,6 +302,12 @@ public static class ItemLoader
 
         // 暂存脚本映射
         StashScript(itemId, def, modId, modDir);
+
+        // 模板物品：缓存 runtime 元数据，供脚本侧查询
+        GunTemplate.CacheGunItem(itemId, def.CustomData);
+        MagTemplate.CacheMagItem(itemId, def.CustomData);
+        AmmunitionTemplate.CacheAmmoItem(itemId, def.CustomData);
+        CasingTemplate.CacheCasingItem(itemId, def.CustomData);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -614,10 +639,16 @@ public static class ItemLoader
     // 清除指定模组之前注册的物品与液体（内部调 ItemRegistry / LiquidRegistry 的 ClearOwnerEntries）
     private static void ClearModItems(string ownerId)
     {
-        // 清除该 owner 在 WearableWithoutWornSprite 中的条目
+        // 清除该 owner 在 WearableWithoutWornSprite 中的条目及模板缓存
         if (LoadedItems.TryGetValue(ownerId, out var items))
             foreach (var entry in items)
+            {
                 WearableWithoutWornSprite.Remove(entry.Id);
+                GunTemplate.RemoveGunItem(entry.Id);
+                MagTemplate.RemoveMagItem(entry.Id);
+                AmmunitionTemplate.RemoveAmmoItem(entry.Id);
+                CasingTemplate.RemoveCasingItem(entry.Id);
+            }
 
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);
         s_clearLiquidOwnerEntries?.Invoke(null, [ownerId, null!]);

@@ -5,6 +5,7 @@ using Bark.Event;
 using Bark.Event.Listener;
 using Bark.Example;
 using Bark.Items;
+using Bark.Items.Templates;
 using Bark.Moodle;
 using Bark.Script;
 using Bark.ScriptApi;
@@ -23,7 +24,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.1.0";
+    public const string Version = "2.2.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
@@ -76,6 +77,9 @@ public class Plugin : BaseUnityPlugin
         // 注册所有带 [ScriptMethod] 的 Tool 类型到 ApiRegistry
         // 脚本引擎加载时会自动从 ApiRegistry 平铺注入到全局作用域
         RegisterScriptApis();
+
+        // 注册内置物品模板（如 gun 模板），供后续模组的物品 JSON 引用
+        InitializeBuiltinTemplates();
 
         LoadScriptMods();
 
@@ -169,5 +173,16 @@ public class Plugin : BaseUnityPlugin
     private static void RegisterScriptApis()
     {
         ApiRegistry.ScanAndRegister();
+    }
+
+    // 注册内置物品模板，供模组物品 JSON 引用
+    // 模板在 Plugin 初始化时注册，之后 ItemLoader 解析物品时可引用
+    // gun → mag → ammo → casing 四层模板通过 ammo_type / mag_type / casing_type 标签建立关联
+    private static void InitializeBuiltinTemplates()
+    {
+        new GunTemplate().Register();
+        new MagTemplate().Register();
+        new AmmunitionTemplate().Register();
+        new CasingTemplate().Register();
     }
 }

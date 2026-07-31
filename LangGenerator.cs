@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Bark.Base;
 
-namespace Bark.Example;
+namespace Bark;
 
 internal class LangGenerator : ModLangGenMultiBase
 {
@@ -611,6 +611,28 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 注册了 {1} 个物品脚本",
             "模組 '{0}' 註冊了 {1} 個物品腳本",
             "Мод '{0}' зарегистрировал {1} скрипт(ов) предметов");
+
+        // Log - Template
+        Log("template.registered",
+            "Template '{0}' registered",
+            "模板 '{0}' 已注册",
+            "模板 '{0}' 已註冊",
+            "Шаблон '{0}' зарегистрирован");
+        Log("template.missing_type",
+            "Template is missing 'type' field",
+            "模板缺少 'type' 字段",
+            "模板缺少 'type' 欄位",
+            "В шаблоне отсутствует поле 'type'");
+        Log("template.not_registered",
+            "Template '{0}' is not registered",
+            "模板 '{0}' 未注册",
+            "模板 '{0}' 未註冊",
+            "Шаблон '{0}' не зарегистрирован");
+        Log("template.merge_error",
+            "Failed to merge template '{0}': {1}",
+            "合并模板 '{0}' 失败：{1}",
+            "合併模板 '{0}' 失敗：{1}",
+            "Не удалось объединить шаблон '{0}': {1}");
 
         // Log - Recipe
         Log("recipe.load_error",

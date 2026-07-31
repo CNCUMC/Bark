@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bark.Items;
 
@@ -7,6 +8,18 @@ namespace Bark.Items;
 // JSON 字段一律使用 snake_case。分组原则：
 //   "属性": { "子属性": "值" }  ← 新标准
 //   不再使用 flat bool "属性": true 或 "属性_data": { ... } 后缀
+
+// 物品模板引用定义。
+// type 指定模板名（如 "gun"），其余任意键值对作为模板参数（如 ammo_type、recoil）。
+// 合并时模板参数优先级高于模板默认值，低于物品顶层字段。
+public class TemplateDef
+{
+    [JsonProperty("type")] public string Type = string.Empty;
+
+    // 模板的其他参数（如 ammo_type、recoil、clip_size）由 JsonExtensionData 捕获
+    [JsonExtensionData]
+    public Dictionary<string, JToken>? ExtraParams;
+}
 
 public class ItemDef
 {
@@ -48,6 +61,9 @@ public class ItemDef
     // 精灵图 / 显示
     [JsonProperty("sprite")] public SpriteDef? SpriteDef;
     [JsonProperty("tags")] public string Tags = string.Empty;
+
+    // 模板引用：引用已注册模板，自动继承预设字段。额外键值对作为模板参数覆盖默认值
+    [JsonProperty("template")] public TemplateDef? Template;
     [JsonProperty("use")] public List<UseEntryDef>? Use;
     [JsonProperty("value")] public int Value;
 
@@ -70,6 +86,9 @@ public class WearableDef
 
     // 装备到哪个肢体（必须为已知肢体名）
     [JsonProperty("desired_limb")] public string DesiredLimb = string.Empty;
+
+    // 是否可双持（仅 weapon 槽位生效）
+    [JsonProperty("dual_wielded")] public bool DualWielded;
 
     // 穿戴脚本
     [JsonProperty("equip")] public List<string> Equip = [];
@@ -297,6 +316,7 @@ public class LegacyItemDef
     public SpriteScaleDimensionsDef? SpriteScaleDimensions;
 
     [JsonProperty("tags")] public string Tags = string.Empty;
+    [JsonProperty("template")] public TemplateDef? Template;
     [JsonProperty("value")] public int Value;
     [JsonProperty("wear_slot_id")] public string WearSlotId = string.Empty;
     [JsonProperty("wearable")] public bool Wearable;
@@ -341,7 +361,8 @@ public class LegacyItemDef
             ScaleWeightWithCondition = ScaleWeightWithCondition,
             Recognition = Recognition,
             Qualities = Qualities,
-            CustomData = CustomData
+            CustomData = CustomData,
+            Template = Template
         };
 
         // 脚本迁移：旧 ItemScriptDef → 新的三层结构
@@ -454,7 +475,7 @@ public class LegacyItemDef
         if (old.Use.Count > 0)
             useList.Add(new UseEntryDef { Script = old.Use }); // null slot = *
         if (old.UseInHand.Count > 0)
-            useList.Add(new UseEntryDef { Slot = new List<object> { "hand" }, Script = old.UseInHand });
+            useList.Add(new UseEntryDef { Slot = ["hand"], Script = old.UseInHand });
         if (useList.Count > 0)
             def.Use = useList;
 
@@ -538,6 +559,7 @@ public class LegacyLiquidItemDef : LegacyItemDef
             Use = baseDef.Use,
             Qualities = baseDef.Qualities,
             CustomData = baseDef.CustomData,
+            Template = baseDef.Template,
             AutoFill = AutoFill,
             Capacity = Capacity,
             DefaultLiquid = DefaultLiquid
