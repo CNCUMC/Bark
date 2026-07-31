@@ -12,7 +12,7 @@ namespace Bark.Event.Listener;
 
 // 物品动作事件监听器：通过 Harmony 补丁拦截游戏物品相关方法，
 // 触发 ItemUseEvent / ItemEquipEvent / ItemUnequipEvent / ItemLimbUseEvent / ItemAttackEvent。
-// 新增被动状态、耐久/容量/电量条件触发器的轮询检测。
+// 新增被动状态（in_hand/not_in_hand/has/wearing）、耐久/容量/电量条件触发器的轮询检测。
 public static class ItemEventListener
 {
     // 轮询间隔（秒）
@@ -33,6 +33,8 @@ public static class ItemEventListener
     private static Coroutine? _durabilityCoroutine;
     private static Coroutine? _capacityCoroutine;
     private static Coroutine? _chargeCoroutine;
+    private static Coroutine? _hasCoroutine;
+    private static Coroutine? _wearingCoroutine;
     private static MonoBehaviour? _runner;
 
     private static int _lastHandSlot = -1;
@@ -62,6 +64,8 @@ public static class ItemEventListener
         _durabilityCoroutine ??= runner.StartCoroutine(PollDurability());
         _capacityCoroutine ??= runner.StartCoroutine(PollCapacity());
         _chargeCoroutine ??= runner.StartCoroutine(PollCharge());
+        _hasCoroutine ??= runner.StartCoroutine(PollHasItems());
+        _wearingCoroutine ??= runner.StartCoroutine(PollWearPassive());
     }
 
     internal static void Stop()
@@ -76,6 +80,8 @@ public static class ItemEventListener
         if (_durabilityCoroutine != null) { _runner.StopCoroutine(_durabilityCoroutine); _durabilityCoroutine = null; }
         if (_capacityCoroutine != null) { _runner.StopCoroutine(_capacityCoroutine); _capacityCoroutine = null; }
         if (_chargeCoroutine != null) { _runner.StopCoroutine(_chargeCoroutine); _chargeCoroutine = null; }
+        if (_hasCoroutine != null) { _runner.StopCoroutine(_hasCoroutine); _hasCoroutine = null; }
+        if (_wearingCoroutine != null) { _runner.StopCoroutine(_wearingCoroutine); _wearingCoroutine = null; }
 
         KnownWearableIds.Clear();
         LimbConditionTracker.Clear();
@@ -156,7 +162,7 @@ public static class ItemEventListener
     }
 
     // ============================================================
-    // 轮询：被动状态检测（in_hand / not_in_hand / in_backpack）
+    // 轮询：被动状态检测（in_hand / not_in_hand）
     // ============================================================
 
     private static IEnumerator PollPassiveStates()
@@ -556,6 +562,51 @@ public static class ItemEventListener
                         ItemId = itemId, Item = it,
                         Operator = op, ThresholdValue = threshold, CurrentValue = cv
                     }), "chr");
+            }
+        }
+    }
+
+    // ============================================================
+    // 持有状态轮询（has）：检测背包中物品，每周期触发 ItemHasEvent
+    // ============================================================
+
+    private static IEnumerator PollHasItems()
+    {
+        yield return new WaitForSeconds(1f);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(PollInterval);
+
+            foreach (var (itemId, entry) in ItemScriptRegistry.AllEntries)
+            {
+                if (entry.Has.Count == 0) continue;
+                if (!InventoryUtil.HasItem(itemId)) continue;
+
+                EventUtil.Trigger(new ItemHasEvent { ItemId = itemId });
+            }
+        }
+    }
+
+    // ============================================================
+    // 穿戴被动轮询（wearing）：检测已穿戴且有 wearing 脚本的物品
+    // ============================================================
+
+    private static IEnumerator PollWearPassive()
+    {
+        yield return new WaitForSeconds(1f);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(PollInterval);
+
+            foreach (var (instanceId, itemId) in KnownWearableIds)
+            {
+                var entry = ItemScriptRegistry.GetEntry(itemId);
+                if (entry is null || entry.WearWearing.Count == 0) continue;
+
+                InventoryUtil.FindById(itemId, out var item);
+                EventUtil.Trigger(new ItemWearingEvent { ItemId = itemId, Item = item });
             }
         }
     }

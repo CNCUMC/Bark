@@ -108,6 +108,19 @@ public class ItemCapacityEvent : BarkEvent
     public float CurrentValue { get; set; }
 }
 
+// 物品穿戴轮询事件：穿戴状态下每轮询周期触发一次
+public class ItemWearingEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+    public Item? Item { get; set; }
+}
+
+// 物品持有轮询事件：物品在玩家背包中时每轮询周期触发一次
+public class ItemHasEvent : BarkEvent
+{
+    public string ItemId { get; set; } = string.Empty;
+}
+
 // 电池电量事件：电池 charge 百分比越过 charge_trigger 阈值时触发
 [ScriptEvent("onItemCharge")]
 public class ItemChargeEvent : BarkEvent

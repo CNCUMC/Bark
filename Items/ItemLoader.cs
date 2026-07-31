@@ -635,7 +635,7 @@ public static class ItemLoader
         var hasScript = (def.Script != null && (
             def.Script.Attack.Count > 0 ||
             def.Script.UseOnLimb.Count > 0 ||
-            def.Script.InBackpack.Count > 0 ||
+            def.Script.Has.Count > 0 ||
             def.Script.InHand.Count > 0 ||
             def.Script.NotInHand.Count > 0 ||
             def.Script.Durability.Count > 0));
@@ -646,7 +646,8 @@ public static class ItemLoader
             def.Wearable.Equip.Count > 0 ||
             def.Wearable.Unequip.Count > 0 ||
             def.Wearable.Attack.Count > 0 ||
-            def.Wearable.Damage.Count > 0);
+            def.Wearable.Damage.Count > 0 ||
+            def.Wearable.Wearing.Count > 0);
 
         var hasContainerTrigger = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
             ct.Any(t => t.Script.Count > 0);

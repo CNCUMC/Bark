@@ -89,6 +89,7 @@ public class WearableDef
     [JsonProperty("unequip")] public List<string> Unequip = [];
     [JsonProperty("attack")] public List<string> Attack = [];
     [JsonProperty("damage")] public List<string> Damage = [];
+    [JsonProperty("wearing")] public List<string> Wearing = [];
 }
 
 public class BatteryDef
@@ -200,7 +201,7 @@ public class ItemScriptDef
 {
     [JsonProperty("attack")] public List<string> Attack = [];
     [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
-    [JsonProperty("in_backpack")] public List<string> InBackpack = [];
+    [JsonProperty("has")] public List<string> Has = [];
     [JsonProperty("in_hand")] public List<string> InHand = [];
     [JsonProperty("not_in_hand")] public List<string> NotInHand = [];
     [JsonProperty("durability")] public List<ConditionTriggerDef> Durability = [];

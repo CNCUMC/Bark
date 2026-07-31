@@ -51,11 +51,12 @@ Item type is auto-detected from the JSON fields:
     "drop_pool": ["Medical"],
     "frequency": 5
   },
-  "script": {
-    "use": [
-      "bandage123_use.js"
-    ]
-  }
+  "use": [
+    {
+      "slot": [0, 1, 2, 3],
+      "script": ["bandage123_use.js"]
+    }
+  ]
 }
 ```
 
@@ -210,7 +211,7 @@ When an action fires, Bark runs each script and calls its `main(itemId, item, ac
 |---------------|-----------------------|-----------------------------------------------|
 | `attack`      | string[]              | Melee attack while holding this item          |
 | `use_on_limb` | string[]              | Used on a specific limb                       |
-| `in_backpack` | string[]              | Item is in player's backpack (polled)         |
+| `has`         | string[]              | Item is in player's backpack (polled)         |
 | `in_hand`     | string[]              | Item is picked up (taken in hand)             |
 | `not_in_hand` | string[]              | Item is dropped (removed from hand)           |
 | `durability`  | ConditionTriggerDef[] | Condition crosses a threshold (see below)     |
@@ -246,6 +247,7 @@ When an action fires, Bark runs each script and calls its `main(itemId, item, ac
 | `unequip` | string[] | Unequipped (taken off)               |
 | `attack`  | string[] | Melee attack while wearing this item |
 | `damage`  | string[] | Wearable item took damage            |
+| `wearing` | string[] | Continuously polled while worn       |
 
 ```json
 {
@@ -255,7 +257,8 @@ When an action fires, Bark runs each script and calls its `main(itemId, item, ac
     "equip": ["helmet_equip.js"],
     "unequip": ["helmet_unequip.js"],
     "attack": ["helmet_attack.js"],
-    "damage": ["helmet_damage.js"]
+    "damage": ["helmet_damage.js"],
+    "wearing": ["helmet_wearing.js"]
   }
 }
 ```

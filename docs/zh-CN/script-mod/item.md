@@ -50,11 +50,12 @@ ScriptMod/Mods/
     "drop_pool": ["Medical"],
     "frequency": 5
   },
-  "script": {
-    "use": [
-      "bandage123_use.js"
-    ]
-  }
+  "use": [
+    {
+      "slot": [0, 1, 2, 3],
+      "script": ["bandage123_use.js"]
+    }
+  ]
 }
 ```
 
@@ -203,7 +204,7 @@ ScriptMod/Mods/
 |---------------|-----------------------------|--------------------------------|
 | `attack`      | string[]                    | 手持此物品近战攻击             |
 | `use_on_limb` | string[]                    | 对某个肢体使用                 |
-| `in_backpack` | string[]                    | 物品在玩家背包中（持续轮询）   |
+| `has`         | string[]                    | 物品在玩家背包中（持续轮询）   |
 | `in_hand`     | string[]                    | 物品被拿在手上                 |
 | `not_in_hand` | string[]                    | 物品从手上放下                 |
 | `durability`  | ConditionTriggerDef[]       | 耐久值越过阈值时（见下方）     |
@@ -233,12 +234,13 @@ ScriptMod/Mods/
 
 ### wearable 内的脚本字段
 
-| 键        | 类型     | 触发时机             |
-|-----------|----------|----------------------|
-| `equip`   | string[] | 装备（穿上）         |
-| `unequip` | string[] | 卸下（脱下）         |
-| `attack`  | string[] | 穿着此物品时近战攻击 |
-| `damage`  | string[] | 装备受到伤害         |
+| 键        | 类型     | 触发时机                 |
+|-----------|----------|--------------------------|
+| `equip`   | string[] | 装备（穿上）             |
+| `unequip` | string[] | 卸下（脱下）             |
+| `attack`  | string[] | 穿着此物品时近战攻击     |
+| `damage`  | string[] | 装备受到伤害             |
+| `wearing` | string[] | 装备在身上时持续轮询     |
 
 ```json
 {
@@ -248,7 +250,8 @@ ScriptMod/Mods/
     "equip": ["helmet_equip.js"],
     "unequip": ["helmet_unequip.js"],
     "attack": ["helmet_attack.js"],
-    "damage": ["helmet_damage.js"]
+    "damage": ["helmet_damage.js"],
+    "wearing": ["helmet_wearing.js"]
   }
 }
 ```

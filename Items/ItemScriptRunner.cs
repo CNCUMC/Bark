@@ -26,6 +26,8 @@ public static class ItemScriptRunner
         EventUtil.On<ItemDurabilityEvent>(OnItemDurability, Guid);
         EventUtil.On<ItemCapacityEvent>(OnItemCapacity, Guid);
         EventUtil.On<ItemChargeEvent>(OnItemCharge, Guid);
+        EventUtil.On<ItemHasEvent>(OnItemHas, Guid);
+        EventUtil.On<ItemWearingEvent>(OnItemWearing, Guid);
     }
 
     // 停止监听（卸载时调用）
@@ -142,6 +144,18 @@ public static class ItemScriptRunner
         {
             ItemScriptContext.ClearTriggerContext();
         }
+    }
+
+    // 物品持有轮询：物品在背包中时每周期触发
+    private static void OnItemHas(ItemHasEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, null, "has", e => e.Has);
+    }
+
+    // 物品穿戴轮询：穿戴状态下每周期触发
+    private static void OnItemWearing(ItemWearingEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, evt.Item, "wearing", e => e.WearWearing);
     }
 
     // 使用 use 数组匹配的脚本执行

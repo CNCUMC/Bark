@@ -12,6 +12,9 @@ public static class ItemScriptRegistry
     // itemId → 脚本映射记录
     private static readonly Dictionary<string, ItemScriptEntry> Entries = new();
 
+    // 公开所有已注册条目（用于轮询遍历）
+    public static IEnumerable<KeyValuePair<string, ItemScriptEntry>> AllEntries => Entries;
+
     // 注册一个物品的脚本映射。itemId 为物品 ID，def 为完整 ItemDef（收集所有脚本来源），
     // engine 为模组的 ScriptEngine（每个模组一个），modId 为模组 ID，modDir 为模组目录。
     public static void Register(string itemId, ItemDef def, ScriptEngine engine, string modId,
@@ -53,7 +56,7 @@ public static class ItemScriptRegistry
         var hasPassive = s != null && (
             s.Attack.Count > 0 ||
             s.UseOnLimb.Count > 0 ||
-            s.InBackpack.Count > 0 ||
+            s.Has.Count > 0 ||
             s.InHand.Count > 0 ||
             s.NotInHand.Count > 0 ||
             s.Durability.Count > 0);
@@ -66,7 +69,8 @@ public static class ItemScriptRegistry
             w.Equip.Count > 0 ||
             w.Unequip.Count > 0 ||
             w.Attack.Count > 0 ||
-            w.Damage.Count > 0);
+            w.Damage.Count > 0 ||
+            w.Wearing.Count > 0);
 
         var hasContainer = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
             ct.Any(t => t.Script.Count > 0);
@@ -88,7 +92,7 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
     // ---- script（被动检测） ----
     public readonly List<string> Attack = def.Script?.Attack ?? [];
     public readonly List<string> UseOnLimb = def.Script?.UseOnLimb ?? [];
-    public readonly List<string> InBackpack = def.Script?.InBackpack ?? [];
+    public readonly List<string> Has = def.Script?.Has ?? [];
     public readonly List<string> InHand = def.Script?.InHand ?? [];
     public readonly List<string> NotInHand = def.Script?.NotInHand ?? [];
     public readonly List<ConditionTriggerDef> Durability = def.Script?.Durability ?? [];
@@ -101,6 +105,7 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
     public readonly List<string> WearUnequip = def.Wearable?.Unequip ?? [];
     public readonly List<string> WearAttack = def.Wearable?.Attack ?? [];
     public readonly List<string> WearDamage = def.Wearable?.Damage ?? [];
+    public readonly List<string> WearWearing = def.Wearable?.Wearing ?? [];
 
     // ---- 条件触发器 ----
     public readonly List<ConditionTriggerDef> CapacityTrigger = def.Container?.CapacityTrigger ?? [];
