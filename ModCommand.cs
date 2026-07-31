@@ -39,12 +39,13 @@ public static class ModCommand
     private static void ExportLocaleDebugFile()
     {
         var path = Path.Combine(Paths.CachePath, "catfcabl.txt");
-        var lines = new List<string>();
+        var lines = new List<string> { $"Register ({BetterLocale.LocaleKeys.Count}):" };
 
         lines.AddRange(BetterLocale.LocaleKeys
             .OrderBy(x => x.Key)
             .Select(x => $"{x.Key}: {x.Value}"));
         lines.Add("");
+        lines.Add($"Call ({BetterLocale.LocaleGetKeys.Count}):");
         lines.AddRange(BetterLocale.LocaleGetKeys
             .OrderBy(x => x.Key)
             .Select(x => $"{x.Key}: {x.Value}"));

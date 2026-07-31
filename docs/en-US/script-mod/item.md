@@ -44,11 +44,13 @@ Item type is auto-detected from the JSON fields:
   "weight": 0.2,
   "value": 15,
   "tags": "medical,bandage",
-  "sprite_scale": 1.0,
-  "drop_pool": [
-    "Medical"
-  ],
-  "spawn_frequency": 5,
+  "sprite": {
+    "scale": 1.0
+  },
+  "spawn": {
+    "drop_pool": ["Medical"],
+    "frequency": 5
+  },
   "script": {
     "use": [
       "bandage123_use.js"
@@ -57,67 +59,67 @@ Item type is auto-detected from the JSON fields:
 }
 ```
 
-| Field             | Type     | Default      | Notes                               |
-|-------------------|----------|--------------|-------------------------------------|
-| `full_name`       | string   | `""`         | Display name                        |
-| `description`     | string   | `""`         | Tooltip text                        |
-| `category`        | string   | `""`         | Inventory category                  |
-| `weight`          | float    | `0`          | Weight in kg                        |
-| `value`           | int      | `0`          | Monetary value                      |
-| `tags`            | string   | `""`         | Comma-separated tags                |
-| `sprite_scale`    | float    | `0`          | Sprite render scale                 |
-| `origin_prefab`   | string   | `"geofruit"` | Fallback prefab for sprite size     |
-| `drop_pool`       | string[] | null         | Loot table pools                    |
-| `spawn_frequency` | int      | `0`          | World spawn weight                  |
-| `script`          | object   | null         | Action → script mapping (see below) |
-| `custom_data`     | object   | null         | Arbitrary data for scripts to read  |
+| Field           | Type   | Default      | Notes                                 |
+|-----------------|--------|--------------|---------------------------------------|
+| `full_name`     | string | `""`         | Display name                          |
+| `description`   | string | `""`         | Tooltip text                          |
+| `category`      | string | `""`         | Inventory category                    |
+| `weight`        | float  | `0`          | Weight in kg                          |
+| `value`         | int    | `0`          | Monetary value                        |
+| `tags`          | string | `""`         | Comma-separated tags                  |
+| `sprite`        | object | —            | Sprite-related config (see below)     |
+| `origin_prefab` | string | `"geofruit"` | Fallback prefab for sprite size       |
+| `spawn`         | object | —            | World spawn / loot config (see below) |
+| `script`        | object | null         | Action → script mapping (see below)   |
+| `custom_data`   | object | null         | Arbitrary data for scripts to read    |
 
 > 📝 Item ID is the filename without `.json` (e.g. `bandage123.json` → ID `"bandage123"`). It is NOT a JSON field.
 
 ### Wearable Fields
 
-To make an item wearable, add:
+To make an item wearable, add a `wearable` object:
 
 ```json
 {
-  "wearable": true,
-  "wearable_can_be_held": true,
-  "wear_slot_id": "Head",
-  "desired_wear_limb": "Head",
-  "wearable_armor": 0.3,
-  "wearable_isolation": 0.1,
-  "wearable_hit_durability_loss_multiplier": 1.0,
-  "wearable_sorting_order": 0,
-  "wearable_visual_offset": 5,
-  "worn_sprite_offset_x": 0,
-  "worn_sprite_offset_y": 0,
-  "multi_worn": {
-    "FootF": {
-      "worn_sprite_offset_x": 2,
-      "worn_sprite_offset_y": 1
+  "wearable": {
+    "slot_id": "back",
+    "desired_limb": "Head",
+    "can_be_held": true,
+    "armor": 0.3,
+    "isolation": 0.1,
+    "hit_durability_loss_multiplier": 1.0,
+    "sorting_order": 0,
+    "visual_offset": 5,
+    "sprite_offset_x": 0,
+    "sprite_offset_y": 0,
+    "multi": {
+      "FootF": {
+        "sprite_offset_x": 2,
+        "sprite_offset_y": 1
+      }
     }
   }
 }
 ```
 
-| Field                                     | Type                        | Default | Notes                                                           |
-|-------------------------------------------|-----------------------------|---------|-----------------------------------------------------------------|
-| `wearable`                                | bool                        | `false` | Enables equipping                                               |
-| `wearable_can_be_held`                    | bool                        | `false` | Can also be held in hand when worn                              |
-| `wear_slot_id`                            | string                      | `""`    | Which limb slot to occupy (see valid list below)                |
-| `desired_wear_limb`                       | string                      | `""`    | Preferred limb to equip onto (see valid list below)             |
-| `wearable_armor`                          | float                       | `0`     | Armor protection (0–1)                                          |
-| `wearable_isolation`                      | float                       | `0`     | Thermal isolation (0–1)                                         |
-| `wearable_hit_durability_loss_multiplier` | float                       | `0`     | Durability loss on hit multiplier                               |
-| `wearable_sorting_order`                  | int?                        | null    | Render sorting order for equipped sprite                        |
-| `wearable_visual_offset`                  | int                         | `5`     | Visual layer offset                                             |
-| `worn_sprite_offset_x`                    | float                       | `0`     | Horizontal offset for worn sprite                               |
-| `worn_sprite_offset_y`                    | float                       | `0`     | Vertical offset for worn sprite                                 |
-| `multi_worn`                              | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`) |
+| Field                                      | Type                        | Default | Notes                                                           |
+|--------------------------------------------|-----------------------------|---------|-----------------------------------------------------------------|
+| `wearable.slot_id`                         | string                      | `""`    | Equipment slot identifier (**required**, e.g. `"Head"`, `"back"`) |
+| `wearable.desired_limb`                    | string                      | `""`    | Target limb for worn sprite (**required**, see valid list below) |
+| `wearable.can_be_held`                     | bool                        | `false` | Can also be held in hand when worn                              |
+| `wearable.armor`                           | float                       | `0`     | Armor protection (0–1)                                          |
+| `wearable.isolation`                       | float                       | `0`     | Thermal isolation (0–1)                                         |
+| `wearable.hit_durability_loss_multiplier`  | float                       | `0`     | Durability loss on hit multiplier                               |
+| `wearable.sorting_order`                   | int?                        | null    | Render sorting order for equipped sprite                        |
+| `wearable.visual_offset`                   | int                         | `5`     | Visual layer offset                                             |
+| `wearable.sprite_offset_x`                 | float                       | `0`     | Horizontal offset for worn sprite                               |
+| `wearable.sprite_offset_y`                 | float                       | `0`     | Vertical offset for worn sprite                                 |
+| `wearable.multi`                           | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`) |
 
-> ⚠️ **Valid limb names**: `wear_slot_id` and `desired_wear_limb` must be one of the 15 game limbs:
+> ⚠️ **Valid limb names**: `wearable.desired_limb` must be one of the 15 game limbs (**required**):
 > `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
-> Invalid limb names will trigger a warning at load time and may cause the game to crash on equip.
+> **`slot_id` and `desired_limb` are two independent concepts**: `slot_id` is an equipment slot identifier (e.g. `"Head"`, `"back"`), while `desired_limb` is a body limb name. They cannot be used interchangeably.
+> **If `slot_id` is empty** or **`desired_limb` is empty**, the wearable feature is disabled to prevent CUCoreLib internal NRE crashes.
 > Use `Limb.IsValidLimbName()` to validate names at runtime (see [Limb API](../script-api/limbs.md)).
 
 ### Container Fields
@@ -126,7 +128,7 @@ To make an item a container (backpack, pouch, etc.):
 
 ```json
 {
-  "container_data": {
+  "container": {
     "max_weight": 10,
     "max_weight_per_item": 5,
     "items_visible": true
@@ -140,7 +142,7 @@ To make an item battery-powered:
 
 ```json
 {
-  "battery_data": {
+  "battery": {
     "preset": "medium",
     "spawn_with_battery": true
   }

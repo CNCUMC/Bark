@@ -151,7 +151,7 @@ public static class ItemLoader
         // 自动检测类型：capacity → 液体容器, color 且无 weight → 纯液体, 否则 → 普通物品
         if (obj["capacity"] != null)
         {
-            var ok = LoadLiquidItem(json, itemId, assetsDir, modId, modDir);
+            var ok = LoadLiquidItem(json, itemId, assetsDir, modId, modDir, jsonFile);
             return ok ? new ItemEntry(itemId, "liquid-item") : null;
         }
 
@@ -161,45 +161,132 @@ public static class ItemLoader
             return ok ? new ItemEntry(itemId, "liquid") : null;
         }
 
-        var ok2 = LoadItem(json, itemId, assetsDir, modId, modDir);
+        var ok2 = LoadItem(json, itemId, assetsDir, modId, modDir, jsonFile);
         return ok2 ? new ItemEntry(itemId, "item") : null;
     }
 
     // ---- 普通物品 ----
 
-    private static bool LoadItem(string json, string itemId, string assetsDir, string modId, string modDir)
+    private static bool LoadItem(string json, string itemId, string assetsDir,
+        string modId, string modDir, string jsonFilePath)
     {
-        var def = JsonConvert.DeserializeObject<ItemDef>(json);
+        var def = ParseItemDef(json, out var wasLegacy);
         if (def is null)
             return false;
 
         var info = BuildItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteImportScale);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteDef?.ImportScale ?? 6f);
 
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         StashScript(itemId, def.Script, modId, modDir);
 
+        // 旧格式自动迁移为新格式并覆写 JSON
+        if (wasLegacy)
+            MigrateJsonToNewFormat(jsonFilePath, def);
+
         LogUtil.Info("items.item_registered", itemId, modId);
         return true;
     }
 
+    // ---- 格式检测与转换 ----
+
+    // 检测 JSON 并返回 ItemDef（支持新旧格式），wasLegacy 表示是否从旧格式转换而来
+    private static ItemDef? ParseItemDef(string json, out bool wasLegacy)
+    {
+        wasLegacy = false;
+        var obj = JObject.Parse(json);
+
+        // 新版格式：wearable 是对象、或 battery/container 无 _data 后缀
+        if (IsNewFormat(obj))
+        {
+            var def = obj.ToObject<ItemDef>();
+            if (def != null)
+                return def;
+        }
+
+        // 旧版格式：flat 字段 + _data 后缀
+        wasLegacy = true;
+        var legacy = obj.ToObject<LegacyItemDef>();
+
+        return legacy?.ToItemDef();
+    }
+
+    // 将旧格式 ItemDef 序列化为新格式 JSON 并覆写文件
+    private static void MigrateJsonToNewFormat(string jsonFilePath, object def)
+    {
+        try
+        {
+            var newJson = JsonConvert.SerializeObject(def, Formatting.Indented);
+            // 备份原文件为 .backup
+            var backupPath = jsonFilePath + ".backup";
+            if (!File.Exists(backupPath))
+                File.Copy(jsonFilePath, backupPath);
+            File.WriteAllText(jsonFilePath, newJson);
+            LogUtil.Info("items.format_migrated", Path.GetFileName(jsonFilePath));
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Warning("items.format_migrate_failed", jsonFilePath, ex.Message);
+        }
+    }
+
+    // 判断 JSON 是否使用新版分组格式
+    private static bool IsNewFormat(JObject obj)
+    {
+        // wearable 是对象（非 bool）→ 新版
+        if (obj["wearable"] is JObject)
+            return true;
+        // battery 代替 battery_data → 新版
+        if (obj["battery"] is JObject)
+            return true;
+        // container 代替 container_data → 新版
+        if (obj["container"] is JObject)
+            return true;
+        // sprite 是对象 → 新版（旧版 sprite 字段均为顶层 flat）
+        if (obj["sprite"] is JObject)
+            return true;
+        // decay 是对象 → 新版
+        if (obj["decay"] is JObject)
+            return true;
+        return false;
+    }
+
     // ---- 液体容器 ----
 
-    private static bool LoadLiquidItem(string json, string itemId, string assetsDir, string modId, string modDir)
+    private static bool LoadLiquidItem(string json, string itemId, string assetsDir,
+        string modId, string modDir, string jsonFilePath)
     {
-        var def = JsonConvert.DeserializeObject<LiquidItemDef>(json);
+        var obj = JObject.Parse(json);
+        LiquidItemDef? def;
+        var wasLegacy = false;
+
+        if (IsNewFormat(obj))
+        {
+            def = obj.ToObject<LiquidItemDef>();
+        }
+        else
+        {
+            wasLegacy = true;
+            var legacy = obj.ToObject<LegacyLiquidItemDef>();
+            def = legacy?.ToLiquidItemDef();
+        }
+
         if (def is null)
             return false;
 
         var info = BuildLiquidItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteImportScale);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteDef?.ImportScale ?? 6f);
 
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射
         StashScript(itemId, def.Script, modId, modDir);
+
+        // 旧格式自动迁移为新格式并覆写 JSON
+        if (wasLegacy)
+            MigrateJsonToNewFormat(jsonFilePath, def);
 
         LogUtil.Info("items.item_registered", itemId, modId);
         return true;
@@ -223,42 +310,48 @@ public static class ItemLoader
 
     private static CustomItemInfo BuildItemInfo(ItemDef def, string itemId, string assetsDir)
     {
+        var isWearable = def.Wearable != null;
+        var w = def.Wearable;
+        var spriteDef = def.SpriteDef ?? new SpriteDef();
+        var decay = def.Decay ?? new DecayDef();
+        var spawn = def.Spawn ?? new SpawnDef();
+
         var info = new CustomItemInfo
         {
             fullName = def.FullName,
             description = def.Description,
             category = def.Category,
-            slotRotation = def.SlotRotation,
+            slotRotation = spriteDef.SlotRotation,
             destroyAtZeroCondition = def.DestroyAtZeroCondition,
             weight = def.Weight,
             onlyHoldInHands = def.OnlyHoldInHands,
-            wearable = def.Wearable,
-            wearableCanBeHeld = def.WearableCanBeHeld,
-            wearableArmor = def.WearableArmor,
-            wearableIsolation = def.WearableIsolation,
-            desiredWearLimb = def.DesiredWearLimb,
-            wearSlotId = def.WearSlotId,
-            wearableHitDurabilityLossMultiplier = def.WearableHitDurabilityLossMultiplier,
+            wearable = isWearable,
+            wearableCanBeHeld = w?.CanBeHeld ?? false,
+            wearableArmor = w?.Armor ?? 0f,
+            wearableIsolation = w?.Isolation ?? 0f,
+            desiredWearLimb = w?.DesiredLimb ?? string.Empty,
+            wearSlotId = w?.SlotId ?? string.Empty,
+            wearableHitDurabilityLossMultiplier = w?.HitDurabilityLossMultiplier ?? 0f,
             scaleWeightWithCondition = def.ScaleWeightWithCondition,
-            WearableSortingOrder = def.WearableSortingOrder,
+            WearableSortingOrder = w?.SortingOrder,
             combineable = def.Combinable,
             ignoreDepression = def.IgnoreDepression,
             value = def.Value,
-            wearableVisualOffset = def.WearableVisualOffset,
+            wearableVisualOffset = w?.VisualOffset ?? 5,
             tags = def.Tags,
-            decayInfo = def.DecayInfo,
-            decayMinutes = def.DecayMinutes,
+            decayInfo = decay.Info,
+            decayMinutes = decay.Minutes,
             rec = new Recognition(def.Recognition),
-            SpawnFrequency = def.SpawnFrequency,
-            WorldSpawnPerChunk = def.WorldSpawnPerChunk,
-            SpriteScale = def.SpriteScale,
-            InventoryIconScale = def.InventoryIconScale
+            SpawnFrequency = spawn.Frequency,
+            WorldSpawnPerChunk = spawn.WorldPerChunk,
+            SpriteScale = spriteDef.Scale,
+            InventoryIconScale = spriteDef.InventoryIconScale
         };
 
         // Sprite 缩放维度：优先用 JSON 配置，未配置则回退到 prefab 精灵尺寸
-        if (def.SpriteScaleDimensions is { Width: > 0f, Height: > 0f })
+        if (spriteDef.ScaleDimensions is { Width: > 0f, Height: > 0f })
         {
-            var ssd = def.SpriteScaleDimensions;
+            var ssd = spriteDef.ScaleDimensions;
             info.SpriteScaleDimensions = new SpriteScaleDimensions(ssd.Width, ssd.Height, ssd.ExpandToFirstMet);
         }
         else
@@ -280,35 +373,43 @@ public static class ItemLoader
             }
         }
 
-        // 穿戴贴图: Assets/Item/{itemId}_worn.png
-        info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), def.SpriteImportScale);
-        if (def.Wearable && info.WornSprite == null)
+        // 穿戴贴图: Assets/Item/{itemId}_worn.png，缺失则回退到主贴图
+        var importScale = spriteDef.ImportScale;
+        info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), importScale);
+        if (isWearable && info.WornSprite == null)
         {
-            WearableWithoutWornSprite.Add(itemId);
-            LogUtil.Warning("item_loader.wearable_no_worn_sprite",
-                def.FullName,
-                $"Assets/Item/{itemId}_worn.png");
+            // 回退：使用主贴图作为穿戴贴图
+            info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + ".png"), importScale);
+            if (info.WornSprite == null)
+            {
+                // 两者都不存在 → 加入黑名单，阻止装备
+                WearableWithoutWornSprite.Add(itemId);
+                LogUtil.Warning("item_loader.wearable_no_worn_sprite",
+                    def.FullName,
+                    $"Assets/Item/{itemId}_worn.png",
+                    $"Assets/Item/{itemId}.png");
+            }
         }
 
-        info.WornSpriteOffset = new Vector2(def.WornSpriteOffsetX, def.WornSpriteOffsetY);
+        info.WornSpriteOffset = new Vector2(w?.SpriteOffsetX ?? 0f, w?.SpriteOffsetY ?? 0f);
 
         // MultiWorn: Assets/Item/{itemId}_mw_{key}.png
-        if (def.MultiWorn != null)
-            foreach (var kv in def.MultiWorn)
+        if (w?.Multi != null)
+            foreach (var kv in w.Multi)
             {
                 var multiSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_mw_" + kv.Key + ".png"),
-                    def.SpriteImportScale);
+                    importScale);
                 if (multiSprite == null) continue;
                 info.MultiWornSprites[kv.Key] = multiSprite;
                 info.MultiWornSpriteOffsets[kv.Key] = new Vector2(
-                    kv.Value.WornSpriteOffsetX, kv.Value.WornSpriteOffsetY);
+                    kv.Value.SpriteOffsetX, kv.Value.SpriteOffsetY);
             }
 
         // DropPool
-        if (def.DropPool is { Length: > 0 })
+        if (spawn.DropPool is { Length: > 0 })
             try
             {
-                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", def.DropPool));
+                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", spawn.DropPool));
             }
             catch
             {
@@ -316,10 +417,10 @@ public static class ItemLoader
             }
 
         // 腐烂速度
-        if (def.RotSpeed.HasValue)
-            info.rotSpeed = def.RotSpeed.Value;
-        else if (def.DecayMinutes > 0)
-            info.rotSpeed = 1f / def.DecayMinutes;
+        if (decay.RotSpeed.HasValue)
+            info.rotSpeed = decay.RotSpeed.Value;
+        else if (decay.Minutes > 0)
+            info.rotSpeed = 1f / decay.Minutes;
 
         // 制作特性
         if (def.Qualities != null)
@@ -331,9 +432,9 @@ public static class ItemLoader
             ];
 
         // 容器
-        if (def.ContainerData != null)
+        if (def.Container != null)
         {
-            var cd = def.ContainerData;
+            var cd = def.Container;
             info.Container = new ContainerProperties
             {
                 Capacity = cd.MaxWeight,
@@ -345,8 +446,8 @@ public static class ItemLoader
         }
 
         // 电池
-        if (def.BatteryData == null) return FinalizeItemInfo(info, def);
-        var bd = def.BatteryData;
+        if (def.Battery == null) return FinalizeItemInfo(info, def);
+        var bd = def.Battery;
         info.Battery = new BatteryProperties
         {
             SpawnWithBattery = bd.SpawnWithBattery
@@ -390,11 +491,32 @@ public static class ItemLoader
                 info.usableOnLimb = true;
         }
 
-        // 校验 desired_wear_limb 是否为游戏已知肢体，防止装备到无效肢体导致 Body.WearWearable NRE
-        if (!string.IsNullOrEmpty(def.DesiredWearLimb) && !LimbUtil.IsValidLimbName(def.DesiredWearLimb))
+        // 校验 wearable 字段
+        if (def.Wearable == null) return info;
+
+        // wear_slot_id 是装备槽位标识（如 "back", "head"），为空则无法装备
+        if (string.IsNullOrEmpty(def.Wearable.SlotId))
         {
             LogUtil.Warning("item_event.wear_slot_invalid",
-                def.DesiredWearLimb,
+                "<Null>",
+                def.FullName);
+            info.wearable = false;
+            LogUtil.Warning("items.wearable_disabled", def.FullName);
+        }
+
+        // desired_wear_limb 是 CCL 穿戴贴图的目标肢体，为空则无法装备
+        if (string.IsNullOrEmpty(def.Wearable.DesiredLimb))
+        {
+            LogUtil.Warning("item_event.wear_slot_invalid",
+                "<Null>",
+                def.FullName);
+            info.wearable = false;
+            LogUtil.Warning("items.wearable_disabled", def.FullName);
+        }
+        else if (!LimbUtil.IsValidLimbName(def.Wearable.DesiredLimb))
+        {
+            LogUtil.Warning("item_event.wear_slot_invalid",
+                def.Wearable.DesiredLimb,
                 def.FullName);
         }
 
@@ -411,7 +533,8 @@ public static class ItemLoader
         info.autoFill = def.AutoFill;
 
         // 液体填充贴图: Assets/Item/{itemId}_fill.png
-        info.LiquidMask = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_fill.png"), def.SpriteImportScale);
+        var importScale = def.SpriteDef?.ImportScale ?? 6f;
+        info.LiquidMask = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_fill.png"), importScale);
 
         // 默认液体
         if (def.DefaultLiquid is { Count: > 0 })

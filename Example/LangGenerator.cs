@@ -474,16 +474,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "无法装备 '{0}'：{1}_worn.png 不存在，已阻止装备防止崩溃",
             "無法裝備 '{0}'：{1}_worn.png 不存在，已阻止裝備防止崩潰",
             "Невозможно надеть '{0}': {1}_worn.png не найден, надевание заблокировано");
-        Log("item_event.wear_blocked_null_sprite",
-            "Cannot equip '{0}': WornSprite is null (check {1}_worn.png)",
-            "无法装备 '{0}'：WornSprite 为空（请检查 {1}_worn.png）",
-            "無法裝備 '{0}'：WornSprite 為空（請檢查 {1}_worn.png）",
-            "Невозможно надеть '{0}': WornSprite равен null (проверьте {1}_worn.png)");
         Log("item_event.wear_slot_invalid",
             "Wear limb '{0}' for '{1}' is not a valid game limb. Valid: Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
             "物品 '{1}' 的穿戴肢体 '{0}' 不是有效的游戏肢体。有效值：Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
             "物品 '{1}' 的穿戴肢體 '{0}' 不是有效的遊戲肢體。有效值：Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB",
             "Лимб '{0}' для '{1}' не является допустимым. Допустимые: Head, UpTorso, DownTorso, UpArmF, DownArmF, HandF, UpArmB, DownArmB, HandB, ThighF, CrusF, FootF, ThighB, CrusB, FootB");
+        Log("item_event.wear_blocked_null_sprite",
+            "Cannot equip '{0}': WornSprite is null on game ItemStats (check {1}_worn.png)",
+            "无法装备 '{0}'：游戏内 WornSprite 为空（请检查 {1}_worn.png）",
+            "無法裝備 '{0}'：遊戲內 WornSprite 為空（請檢查 {1}_worn.png）",
+            "Невозможно надеть '{0}': WornSprite равен null в ItemStats (проверьте {1}_worn.png)");
         Log("item_event.wear_exception",
             "Equip '{0}' ({1}) crashed: {2}: {3}",
             "装备 '{0}' ({1}) 异常：{2}：{3}",
@@ -581,6 +581,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "液体 '{0}' 已注册 (模组: {1})",
             "液體 '{0}' 已註冊 (模組: {1})",
             "Жидкость '{0}' зарегистрирована (мод: {1})");
+        Log("items.format_migrated",
+            "Item JSON '{0}' migrated to new grouped format (backup saved as .backup)",
+            "物品 JSON '{0}' 已迁移为新分组格式（原文件备份为 .backup）",
+            "物品 JSON '{0}' 已遷移為新分組格式（原檔案備份為 .backup）",
+            "JSON предмета '{0}' перенесён в новый сгруппированный формат (резервная копия сохранена)");
+        Log("items.format_migrate_failed",
+            "Failed to migrate item JSON '{0}' to new format: {1}",
+            "物品 JSON '{0}' 迁移为新格式失败：{1}",
+            "物品 JSON '{0}' 遷移為新格式失敗：{1}",
+            "Не удалось перенести JSON предмета '{0}' в новый формат: {1}");
+        Log("items.wearable_disabled",
+            "Wearable disabled for '{0}' because wear_slot_id is invalid or empty",
+            "已禁用 '{0}' 的可穿戴属性，因为 wear_slot_id 无效或为空",
+            "已禁用 '{0}' 的可穿戴屬性，因為 wear_slot_id 無效或為空",
+            "Надевание для '{0}' отключено: wear_slot_id недействителен или пуст");
         Log("items.loaded_count",
             "Mod '{0}' loaded {1} custom item(s)",
             "模组 '{0}' 加载了 {1} 个自定义物品",

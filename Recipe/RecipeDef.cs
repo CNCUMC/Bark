@@ -31,7 +31,7 @@ public class RecipeDef
     [JsonProperty("is_repair")] public bool IsRepair;
 
     // 材料列表
-    [JsonProperty("items")] public List<RecipeIngredientDef> Items;
+    [JsonProperty("items")] public List<RecipeIngredientDef> Items = null!;
 
     // 是否替换原版同名合成表
     [JsonProperty("replace_original_recipe")]

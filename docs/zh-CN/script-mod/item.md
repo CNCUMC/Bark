@@ -39,15 +39,17 @@ ScriptMod/Mods/
 {
   "full_name": "绷带",
   "description": "止血并治疗轻伤。",
-  "category": "医疗",
+  "category": "Medical",
   "weight": 0.2,
   "value": 15,
-  "tags": "医疗,绷带",
-  "sprite_scale": 1.0,
-  "drop_pool": [
-    "Medical"
-  ],
-  "spawn_frequency": 5,
+  "tags": "medical,bandage",
+  "sprite": {
+    "scale": 1.0
+  },
+  "spawn": {
+    "drop_pool": ["Medical"],
+    "frequency": 5
+  },
   "script": {
     "use": [
       "bandage123_use.js"
@@ -64,10 +66,9 @@ ScriptMod/Mods/
 | `weight`          | float    | `0`          | 重量（千克）                   |
 | `value`           | int      | `0`          | 货币价值                       |
 | `tags`            | string   | `""`         | 逗号分隔的标签                 |
-| `sprite_scale`    | float    | `0`          | 精灵渲染缩放                   |
+| `sprite`          | object   | —            | 精灵图相关配置（见下方）       |
 | `origin_prefab`   | string   | `"geofruit"` | 回退用的预制体（用于精灵尺寸） |
-| `drop_pool`       | string[] | null         | 战利品池                       |
-| `spawn_frequency` | int      | `0`          | 世界生成权重                   |
+| `spawn`           | object   | —            | 世界生成/掉落配置（见下方）    |
 | `script`          | object   | null         | 动作 → 脚本映射（见下文）      |
 | `custom_data`     | object   | null         | 自定义数据，供脚本读取         |
 
@@ -75,25 +76,26 @@ ScriptMod/Mods/
 
 ### 可穿戴字段
 
-让物品可穿戴，添加：
+让物品可穿戴，添加 `wearable` 对象：
 
 ```json
 {
-  "wearable": true,
-  "wearable_can_be_held": true,
-  "wear_slot_id": "Head",
-  "desired_wear_limb": "Head",
-  "wearable_armor": 0.3,
-  "wearable_isolation": 0.1,
-  "wearable_hit_durability_loss_multiplier": 1.0,
-  "wearable_sorting_order": 0,
-  "wearable_visual_offset": 5,
-  "worn_sprite_offset_x": 0,
-  "worn_sprite_offset_y": 0,
-  "multi_worn": {
-    "FootF": {
-      "worn_sprite_offset_x": 2,
-      "worn_sprite_offset_y": 1
+  "wearable": {
+    "slot_id": "back",
+    "desired_limb": "Head",
+    "can_be_held": true,
+    "armor": 0.3,
+    "isolation": 0.1,
+    "hit_durability_loss_multiplier": 1.0,
+    "sorting_order": 0,
+    "visual_offset": 5,
+    "sprite_offset_x": 0,
+    "sprite_offset_y": 0,
+    "multi": {
+      "FootF": {
+        "sprite_offset_x": 2,
+        "sprite_offset_y": 1
+      }
     }
   }
 }
@@ -101,22 +103,22 @@ ScriptMod/Mods/
 
 | 字段                                      | 类型                    | 默认值  | 说明                                                |
 |-------------------------------------------|-------------------------|---------|-----------------------------------------------------|
-| `wearable`                                | bool                    | `false` | 是否可装备                                          |
-| `wearable_can_be_held`                    | bool                    | `false` | 装备后是否仍可手持                                  |
-| `wear_slot_id`                            | string                  | `""`    | 占用哪个肢体槽位（见下方有效值列表）                |
-| `desired_wear_limb`                       | string                  | `""`    | 优先装备到哪个肢体（见下方有效值列表）              |
-| `wearable_armor`                          | float                   | `0`     | 护甲值（0–1）                                       |
-| `wearable_isolation`                      | float                   | `0`     | 保暖值（0–1）                                       |
-| `wearable_hit_durability_loss_multiplier` | float                   | `0`     | 受击耐久损失倍率                                    |
-| `wearable_sorting_order`                  | int?                    | null    | 装备贴图渲染排序                                    |
-| `wearable_visual_offset`                  | int                     | `5`     | 视觉层级偏移                                        |
-| `worn_sprite_offset_x`                    | float                   | `0`     | 装备贴图水平偏移                                    |
-| `worn_sprite_offset_y`                    | float                   | `0`     | 装备贴图垂直偏移                                    |
-| `multi_worn`                              | object（肢体名 → 偏移） | null    | 额外肢体贴图及偏移（使用 `{itemId}_mw_{肢体}.png`） |
+| `wearable.slot_id`                        | string                  | `""`    | 装备槽位标识（**必填**，如 `"Head"`, `"back"` 等）  |
+| `wearable.desired_limb`                   | string                  | `""`    | 穿戴贴图目标肢体（**必填**，见下方有效值列表）      |
+| `wearable.can_be_held`                    | bool                    | `false` | 装备后是否仍可手持                                  |
+| `wearable.armor`                          | float                   | `0`     | 护甲值（0–1）                                       |
+| `wearable.isolation`                      | float                   | `0`     | 保暖值（0–1）                                       |
+| `wearable.hit_durability_loss_multiplier` | float                   | `0`     | 受击耐久损失倍率                                    |
+| `wearable.sorting_order`                  | int?                    | null    | 装备贴图渲染排序                                    |
+| `wearable.visual_offset`                  | int                     | `5`     | 视觉层级偏移                                        |
+| `wearable.sprite_offset_x`                | float                   | `0`     | 装备贴图水平偏移                                    |
+| `wearable.sprite_offset_y`                | float                   | `0`     | 装备贴图垂直偏移                                    |
+| `wearable.multi`                          | object（肢体名 → 偏移） | null    | 额外肢体贴图及偏移（使用 `{itemId}_mw_{肢体}.png`） |
 
-> ⚠️ **有效肢体名**：`wear_slot_id` 和 `desired_wear_limb` 必须是游戏已知的 15 个肢体之一：
+> ⚠️ **有效肢体名**：`wearable.desired_limb` 必须设为游戏已知的 15 个肢体之一（**必填**）：
 > `Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`。
-> 无效肢体名在加载时触发警告，并可能导致装备时游戏崩溃。
+> **`slot_id` 和 `desired_limb` 是两个独立的概念**：`slot_id` 是装备槽标识（如 `"Head"`, `"back"`），`desired_limb` 是身体肢体名。两者不能混用。
+> **`slot_id` 为空** 或 **`desired_limb` 为空**时，物品的可穿戴属性会被禁用，防止 CUCoreLib 内部 NRE 崩溃。
 > 可使用 `Limb.IsValidLimbName()` 在运行时校验（参见 [Limb API](../script-api/limbs.md)）。
 
 ### 容器字段
@@ -125,7 +127,7 @@ ScriptMod/Mods/
 
 ```json
 {
-  "container_data": {
+  "container": {
     "max_weight": 10,
     "max_weight_per_item": 5,
     "items_visible": true
@@ -139,7 +141,7 @@ ScriptMod/Mods/
 
 ```json
 {
-  "battery_data": {
+  "battery": {
     "preset": "medium",
     "spawn_with_battery": true
   }

@@ -46,9 +46,6 @@ public static class ItemEventListener
         // 尝试 Harmony 补丁攻击方法
         TryPatchItemAttack();
 
-        // 尝试 Harmony 补丁 WearWearable：防止缺 WornSprite 导致 NRE
-        TryPatchWearWearable();
-
         // 启动轮询检测
         _useCoroutine ??= runner.StartCoroutine(PollItemUse());
         _equipCoroutine ??= runner.StartCoroutine(PollEquipChange());
@@ -343,94 +340,6 @@ public static class ItemEventListener
     {
         PatchMethod(typeof(Body), "Attack", nameof(OnItemAttackHarmony),
             "Bark.ItemAttackEventListener");
-    }
-
-    // Harmony 前缀 + 终结器：全方位拦截 WearWearable 可能出现的 NRE
-    // 前缀：多重空值检查，提前阻断已知危险情况
-    // 终结器：兜底捕获原方法内部抛出的任何异常，记录日志并吞掉，防止游戏崩溃
-    private static void TryPatchWearWearable()
-    {
-        var method = AccessTools.Method(typeof(Body), "WearWearable");
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony("Bark.WearWearableGuard");
-            harmony.Patch(method,
-                new HarmonyMethod(typeof(ItemEventListener), nameof(OnWearWearablePrefix)),
-                null,
-                null,
-                null,
-                new HarmonyMethod(typeof(ItemEventListener), nameof(OnWearWearableFinalizer)));
-            LogUtil.Info("item_event.patch_use_ok", "Body.WearWearable");
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    private static bool OnWearWearablePrefix(Item item, Body __instance)
-    {
-        // 物品为空
-        if (item == null)
-        {
-            LogUtil.Warning("item_event.wear_blocked_null_item");
-            return false;
-        }
-
-        // 物品 ID 为空
-        if (string.IsNullOrEmpty(item.id))
-        {
-            LogUtil.Warning("item_event.wear_blocked_empty_id");
-            return false;
-        }
-
-        // Body 为空
-        if (__instance == null)
-        {
-            LogUtil.Warning("item_event.wear_blocked_null_body", item.id);
-            return false;
-        }
-
-        // 已知缺贴图的 wearable → 阻止
-        if (ItemLoader.WearableWithoutWornSprite.Contains(item.id))
-        {
-            LogUtil.Warning("item_event.wear_blocked_no_sprite",
-                item.id,
-                item.fullName ?? item.id);
-            return false;
-        }
-
-        // 运行时检查：_worn 文件可能存在但实际 Sprite 加载失败为 null
-        try
-        {
-            var wornSprite = Traverse.Create(item).Property("stats")?.Property("WornSprite")?.GetValue();
-            if (wornSprite == null)
-            {
-                LogUtil.Warning("item_event.wear_blocked_null_sprite",
-                    item.id,
-                    item.fullName ?? item.id);
-                return false;
-            }
-        }
-        catch
-        {
-            // Traverse 失败（属性名不对/不存在）则放行，让游戏自己处理
-        }
-
-        return true;
-    }
-
-    // 终结器：兜底吞异常，防止 WearWearable 内部 NRE 导致游戏崩溃
-    private static Exception? OnWearWearableFinalizer(Item item, Exception __exception)
-    {
-        LogUtil.Error("item_event.wear_exception",
-            item.id ?? "unknown",
-            item.fullName ?? "Unknown",
-            __exception.GetType().Name,
-            __exception.Message);
-        return null; // 吞掉异常
     }
 
     // Harmony 补丁回调：统一处理 Item/Body 攻击方法
