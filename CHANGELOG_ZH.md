@@ -29,21 +29,14 @@
   `GetAllLimbNames()`（`[ScriptMethod]` — 返回全部有效肢体名的 `List<string>`）。这些 API 替代了
   各处的硬编码肢体名列表，C# 和脚本侧统一使用同一数据源。
 
-- **可穿戴物品 `desired_wear_limb` 校验**：`ItemLoader.FinalizeItemInfo` 现在通过
-  `LimbUtil.IsValidLimbName()` 校验 `desired_wear_limb`。无效肢体名在加载时触发警告（locale key
-  `item_event.wear_slot_invalid`），在装备崩溃前即可发现配置错误。
+- **可穿戴物品校验**：`ItemLoader.FinalizeItemInfo` 现在通过 `LimbUtil.IsValidLimbName()` 校验
+  `wearable.desired_limb`。**`slot_id` 和 `desired_limb` 均为必填**——缺失任一字段则禁用可穿戴属性，
+  防止 CUCoreLib 内部 NRE。`slot_id` 是装备槽标识符（如 `"back"`、`"Head"`），`desired_limb` 必须
+  为游戏 15 个肢体名之一。
 
 - **装备贴图自动回退**：当可穿戴物品缺少 `{itemId}_worn.png` 时，Bark 自动使用物品主贴图
   （`{itemId}.png`）作为穿着贴图。仅当两者都不存在时才将物品加入 `WearableWithoutWornSprite`
   黑名单，让 `_worn.png` 对大多数物品真正可选。
-
-- **WearWearable 三层防线**（`ItemEventListener`）：`Body.WearWearable` 的 Harmony 补丁现在包含：
-  1. **Prefix 空值检查** — `item`、`item.id` 或 `Body` 为 null 时阻止装备
-  2. **Prefix 运行时贴图检查** — 通过 `Traverse` 读取 `item.stats.WornSprite`，为 null 时阻止
-  3. **Finalizer 兜底吞异常** — 捕获 `WearWearable` 内部任何异常，记录错误日志后返回 null，
-     防止游戏崩溃
-
-  这避免了因无效 `wear_slot_id`、缺失贴图等运行时问题导致的 NullReferenceException 崩溃。
 
 ### Changed
 
@@ -64,6 +57,9 @@
   `EventRegistry.ScanAndRegister()` → `ScriptEventScanner.Scan()` → `ScriptModLoader.LoadAll()` 顺序
   编排子系统初始化。`OnDestroy()` 统一停止所有轮询监听器。
 
+- **物品 JSON 格式整理**：`wearable.slot_id` 是装备槽位标识符，不是身体肢体名。`wearable.desired_limb`
+  现为可穿戴物品**必填字段**。更新了中英文文档。
+
 ### Fixed
 
 - `EventHandlers.OnMainMenuLoaded()` 为 `private static`，但 `EventRegistry.ScanAndRegister()` 只扫描
@@ -75,3 +71,7 @@
 - `ItemLoader.FinalizeItemInfo` 中的 `LimbUtil.GetAllLimbs().Contains(limbName)` 将
   `List<Limb>` 与 `string` 比较，始终返回 `false`，导致每个有 `desired_wear_limb` 的物品
   都触发虚假警告。已替换为 `LimbUtil.IsValidLimbName()`。
+
+- **可穿戴物品装备 NullReferenceException**：删除了 Bark 对 `Body.WearWearable` 的冗余 Harmony 补丁
+  （CUCoreLib 已自行 patch 此方法）。修正了 `FinalizeItemInfo` 中将 `slot_id` 错误校验为肢体名的问题，
+  此前非肢体名槽位（如 `"back"`）无法装备。

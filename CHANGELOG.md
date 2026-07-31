@@ -32,22 +32,14 @@ to [Semantic Versioning](https://semver.org/).
   `GetAllLimbNames()` (`[ScriptMethod]` — returns all valid limb names as a `List<string>`). These replace
   hard-coded limb-name lists with a single source of truth usable from both C# and scripts.
 
-- **Wearable item `desired_wear_limb` validation**: `ItemLoader.FinalizeItemInfo` now validates
-  `desired_wear_limb` against `LimbUtil.IsValidLimbName()`. Invalid limb names trigger a warning at load time
-  (locale key `item_event.wear_slot_invalid`), catching misconfigured items before they can crash the game.
+- **Wearable item validation**: `ItemLoader.FinalizeItemInfo` now validates `wearable.desired_limb` against
+  `LimbUtil.IsValidLimbName()`. **Both `slot_id` and `desired_limb` are required** — missing `slot_id`
+  or `desired_limb` disables the wearable to prevent CUCoreLib internal NRE. `slot_id` is an equipment
+  slot identifier (e.g. `"back"`, `"Head"`), while `desired_limb` must be one of the 15 game limb names.
 
 - **Worn sprite automatic fallback**: when `{itemId}_worn.png` is missing for a wearable item, Bark now
   falls back to the main item texture (`{itemId}.png`) as the worn sprite. The `WearableWithoutWornSprite`
   blacklist is only populated when both are absent, making `_worn.png` truly optional for most items.
-
-- **WearWearable 3-layer defense** (`ItemEventListener`): the `Body.WearWearable` Harmony patch now has:
-  1. **Prefix null checks** — blocks equip when `item`, `item.id`, or `Body` is null
-  2. **Prefix runtime sprite check** — reads `item.stats.WornSprite` via `Traverse` and blocks if null
-  3. **Finalizer exception swallowing** — catches any exception thrown inside `WearWearable`, logs an error,
-     and returns null to prevent a game crash
-
-  This prevents NullReferenceException crashes from invalid `wear_slot_id`, missing sprites, or other
-  runtime issues.
 
 ### Changed
 
@@ -68,6 +60,9 @@ to [Semantic Versioning](https://semver.org/).
   `EventRegistry.ScanAndRegister()` → `ScriptEventScanner.Scan()` → `ScriptModLoader.LoadAll()` with
   clear subsystem initialization ordering. `OnDestroy()` stops all polling listeners cleanly.
 
+- **Item JSON format clarified**: `wearable.slot_id` is an equipment slot identifier, not a body limb name.
+  `wearable.desired_limb` is now **required** for all wearable items. Updated zh-CN and en-US documentation.
+
 ### Fixed
 
 - `EventHandlers.OnMainMenuLoaded()` was `private static` but `EventRegistry.ScanAndRegister()` only
@@ -80,3 +75,7 @@ to [Semantic Versioning](https://semver.org/).
 - `LimbUtil.GetAllLimbs().Contains(limbName)` in `ItemLoader.FinalizeItemInfo` was comparing a
   `List<Limb>` against a `string`, always returning `false` and spurious warnings for every item with
   `desired_wear_limb`. Replaced with `LimbUtil.IsValidLimbName()`.
+
+- **Wearable item equip NullReferenceException**: removed Bark's redundant Harmony patch on `Body.WearWearable`
+  (CUCoreLib already patches this method internally). Fixed `FinalizeItemInfo` validation that incorrectly
+  treated `slot_id` as a limb name, which blocked equipment to non-limb slots (e.g. `"back"`).
