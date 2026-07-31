@@ -21,6 +21,11 @@ public static class ItemScriptRunner
         EventUtil.On<ItemUnequipEvent>(OnItemUnequip, Guid);
         EventUtil.On<ItemLimbUseEvent>(OnItemLimbUse, Guid);
         EventUtil.On<ItemAttackEvent>(OnItemAttack, Guid);
+        EventUtil.On<ItemWearAttackEvent>(OnItemWearAttack, Guid);
+        EventUtil.On<ItemWearDamageEvent>(OnItemWearDamage, Guid);
+        EventUtil.On<ItemDurabilityEvent>(OnItemDurability, Guid);
+        EventUtil.On<ItemCapacityEvent>(OnItemCapacity, Guid);
+        EventUtil.On<ItemChargeEvent>(OnItemCharge, Guid);
     }
 
     // 停止监听（卸载时调用）
@@ -29,29 +34,50 @@ public static class ItemScriptRunner
         EventUtil.UnregisterAll(Guid);
     }
 
+    // ---- 日志输出（一次性写入避免重复 string.Format） ----
+    private static void LogExecution(ItemScriptEntry entry, List<string> scripts, string action, string itemId)
+    {
+        if (scripts.Count == 0) return;
+        var modName = $"{entry.ModId}|{itemId}|{action}";
+        var paths = string.Join(", ", scripts);
+        LogUtil.Info($"[ItemScriptRunner] {modName}: {paths}");
+    }
+
     private static void OnItemUse(ItemUseEvent evt)
     {
-        ExecuteScripts(evt.ItemId, evt.Item, "use", e => e.Use);
+        ExecuteUseScripts(evt.ItemId, evt.Item, "use", e => e.GetUseScriptsForBackpack());
     }
 
     private static void OnItemHandUse(ItemHandUseEvent evt)
     {
-        ExecuteScripts(evt.ItemId, evt.Item, "use_in_hand", e => e.UseInHand);
+        ExecuteUseScripts(evt.ItemId, evt.Item, "use_in_hand", e => e.GetUseScriptsForHand());
     }
 
     private static void OnItemEquip(ItemEquipEvent evt)
     {
-        ExecuteScripts(evt.ItemId, evt.Item, "equip", e => e.Equip);
+        ExecuteScripts(evt.ItemId, evt.Item, "equip", e => e.WearEquip);
     }
 
     private static void OnItemUnequip(ItemUnequipEvent evt)
     {
-        ExecuteScripts(evt.ItemId, evt.Item, "unequip", e => e.Unequip);
+        ExecuteScripts(evt.ItemId, evt.Item, "unequip", e => e.WearUnequip);
     }
 
     private static void OnItemLimbUse(ItemLimbUseEvent evt)
     {
-        ExecuteScripts(evt.ItemId, evt.Item, "use_on_limb", e => e.UseOnLimb);
+        if (string.IsNullOrEmpty(evt.ItemId))
+            return;
+
+        var entry = ItemScriptRegistry.GetEntry(evt.ItemId);
+        if (entry is null)
+            return;
+
+        // script.use_on_limb scripts
+        ExecuteList(entry, evt.ItemId, evt.Item, "use_on_limb", entry.UseOnLimb);
+
+        // use 数组里的 limb_slot 匹配脚本
+        var limbScripts = entry.GetUseScriptsForLimb(evt.LimbName);
+        ExecuteList(entry, evt.ItemId, evt.Item, "use_limb_slot", limbScripts);
     }
 
     private static void OnItemAttack(ItemAttackEvent evt)
@@ -59,8 +85,81 @@ public static class ItemScriptRunner
         ExecuteScripts(evt.ItemId, evt.Item, "attack", e => e.Attack);
     }
 
+    private static void OnItemWearAttack(ItemWearAttackEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, evt.Item, "wear_attack", e => e.WearAttack);
+    }
+
+    private static void OnItemWearDamage(ItemWearDamageEvent evt)
+    {
+        ExecuteScripts(evt.ItemId, evt.Item, "wear_damage", e => e.WearDamage);
+    }
+
+    private static void OnItemDurability(ItemDurabilityEvent evt)
+    {
+        // 向脚本传递当前耐久值和触发阈值
+        ItemScriptContext.CurrentTriggerOperator = evt.Operator;
+        ItemScriptContext.CurrentTriggerValue = evt.CurrentValue;
+        ItemScriptContext.CurrentTriggerThreshold = evt.ThresholdValue;
+        try
+        {
+            ExecuteScripts(evt.ItemId, evt.Item, "durability", e =>
+                e.Durability.SelectMany(t => t.Script).ToList());
+        }
+        finally
+        {
+            ItemScriptContext.ClearTriggerContext();
+        }
+    }
+
+    private static void OnItemCapacity(ItemCapacityEvent evt)
+    {
+        ItemScriptContext.CurrentTriggerOperator = evt.Operator;
+        ItemScriptContext.CurrentTriggerValue = evt.CurrentValue;
+        ItemScriptContext.CurrentTriggerThreshold = evt.ThresholdValue;
+        try
+        {
+            ExecuteScripts(evt.ItemId, evt.Item, "capacity", e =>
+                e.CapacityTrigger.SelectMany(t => t.Script).ToList());
+        }
+        finally
+        {
+            ItemScriptContext.ClearTriggerContext();
+        }
+    }
+
+    private static void OnItemCharge(ItemChargeEvent evt)
+    {
+        ItemScriptContext.CurrentTriggerOperator = evt.Operator;
+        ItemScriptContext.CurrentTriggerValue = evt.CurrentValue;
+        ItemScriptContext.CurrentTriggerThreshold = evt.ThresholdValue;
+        try
+        {
+            ExecuteScripts(evt.ItemId, evt.Item, "charge", e =>
+                e.ChargeTrigger.SelectMany(t => t.Script).ToList());
+        }
+        finally
+        {
+            ItemScriptContext.ClearTriggerContext();
+        }
+    }
+
+    // 使用 use 数组匹配的脚本执行
+    private static void ExecuteUseScripts(string itemId, Item? item, string action,
+        Func<ItemScriptEntry, List<string>> getScriptList)
+    {
+        if (string.IsNullOrEmpty(itemId))
+            return;
+
+        var entry = ItemScriptRegistry.GetEntry(itemId);
+        if (entry is null)
+            return;
+
+        var scripts = getScriptList(entry);
+        ExecuteList(entry, itemId, item, action, scripts);
+    }
+
     // 从 ItemScriptRegistry 查找物品脚本，通过 ScriptUtil 按顺序执行。
-    // item: 当前物品实例（可为 null）；action: 触发动作名，传入脚本的 main(itemId, item, action)
     private static void ExecuteScripts(string itemId, Item? item, string action,
         Func<ItemScriptEntry, List<string>> getScriptList)
     {
@@ -72,6 +171,12 @@ public static class ItemScriptRunner
             return;
 
         var scripts = getScriptList(entry);
+        ExecuteList(entry, itemId, item, action, scripts);
+    }
+
+    private static void ExecuteList(ItemScriptEntry entry, string itemId, Item? item, string action,
+        List<string> scripts)
+    {
         if (scripts.Count == 0)
             return;
 

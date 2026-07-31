@@ -117,7 +117,7 @@ ScriptMod/Mods/
 
 > ⚠️ **有效肢体名**：`wearable.desired_limb` 必须设为游戏已知的 15 个肢体之一（**必填**）：
 > `Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`。
-> **`slot_id` 和 `desired_limb` 是两个独立的概念**：`slot_id` 是装备槽标识（如 `"Head"`, `"back"`），`desired_limb` 是身体肢体名。两者不能混用。
+> **`slot_id` 和 `desired_limb` 是两个独立的概念**：`slot_id` 是装备槽标识（如 `"back"`），`desired_limb` 是身体肢体名。两者不能混用。
 > **`slot_id` 为空** 或 **`desired_limb` 为空**时，物品的可穿戴属性会被禁用，防止 CUCoreLib 内部 NRE 崩溃。
 > 可使用 `Limb.IsValidLimbName()` 在运行时校验（参见 [Limb API](../script-api/limbs.md)）。
 
@@ -195,19 +195,109 @@ ScriptMod/Mods/
 
 ## 物品脚本
 
-`script` 字段将脚本文件绑定到物品动作上。当动作触发时，Bark 依次执行每个脚本并调用其中的 `main(itemId, item, action)`
-函数。
+`script` 字段绑定被动检测脚本和条件触发器。`use` 字段（顶层，与 `wearable` 互斥）绑定主动使用脚本。`wearable` 内可绑定装备相关脚本。
 
-### 支持的动作
+### script（被动检测 + 条件触发器）
 
-| 键            | 触发时机             |
-|---------------|----------------------|
-| `use`         | 从背包中使用         |
-| `use_in_hand` | 手持时使用           |
-| `equip`       | 装备（穿上）         |
-| `unequip`     | 脱卸（取下）         |
-| `use_on_limb` | 对某个肢体使用       |
-| `attack`      | 用此物品进行近战攻击 |
+| 键            | 类型                        | 触发时机                       |
+|---------------|-----------------------------|--------------------------------|
+| `attack`      | string[]                    | 手持此物品近战攻击             |
+| `use_on_limb` | string[]                    | 对某个肢体使用                 |
+| `in_backpack` | string[]                    | 物品在玩家背包中（持续轮询）   |
+| `in_hand`     | string[]                    | 物品被拿在手上                 |
+| `not_in_hand` | string[]                    | 物品从手上放下                 |
+| `durability`  | ConditionTriggerDef[]       | 耐久值越过阈值时（见下方）     |
+
+### use（顶层，主动使用）
+
+`use` 是一个数组，每项指定使用来源和脚本。`use` 与 `wearable` 互斥 —— 一个物品要么可穿戴，要么可使用，不能同时。
+
+```json
+{
+  "full_name": "医疗包",
+  "category": "Medical",
+  "weight": 0.3,
+  "use": [
+    { "slot": [0, 1, 2, 3],     "script": ["medkit_use.js"] },
+    { "slot": ["hand"],          "script": ["medkit_hand.js"] },
+    { "limb_slot": ["Head","HandF"], "script": ["medkit_limb.js"] }
+  ]
+}
+```
+
+| 键          | 类型     | 说明                                                  |
+|-------------|----------|-------------------------------------------------------|
+| `slot`      | object[] | 背包槽位索引（数字），`"hand"`=手持，`null`/`[]`=全部 |
+| `limb_slot` | string[] | 肢体槽位名，`null`/`[]`=全部                          |
+| `script`    | string[] | 脚本文件路径数组                                      |
+
+### wearable 内的脚本字段
+
+| 键        | 类型     | 触发时机             |
+|-----------|----------|----------------------|
+| `equip`   | string[] | 装备（穿上）         |
+| `unequip` | string[] | 卸下（脱下）         |
+| `attack`  | string[] | 穿着此物品时近战攻击 |
+| `damage`  | string[] | 装备受到伤害         |
+
+```json
+{
+  "wearable": {
+    "slot_id": "Head",
+    "desired_limb": "Head",
+    "equip": ["helmet_equip.js"],
+    "unequip": ["helmet_unequip.js"],
+    "attack": ["helmet_attack.js"],
+    "damage": ["helmet_damage.js"]
+  }
+}
+```
+
+### 条件触发器（ConditionTriggerDef）
+
+复用于 `durability`、`capacity_trigger`、`charge_trigger`，每项含：
+
+```json
+{
+  "operator": "<=",
+  "value": 0.3,
+  "script": ["low_durability.js"]
+}
+```
+
+| 键         | 类型     | 说明                                              |
+|------------|----------|---------------------------------------------------|
+| `operator` | string   | 比较运算符：`"<"`/`"<="`/`"=="`/`">="`/`">"`     |
+| `value`    | float    | 阈值（0.0~1.0 百分比）                            |
+| `script`   | string[] | 脚本文件路径数组                                  |
+
+触发器采用边沿检测：仅当条件从"不满足"变为"满足"时触发一次，避免重复执行。
+
+### 容器容量触发器
+
+```json
+{
+  "container": {
+    "max_weight": 10,
+    "capacity_trigger": [
+      { "operator": ">=", "value": 0.8, "script": ["near_full.js"] }
+    ]
+  }
+}
+```
+
+### 电池电量触发器
+
+```json
+{
+  "battery": {
+    "preset": "medium",
+    "charge_trigger": [
+      { "operator": "<=", "value": 0.1, "script": ["low_battery.js"] }
+    ]
+  }
+}
+```
 
 ### 脚本路径
 
@@ -217,9 +307,16 @@ ScriptMod/Mods/
 ```json
 {
   "script": {
-    "use": [
-      "Scripts/bandage123_use.js"
+    "use_on_limb": [
+      "Scripts/bandage123_limb.js"
     ],
+    "attack": [
+      "Scripts/bandage123_attack.js"
+    ]
+  },
+  "wearable": {
+    "slot_id": "Head",
+    "desired_limb": "Head",
     "equip": [
       "Scripts/bandage123_equip.js"
     ]
@@ -240,13 +337,18 @@ function main(itemId, item, action) {
 }
 ```
 
-`main` 函数接收三个参数：
+`main` 函数接收三个基础参数，条件触发器场景额外接收三个参数：
 
-| 参数     | 类型   | 说明                                    |
-|----------|--------|-----------------------------------------|
-| `itemId` | string | 物品 ID                                 |
-| `item`   | Item   | C# Item 实例（不可用时为 null）         |
-| `action` | string | 动作：`"use"`、`"attack"`、`"equip"` 等 |
+| 参数               | 类型   | 说明                                           |
+|--------------------|--------|------------------------------------------------|
+| `itemId`           | string | 物品 ID                                        |
+| `item`             | Item   | C# Item 实例（不可用时为 null）                |
+| `action`           | string | 动作：`"use"`、`"attack"`、`"equip"` 等        |
+| `currentValue`     | float  | **[条件触发器]** 当前百分比值（0.0~1.0）       |
+| `thresholdValue`   | float  | **[条件触发器]** 触发器阈值（0.0~1.0）         |
+| `operator`         | string | **[条件触发器]** 运算符（`"<"` `"<="` `"=="` `">="` `">"`） |
+
+后三个参数仅在 `durability`、`capacity_trigger`、`charge_trigger` 触发时传入，其余场景为 `null`。
 
 只接受部分参数也可以——JavaScript 和 Lua 自动忽略多余参数：
 
@@ -256,6 +358,12 @@ function main(itemId) { /* 只取 ID */
 
 function main(itemId, item, action) { /* 完整上下文 */
 }
+
+// 条件触发器示例：耐久低于 30% 时执行
+function main(itemId, item, action, currentValue, thresholdValue, operator) {
+    Player.Alert(`物品耐久 ${currentValue} ${operator} ${thresholdValue}，触发！`, true);
+}
+```
 ```
 
 ### 完整示例

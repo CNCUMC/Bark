@@ -36,8 +36,8 @@ public static class ItemLoader
     // 已注册为 wearable 但缺少穿戴贴图的物品 ID 集合，供热 Harmony 守卫跳过装备防止 NRE
     public static readonly HashSet<string> WearableWithoutWornSprite = [];
 
-    // 暂存的脚本映射（modId → itemId → (scriptDef, modDir)），待引擎创建后注册
-    private static readonly Dictionary<string, Dictionary<string, (ItemScriptDef def, string modDir)>> PendingScripts =
+    // 暂存的脚本映射（modId → itemId → (itemDef, modDir)），待引擎创建后注册
+    private static readonly Dictionary<string, Dictionary<string, (ItemDef def, string modDir)>> PendingScripts =
         new();
 
     // ClearOwnerEntries 是 internal，缓存 MethodInfo 供热重载时清除旧物品
@@ -109,8 +109,8 @@ public static class ItemLoader
         if (!PendingScripts.TryGetValue(manifest.Id, out var itemScripts) || itemScripts.Count == 0)
             return;
 
-        foreach (var (itemId, (scriptDef, modDir)) in itemScripts)
-            ItemScriptRegistry.Register(itemId, scriptDef, manifest.Engine, manifest.Id, modDir);
+        foreach (var (itemId, (itemDef, modDir)) in itemScripts)
+            ItemScriptRegistry.Register(itemId, itemDef, manifest.Engine, manifest.Id, modDir);
 
         var count = itemScripts.Count;
         PendingScripts.Remove(manifest.Id);
@@ -180,7 +180,7 @@ public static class ItemLoader
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
-        StashScript(itemId, def.Script, modId, modDir);
+        StashScript(itemId, def, modId, modDir);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -282,7 +282,7 @@ public static class ItemLoader
         ItemRegistry.Register(itemId, info, sprite);
 
         // 暂存脚本映射
-        StashScript(itemId, def.Script, modId, modDir);
+        StashScript(itemId, def, modId, modDir);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -480,16 +480,31 @@ public static class ItemLoader
         return FinalizeItemInfo(info, def);
     }
 
-    // 根据脚本配置自动推断 usable / usableOnLimb
+    // 根据脚本配置自动推断 usable / usableOnLimb，wearable 与 use 互斥
     private static CustomItemInfo FinalizeItemInfo(CustomItemInfo info, ItemDef def)
     {
-        if (def.Script != null)
+        // use 字段非空 → usable
+        var hasUse = def.Use is { Count: > 0 } list
+            && list.Any(e => e.Script.Count > 0);
+
+        // use_on_limb 仍在 script 内
+        var hasUseOnLimb = def.Script?.UseOnLimb is { Count: > 0 };
+
+        if (def.Wearable != null)
         {
-            if (def.Script.Use.Count > 0 || def.Script.UseInHand.Count > 0)
-                info.usable = true;
-            if (def.Script.UseOnLimb.Count > 0)
-                info.usableOnLimb = true;
+            // wearable 优先，忽略 use
+            info.wearable = true;
+            if (hasUse)
+                LogUtil.Warning("items.use_wearable_conflict", def.FullName);
         }
+        else
+        {
+            if (hasUse)
+                info.usable = true;
+        }
+
+        if (hasUseOnLimb)
+            info.usableOnLimb = true;
 
         // 校验 wearable 字段
         if (def.Wearable == null) return info;
@@ -610,24 +625,44 @@ public static class ItemLoader
         PendingScripts.Remove(ownerId);
     }
 
-    // 暂存物品脚本映射，待引擎就绪后注册
-    private static void StashScript(string itemId, ItemScriptDef? scriptDef, string modId, string modDir)
+    // 暂存物品脚本映射，待引擎就绪后注册。检查 ItemDef 所有脚本来源。
+    private static void StashScript(string itemId, ItemDef def, string modId, string modDir)
     {
-        if (scriptDef is null) return;
-        var isEmpty = scriptDef.Use.Count == 0
-                      && scriptDef.UseInHand.Count == 0
-                      && scriptDef.Equip.Count == 0
-                      && scriptDef.Unequip.Count == 0
-                      && scriptDef.UseOnLimb.Count == 0
-                      && scriptDef.Attack.Count == 0;
-        if (isEmpty) return;
+        if (def is null) return;
+
+        // 检查是否有任何脚本需要暂存（复用 ItemScriptRegistry.IsEmpty 逻辑较复杂，
+        // 但这里 ItemScriptRegistry.Register 会内部判断；只要 def 有脚本相关字段就暂存）
+        var hasScript = (def.Script != null && (
+            def.Script.Attack.Count > 0 ||
+            def.Script.UseOnLimb.Count > 0 ||
+            def.Script.InBackpack.Count > 0 ||
+            def.Script.InHand.Count > 0 ||
+            def.Script.NotInHand.Count > 0 ||
+            def.Script.Durability.Count > 0));
+
+        var hasUse = def.Use is { Count: > 0 } ul && ul.Any(e => e.Script.Count > 0);
+
+        var hasWearableScripts = def.Wearable != null && (
+            def.Wearable.Equip.Count > 0 ||
+            def.Wearable.Unequip.Count > 0 ||
+            def.Wearable.Attack.Count > 0 ||
+            def.Wearable.Damage.Count > 0);
+
+        var hasContainerTrigger = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
+            ct.Any(t => t.Script.Count > 0);
+
+        var hasBatteryTrigger = def.Battery?.ChargeTrigger is { Count: > 0 } bt &&
+            bt.Any(t => t.Script.Count > 0);
+
+        if (!hasScript && !hasUse && !hasWearableScripts && !hasContainerTrigger && !hasBatteryTrigger)
+            return;
 
         if (!PendingScripts.TryGetValue(modId, out var itemScripts))
         {
-            itemScripts = new Dictionary<string, (ItemScriptDef, string)>();
+            itemScripts = new Dictionary<string, (ItemDef, string)>();
             PendingScripts[modId] = itemScripts;
         }
 
-        itemScripts[itemId] = (scriptDef, modDir);
+        itemScripts[itemId] = (def, modDir);
     }
 }

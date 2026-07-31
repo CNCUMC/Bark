@@ -48,6 +48,7 @@ public class ItemDef
 
     // ---- 已嵌套字段（无需迁移） ----
     [JsonProperty("script")] public ItemScriptDef? Script;
+    [JsonProperty("use")] public List<UseEntryDef>? Use;
     [JsonProperty("qualities")] public List<QualitiesDef>? Qualities;
     [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
 }
@@ -82,6 +83,12 @@ public class WearableDef
 
     // 额外肢体已装备贴图（替代旧 multi_worn）
     [JsonProperty("multi")] public Dictionary<string, WornSpriteOffset>? Multi;
+
+    // 穿戴脚本
+    [JsonProperty("equip")] public List<string> Equip = [];
+    [JsonProperty("unequip")] public List<string> Unequip = [];
+    [JsonProperty("attack")] public List<string> Attack = [];
+    [JsonProperty("damage")] public List<string> Damage = [];
 }
 
 public class BatteryDef
@@ -99,6 +106,8 @@ public class BatteryDef
     [JsonProperty("start_charge")] public float StartCharge;
 
     [JsonProperty("weight_reduction")] public bool WeightReduction;
+
+    [JsonProperty("charge_trigger")] public List<ConditionTriggerDef> ChargeTrigger = [];
 }
 
 public class ContainerDef
@@ -112,6 +121,8 @@ public class ContainerDef
     [JsonProperty("max_weight_per_item")] public float MaxWeightPerItem;
 
     [JsonProperty("tag_restriction")] public string[] TagRestriction = [];
+
+    [JsonProperty("capacity_trigger")] public List<ConditionTriggerDef> CapacityTrigger = [];
 }
 
 public class SpriteDef
@@ -168,15 +179,31 @@ public class SpriteScaleDimensionsDef
     [JsonProperty("width")] public float Width;
 }
 
-// 物品脚本触发定义
+// 条件触发器：复用于 durability / capacity_trigger / charge_trigger
+public class ConditionTriggerDef
+{
+    [JsonProperty("operator")] public string Operator = "==";
+    [JsonProperty("value")] public float Value;
+    [JsonProperty("script")] public List<string> Script = [];
+}
+
+// use 数组中的每项
+public class UseEntryDef
+{
+    [JsonProperty("slot")] public List<object>? Slot;
+    [JsonProperty("limb_slot")] public List<string>? LimbSlot;
+    [JsonProperty("script")] public List<string> Script = [];
+}
+
+// 物品被动脚本 + 条件触发器（被动状态检测）
 public class ItemScriptDef
 {
     [JsonProperty("attack")] public List<string> Attack = [];
-    [JsonProperty("equip")] public List<string> Equip = [];
-    [JsonProperty("unequip")] public List<string> Unequip = [];
-    [JsonProperty("use")] public List<string> Use = [];
-    [JsonProperty("use_in_hand")] public List<string> UseInHand = [];
     [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
+    [JsonProperty("in_backpack")] public List<string> InBackpack = [];
+    [JsonProperty("in_hand")] public List<string> InHand = [];
+    [JsonProperty("not_in_hand")] public List<string> NotInHand = [];
+    [JsonProperty("durability")] public List<ConditionTriggerDef> Durability = [];
 }
 
 // 制作特性数据
@@ -240,7 +267,7 @@ public class LegacyItemDef
     [JsonProperty("recognition")] public int Recognition;
     [JsonProperty("rot_speed")] public float? RotSpeed;
     [JsonProperty("scale_weight_with_condition")] public bool ScaleWeightWithCondition;
-    [JsonProperty("script")] public ItemScriptDef? Script;
+    [JsonProperty("script")] public LegacyScriptDef? Script;
     [JsonProperty("slot_rotation")] public float SlotRotation;
     [JsonProperty("spawn_frequency")] public int SpawnFrequency;
     [JsonProperty("sprite_import_scale")] public float SpriteImportScale = 6f;
@@ -280,10 +307,12 @@ public class LegacyItemDef
             IgnoreDepression = IgnoreDepression,
             ScaleWeightWithCondition = ScaleWeightWithCondition,
             Recognition = Recognition,
-            Script = Script,
             Qualities = Qualities,
             CustomData = CustomData
         };
+
+        // 脚本迁移：旧 ItemScriptDef → 新的三层结构
+        MigrateLegacyScripts(def, Script);
 
         // 可装备
         if (Wearable)
@@ -299,7 +328,9 @@ public class LegacyItemDef
                 VisualOffset = WearableVisualOffset,
                 SpriteOffsetX = WornSpriteOffsetX,
                 SpriteOffsetY = WornSpriteOffsetY,
-                Multi = ConvertMultiWorn(MultiWorn)
+                Multi = ConvertMultiWorn(MultiWorn),
+                Equip = Script?.Equip ?? [],
+                Unequip = Script?.Unequip ?? []
             };
 
         // 电池
@@ -368,6 +399,45 @@ public class LegacyItemDef
             };
         return result;
     }
+
+    // 将旧 ItemScriptDef 迁移到新三层结构（Script / Use / Wearable）
+    private static void MigrateLegacyScripts(ItemDef def, LegacyScriptDef? old)
+    {
+        if (old is null) return;
+
+        // script.attack → script.attack（保留）
+        // script.use_on_limb → script.use_on_limb（保留）
+        var hasPassive = old.Attack.Count > 0 || old.UseOnLimb.Count > 0;
+        if (hasPassive)
+            def.Script = new ItemScriptDef
+            {
+                Attack = old.Attack,
+                UseOnLimb = old.UseOnLimb
+            };
+
+        // script.use → use[{slot: ["*"], script:[...]}]
+        // script.use_in_hand → use[{slot: ["hand"], script:[...]}]
+        var useList = new List<UseEntryDef>();
+        if (old.Use.Count > 0)
+            useList.Add(new UseEntryDef { Script = old.Use }); // null slot = *
+        if (old.UseInHand.Count > 0)
+            useList.Add(new UseEntryDef { Slot = new List<object> { "hand" }, Script = old.UseInHand });
+        if (useList.Count > 0)
+            def.Use = useList;
+
+        // script.equip / script.unequip → 交由 ToItemDef 调用方写入 Wearable.Equip/Unequip
+    }
+
+    // 旧格式的脚本定义（保留 Equip/Unequip/Use/UseInHand 等已移除字段）
+    public class LegacyScriptDef
+    {
+        [JsonProperty("attack")] public List<string> Attack = [];
+        [JsonProperty("equip")] public List<string> Equip = [];
+        [JsonProperty("unequip")] public List<string> Unequip = [];
+        [JsonProperty("use")] public List<string> Use = [];
+        [JsonProperty("use_in_hand")] public List<string> UseInHand = [];
+        [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
+    }
 }
 
 // Legacy 子模型
@@ -432,6 +502,7 @@ public class LegacyLiquidItemDef : LegacyItemDef
             Decay = baseDef.Decay,
             Spawn = baseDef.Spawn,
             Script = baseDef.Script,
+            Use = baseDef.Use,
             Qualities = baseDef.Qualities,
             CustomData = baseDef.CustomData,
             AutoFill = AutoFill,

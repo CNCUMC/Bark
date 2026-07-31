@@ -142,7 +142,8 @@ public class PuerJavaScript : ScriptEngine
     }
 
     // 执行单个物品脚本文件，执行前注入上下文全局变量，
-    // 脚本可定义 function main(itemId, item, action) 接收参数
+    // 脚本可定义 function main(itemId, item, action, currentValue, thresholdValue, operator) 接收参数
+    // 后三个参数仅在条件触发器（durability/capacity/charge）场景有值，其余场景为 null/undefined
     public override void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
@@ -159,13 +160,19 @@ public class PuerJavaScript : ScriptEngine
             _scriptEnv.Eval("var __barkItem = CS.Bark.Items.ItemScriptContext.CurrentItem;");
             _scriptEnv.Eval("var __barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction;");
 
+            // 注入条件触发器值（全局变量，非触发器场景为 null）
+            _scriptEnv.Eval("var __barkTriggerValue = CS.Bark.Items.ItemScriptContext.CurrentTriggerValue;");
+            _scriptEnv.Eval("var __barkTriggerThreshold = CS.Bark.Items.ItemScriptContext.CurrentTriggerThreshold;");
+            _scriptEnv.Eval("var __barkTriggerOperator = CS.Bark.Items.ItemScriptContext.CurrentTriggerOperator;");
+
             // 执行脚本文件（注册 main 函数等定义）
             var script = File.ReadAllText(filePath);
             _scriptEnv.Eval(script);
 
-            // 调用 main(itemId, item, action) — JS 自动忽略多余/缺失参数
+            // 调用 main(itemId, item, action, currentValue, thresholdValue, operator)
+            // JS 自动忽略多余/缺失参数，向后兼容旧版只接收 3 个参数的脚本
             _scriptEnv.Eval(
-                "if (typeof main === 'function') { main(__barkItemId, __barkItem, __barkAction); }");
+                "if (typeof main === 'function') { main(__barkItemId, __barkItem, __barkAction, __barkTriggerValue, __barkTriggerThreshold, __barkTriggerOperator); }");
         }
         catch (Exception ex)
         {

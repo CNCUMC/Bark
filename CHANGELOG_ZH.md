@@ -60,6 +60,18 @@
 - **物品 JSON 格式整理**：`wearable.slot_id` 是装备槽位标识符，不是身体肢体名。`wearable.desired_limb`
   现为可穿戴物品**必填字段**。更新了中英文文档。
 
+- **物品事件系统重构**：脚本拆分为三层：
+  - `script` — 被动状态检测（`in_backpack`、`in_hand`、`not_in_hand`、`attack`、
+    `use_on_limb`）+ `durability` 耐久条件触发器
+  - `use` — 新顶层字段（数组形式，每项含 `slot`/`limb_slot`/`script`），与 `wearable` 互斥
+    （修复"使用"/"装备"按钮同时显示问题）
+  - `wearable` — 新增脚本子字段：`equip`、`unequip`、`attack`、`damage`
+  - 新增事件：`ItemWearAttackEvent`、`ItemWearDamageEvent`、`ItemDurabilityEvent`、
+    `ItemCapacityEvent`、`ItemChargeEvent`
+  - 新增 `ConditionTriggerDef` 类型（`operator`+`value`+`script`）统一耐久/容量/电量的边沿触发轮询检测
+  - 容器新增 `capacity_trigger`，电池新增 `charge_trigger`，液体容器共用 `capacity_trigger`
+  - `LegacyItemDef.ToItemDef()` 自动迁移旧格式 `script.use`→`use`、`script.equip`→`wearable.equip` 等
+
 ### Fixed
 
 - `EventHandlers.OnMainMenuLoaded()` 为 `private static`，但 `EventRegistry.ScanAndRegister()` 只扫描

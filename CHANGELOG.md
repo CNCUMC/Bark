@@ -63,6 +63,18 @@ to [Semantic Versioning](https://semver.org/).
 - **Item JSON format clarified**: `wearable.slot_id` is an equipment slot identifier, not a body limb name.
   `wearable.desired_limb` is now **required** for all wearable items. Updated zh-CN and en-US documentation.
 
+- **Item event system redesigned**: scripts split into three layers:
+  - `script` — passive state detection (`in_backpack`, `in_hand`, `not_in_hand`, `attack`,
+    `use_on_limb`) + `durability` condition triggers
+  - `use` — new top-level field (array of entries with `slot`/`limb_slot`/`script`), mutually
+    exclusive with `wearable` (fixes "Use" / "Equip" button conflict)
+  - `wearable` — new script sub-fields: `equip`, `unequip`, `attack`, `damage`
+  - New events: `ItemWearAttackEvent`, `ItemWearDamageEvent`, `ItemDurabilityEvent`,
+    `ItemCapacityEvent`, `ItemChargeEvent`
+  - New `ConditionTriggerDef` type with `operator`+`value`+`script` for durability/capacity/charge edge-triggered polling
+  - Container gets `capacity_trigger`, battery gets `charge_trigger`, liquid containers share same `capacity_trigger`
+  - `LegacyItemDef.ToItemDef()` automatically migrates old `script.use`→`use`, `script.equip`→`wearable.equip`, etc.
+
 ### Fixed
 
 - `EventHandlers.OnMainMenuLoaded()` was `private static` but `EventRegistry.ScanAndRegister()` only

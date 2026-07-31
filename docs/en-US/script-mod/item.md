@@ -102,23 +102,23 @@ To make an item wearable, add a `wearable` object:
 }
 ```
 
-| Field                                      | Type                        | Default | Notes                                                           |
-|--------------------------------------------|-----------------------------|---------|-----------------------------------------------------------------|
-| `wearable.slot_id`                         | string                      | `""`    | Equipment slot identifier (**required**, e.g. `"Head"`, `"back"`) |
-| `wearable.desired_limb`                    | string                      | `""`    | Target limb for worn sprite (**required**, see valid list below) |
-| `wearable.can_be_held`                     | bool                        | `false` | Can also be held in hand when worn                              |
-| `wearable.armor`                           | float                       | `0`     | Armor protection (0–1)                                          |
-| `wearable.isolation`                       | float                       | `0`     | Thermal isolation (0–1)                                         |
-| `wearable.hit_durability_loss_multiplier`  | float                       | `0`     | Durability loss on hit multiplier                               |
-| `wearable.sorting_order`                   | int?                        | null    | Render sorting order for equipped sprite                        |
-| `wearable.visual_offset`                   | int                         | `5`     | Visual layer offset                                             |
-| `wearable.sprite_offset_x`                 | float                       | `0`     | Horizontal offset for worn sprite                               |
-| `wearable.sprite_offset_y`                 | float                       | `0`     | Vertical offset for worn sprite                                 |
-| `wearable.multi`                           | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`) |
+| Field                                     | Type                        | Default | Notes                                                             |
+|-------------------------------------------|-----------------------------|---------|-------------------------------------------------------------------|
+| `wearable.slot_id`                        | string                      | `""`    | Equipment slot identifier (**required**, e.g. `"Head"`, `"back"`) |
+| `wearable.desired_limb`                   | string                      | `""`    | Target limb for worn sprite (**required**, see valid list below)  |
+| `wearable.can_be_held`                    | bool                        | `false` | Can also be held in hand when worn                                |
+| `wearable.armor`                          | float                       | `0`     | Armor protection (0–1)                                            |
+| `wearable.isolation`                      | float                       | `0`     | Thermal isolation (0–1)                                           |
+| `wearable.hit_durability_loss_multiplier` | float                       | `0`     | Durability loss on hit multiplier                                 |
+| `wearable.sorting_order`                  | int?                        | null    | Render sorting order for equipped sprite                          |
+| `wearable.visual_offset`                  | int                         | `5`     | Visual layer offset                                               |
+| `wearable.sprite_offset_x`                | float                       | `0`     | Horizontal offset for worn sprite                                 |
+| `wearable.sprite_offset_y`                | float                       | `0`     | Vertical offset for worn sprite                                   |
+| `wearable.multi`                          | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`)   |
 
 > ⚠️ **Valid limb names**: `wearable.desired_limb` must be one of the 15 game limbs (**required**):
 > `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
-> **`slot_id` and `desired_limb` are two independent concepts**: `slot_id` is an equipment slot identifier (e.g. `"Head"`, `"back"`), while `desired_limb` is a body limb name. They cannot be used interchangeably.
+> **`slot_id` and `desired_limb` are two independent concepts**: `slot_id` is an equipment slot identifier (e.g. `"back"`), while `desired_limb` is a body limb name. They cannot be used interchangeably.
 > **If `slot_id` is empty** or **`desired_limb` is empty**, the wearable feature is disabled to prevent CUCoreLib internal NRE crashes.
 > Use `Limb.IsValidLimbName()` to validate names at runtime (see [Limb API](../script-api/limbs.md)).
 
@@ -196,19 +196,115 @@ Define with `color` and omit `weight`:
 
 ## Item Scripts
 
-The `script` field binds script files to item actions. When the action fires, Bark runs each script and calls its
-`main(itemId, item, action)` function.
+Item scripts are split into three layers:
 
-### Supported Actions
+- **`script`**: Passive state detection + condition triggers
+- **`use`**: Active use (mutually exclusive with `wearable`)
+- **`wearable`**: Equipment-related scripts
 
-| Key           | Trigger                     |
-|---------------|-----------------------------|
-| `use`         | Used from inventory         |
-| `use_in_hand` | Used while held in hand     |
-| `equip`       | Equipped (put on)           |
-| `unequip`     | Unequipped (taken off)      |
-| `use_on_limb` | Used on a specific limb     |
-| `attack`      | Melee attack with this item |
+When an action fires, Bark runs each script and calls its `main(itemId, item, action)` function.
+
+### script (Passive + Triggers)
+
+| Key           | Type                  | Trigger                                       |
+|---------------|-----------------------|-----------------------------------------------|
+| `attack`      | string[]              | Melee attack while holding this item          |
+| `use_on_limb` | string[]              | Used on a specific limb                       |
+| `in_backpack` | string[]              | Item is in player's backpack (polled)         |
+| `in_hand`     | string[]              | Item is picked up (taken in hand)             |
+| `not_in_hand` | string[]              | Item is dropped (removed from hand)           |
+| `durability`  | ConditionTriggerDef[] | Condition crosses a threshold (see below)     |
+
+### use (Top-Level, Active)
+
+`use` is an array of entries, each specifying the use origin and scripts. `use` is mutually exclusive with `wearable` — an item is either wearable or usable, not both.
+
+```json
+{
+  "full_name": "Medkit",
+  "category": "Medical",
+  "weight": 0.3,
+  "use": [
+    { "slot": [0, 1, 2, 3],     "script": ["medkit_use.js"] },
+    { "slot": ["hand"],          "script": ["medkit_hand.js"] },
+    { "limb_slot": ["Head","HandF"], "script": ["medkit_limb.js"] }
+  ]
+}
+```
+
+| Key         | Type     | Notes                                                    |
+|-------------|----------|----------------------------------------------------------|
+| `slot`      | object[] | Inventory slot indices (int), `"hand"`=held, null/[]=all |
+| `limb_slot` | string[] | Limb names, null/[]=all                                  |
+| `script`    | string[] | Script file paths                                        |
+
+### Scripts Inside wearable
+
+| Key       | Type     | Trigger                              |
+|-----------|----------|--------------------------------------|
+| `equip`   | string[] | Equipped (put on)                    |
+| `unequip` | string[] | Unequipped (taken off)               |
+| `attack`  | string[] | Melee attack while wearing this item |
+| `damage`  | string[] | Wearable item took damage            |
+
+```json
+{
+  "wearable": {
+    "slot_id": "Head",
+    "desired_limb": "Head",
+    "equip": ["helmet_equip.js"],
+    "unequip": ["helmet_unequip.js"],
+    "attack": ["helmet_attack.js"],
+    "damage": ["helmet_damage.js"]
+  }
+}
+```
+
+### Condition Triggers (ConditionTriggerDef)
+
+Reused by `durability`, `capacity_trigger`, and `charge_trigger`. Each entry:
+
+```json
+{
+  "operator": "<=",
+  "value": 0.3,
+  "script": ["low_durability.js"]
+}
+```
+
+| Key        | Type     | Notes                                              |
+|------------|----------|----------------------------------------------------|
+| `operator` | string   | Comparison: `"<"`/`"<="`/`"=="`/`">="`/`">"`     |
+| `value`    | float    | Threshold (0.0–1.0 percentage)                     |
+| `script`   | string[] | Script file paths                                  |
+
+Edge-triggered: fires only once when the condition transitions from unsatisfied to satisfied, avoiding repeated calls.
+
+### Container Capacity Trigger
+
+```json
+{
+  "container": {
+    "max_weight": 10,
+    "capacity_trigger": [
+      { "operator": ">=", "value": 0.8, "script": ["near_full.js"] }
+    ]
+  }
+}
+```
+
+### Battery Charge Trigger
+
+```json
+{
+  "battery": {
+    "preset": "medium",
+    "charge_trigger": [
+      { "operator": "<=", "value": 0.1, "script": ["low_battery.js"] }
+    ]
+  }
+}
+```
 
 ### Script Path
 
@@ -218,9 +314,16 @@ Script paths in the `script` array are relative to the **mod directory**, not th
 ```json
 {
   "script": {
-    "use": [
-      "Scripts/bandage123_use.js"
+    "use_on_limb": [
+      "Scripts/bandage123_limb.js"
     ],
+    "attack": [
+      "Scripts/bandage123_attack.js"
+    ]
+  },
+  "wearable": {
+    "slot_id": "Head",
+    "desired_limb": "Head",
     "equip": [
       "Scripts/bandage123_equip.js"
     ]
@@ -241,13 +344,18 @@ function main(itemId, item, action) {
 }
 ```
 
-The `main` function receives three arguments:
+The `main` function receives three base arguments, plus three additional arguments in condition trigger contexts:
 
-| Parameter | Type   | Description                                  |
-|-----------|--------|----------------------------------------------|
-| `itemId`  | string | The item's ID                                |
-| `item`    | Item   | C# Item instance (null if unavailable)       |
-| `action`  | string | Action: `"use"`, `"attack"`, `"equip"`, etc. |
+| Parameter        | Type   | Description                                           |
+|------------------|--------|-------------------------------------------------------|
+| `itemId`         | string | The item's ID                                         |
+| `item`           | Item   | C# Item instance (null if unavailable)                |
+| `action`         | string | Action: `"use"`, `"attack"`, `"equip"`, etc.          |
+| `currentValue`   | float  | **[Condition trigger]** Current percentage (0.0~1.0)  |
+| `thresholdValue` | float  | **[Condition trigger]** Trigger threshold (0.0~1.0)   |
+| `operator`       | string | **[Condition trigger]** Operator (`"<"` `"<="` `"=="` `">="` `">"`) |
+
+The last three arguments are only passed during `durability`, `capacity_trigger`, and `charge_trigger` callbacks; they are `null` otherwise.
 
 You can accept any subset — JavaScript and Lua ignore extra arguments:
 
@@ -256,6 +364,11 @@ function main(itemId) { /* just the ID */
 }
 
 function main(itemId, item, action) { /* full context */
+}
+
+// Condition trigger example: durability drops below 30%
+function main(itemId, item, action, currentValue, thresholdValue, operator) {
+    Player.Alert(`Item durability ${currentValue} ${operator} ${thresholdValue}, triggered!`, true);
 }
 ```
 

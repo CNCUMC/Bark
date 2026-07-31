@@ -143,7 +143,8 @@ public class PuerLua : ScriptEngine
     }
 
     // 执行单个物品脚本文件，执行前注入上下文全局变量，
-    // 脚本可定义 function main(itemId, item, action) 接收参数
+    // 脚本可定义 function main(itemId, item, action, currentValue, thresholdValue, operator) 接收参数
+    // 后三个参数仅在条件触发器（durability/capacity/charge）场景有值，其余场景为 nil
     public override void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
@@ -160,13 +161,19 @@ public class PuerLua : ScriptEngine
             _scriptEnv.Eval("__barkItem = CS.Bark.Items.ItemScriptContext.CurrentItem");
             _scriptEnv.Eval("__barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction");
 
+            // 注入条件触发器值（全局变量，非触发器场景为 nil）
+            _scriptEnv.Eval("__barkTriggerValue = CS.Bark.Items.ItemScriptContext.CurrentTriggerValue");
+            _scriptEnv.Eval("__barkTriggerThreshold = CS.Bark.Items.ItemScriptContext.CurrentTriggerThreshold");
+            _scriptEnv.Eval("__barkTriggerOperator = CS.Bark.Items.ItemScriptContext.CurrentTriggerOperator");
+
             // 执行脚本文件（注册 main 函数等定义）
             var script = File.ReadAllText(filePath);
             _scriptEnv.Eval(script);
 
-            // 调用 main(itemId, item, action) — Lua 自动忽略多余参数
+            // 调用 main(itemId, item, action, currentValue, thresholdValue, operator)
+            // Lua 自动忽略多余参数，向后兼容旧版只接收 3 个参数的脚本
             _scriptEnv.Eval(
-                "if type(main) == 'function' then main(__barkItemId, __barkItem, __barkAction) end");
+                "if type(main) == 'function' then main(__barkItemId, __barkItem, __barkAction, __barkTriggerValue, __barkTriggerThreshold, __barkTriggerOperator) end");
         }
         catch (Exception ex)
         {
