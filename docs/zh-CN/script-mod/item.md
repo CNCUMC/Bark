@@ -246,7 +246,7 @@ ScriptMod/Mods/
 ```json
 {
   "wearable": {
-    "slot_id": "Head",
+    "slot_id": "back",
     "desired_limb": "Head",
     "equip": ["helmet_equip.js"],
     "unequip": ["helmet_unequip.js"],

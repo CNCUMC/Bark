@@ -445,38 +445,67 @@ if (-not $SkipGitHub)
             else
             {
                 $tagName = "v$ModVersion"
+                $notesFile = $null
 
-                # 构建 gh release create 参数
-                $ghArgs = @(
-                    "release", "create", $tagName,
-                    $zipPath,
-                    "--title", "$ModDisplayName $tagName"
-                )
-
-                if ($ReleaseNotes)
+                try
                 {
-                    $ghArgs += @("--notes", $ReleaseNotes)
+                    # 构建 gh release create 参数
+                    $ghArgs = @(
+                        "release", "create", $tagName,
+                        $zipPath,
+                        "--title", "$ModDisplayName $tagName"
+                    )
+
+                    if ($ReleaseNotes)
+                    {
+                        # 使用 --notes-file 替代 --notes，避免命令行特殊字符和长度限制问题
+                        $notesFile = [System.IO.Path]::GetTempFileName()
+                        $ReleaseNotes | Out-File -FilePath $notesFile -Encoding UTF8 -NoNewline
+                        $ghArgs += @("--notes-file", $notesFile)
+                    }
+                    else
+                    {
+                        $ghArgs += @("--generate-notes")
+                    }
+
+                    if ($Prerelease)
+                    {
+                        $ghArgs += "--prerelease"
+                    }
+
+                    Write-Host "    执行: gh $( $ghArgs -join ' ' )" -ForegroundColor DarkGray
+
+                    $ghOutput = & gh @ghArgs 2>&1
+                    $ghExitCode = $LASTEXITCODE
+
+                    if ($ghExitCode -eq 0)
+                    {
+                        Write-OK "GitHub Release 已创建: $tagName"
+                    }
+                    else
+                    {
+                        Write-Host "    gh 输出:" -ForegroundColor Red
+                        Write-Host "    $ghOutput" -ForegroundColor Red
+                        Write-Fail "GitHub Release 创建失败 (exit code: $ghExitCode)"
+
+                        $ghOutputStr = "$ghOutput"
+                        if ($ghOutputStr -match "already exists")
+                        {
+                            Write-Host ""
+                            Write-Host "    [提示] Tag/Release 已存在，可能上次发布失败后残留。" -ForegroundColor Yellow
+                            Write-Host "    手动修复:" -ForegroundColor Yellow
+                            Write-Host "      gh release delete $tagName --yes" -ForegroundColor DarkGray
+                            Write-Host "      git tag -d $tagName" -ForegroundColor DarkGray
+                            Write-Host "      git push origin :refs/tags/$tagName" -ForegroundColor DarkGray
+                        }
+                    }
                 }
-                else
+                finally
                 {
-                    $ghArgs += @("--generate-notes")
-                }
-
-                if ($Prerelease)
-                {
-                    $ghArgs += "--prerelease"
-                }
-
-                Write-Host "    执行: gh $( $ghArgs -join ' ' )" -ForegroundColor DarkGray
-                & gh @ghArgs
-
-                if ($LASTEXITCODE -eq 0)
-                {
-                    Write-OK "GitHub Release 已创建: $tagName"
-                }
-                else
-                {
-                    Write-Fail "GitHub Release 创建失败 (exit code: $LASTEXITCODE)"
+                    if ($notesFile -and (Test-Path $notesFile))
+                    {
+                        Remove-Item $notesFile -Force -ErrorAction SilentlyContinue
+                    }
                 }
             }
         }
