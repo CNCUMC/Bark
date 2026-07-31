@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Bark.BetterCCL;
+using Bark.Script;
 using Bark.Tool;
 using BepInEx;
 using CUCoreLib.Helpers;
@@ -98,7 +99,7 @@ public static class ModCommand
     {
         if (Plugin._scriptModLoader == null) return;
 
-        var mods = Plugin._scriptModLoader.ListMods();
+        var mods = ScriptModLoader.ListMods();
         if (mods.Count == 0)
         {
             LogUtil.Info("script_mod_loader.no_mods", Plugin.Logger);

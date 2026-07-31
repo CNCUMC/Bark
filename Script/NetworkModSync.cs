@@ -54,7 +54,6 @@ public static class NetworkModSync
         {
             var mods = new JArray();
             foreach (var manifest in ScriptModLoader.LoadedScriptMods.Values)
-            {
                 mods.Add(new JObject
                 {
                     ["id"] = manifest.Id,
@@ -63,7 +62,6 @@ public static class NetworkModSync
                     ["repository"] = manifest.Repository ?? string.Empty,
                     ["network_sync"] = manifest.NetworkSync ?? SyncOptional
                 });
-            }
 
             return new JObject { ["mods"] = mods };
         });

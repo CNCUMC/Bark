@@ -10,6 +10,7 @@ public class GunSafetyToggleEvent : BarkEvent
 {
     // 操作的枪械
     public Item GunItem { get; set; } = null!;
+
     // 切换后的保险状态（true = 开启保险，false = 关闭保险）
     public bool Safe { get; set; }
 }

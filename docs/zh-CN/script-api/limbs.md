@@ -34,12 +34,13 @@ var names = Limb.GetAllLimbNames();
 //  "ThighB", "CrusB", "FootB"]
 ```
 
-| 方法                       | 返回类型         | 说明                                         |
-|----------------------------|------------------|----------------------------------------------|
-| `IsValidLimbName(name)`    | `bool`           | `name` 是否匹配已知肢体名（不区分大小写）    |
-| `GetAllLimbNames()`        | `List<string>`   | 全部 15 个有效肢体名列表                     |
+| 方法                    | 返回类型       | 说明                                      |
+|-------------------------|----------------|-------------------------------------------|
+| `IsValidLimbName(name)` | `bool`         | `name` 是否匹配已知肢体名（不区分大小写） |
+| `GetAllLimbNames()`     | `List<string>` | 全部 15 个有效肢体名列表                  |
 
-游戏已知 15 个肢体：`Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`
+游戏已知 15 个肢体：`Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、
+`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`
 
 ## 状态查询
 

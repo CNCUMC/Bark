@@ -162,7 +162,7 @@ CCL 注册的文本  →  Bark Fallback 默认值  →  英语 Fallback  →  �
 
 ### 注册配置项
 
-脚本模组的选项**定义**放在 `mod.json` 同层的 `options.json` 中（模组自带，只读）。用户修改后的**保存值**
+脚本模组的选项 **定义**放在 `mod.json` 同层的 `options.json` 中（模组自带，只读）。用户修改后的 **保存值**
 写入 `ScriptMod/Configs/{模组id}.json`（简单 key-value 格式）。
 
 **`ScriptMod/Mods/MyMod/options.json`**（选项定义，随模组分发）：
@@ -265,7 +265,8 @@ ScriptMod/Mods/MyMod/
 ```
 
 选项的 locale key 格式：`{modId}.{category}.{optionKey}`，描述在后面加 `dsc`。
-`category` 不填时默认等于模组 id（如 `my_mod.my_mod.heal_amount`），填了标准分类（`game`/`audio`/`input`/`video`）或自定义字符串则对应区分。
+`category` 不填时默认等于模组 id（如 `my_mod.my_mod.heal_amount`），填了标准分类（`game`/`audio`/`input`/`video`
+）或自定义字符串则对应区分。
 
 加载时 Bark 自动把 locale 数据推入 CCL，菜单里就能看到中文了。
 

@@ -18,13 +18,16 @@
 
 1. **Game**: Latest Casualties Unknown on Steam
 2.
+
 **CCL**: [NexusMods](https://www.nexusmods.com/scavprototype/mods/341?tab=files) / [GitHub Releases](https://github.com/jimmyking9999999/CUCoreLib/releases)
 
 > Try the [Nightly Build](https://github.com/jimmyking9999999/CUCoreLib/actions) for cutting-edge features, but stable
 > releases may not include nightly content.
 
 3.
+
 **Bark**: [NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
+
 4. **IDE**: [VS Code](https://code.visualstudio.com/) for scripts, [Rider](https://www.jetbrains.com/rider/)
    or [Visual Studio](https://visualstudio.microsoft.com/) for C# mods
 

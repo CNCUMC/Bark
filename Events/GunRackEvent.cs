@@ -10,6 +10,7 @@ public class GunRackEvent : BarkEvent
 {
     // 操作的枪械
     public Item GunItem { get; set; } = null!;
+
     // 拉栓后的状态（true = 已拉栓 / 空仓挂机，false = 复位）
     public bool Racked { get; set; }
 }

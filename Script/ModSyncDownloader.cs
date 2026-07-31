@@ -127,7 +127,7 @@ public static class ModSyncDownloader
                     !string.IsNullOrWhiteSpace(a.Url))
                 ?.Url;
         }
-        catch 
+        catch
         {
             return null;
         }

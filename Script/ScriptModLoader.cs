@@ -182,32 +182,32 @@ public class ScriptModLoader(string modsPath) : IDisposable
         }
 
         // 清理孤儿缓存（zip 已被删除）
-        if (Directory.Exists(ZipCacheDir))
+        if (!Directory.Exists(ZipCacheDir)) return;
+        foreach (var dir in Directory.GetDirectories(ZipCacheDir))
         {
-            foreach (var dir in Directory.GetDirectories(ZipCacheDir))
-            {
-                if (validCachePaths.Contains(dir))
-                    continue;
+            if (validCachePaths.Contains(dir))
+                continue;
 
-                Directory.Delete(dir, true);
-                LogUtil.Info("script_mod_loader.cache_cleaned", Path.GetFileName(dir));
-            }
+            Directory.Delete(dir, true);
+            LogUtil.Info("script_mod_loader.cache_cleaned", Path.GetFileName(dir));
         }
     }
 
     // 去重：同 ID 的目录版模组优先于 zip 解压版（开发模式覆盖）
     private static List<ScriptManifest> DeduplicateMods(List<ScriptManifest> manifests)
     {
-        return manifests
-            .GroupBy(m => m.Id)
-            .Select(g =>
-            {
-                var list = g.ToList();
-                // 优先选非 zip 缓存的版本（即用户放 Mods/ 目录的）
-                var preferred = list.FirstOrDefault(m => !IsFromZipCache(m.Directory!));
-                return preferred ?? list.First();
-            })
-            .ToList();
+        return
+        [
+            .. manifests
+                .GroupBy(m => m.Id)
+                .Select(g =>
+                {
+                    var list = g.ToList();
+                    // 优先选非 zip 缓存的版本（即用户放 Mods/ 目录的）
+                    var preferred = list.FirstOrDefault(m => !IsFromZipCache(m.Directory));
+                    return preferred ?? list.First();
+                })
+        ];
     }
 
     // 判断目录是否在 zip 缓存路径下
@@ -416,7 +416,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
         LoadAll();
     }
 
-    private void UnloadAll()
+    private static void UnloadAll()
     {
         foreach (var manifest in _loadedMods.Values)
             try
@@ -465,7 +465,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
     }
 
     // 获取所有已加载模组的列表
-    public IReadOnlyList<ScriptManifest> ListMods()
+    public static IReadOnlyList<ScriptManifest> ListMods()
     {
         return _loadedMods.Values.ToList().AsReadOnly();
     }

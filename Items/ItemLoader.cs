@@ -485,7 +485,7 @@ public static class ItemLoader
     {
         // use 字段非空 → usable
         var hasUse = def.Use is { Count: > 0 } list
-            && list.Any(e => e.Script.Count > 0);
+                     && list.Any(e => e.Script.Count > 0);
 
         // use_on_limb 仍在 script 内
         var hasUseOnLimb = def.Script?.UseOnLimb is { Count: > 0 };
@@ -628,17 +628,15 @@ public static class ItemLoader
     // 暂存物品脚本映射，待引擎就绪后注册。检查 ItemDef 所有脚本来源。
     private static void StashScript(string itemId, ItemDef def, string modId, string modDir)
     {
-        if (def is null) return;
-
         // 检查是否有任何脚本需要暂存（复用 ItemScriptRegistry.IsEmpty 逻辑较复杂，
         // 但这里 ItemScriptRegistry.Register 会内部判断；只要 def 有脚本相关字段就暂存）
-        var hasScript = (def.Script != null && (
+        var hasScript = def.Script != null && (
             def.Script.Attack.Count > 0 ||
             def.Script.UseOnLimb.Count > 0 ||
             def.Script.Has.Count > 0 ||
             def.Script.InHand.Count > 0 ||
             def.Script.NotInHand.Count > 0 ||
-            def.Script.Durability.Count > 0));
+            def.Script.Durability.Count > 0);
 
         var hasUse = def.Use is { Count: > 0 } ul && ul.Any(e => e.Script.Count > 0);
 
@@ -650,10 +648,10 @@ public static class ItemLoader
             def.Wearable.Wearing.Count > 0);
 
         var hasContainerTrigger = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
-            ct.Any(t => t.Script.Count > 0);
+                                  ct.Any(t => t.Script.Count > 0);
 
         var hasBatteryTrigger = def.Battery?.ChargeTrigger is { Count: > 0 } bt &&
-            bt.Any(t => t.Script.Count > 0);
+                                bt.Any(t => t.Script.Count > 0);
 
         if (!hasScript && !hasUse && !hasWearableScripts && !hasContainerTrigger && !hasBatteryTrigger)
             return;

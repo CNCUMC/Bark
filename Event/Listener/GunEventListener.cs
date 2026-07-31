@@ -144,8 +144,8 @@ public static class GunEventListener
 
         // 判断是否成功装填：弹药物品已被销毁（== null）或者状态发生了变化
         var stateChanged = __instance.hasMag != __state.HadMag
-                        || __instance.roundsInMag != __state.RoundsInMag
-                        || __instance.roundInChamber != __state.RoundInChamber;
+                           || __instance.roundsInMag != __state.RoundsInMag
+                           || __instance.roundInChamber != __state.RoundInChamber;
 
         if (!stateChanged) return;
 
@@ -153,7 +153,7 @@ public static class GunEventListener
         if (item == null) return;
 
         var roundsDelta = __instance.roundsInMag - __state.RoundsInMag
-                       + (__instance.roundInChamber != __state.RoundInChamber ? 1 : 0);
+                          + (__instance.roundInChamber != __state.RoundInChamber ? 1 : 0);
 
         EventUtil.Trigger(new GunLoadAmmoEvent
         {
@@ -163,14 +163,6 @@ public static class GunEventListener
                 : AmmoScript.AmmoTypeToItem(ammo.ammoType),
             Rounds = roundsDelta > 0 ? roundsDelta : ammo.rounds
         });
-    }
-
-    // 装弹状态快照（prefix → postfix）
-    private class GunLoadState
-    {
-        public bool HadMag;
-        public int RoundsInMag;
-        public GunScript.RoundInChamber RoundInChamber;
     }
 
     // ============================================================
@@ -236,10 +228,7 @@ public static class GunEventListener
             case false when current.Racked && prev.RoundInChamber == current.RoundInChamber:
             {
                 // 拉栓时弹膛非空但未抛出 → 卡壳
-                if (prev.RoundInChamber != GunScript.RoundInChamber.None)
-                {
-                    TriggerJam(gun);
-                }
+                if (prev.RoundInChamber != GunScript.RoundInChamber.None) TriggerJam(gun);
 
                 break;
             }
@@ -266,12 +255,20 @@ public static class GunEventListener
         });
     }
 
+    // 装弹状态快照（prefix → postfix）
+    private class GunLoadState
+    {
+        public bool HadMag;
+        public GunScript.RoundInChamber RoundInChamber;
+        public int RoundsInMag;
+    }
+
     // 枪械状态快照（每帧比较用）
     private class GunStateSnapshot(GunScript gun)
     {
-        public readonly bool Racked = gun.racked;
         public readonly bool HasMag = gun.hasMag;
-        public readonly int RoundsInMag = gun.roundsInMag;
+        public readonly bool Racked = gun.racked;
         public readonly GunScript.RoundInChamber RoundInChamber = gun.roundInChamber;
+        public readonly int RoundsInMag = gun.roundsInMag;
     }
 }

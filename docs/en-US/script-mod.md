@@ -278,12 +278,12 @@ ScriptMod/Mods/
 Bark automatically extracts `.zip` files to the BepInEx cache directory (`Paths.CachePath`) on startup — no manual
 unzipping required.
 
-| Behavior | Detail |
-|----------|--------|
-| First load | Extracts once, skips on subsequent runs (unless zip is replaced) |
+| Behavior           | Detail                                                                                              |
+|--------------------|-----------------------------------------------------------------------------------------------------|
+| First load         | Extracts once, skips on subsequent runs (unless zip is replaced)                                    |
 | Directory priority | If both `Mods/MyMod/` and `MyMod.zip` exist with the same id, **the directory wins** (dev-friendly) |
-| Deleting the zip | Cache is auto-cleaned on next startup, no orphaned files |
-| Hot reload | Not supported for zip mods — zips are distribution artifacts. To edit, extract to a directory |
+| Deleting the zip   | Cache is auto-cleaned on next startup, no orphaned files                                            |
+| Hot reload         | Not supported for zip mods — zips are distribution artifacts. To edit, extract to a directory       |
 
 **Dev workflow**: develop as a loose directory, package as `.zip` for release. When both coexist, the directory
 overrides the zip so your changes take effect immediately.

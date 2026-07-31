@@ -36,15 +36,6 @@ public static class ItemScriptRunner
         EventUtil.UnregisterAll(Guid);
     }
 
-    // ---- 日志输出（一次性写入避免重复 string.Format） ----
-    private static void LogExecution(ItemScriptEntry entry, List<string> scripts, string action, string itemId)
-    {
-        if (scripts.Count == 0) return;
-        var modName = $"{entry.ModId}|{itemId}|{action}";
-        var paths = string.Join(", ", scripts);
-        LogUtil.Info($"[ItemScriptRunner] {modName}: {paths}");
-    }
-
     private static void OnItemUse(ItemUseEvent evt)
     {
         ExecuteUseScripts(evt.ItemId, evt.Item, "use", e => e.GetUseScriptsForBackpack());

@@ -118,9 +118,12 @@ To make an item wearable, add a `wearable` object:
 | `wearable.multi`                          | object (limb name → offset) | null    | Extra limb sprites with offsets (uses `{itemId}_mw_{limb}.png`)   |
 
 > ⚠️ **Valid limb names**: `wearable.desired_limb` must be one of the 15 game limbs (**required**):
-> `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
-> **`slot_id` and `desired_limb` are two independent concepts**: `slot_id` is an equipment slot identifier (e.g. `"back"`), while `desired_limb` is a body limb name. They cannot be used interchangeably.
-> **If `slot_id` is empty** or **`desired_limb` is empty**, the wearable feature is disabled to prevent CUCoreLib internal NRE crashes.
+> `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`,
+> `FootF`, `ThighB`, `CrusB`, `FootB`.
+> **`slot_id` and `desired_limb` are two independent concepts**: `slot_id` is an equipment slot identifier (e.g.
+> `"back"`), while `desired_limb` is a body limb name. They cannot be used interchangeably.
+> **If `slot_id` is empty** or **`desired_limb` is empty**, the wearable feature is disabled to prevent CUCoreLib
+> internal NRE crashes.
 > Use `Limb.IsValidLimbName()` to validate names at runtime (see [Limb API](../script-api/limbs.md)).
 
 ### Container Fields
@@ -207,18 +210,19 @@ When an action fires, Bark runs each script and calls its `main(itemId, item, ac
 
 ### script (Passive + Triggers)
 
-| Key           | Type                  | Trigger                                       |
-|---------------|-----------------------|-----------------------------------------------|
-| `attack`      | string[]              | Melee attack while holding this item          |
-| `use_on_limb` | string[]              | Used on a specific limb                       |
-| `has`         | string[]              | Item is in player's backpack (polled)         |
-| `in_hand`     | string[]              | Item is picked up (taken in hand)             |
-| `not_in_hand` | string[]              | Item is dropped (removed from hand)           |
-| `durability`  | ConditionTriggerDef[] | Condition crosses a threshold (see below)     |
+| Key           | Type                  | Trigger                                   |
+|---------------|-----------------------|-------------------------------------------|
+| `attack`      | string[]              | Melee attack while holding this item      |
+| `use_on_limb` | string[]              | Used on a specific limb                   |
+| `has`         | string[]              | Item is in player's backpack (polled)     |
+| `in_hand`     | string[]              | Item is picked up (taken in hand)         |
+| `not_in_hand` | string[]              | Item is dropped (removed from hand)       |
+| `durability`  | ConditionTriggerDef[] | Condition crosses a threshold (see below) |
 
 ### use (Top-Level, Active)
 
-`use` is an array of entries, each specifying the use origin and scripts. `use` is mutually exclusive with `wearable` — an item is either wearable or usable, not both.
+`use` is an array of entries, each specifying the use origin and scripts. `use` is mutually exclusive with `wearable` —
+an item is either wearable or usable, not both.
 
 ```json
 {
@@ -275,11 +279,11 @@ Reused by `durability`, `capacity_trigger`, and `charge_trigger`. Each entry:
 }
 ```
 
-| Key        | Type     | Notes                                              |
-|------------|----------|----------------------------------------------------|
-| `operator` | string   | Comparison: `"<"`/`"<="`/`"=="`/`">="`/`">"`     |
-| `value`    | float    | Threshold (0.0–1.0 percentage)                     |
-| `script`   | string[] | Script file paths                                  |
+| Key        | Type     | Notes                                        |
+|------------|----------|----------------------------------------------|
+| `operator` | string   | Comparison: `"<"`/`"<="`/`"=="`/`">="`/`">"` |
+| `value`    | float    | Threshold (0.0–1.0 percentage)               |
+| `script`   | string[] | Script file paths                            |
 
 Edge-triggered: fires only once when the condition transitions from unsatisfied to satisfied, avoiding repeated calls.
 
@@ -349,16 +353,17 @@ function main(itemId, item, action) {
 
 The `main` function receives three base arguments, plus three additional arguments in condition trigger contexts:
 
-| Parameter        | Type   | Description                                           |
-|------------------|--------|-------------------------------------------------------|
-| `itemId`         | string | The item's ID                                         |
-| `item`           | Item   | C# Item instance (null if unavailable)                |
-| `action`         | string | Action: `"use"`, `"attack"`, `"equip"`, etc.          |
-| `currentValue`   | float  | **[Condition trigger]** Current percentage (0.0~1.0)  |
-| `thresholdValue` | float  | **[Condition trigger]** Trigger threshold (0.0~1.0)   |
+| Parameter        | Type   | Description                                                         |
+|------------------|--------|---------------------------------------------------------------------|
+| `itemId`         | string | The item's ID                                                       |
+| `item`           | Item   | C# Item instance (null if unavailable)                              |
+| `action`         | string | Action: `"use"`, `"attack"`, `"equip"`, etc.                        |
+| `currentValue`   | float  | **[Condition trigger]** Current percentage (0.0~1.0)                |
+| `thresholdValue` | float  | **[Condition trigger]** Trigger threshold (0.0~1.0)                 |
 | `operator`       | string | **[Condition trigger]** Operator (`"<"` `"<="` `"=="` `">="` `">"`) |
 
-The last three arguments are only passed during `durability`, `capacity_trigger`, and `charge_trigger` callbacks; they are `null` otherwise.
+The last three arguments are only passed during `durability`, `capacity_trigger`, and `charge_trigger` callbacks; they
+are `null` otherwise.
 
 You can accept any subset — JavaScript and Lua ignore extra arguments:
 

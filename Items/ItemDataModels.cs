@@ -10,91 +10,97 @@ namespace Bark.Items;
 
 public class ItemDef
 {
-    // ---- 基础字段（顶层） ----
-    [JsonProperty("full_name")] public string FullName = string.Empty;
-    [JsonProperty("description")] public string Description = string.Empty;
+    // 电池/电力（替代旧 battery_data）
+    [JsonProperty("battery")] public BatteryDef? Battery;
     [JsonProperty("category")] public string Category = string.Empty;
-    [JsonProperty("weight")] public float Weight;
-    [JsonProperty("value")] public int Value;
-    [JsonProperty("tags")] public string Tags = string.Empty;
-    [JsonProperty("origin_prefab")] public string OriginPrefab = "geofruit";
 
     // ---- 布尔标记（顶层） ----
     [JsonProperty("combinable")] public bool Combinable;
-    [JsonProperty("destroy_at_zero_condition")] public bool DestroyAtZeroCondition = true;
-    [JsonProperty("only_hold_in_hands")] public bool OnlyHoldInHands;
-    [JsonProperty("ignore_depression")] public bool IgnoreDepression;
-    [JsonProperty("scale_weight_with_condition")] public bool ScaleWeightWithCondition;
-    [JsonProperty("recognition")] public int Recognition;
-
-    // ---- 分组字段 ----
-    // 可装备（出现此对象即视为 wearable=true）
-    [JsonProperty("wearable")] public WearableDef? Wearable;
-
-    // 电池/电力（替代旧 battery_data）
-    [JsonProperty("battery")] public BatteryDef? Battery;
 
     // 容器（替代旧 container_data）
     [JsonProperty("container")] public ContainerDef? Container;
-
-    // 精灵图 / 显示
-    [JsonProperty("sprite")] public SpriteDef? SpriteDef;
+    [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
 
     // 腐烂
     [JsonProperty("decay")] public DecayDef? Decay;
+    [JsonProperty("description")] public string Description = string.Empty;
+
+    [JsonProperty("destroy_at_zero_condition")]
+    public bool DestroyAtZeroCondition = true;
+
+    // ---- 基础字段（顶层） ----
+    [JsonProperty("full_name")] public string FullName = string.Empty;
+    [JsonProperty("ignore_depression")] public bool IgnoreDepression;
+    [JsonProperty("only_hold_in_hands")] public bool OnlyHoldInHands;
+    [JsonProperty("origin_prefab")] public string OriginPrefab = "geofruit";
+    [JsonProperty("qualities")] public List<QualitiesDef>? Qualities;
+    [JsonProperty("recognition")] public int Recognition;
+
+    [JsonProperty("scale_weight_with_condition")]
+    public bool ScaleWeightWithCondition;
+
+    // ---- 已嵌套字段（无需迁移） ----
+    [JsonProperty("script")] public ItemScriptDef? Script;
 
     // 生成 / 掉落
     [JsonProperty("spawn")] public SpawnDef? Spawn;
 
-    // ---- 已嵌套字段（无需迁移） ----
-    [JsonProperty("script")] public ItemScriptDef? Script;
+    // 精灵图 / 显示
+    [JsonProperty("sprite")] public SpriteDef? SpriteDef;
+    [JsonProperty("tags")] public string Tags = string.Empty;
     [JsonProperty("use")] public List<UseEntryDef>? Use;
-    [JsonProperty("qualities")] public List<QualitiesDef>? Qualities;
-    [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
+    [JsonProperty("value")] public int Value;
+
+    // ---- 分组字段 ----
+    // 可装备（出现此对象即视为 wearable=true）
+    [JsonProperty("wearable")] public WearableDef? Wearable;
+    [JsonProperty("weight")] public float Weight;
 }
 
 // ---- 分组子模型 ----
 
 public class WearableDef
 {
-    // 装备到哪个槽位（必须为游戏已知 15 个肢体之一）
-    [JsonProperty("slot_id")] public string SlotId = string.Empty;
+    [JsonProperty("armor")] public float Armor;
+    [JsonProperty("attack")] public List<string> Attack = [];
+
+    // 装备后是否仍可手持
+    [JsonProperty("can_be_held")] public bool CanBeHeld;
+    [JsonProperty("damage")] public List<string> Damage = [];
 
     // 装备到哪个肢体（必须为已知肢体名）
     [JsonProperty("desired_limb")] public string DesiredLimb = string.Empty;
 
-    // 装备后是否仍可手持
-    [JsonProperty("can_be_held")] public bool CanBeHeld;
-
-    [JsonProperty("armor")] public float Armor;
-
-    [JsonProperty("isolation")] public float Isolation;
+    // 穿戴脚本
+    [JsonProperty("equip")] public List<string> Equip = [];
 
     [JsonProperty("hit_durability_loss_multiplier")]
     public float HitDurabilityLossMultiplier;
 
-    [JsonProperty("sorting_order")] public int? SortingOrder;
-
-    [JsonProperty("visual_offset")] public int VisualOffset = 5;
-
-    [JsonProperty("sprite_offset_x")] public float SpriteOffsetX;
-
-    [JsonProperty("sprite_offset_y")] public float SpriteOffsetY;
+    [JsonProperty("isolation")] public float Isolation;
 
     // 额外肢体已装备贴图（替代旧 multi_worn）
     [JsonProperty("multi")] public Dictionary<string, WornSpriteOffset>? Multi;
 
-    // 穿戴脚本
-    [JsonProperty("equip")] public List<string> Equip = [];
+    // 装备到哪个槽位（必须为游戏已知 15 个肢体之一）
+    [JsonProperty("slot_id")] public string SlotId = string.Empty;
+
+    [JsonProperty("sorting_order")] public int? SortingOrder;
+
+    [JsonProperty("sprite_offset_x")] public float SpriteOffsetX;
+
+    [JsonProperty("sprite_offset_y")] public float SpriteOffsetY;
     [JsonProperty("unequip")] public List<string> Unequip = [];
-    [JsonProperty("attack")] public List<string> Attack = [];
-    [JsonProperty("damage")] public List<string> Damage = [];
+
+    [JsonProperty("visual_offset")] public int VisualOffset = 5;
     [JsonProperty("wearing")] public List<string> Wearing = [];
 }
 
 public class BatteryDef
 {
     [JsonProperty("battery_type")] public string BatteryType = string.Empty;
+
+    [JsonProperty("charge_trigger")] public List<ConditionTriggerDef> ChargeTrigger = [];
 
     [JsonProperty("explode_at_zero")] public bool ExplodeAtZero;
 
@@ -107,12 +113,11 @@ public class BatteryDef
     [JsonProperty("start_charge")] public float StartCharge;
 
     [JsonProperty("weight_reduction")] public bool WeightReduction;
-
-    [JsonProperty("charge_trigger")] public List<ConditionTriggerDef> ChargeTrigger = [];
 }
 
 public class ContainerDef
 {
+    [JsonProperty("capacity_trigger")] public List<ConditionTriggerDef> CapacityTrigger = [];
     [JsonProperty("encumbrance_mult")] public float EncumbranceMult;
 
     [JsonProperty("items_visible")] public bool ItemsVisible;
@@ -122,8 +127,6 @@ public class ContainerDef
     [JsonProperty("max_weight_per_item")] public float MaxWeightPerItem;
 
     [JsonProperty("tag_restriction")] public string[] TagRestriction = [];
-
-    [JsonProperty("capacity_trigger")] public List<ConditionTriggerDef> CapacityTrigger = [];
 }
 
 public class SpriteDef
@@ -131,14 +134,13 @@ public class SpriteDef
     // 精灵图导入放大倍数，默认 6.0
     [JsonProperty("import_scale")] public float ImportScale = 6f;
 
+    // 物品栏图标缩放
+    [JsonProperty("inventory_icon_scale")] public float InventoryIconScale = 2f;
+
     [JsonProperty("scale")] public float Scale;
 
     // 物品栏精灵目标缩放尺寸，宽高是像素数，expand_to_first_met 碰边即停
-    [JsonProperty("scale_dimensions")]
-    public SpriteScaleDimensionsDef? ScaleDimensions;
-
-    // 物品栏图标缩放
-    [JsonProperty("inventory_icon_scale")] public float InventoryIconScale = 2f;
+    [JsonProperty("scale_dimensions")] public SpriteScaleDimensionsDef? ScaleDimensions;
 
     // 物品栏格子旋转
     [JsonProperty("slot_rotation")] public float SlotRotation;
@@ -155,11 +157,10 @@ public class DecayDef
 
 public class SpawnDef
 {
+    [JsonProperty("drop_pool")] public string[]? DropPool;
     [JsonProperty("frequency")] public int Frequency;
 
     [JsonProperty("world_per_chunk")] public float? WorldPerChunk;
-
-    [JsonProperty("drop_pool")] public string[]? DropPool;
 }
 
 // 额外部位已装备贴图偏移
@@ -184,27 +185,27 @@ public class SpriteScaleDimensionsDef
 public class ConditionTriggerDef
 {
     [JsonProperty("operator")] public string Operator = "==";
-    [JsonProperty("value")] public float Value;
     [JsonProperty("script")] public List<string> Script = [];
+    [JsonProperty("value")] public float Value;
 }
 
 // use 数组中的每项
 public class UseEntryDef
 {
-    [JsonProperty("slot")] public List<object>? Slot;
     [JsonProperty("limb_slot")] public List<string>? LimbSlot;
     [JsonProperty("script")] public List<string> Script = [];
+    [JsonProperty("slot")] public List<object>? Slot;
 }
 
 // 物品被动脚本 + 条件触发器（被动状态检测）
 public class ItemScriptDef
 {
     [JsonProperty("attack")] public List<string> Attack = [];
-    [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
+    [JsonProperty("durability")] public List<ConditionTriggerDef> Durability = [];
     [JsonProperty("has")] public List<string> Has = [];
     [JsonProperty("in_hand")] public List<string> InHand = [];
     [JsonProperty("not_in_hand")] public List<string> NotInHand = [];
-    [JsonProperty("durability")] public List<ConditionTriggerDef> Durability = [];
+    [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
 }
 
 // 制作特性数据
@@ -221,12 +222,24 @@ public class LightItemDef
     [JsonProperty("color")] public string Color = "#FFFFFF";
     [JsonProperty("follow_mouse")] public bool FollowMouse;
     [JsonProperty("intensity")] public float Intensity = 10f;
-    [JsonProperty("light_on_zero_condition")] public bool LightOnZeroCondition;
+
+    [JsonProperty("light_on_zero_condition")]
+    public bool LightOnZeroCondition;
+
     [JsonProperty("light_type")] public string LightType = "Point";
-    [JsonProperty("point_light_inner_angle")] public float PointLightInnerAngle = 360f;
-    [JsonProperty("point_light_inner_radius")] public float PointLightInnerRadius;
-    [JsonProperty("point_light_outer_angle")] public float PointLightOuterAngle = 360f;
-    [JsonProperty("point_light_outer_radius")] public float PointLightOuterRadius = 8f;
+
+    [JsonProperty("point_light_inner_angle")]
+    public float PointLightInnerAngle = 360f;
+
+    [JsonProperty("point_light_inner_radius")]
+    public float PointLightInnerRadius;
+
+    [JsonProperty("point_light_outer_angle")]
+    public float PointLightOuterAngle = 360f;
+
+    [JsonProperty("point_light_outer_radius")]
+    public float PointLightOuterRadius = 8f;
+
     [JsonProperty("rotation")] public float Rotation = -90f;
     [JsonProperty("x_offset")] public float XOffset;
     [JsonProperty("y_offset")] public float YOffset;
@@ -243,7 +256,6 @@ public class LiquidItemDef : ItemDef
     [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
 }
 
-
 // ---- 旧版模型（向后兼容，仅在 JSON 检测为旧格式时使用） ----
 
 public class LegacyItemDef
@@ -252,11 +264,15 @@ public class LegacyItemDef
     [JsonProperty("category")] public string Category = string.Empty;
     [JsonProperty("combinable")] public bool Combinable;
     [JsonProperty("container_data")] public ItemContainerDef? ContainerData;
+    [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
     [JsonProperty("decay_info")] public byte DecayInfo;
     [JsonProperty("decay_minutes")] public float DecayMinutes;
     [JsonProperty("description")] public string Description = string.Empty;
     [JsonProperty("desired_wear_limb")] public string DesiredWearLimb = string.Empty;
-    [JsonProperty("destroy_at_zero_condition")] public bool DestroyAtZeroCondition = true;
+
+    [JsonProperty("destroy_at_zero_condition")]
+    public bool DestroyAtZeroCondition = true;
+
     [JsonProperty("drop_pool")] public string[]? DropPool;
     [JsonProperty("full_name")] public string FullName = string.Empty;
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
@@ -267,28 +283,44 @@ public class LegacyItemDef
     [JsonProperty("qualities")] public List<QualitiesDef>? Qualities;
     [JsonProperty("recognition")] public int Recognition;
     [JsonProperty("rot_speed")] public float? RotSpeed;
-    [JsonProperty("scale_weight_with_condition")] public bool ScaleWeightWithCondition;
+
+    [JsonProperty("scale_weight_with_condition")]
+    public bool ScaleWeightWithCondition;
+
     [JsonProperty("script")] public LegacyScriptDef? Script;
     [JsonProperty("slot_rotation")] public float SlotRotation;
     [JsonProperty("spawn_frequency")] public int SpawnFrequency;
     [JsonProperty("sprite_import_scale")] public float SpriteImportScale = 6f;
     [JsonProperty("sprite_scale")] public float SpriteScale;
-    [JsonProperty("sprite_scale_dimensions")] public SpriteScaleDimensionsDef? SpriteScaleDimensions;
+
+    [JsonProperty("sprite_scale_dimensions")]
+    public SpriteScaleDimensionsDef? SpriteScaleDimensions;
+
     [JsonProperty("tags")] public string Tags = string.Empty;
     [JsonProperty("value")] public int Value;
     [JsonProperty("wear_slot_id")] public string WearSlotId = string.Empty;
     [JsonProperty("wearable")] public bool Wearable;
     [JsonProperty("wearable_armor")] public float WearableArmor;
     [JsonProperty("wearable_can_be_held")] public bool WearableCanBeHeld;
-    [JsonProperty("wearable_hit_durability_loss_multiplier")] public float WearableHitDurabilityLossMultiplier;
+
+    [JsonProperty("wearable_hit_durability_loss_multiplier")]
+    public float WearableHitDurabilityLossMultiplier;
+
     [JsonProperty("wearable_isolation")] public float WearableIsolation;
-    [JsonProperty("wearable_sorting_order")] public int? WearableSortingOrder;
-    [JsonProperty("wearable_visual_offset")] public int WearableVisualOffset = 5;
+
+    [JsonProperty("wearable_sorting_order")]
+    public int? WearableSortingOrder;
+
+    [JsonProperty("wearable_visual_offset")]
+    public int WearableVisualOffset = 5;
+
     [JsonProperty("weight")] public float Weight;
-    [JsonProperty("world_spawn_per_chunk")] public float? WorldSpawnPerChunk;
+
+    [JsonProperty("world_spawn_per_chunk")]
+    public float? WorldSpawnPerChunk;
+
     [JsonProperty("worn_sprite_offset_x")] public float WornSpriteOffsetX;
     [JsonProperty("worn_sprite_offset_y")] public float WornSpriteOffsetY;
-    [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
 
     // 转换旧格式 → 新格式
     public ItemDef ToItemDef()

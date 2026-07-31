@@ -59,19 +59,19 @@ ScriptMod/Mods/
 }
 ```
 
-| 字段              | 类型     | 默认值       | 说明                           |
-|-------------------|----------|--------------|--------------------------------|
-| `full_name`       | string   | `""`         | 显示名称                       |
-| `description`     | string   | `""`         | 悬浮提示                       |
-| `category`        | string   | `""`         | 背包分类                       |
-| `weight`          | float    | `0`          | 重量（千克）                   |
-| `value`           | int      | `0`          | 货币价值                       |
-| `tags`            | string   | `""`         | 逗号分隔的标签                 |
-| `sprite`          | object   | —            | 精灵图相关配置（见下方）       |
-| `origin_prefab`   | string   | `"geofruit"` | 回退用的预制体（用于精灵尺寸） |
-| `spawn`           | object   | —            | 世界生成/掉落配置（见下方）    |
-| `script`          | object   | null         | 动作 → 脚本映射（见下文）      |
-| `custom_data`     | object   | null         | 自定义数据，供脚本读取         |
+| 字段            | 类型   | 默认值       | 说明                           |
+|-----------------|--------|--------------|--------------------------------|
+| `full_name`     | string | `""`         | 显示名称                       |
+| `description`   | string | `""`         | 悬浮提示                       |
+| `category`      | string | `""`         | 背包分类                       |
+| `weight`        | float  | `0`          | 重量（千克）                   |
+| `value`         | int    | `0`          | 货币价值                       |
+| `tags`          | string | `""`         | 逗号分隔的标签                 |
+| `sprite`        | object | —            | 精灵图相关配置（见下方）       |
+| `origin_prefab` | string | `"geofruit"` | 回退用的预制体（用于精灵尺寸） |
+| `spawn`         | object | —            | 世界生成/掉落配置（见下方）    |
+| `script`        | object | null         | 动作 → 脚本映射（见下文）      |
+| `custom_data`   | object | null         | 自定义数据，供脚本读取         |
 
 > 📝 物品 ID 就是文件名（不含 `.json` 扩展名），如 `bandage123.json` → ID 为 `"bandage123"`。 **不是** JSON 里的字段。
 
@@ -116,8 +116,9 @@ ScriptMod/Mods/
 | `wearable.sprite_offset_y`                | float                   | `0`     | 装备贴图垂直偏移                                    |
 | `wearable.multi`                          | object（肢体名 → 偏移） | null    | 额外肢体贴图及偏移（使用 `{itemId}_mw_{肢体}.png`） |
 
-> ⚠️ **有效肢体名**：`wearable.desired_limb` 必须设为游戏已知的 15 个肢体之一（**必填**）：
-> `Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、`ThighB`、`CrusB`、`FootB`。
+> ⚠️ **有效肢体名**：`wearable.desired_limb` 必须设为游戏已知的 15 个肢体之一（ **必填**）：
+> `Head`、`UpTorso`、`DownTorso`、`UpArmF`、`DownArmF`、`HandF`、`UpArmB`、`DownArmB`、`HandB`、`ThighF`、`CrusF`、`FootF`、
+> `ThighB`、`CrusB`、`FootB`。
 > **`slot_id` 和 `desired_limb` 是两个独立的概念**：`slot_id` 是装备槽标识（如 `"back"`），`desired_limb` 是身体肢体名。两者不能混用。
 > **`slot_id` 为空** 或 **`desired_limb` 为空**时，物品的可穿戴属性会被禁用，防止 CUCoreLib 内部 NRE 崩溃。
 > 可使用 `Limb.IsValidLimbName()` 在运行时校验（参见 [Limb API](../script-api/limbs.md)）。
@@ -200,14 +201,14 @@ ScriptMod/Mods/
 
 ### script（被动检测 + 条件触发器）
 
-| 键            | 类型                        | 触发时机                       |
-|---------------|-----------------------------|--------------------------------|
-| `attack`      | string[]                    | 手持此物品近战攻击             |
-| `use_on_limb` | string[]                    | 对某个肢体使用                 |
-| `has`         | string[]                    | 物品在玩家背包中（持续轮询）   |
-| `in_hand`     | string[]                    | 物品被拿在手上                 |
-| `not_in_hand` | string[]                    | 物品从手上放下                 |
-| `durability`  | ConditionTriggerDef[]       | 耐久值越过阈值时（见下方）     |
+| 键            | 类型                  | 触发时机                     |
+|---------------|-----------------------|------------------------------|
+| `attack`      | string[]              | 手持此物品近战攻击           |
+| `use_on_limb` | string[]              | 对某个肢体使用               |
+| `has`         | string[]              | 物品在玩家背包中（持续轮询） |
+| `in_hand`     | string[]              | 物品被拿在手上               |
+| `not_in_hand` | string[]              | 物品从手上放下               |
+| `durability`  | ConditionTriggerDef[] | 耐久值越过阈值时（见下方）   |
 
 ### use（顶层，主动使用）
 
@@ -234,13 +235,13 @@ ScriptMod/Mods/
 
 ### wearable 内的脚本字段
 
-| 键        | 类型     | 触发时机                 |
-|-----------|----------|--------------------------|
-| `equip`   | string[] | 装备（穿上）             |
-| `unequip` | string[] | 卸下（脱下）             |
-| `attack`  | string[] | 穿着此物品时近战攻击     |
-| `damage`  | string[] | 装备受到伤害             |
-| `wearing` | string[] | 装备在身上时持续轮询     |
+| 键        | 类型     | 触发时机             |
+|-----------|----------|----------------------|
+| `equip`   | string[] | 装备（穿上）         |
+| `unequip` | string[] | 卸下（脱下）         |
+| `attack`  | string[] | 穿着此物品时近战攻击 |
+| `damage`  | string[] | 装备受到伤害         |
+| `wearing` | string[] | 装备在身上时持续轮询 |
 
 ```json
 {
@@ -268,11 +269,11 @@ ScriptMod/Mods/
 }
 ```
 
-| 键         | 类型     | 说明                                              |
-|------------|----------|---------------------------------------------------|
-| `operator` | string   | 比较运算符：`"<"`/`"<="`/`"=="`/`">="`/`">"`     |
-| `value`    | float    | 阈值（0.0~1.0 百分比）                            |
-| `script`   | string[] | 脚本文件路径数组                                  |
+| 键         | 类型     | 说明                                         |
+|------------|----------|----------------------------------------------|
+| `operator` | string   | 比较运算符：`"<"`/`"<="`/`"=="`/`">="`/`">"` |
+| `value`    | float    | 阈值（0.0~1.0 百分比）                       |
+| `script`   | string[] | 脚本文件路径数组                             |
 
 触发器采用边沿检测：仅当条件从"不满足"变为"满足"时触发一次，避免重复执行。
 
@@ -342,14 +343,14 @@ function main(itemId, item, action) {
 
 `main` 函数接收三个基础参数，条件触发器场景额外接收三个参数：
 
-| 参数               | 类型   | 说明                                           |
-|--------------------|--------|------------------------------------------------|
-| `itemId`           | string | 物品 ID                                        |
-| `item`             | Item   | C# Item 实例（不可用时为 null）                |
-| `action`           | string | 动作：`"use"`、`"attack"`、`"equip"` 等        |
-| `currentValue`     | float  | **[条件触发器]** 当前百分比值（0.0~1.0）       |
-| `thresholdValue`   | float  | **[条件触发器]** 触发器阈值（0.0~1.0）         |
-| `operator`         | string | **[条件触发器]** 运算符（`"<"` `"<="` `"=="` `">="` `">"`） |
+| 参数             | 类型   | 说明                                                        |
+|------------------|--------|-------------------------------------------------------------|
+| `itemId`         | string | 物品 ID                                                     |
+| `item`           | Item   | C# Item 实例（不可用时为 null）                             |
+| `action`         | string | 动作：`"use"`、`"attack"`、`"equip"` 等                     |
+| `currentValue`   | float  | **[条件触发器]** 当前百分比值（0.0~1.0）                    |
+| `thresholdValue` | float  | **[条件触发器]** 触发器阈值（0.0~1.0）                      |
+| `operator`       | string | **[条件触发器]** 运算符（`"<"` `"<="` `"=="` `">="` `">"`） |
 
 后三个参数仅在 `durability`、`capacity_trigger`、`charge_trigger` 触发时传入，其余场景为 `null`。
 
@@ -367,6 +368,7 @@ function main(itemId, item, action, currentValue, thresholdValue, operator) {
     Player.Alert(`物品耐久 ${currentValue} ${operator} ${thresholdValue}，触发！`, true);
 }
 ```
+
 ```
 
 ### 完整示例

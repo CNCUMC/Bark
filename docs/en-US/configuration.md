@@ -166,7 +166,8 @@ If nothing matches, show the raw key.
 
 ### Registering Config Options
 
-Option **definitions** live in `options.json` alongside `mod.json` (shipped with the mod, read-only). User **saved values**
+Option **definitions** live in `options.json` alongside `mod.json` (shipped with the mod, read-only). User **saved
+values**
 are written to `ScriptMod/Configs/{modId}.json` as a simple key-value map.
 
 **`ScriptMod/Mods/MyMod/options.json`** (option definitions, shipped with the mod):
@@ -269,9 +270,9 @@ ScriptMod/Mods/MyMod/
 }
 ```
 
-Option locale key format: `{modId}.{category}.{optionKey}`, append `dsc` for description.
-When `category` is omitted it defaults to the mod id (e.g. `my_mod.my_mod.heal_amount`). Explicit standard
-categories (`game`/`audio`/`input`/`video`) or custom strings are used as-is.
+Option locale key format: `{modId}.{category}.{optionKey}`, append `dsc` for description. When `category` is omitted it
+defaults to the mod id (e.g. `my_mod.my_mod.heal_amount`). Explicit standard categories (`game`/`audio`/`input`/`video`)
+or custom strings are used as-is.
 
 Bark automatically loads locale data into CCL on load, so the options menu shows the correct text.
 

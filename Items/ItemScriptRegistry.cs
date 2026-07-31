@@ -62,7 +62,7 @@ public static class ItemScriptRegistry
             s.Durability.Count > 0);
 
         var hasUse = def.Use is { Count: > 0 } useList &&
-            useList.Any(e => e.Script.Count > 0);
+                     useList.Any(e => e.Script.Count > 0);
 
         var w = def.Wearable;
         var hasWearable = w != null && (
@@ -73,10 +73,10 @@ public static class ItemScriptRegistry
             w.Wearing.Count > 0);
 
         var hasContainer = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
-            ct.Any(t => t.Script.Count > 0);
+                           ct.Any(t => t.Script.Count > 0);
 
         var hasBattery = def.Battery?.ChargeTrigger is { Count: > 0 } bt &&
-            bt.Any(t => t.Script.Count > 0);
+                         bt.Any(t => t.Script.Count > 0);
 
         return !hasPassive && !hasUse && !hasWearable && !hasContainer && !hasBattery;
     }
@@ -85,42 +85,41 @@ public static class ItemScriptRegistry
 // 单个物品的脚本映射记录：包含引擎引用、模组 ID、脚本文件路径列表（按分类分组）
 public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, string modDir)
 {
-    public readonly string ModDir = modDir;
-    public readonly string ModId = modId;
-    public ScriptEngine Engine = engine;
-
     // ---- script（被动检测） ----
     public readonly List<string> Attack = def.Script?.Attack ?? [];
-    public readonly List<string> UseOnLimb = def.Script?.UseOnLimb ?? [];
-    public readonly List<string> Has = def.Script?.Has ?? [];
-    public readonly List<string> InHand = def.Script?.InHand ?? [];
-    public readonly List<string> NotInHand = def.Script?.NotInHand ?? [];
-    public readonly List<ConditionTriggerDef> Durability = def.Script?.Durability ?? [];
-
-    // ---- use（主动使用，数组形式） ----
-    public readonly List<UseEntryDef> UseEntries = def.Use ?? [];
-
-    // ---- wearable（穿戴脚本） ----
-    public readonly List<string> WearEquip = def.Wearable?.Equip ?? [];
-    public readonly List<string> WearUnequip = def.Wearable?.Unequip ?? [];
-    public readonly List<string> WearAttack = def.Wearable?.Attack ?? [];
-    public readonly List<string> WearDamage = def.Wearable?.Damage ?? [];
-    public readonly List<string> WearWearing = def.Wearable?.Wearing ?? [];
 
     // ---- 条件触发器 ----
     public readonly List<ConditionTriggerDef> CapacityTrigger = def.Container?.CapacityTrigger ?? [];
     public readonly List<ConditionTriggerDef> ChargeTrigger = def.Battery?.ChargeTrigger ?? [];
+    public readonly List<ConditionTriggerDef> Durability = def.Script?.Durability ?? [];
+    public readonly List<string> Has = def.Script?.Has ?? [];
+    public readonly List<string> InHand = def.Script?.InHand ?? [];
+    public readonly string ModDir = modDir;
+    public readonly string ModId = modId;
+    public readonly List<string> NotInHand = def.Script?.NotInHand ?? [];
+
+    // ---- use（主动使用，数组形式） ----
+    public readonly List<UseEntryDef> UseEntries = def.Use ?? [];
+    public readonly List<string> UseOnLimb = def.Script?.UseOnLimb ?? [];
+    public readonly List<string> WearAttack = def.Wearable?.Attack ?? [];
+    public readonly List<string> WearDamage = def.Wearable?.Damage ?? [];
+
+    // ---- wearable（穿戴脚本） ----
+    public readonly List<string> WearEquip = def.Wearable?.Equip ?? [];
+    public readonly List<string> WearUnequip = def.Wearable?.Unequip ?? [];
+    public readonly List<string> WearWearing = def.Wearable?.Wearing ?? [];
+    public ScriptEngine Engine = engine;
 
     // 获取匹配背包使用的脚本（排除 hand-only 和 limb 条目）
     public List<string> GetUseScriptsForBackpack()
     {
         var result = new List<string>();
-        foreach (var entry in UseEntries)
+        foreach (var entry in UseEntries.Where(entry => entry.LimbSlot is not { Count: > 0 })
+                     .Where(entry => !IsHandOnlyEntry(entry)))
         {
-            if (entry.LimbSlot is { Count: > 0 }) continue;
-            if (IsHandOnlyEntry(entry)) continue;
             result.AddRange(entry.Script);
         }
+
         return result;
     }
 
@@ -128,12 +127,12 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
     public List<string> GetUseScriptsForHand()
     {
         var result = new List<string>();
-        foreach (var entry in UseEntries)
+        foreach (var entry in UseEntries.Where(entry => entry.LimbSlot is not { Count: > 0 })
+                     .Where(entry => IsHandOnlyEntry(entry) || IsAllSlotsEntry(entry)))
         {
-            if (entry.LimbSlot is { Count: > 0 }) continue;
-            if (IsHandOnlyEntry(entry) || IsAllSlotsEntry(entry))
-                result.AddRange(entry.Script);
+            result.AddRange(entry.Script);
         }
+
         return result;
     }
 
@@ -148,13 +147,14 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
                 entry.LimbSlot.Contains(limbName, StringComparer.OrdinalIgnoreCase))
                 result.AddRange(entry.Script);
         }
+
         return result;
     }
 
     private static bool IsHandOnlyEntry(UseEntryDef entry)
     {
         return entry.Slot is { Count: > 0 } list &&
-            list.Any(s => s is string str && string.Equals(str, "hand", StringComparison.OrdinalIgnoreCase));
+               list.Any(s => s is string str && string.Equals(str, "hand", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool IsAllSlotsEntry(UseEntryDef entry)

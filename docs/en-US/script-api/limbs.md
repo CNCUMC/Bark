@@ -35,12 +35,13 @@ var names = Limb.GetAllLimbNames();
 //  "ThighB", "CrusB", "FootB"]
 ```
 
-| Method                     | Returns          | Description                                       |
-|----------------------------|------------------|---------------------------------------------------|
-| `IsValidLimbName(name)`    | `bool`           | `true` if `name` matches a known limb (case-insensitive) |
-| `GetAllLimbNames()`        | `List<string>`   | All 15 valid limb names in a list                 |
+| Method                  | Returns        | Description                                              |
+|-------------------------|----------------|----------------------------------------------------------|
+| `IsValidLimbName(name)` | `bool`         | `true` if `name` matches a known limb (case-insensitive) |
+| `GetAllLimbNames()`     | `List<string>` | All 15 valid limb names in a list                        |
 
-The 15 known limbs: `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`, `ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
+The 15 known limbs: `Head`, `UpTorso`, `DownTorso`, `UpArmF`, `DownArmF`, `HandF`, `UpArmB`, `DownArmB`, `HandB`,
+`ThighF`, `CrusF`, `FootF`, `ThighB`, `CrusB`, `FootB`.
 
 ## Status Queries
 

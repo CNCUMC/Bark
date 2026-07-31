@@ -15,12 +15,15 @@
 
 1. **游戏**：Steam 最新版 Casualties Unknown
 2.
+
 **CCL**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/341?tab=files) / [GitHub Releases](https://github.com/jimmyking9999999/CUCoreLib/releases)
 
 > 想尝鲜可以试试 [Nightly Build](https://github.com/jimmyking9999999/CUCoreLib/actions)，但正式版不保证包含 Nightly 内容。
 
 3.
+
 **Bark**：[NexusMods](https://www.nexusmods.com/scavprototype/mods/362?tab=files) / [GitHub Releases](https://github.com/CNCUMC/Bark/releases)
+
 4. **IDE**：写脚本用 [VS Code](https://code.visualstudio.com/)，写模组用 [Rider](https://www.jetbrains.com/rider/)
    或 [Visual Studio](https://visualstudio.microsoft.com/)
 

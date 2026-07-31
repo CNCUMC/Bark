@@ -25,7 +25,6 @@ public static class ItemEventListener
     // 条件触发器上次值缓存：(itemId, triggerIndex) → lastValue
     private static readonly Dictionary<string, float> TriggerLastValues = new();
 
-    private static Coroutine? _useCoroutine;
     private static Coroutine? _equipCoroutine;
     private static Coroutine? _limbCoroutine;
     private static Coroutine? _attackCoroutine;
@@ -37,8 +36,6 @@ public static class ItemEventListener
     private static Coroutine? _wearingCoroutine;
     private static MonoBehaviour? _runner;
 
-    private static int _lastHandSlot = -1;
-    private static bool _lastHandOccupied;
     private static string? _lastHandItemId;
 
     // 攻击检测：追踪手部物品 condition
@@ -56,7 +53,6 @@ public static class ItemEventListener
         TryPatchItemUseInHand();
         TryPatchItemAttack();
 
-        _useCoroutine ??= runner.StartCoroutine(PollItemUse());
         _equipCoroutine ??= runner.StartCoroutine(PollEquipChange());
         _limbCoroutine ??= runner.StartCoroutine(PollLimbUse());
         _attackCoroutine ??= runner.StartCoroutine(PollItemAttack());
@@ -72,22 +68,28 @@ public static class ItemEventListener
     {
         if (_runner == null) return;
 
-        if (_useCoroutine != null) { _runner.StopCoroutine(_useCoroutine); _useCoroutine = null; }
-        if (_equipCoroutine != null) { _runner.StopCoroutine(_equipCoroutine); _equipCoroutine = null; }
-        if (_limbCoroutine != null) { _runner.StopCoroutine(_limbCoroutine); _limbCoroutine = null; }
-        if (_attackCoroutine != null) { _runner.StopCoroutine(_attackCoroutine); _attackCoroutine = null; }
-        if (_passiveCoroutine != null) { _runner.StopCoroutine(_passiveCoroutine); _passiveCoroutine = null; }
-        if (_durabilityCoroutine != null) { _runner.StopCoroutine(_durabilityCoroutine); _durabilityCoroutine = null; }
-        if (_capacityCoroutine != null) { _runner.StopCoroutine(_capacityCoroutine); _capacityCoroutine = null; }
-        if (_chargeCoroutine != null) { _runner.StopCoroutine(_chargeCoroutine); _chargeCoroutine = null; }
-        if (_hasCoroutine != null) { _runner.StopCoroutine(_hasCoroutine); _hasCoroutine = null; }
-        if (_wearingCoroutine != null) { _runner.StopCoroutine(_wearingCoroutine); _wearingCoroutine = null; }
+        StopCoroutine(ref _equipCoroutine);
+        StopCoroutine(ref _limbCoroutine);
+        StopCoroutine(ref _attackCoroutine);
+        StopCoroutine(ref _passiveCoroutine);
+        StopCoroutine(ref _durabilityCoroutine);
+        StopCoroutine(ref _capacityCoroutine);
+        StopCoroutine(ref _chargeCoroutine);
+        StopCoroutine(ref _hasCoroutine);
+        StopCoroutine(ref _wearingCoroutine);
 
         KnownWearableIds.Clear();
         LimbConditionTracker.Clear();
         TriggerLastValues.Clear();
         LastWearCondition.Clear();
         _runner = null;
+    }
+
+    private static void StopCoroutine(ref Coroutine? coroutine)
+    {
+        if (coroutine == null) return;
+        _runner!.StopCoroutine(coroutine);
+        coroutine = null;
     }
 
     // ============================================================
@@ -178,7 +180,7 @@ public static class ItemEventListener
 
             var handSlot = body.handSlot;
             var handItem = body.GetItem(handSlot);
-            var currentHandItemId = handItem != null && !string.IsNullOrEmpty(handItem.id) ? handItem.id : null;
+            var currentHandItemId = handItem && !string.IsNullOrEmpty(handItem.id) ? handItem.id : null;
 
             // in_hand / not_in_hand 状态变化
             if (_lastHandItemId != currentHandItemId)
@@ -201,9 +203,6 @@ public static class ItemEventListener
 
                 _lastHandItemId = currentHandItemId;
             }
-
-            _lastHandSlot = handSlot;
-            _lastHandOccupied = handItem != null;
         }
     }
 
@@ -212,27 +211,6 @@ public static class ItemEventListener
     {
         foreach (var relativePath in scripts.Where(p => !string.IsNullOrEmpty(p)))
             ScriptUtil.Execute(entry.ModId, relativePath, itemId, null, action);
-    }
-
-    // ============================================================
-    // 轮询：手部物品使用检测
-    // ============================================================
-
-    private static IEnumerator PollItemUse()
-    {
-        while (_useCoroutine != null)
-        {
-            yield return new WaitForSeconds(PollInterval);
-
-            var body = BodyUtil.Body;
-            if (!body) continue;
-
-            var handSlot = body.handSlot;
-            var hasItem = body.HoldingItem(handSlot);
-
-            _lastHandSlot = handSlot;
-            _lastHandOccupied = hasItem;
-        }
     }
 
     // ============================================================
@@ -261,7 +239,7 @@ public static class ItemEventListener
         if (wearables == null) return;
         foreach (var item in wearables.OfType<Item>())
         {
-            if (item == null || string.IsNullOrEmpty(item.id)) continue;
+            if (item && (!item || string.IsNullOrEmpty(item.id))) continue;
             KnownWearableIds[item.GetInstanceID()] = item.id;
         }
     }
@@ -274,21 +252,22 @@ public static class ItemEventListener
         var wearables = body.GetAllWearables();
         if (wearables == null) return;
 
-        var currentIds = new Dictionary<int, string>();
+        var currentIds = new Dictionary<int, (string Id, Item Item)>();
         foreach (var item in wearables.OfType<Item>())
         {
-            if (item == null || string.IsNullOrEmpty(item.id)) continue;
-            currentIds[item.GetInstanceID()] = item.id;
+            if (!item || string.IsNullOrEmpty(item.id)) continue;
+            currentIds[item.GetInstanceID()] = (item.id, item);
         }
 
-        // 检测新装备
-        foreach (var kv in currentIds)
+        // 检测新装备 + 合并到已知集合
+        foreach (var kv in currentIds.Where(kv => !KnownWearableIds.ContainsKey(kv.Key)))
         {
-            if (!KnownWearableIds.ContainsKey(kv.Key))
+            EventUtil.Trigger(new ItemEquipEvent
             {
-                EventUtil.Trigger(new ItemEquipEvent { ItemId = kv.Value, Item = wearables.OfType<Item>()
-                    .FirstOrDefault(i => i.GetInstanceID() == kv.Key) });
-            }
+                ItemId = kv.Value.Id,
+                Item = kv.Value.Item
+            });
+            KnownWearableIds[kv.Key] = kv.Value.Id;
         }
 
         // 检测卸下装备
@@ -299,30 +278,21 @@ public static class ItemEventListener
             KnownWearableIds.Remove(kv.Key);
         }
 
-        // 合并新增
-        foreach (var kv in currentIds)
-        {
-            if (!KnownWearableIds.ContainsKey(kv.Key))
-                KnownWearableIds[kv.Key] = kv.Value;
-        }
-
         // 穿戴攻击检测：检查穿戴物品 condition 下降
         foreach (var kv in currentIds)
         {
-            var item = wearables.OfType<Item>().FirstOrDefault(i => i.GetInstanceID() == kv.Key);
-            if (item == null) continue;
+            var item = kv.Value.Item;
             var currentCondition = item.condition;
-            if (LastWearCondition.TryGetValue(kv.Value, out var lastCond)
+            if (LastWearCondition.TryGetValue(kv.Value.Id, out var lastCond)
                 && lastCond - currentCondition > 0.01f)
-            {
                 EventUtil.Trigger(new ItemWearDamageEvent
                 {
-                    ItemId = kv.Value,
+                    ItemId = kv.Value.Id,
                     Item = item,
                     DamageAmount = lastCond - currentCondition
                 });
-            }
-            LastWearCondition[kv.Value] = currentCondition;
+
+            LastWearCondition[kv.Value.Id] = currentCondition;
         }
     }
 
@@ -468,24 +438,23 @@ public static class ItemEventListener
             var body = BodyUtil.Body;
             if (!body) continue;
 
-            // 遍历所有已注册 durabiltiy 触发器的物品
+            // 遍历所有已注册 durability 触发器的物品
             foreach (var entry in GetTrackedEntriesWithTrigger(e => e.Durability.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
-                if (item == null) continue;
+                if (item is null) continue;
 
-                var currentValue = item.condition / 100f; // 转换为 0~1
+                var currentValue = item.condition / 100f;
+
                 CheckAndFireTriggers(entry.Key, item, entry.Value.Durability, currentValue,
                     (itemId, it, op, threshold, cv) => EventUtil.Trigger(new ItemDurabilityEvent
                     {
                         ItemId = itemId, Item = it,
                         Operator = op, ThresholdValue = threshold, CurrentValue = cv
-                    }), "d");
+                    }));
             }
         }
     }
-
-    // ============================================================
     // 轮询：容器容量条件触发器
     // ============================================================
 
@@ -503,7 +472,7 @@ public static class ItemEventListener
             foreach (var entry in GetTrackedEntriesWithTrigger(e => e.CapacityTrigger.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
-                if (item == null) continue;
+                if (!item) continue;
 
                 var currentWeight = Traverse.Create(item).Property("Stats")
                     .Property("TotalWeight").GetValue<float>();
@@ -544,7 +513,7 @@ public static class ItemEventListener
             foreach (var entry in GetTrackedEntriesWithTrigger(e => e.ChargeTrigger.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
-                if (item == null) continue;
+                if (!item) continue;
 
                 var battery = Traverse.Create(item).Property("Stats")
                     .Property("Battery").GetValue();
@@ -574,7 +543,7 @@ public static class ItemEventListener
     {
         yield return new WaitForSeconds(1f);
 
-        while (true)
+        while (_hasCoroutine != null)
         {
             yield return new WaitForSeconds(PollInterval);
 
@@ -596,16 +565,21 @@ public static class ItemEventListener
     {
         yield return new WaitForSeconds(1f);
 
-        while (true)
+        while (_wearingCoroutine != null)
         {
             yield return new WaitForSeconds(PollInterval);
 
-            foreach (var (instanceId, itemId) in KnownWearableIds)
+            var body = BodyUtil.Body;
+            if (!body) continue;
+
+            foreach (var (_, itemId) in KnownWearableIds)
             {
                 var entry = ItemScriptRegistry.GetEntry(itemId);
                 if (entry is null || entry.WearWearing.Count == 0) continue;
 
-                InventoryUtil.FindById(itemId, out var item);
+                var item = FindItemOnBody(body, itemId);
+                if (!item) continue;
+
                 EventUtil.Trigger(new ItemWearingEvent { ItemId = itemId, Item = item });
             }
         }
@@ -632,15 +606,7 @@ public static class ItemEventListener
     private static Item? FindItemOnBody(Body body, string itemId)
     {
         var wearables = body.GetAllWearables();
-        if (wearables != null)
-        {
-            foreach (var item in wearables)
-            {
-                if (item != null && item.id == itemId)
-                    return item;
-            }
-        }
-        return null;
+        return wearables?.FirstOrDefault(item => item.id == itemId);
     }
 
     // 检查条件触发器并触发（边沿检测）
@@ -658,7 +624,7 @@ public static class ItemEventListener
 
             var triggeredNow = EvaluateTrigger(trigger.Operator, trigger.Value, currentValue);
             var triggeredBefore = hasPrevious
-                && EvaluateTrigger(trigger.Operator, trigger.Value, previousValue);
+                                  && EvaluateTrigger(trigger.Operator, trigger.Value, previousValue);
 
             TriggerLastValues[key] = currentValue;
 

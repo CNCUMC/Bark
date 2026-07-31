@@ -167,14 +167,14 @@ function onMoodleLose(event) {
 | `event.Rounds`         | `int`    | 装填的弹药数量                                       | `onGunLoadAmmo`     |
 | `event.RoundsUnloaded` | `int`    | 卸下的弹药数量                                       | `onGunUnload`       |
 
-| 钩子函数               | 触发时机                                    |
-|------------------------|---------------------------------------------|
-| `onGunFire`            | 枪械开火（Fire() 被调用）                   |
-| `onGunRack`            | 拉枪栓 / 枪栓复位（TryRack() 被调用）       |
-| `onGunSafetyToggle`    | 保险切换（ToggleSafety() 被调用）           |
-| `onGunLoadAmmo`        | 装弹（LoadMag() 成功装填后触发）            |
-| `onGunUnload`          | 卸弹（UnloadMag() 成功卸下弹匣时触发）      |
-| `onGunJam`             | 卡壳（拉栓未抛壳或复位未上膛，轮询检测）    |
+| 钩子函数            | 触发时机                                 |
+|---------------------|------------------------------------------|
+| `onGunFire`         | 枪械开火（Fire() 被调用）                |
+| `onGunRack`         | 拉枪栓 / 枪栓复位（TryRack() 被调用）    |
+| `onGunSafetyToggle` | 保险切换（ToggleSafety() 被调用）        |
+| `onGunLoadAmmo`     | 装弹（LoadMag() 成功装填后触发）         |
+| `onGunUnload`       | 卸弹（UnloadMag() 成功卸下弹匣时触发）   |
+| `onGunJam`          | 卡壳（拉栓未抛壳或复位未上膛，轮询检测） |
 
 ```js
 function onGunFire(event) {
@@ -211,7 +211,8 @@ function onGunJam(event) {
 }
 ```
 
-> ℹ️ `onGunJam` 通过每 0.2 秒轮询 `GunScript` 状态检测卡壳，而非 Harmony 补丁。检测逻辑：拉栓后弹膛未排空 → 卡壳；枪栓复位后弹匣有弹但仍未上膛 → 卡壳。
+> ℹ️ `onGunJam` 通过每 0.2 秒轮询 `GunScript` 状态检测卡壳，而非 Harmony 补丁。检测逻辑：拉栓后弹膛未排空 →
+> 卡壳；枪栓复位后弹匣有弹但仍未上膛 → 卡壳。
 
 ### 世界 / 菜单事件
 

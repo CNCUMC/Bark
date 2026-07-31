@@ -10,6 +10,7 @@ public class GunUnloadEvent : BarkEvent
 {
     // 卸弹的枪械
     public Item GunItem { get; set; } = null!;
+
     // 卸下的弹药数量
     public int RoundsUnloaded { get; set; }
 }
