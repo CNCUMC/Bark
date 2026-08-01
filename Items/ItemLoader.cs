@@ -154,7 +154,14 @@ public static class ItemLoader
             var merged = TemplateLoader.ResolveAndMerge(obj, templateObj);
             if (merged != null)
             {
-                json = merged.ToString(Formatting.None);
+                // 缓存模板数据：直接从 merged.template JObject 读取，不与 custom_data 混合
+                var template = merged["template"] as JObject;
+                GunTemplate.CacheGunItem(itemId, template);
+                MagTemplate.CacheMagItem(itemId, template);
+                AmmunitionTemplate.CacheAmmoItem(itemId, template);
+                CasingTemplate.CacheCasingItem(itemId, template);
+
+                json = merged.ToString();
                 obj = merged;
             }
         }
@@ -194,12 +201,6 @@ public static class ItemLoader
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         StashScript(itemId, def, modId, modDir);
-
-        // 模板物品：缓存 runtime 元数据，供脚本侧查询
-        GunTemplate.CacheGunItem(itemId, def.CustomData);
-        MagTemplate.CacheMagItem(itemId, def.CustomData);
-        AmmunitionTemplate.CacheAmmoItem(itemId, def.CustomData);
-        CasingTemplate.CacheCasingItem(itemId, def.CustomData);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -269,6 +270,9 @@ public static class ItemLoader
         // decay 是对象 → 新版
         if (obj["decay"] is JObject)
             return true;
+        // template 是对象 → 模板物品，一定是新版（避免如 Casing 被误判为旧格式后触发迁移丢失模板字段）
+        if (obj["template"] is JObject)
+            return true;
         return false;
     }
 
@@ -302,12 +306,6 @@ public static class ItemLoader
 
         // 暂存脚本映射
         StashScript(itemId, def, modId, modDir);
-
-        // 模板物品：缓存 runtime 元数据，供脚本侧查询
-        GunTemplate.CacheGunItem(itemId, def.CustomData);
-        MagTemplate.CacheMagItem(itemId, def.CustomData);
-        AmmunitionTemplate.CacheAmmoItem(itemId, def.CustomData);
-        CasingTemplate.CacheCasingItem(itemId, def.CustomData);
 
         // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
@@ -471,35 +469,59 @@ public static class ItemLoader
         }
 
         // 电池
-        if (def.Battery == null) return FinalizeItemInfo(info, def);
-        var bd = def.Battery;
-        info.Battery = new BatteryProperties
+        if (def.Battery != null)
         {
-            SpawnWithBattery = bd.SpawnWithBattery
-        };
+            var bd = def.Battery;
+            info.Battery = new BatteryProperties
+            {
+                SpawnWithBattery = bd.SpawnWithBattery
+            };
 
-        switch (bd.Preset.ToLowerInvariant())
+            switch (bd.Preset.ToLowerInvariant())
+            {
+                case "small":
+                    info.Battery.StartCharge = 50f;
+                    info.Battery.Preset = BatteryItem.BatteryPreset.Small;
+                    break;
+                case "medium":
+                    info.Battery.StartCharge = 100f;
+                    info.Battery.Preset = BatteryItem.BatteryPreset.Medium;
+                    break;
+                case "large":
+                    info.Battery.StartCharge = 300f;
+                    info.Battery.Preset = BatteryItem.BatteryPreset.Large;
+                    break;
+                default:
+                    if (bd.SpawnWithBattery)
+                    {
+                        info.Battery.BatteryType = bd.BatteryType;
+                        info.Battery.MaxCharge = bd.MaxAllowedCharge;
+                    }
+
+                    break;
+            }
+        }
+
+        // 模板物品的 useAction：枪械按下扳机，弹匣退出一发子弹
+        if (GunTemplate.IsGun(itemId))
         {
-            case "small":
-                info.Battery.StartCharge = 50f;
-                info.Battery.Preset = BatteryItem.BatteryPreset.Small;
-                break;
-            case "medium":
-                info.Battery.StartCharge = 100f;
-                info.Battery.Preset = BatteryItem.BatteryPreset.Medium;
-                break;
-            case "large":
-                info.Battery.StartCharge = 300f;
-                info.Battery.Preset = BatteryItem.BatteryPreset.Large;
-                break;
-            default:
-                if (bd.SpawnWithBattery)
-                {
-                    info.Battery.BatteryType = bd.BatteryType;
-                    info.Battery.MaxCharge = bd.MaxAllowedCharge;
-                }
-
-                break;
+            info.usable = true;
+            info.useAction = (_, item) =>
+            {
+                var gs = item.GetComponent<GunScript>();
+                if (gs == null) return;
+                gs.triggerPressed = true;
+            };
+        }
+        else if (MagTemplate.IsMag(itemId))
+        {
+            info.usable = true;
+            info.useAction = (_, item) =>
+            {
+                var am = item.GetComponent<AmmoScript>();
+                if (am == null) return;
+                am.UnloadRound();
+            };
         }
 
         return FinalizeItemInfo(info, def);
