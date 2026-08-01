@@ -61,19 +61,22 @@ public static class TemplateLoader
             return null;
         }
 
-        // 提取模板参数（type 之外的所有字段，如 ammo_type、recoil 等）
+        // 提取模板参数（type 之外的所有字段，如 ammo_type、capacity 等）
         var templateParams = (JObject)templateObj.DeepClone();
         templateParams.Remove("type");
 
         try
         {
-            // 移除用户 JSON 中的 template 字段，避免合并后被反序列化回 ItemDef
-            userObj.Remove("template");
-
-            // 合并顺序：模板默认值 → 模板参数覆盖 → 用户顶层字段覆盖
             var merged = (JObject)templateDefaults.DeepClone();
-            if (templateParams.Count > 0)
-                JsonUtil.Merge(merged, templateParams);
+
+            // 用户模板参数覆盖到 merged.template 子对象
+            var mergedTemplate = merged["template"] as JObject;
+            if (mergedTemplate != null && templateParams.Count > 0)
+                JsonUtil.Merge(mergedTemplate, templateParams);
+            mergedTemplate?.Remove("type");
+
+            // 移除用户 JSON 中的 template 字段，合并其余字段到根级
+            userObj.Remove("template");
             JsonUtil.Merge(merged, userObj);
 
             return merged;

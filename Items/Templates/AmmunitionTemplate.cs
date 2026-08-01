@@ -9,24 +9,20 @@ public class AmmoData
 {
     // 子弹口径标签，如 "9mm"、"7_62x51mm"。
     // 枪械/弹匣只接受 ammo_type 匹配的弹药。
-    public string AmmoType = "9mm";
-
-    // 堆叠大小（一叠最多多少发）
-    public int StackSize = 50;
+    public string AmmoType = "7_62x51mm";
 
     // 开火后产生的弹壳类型标签，如 "9mm_casing"、"7_62_casing"。
     // 为空/null 表示弹药全消耗不返回弹壳（如炮弹）。
     public string? CasingType;
 }
 
-// 弹药物品模板：预设 stackable 属性 + 运行时弹药注册表 + 查询 API。
+// 弹药物品模板：运行时弹药注册表 + 查询 API。
 //
 // ---- 物品 JSON 用法 ----
 // "template": { "type": "ammo" }
 // "template": {
 //   "type": "ammo",
 //   "ammo_type": "7_62x51mm",
-//   "stack_size": 60,
 //   "casing_type": "7_62_casing"    // 可选，不填则全消耗不返回弹壳
 // }
 //
@@ -44,14 +40,21 @@ public class AmmunitionTemplate : ItemTemplate
     {
         return new JObject
         {
+            // ---- 顶级字段 ----
+            // "556round" 预制体自带 AmmoScript（itemType=Round, ammoType=Rifle）。
+            // 用户可在 JSON 根级覆盖此值以更换预制体。
+            ["origin_prefab"] = "9mmround",
             ["category"] = "tool",
             ["combinable"] = true,
-            ["custom_data"] = new JObject
+            ["destroy_at_zero_condition"] = false,
+
+            // ---- template 子对象 ----
+            // 布尔标记 "ammo": true 是 CacheAmmoItem 的类型识别标志，必须保留。
+            ["template"] = new JObject
             {
-                ["ammo"] = true,
-                ["ammo_type"] = "9mm",
-                ["stack_size"] = 50,
-                ["casing_type"] = "9mm_casing"
+                ["ammo"] = true,             // 缓存类型标记（必须）
+                ["ammo_type"] = "7_62x51mm",
+                ["casing_type"] = "7_62x51mm_casing"
             }
         };
     }
@@ -60,12 +63,12 @@ public class AmmunitionTemplate : ItemTemplate
 
     private static readonly Dictionary<string, AmmoData> Registry = new();
 
-    // ItemLoader 回调：检测 ItemDef.CustomData 中 ammo == true 则缓存。
-    public static void CacheAmmoItem(string itemId, Dictionary<string, object>? customData)
+    // ItemLoader 回调：检测 template 中 ammo 标记则缓存。
+    public static void CacheAmmoItem(string itemId, JObject? template)
     {
-        if (customData is null) return;
-        if (customData.TryGetValue("ammo", out var flag) && flag is true)
-            Registry[itemId] = AmmoDataFromDict(customData);
+        if (template is null) return;
+        if (template.TryGetValue("ammo", out var flag) && flag.Value<bool>())
+            Registry[itemId] = AmmoDataFromJObject(template);
     }
 
     // ItemLoader 回调：模组热重载时清除弹药条目
@@ -74,13 +77,12 @@ public class AmmunitionTemplate : ItemTemplate
         Registry.Remove(itemId);
     }
 
-    private static AmmoData AmmoDataFromDict(Dictionary<string, object> dict)
+    private static AmmoData AmmoDataFromJObject(JObject t)
     {
         return new AmmoData
         {
-            AmmoType = Ammo_TryGetString(dict, "ammo_type") ?? "9mm",
-            StackSize = Ammo_TryGetInt(dict, "stack_size") ?? 50,
-            CasingType = Ammo_TryGetString(dict, "casing_type")
+            AmmoType = (string?)t["ammo_type"] ?? "7_62x51mm",
+            CasingType = (string?)t["casing_type"]
         };
     }
 
@@ -100,14 +102,7 @@ public class AmmunitionTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.AmmoType
-            : "9mm";
-    }
-
-    public static int GetStackSize(string itemId)
-    {
-        return Registry.TryGetValue(itemId, out var d)
-            ? d.StackSize
-            : 50;
+            : "7_62x51mm";
     }
 
     // 返回弹壳类型标签，null 表示不产生弹壳（全消耗）
@@ -121,28 +116,7 @@ public class AmmunitionTemplate : ItemTemplate
     // 查询匹配指定 ammo_type 的所有弹药物品 ID
     public static List<string> FindAmmoByType(string ammoType)
     {
-        return (from kv in Registry where kv.Value.AmmoType == ammoType select kv.Key).ToList();
+        return [.. from kv in Registry where kv.Value.AmmoType == ammoType select kv.Key];
     }
 
-    // ==================== Helpers ====================
-
-    private static string? Ammo_TryGetString(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        return value as string ?? value.ToString();
-    }
-
-    private static int? Ammo_TryGetInt(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        switch (value)
-        {
-            case int i: return i;
-            case long l: return (int)l;
-            case double d: return (int)d;
-            default:
-                try { return System.Convert.ToInt32(value); }
-                catch { return null; }
-        }
-    }
 }

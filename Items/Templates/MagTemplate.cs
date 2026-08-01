@@ -13,7 +13,7 @@ public class MagData
 
     // 接受的子弹口径标签，如 "9mm"、"7_62x51mm"。
     // 弹匣只接受 ammo_type 匹配的弹药。
-    public string AmmoType = "9mm";
+    public string AmmoType = "7_62x51mm";
 
     // 弹匣容量（可装多少发）
     public int Capacity = 15;
@@ -49,19 +49,20 @@ public class MagTemplate : ItemTemplate
     {
         return new JObject
         {
+            // ---- 顶级字段 ----
+            // "riflemagazine" 预制体自带 AmmoScript（itemType=Magazine, ammoType=Pistol）。
+            // 用户可在 JSON 根级覆盖此值以更换预制体。
+            ["origin_prefab"] = "riflemagazine",
             ["category"] = "tool",
-            ["container"] = new JObject
-            {
-                ["items_visible"] = true,
-                ["max_weight"] = 0.5,
-                ["tag_restriction"] = new JArray("9mm")
-            },
             ["destroy_at_zero_condition"] = false,
-            ["custom_data"] = new JObject
+
+            // ---- template 子对象 ----
+            // 布尔标记 "mag": true 是 CacheMagItem 的类型识别标志，必须保留。
+            ["template"] = new JObject
             {
-                ["mag"] = true,
-                ["mag_type"] = "pistol_mag",
-                ["ammo_type"] = "9mm",
+                ["mag"] = true,              // 缓存类型标记（必须）
+                ["mag_type"] = "rifle_mag",
+                ["ammo_type"] = "7_62x51mm",
                 ["capacity"] = 15
             }
         };
@@ -71,12 +72,12 @@ public class MagTemplate : ItemTemplate
 
     private static readonly Dictionary<string, MagData> Registry = new();
 
-    // ItemLoader 回调：检测 ItemDef.CustomData 中 mag == true 则缓存。
-    public static void CacheMagItem(string itemId, Dictionary<string, object>? customData)
+    // ItemLoader 回调：检测 template 中 mag 标记则缓存。
+    public static void CacheMagItem(string itemId, JObject? template)
     {
-        if (customData is null) return;
-        if (customData.TryGetValue("mag", out var flag) && flag is true)
-            Registry[itemId] = MagDataFromDict(customData);
+        if (template is null) return;
+        if (template.TryGetValue("mag", out var flag) && flag.Value<bool>())
+            Registry[itemId] = MagDataFromJObject(template);
     }
 
     // ItemLoader 回调：模组热重载时清除弹匣条目
@@ -85,16 +86,14 @@ public class MagTemplate : ItemTemplate
         Registry.Remove(itemId);
     }
 
-    private static MagData MagDataFromDict(Dictionary<string, object> dict)
+    private static MagData MagDataFromJObject(JObject t)
     {
         return new MagData
         {
-            MagType = GunTemplate_TryGetString(dict, "mag_type") ?? "pistol_mag",
-            AmmoType = GunTemplate_TryGetString(dict, "ammo_type") ?? "9mm",
-            Capacity = GunTemplate_TryGetInt(dict, "capacity") ?? 15,
-            MaxWeight = GunTemplate_TryGetFloat(dict, "max_weight")
-                        ?? GunTemplate_TryGetFloat(dict, "capacity") * 0.03f
-                        ?? 0.5f
+            MagType = (string?)t["mag_type"] ?? "pistol_mag",
+            AmmoType = (string?)t["ammo_type"] ?? "7_62x51mm",
+            Capacity = (int?)t["capacity"] ?? 15,
+            MaxWeight = (float?)t["max_weight"] ?? (int?)t["capacity"] * 0.03f ?? 0.5f
         };
     }
 
@@ -121,7 +120,7 @@ public class MagTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.AmmoType
-            : "9mm";
+            : "7_62x51mm";
     }
 
     public static int GetCapacity(string itemId)
@@ -143,52 +142,4 @@ public class MagTemplate : ItemTemplate
         return [.. from kv in Registry where kv.Value.AmmoType == ammoType select kv.Key];
     }
 
-    // ==================== Helpers（复用 GunTemplate 的静态 helper 逻辑） ====================
-
-    private static string? GunTemplate_TryGetString(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        return value as string ?? value.ToString();
-    }
-
-    private static int? GunTemplate_TryGetInt(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        switch (value)
-        {
-            case int i: return i;
-            case long l: return (int)l;
-            case double d: return (int)d;
-            default:
-                try
-                {
-                    return System.Convert.ToInt32(value);
-                }
-                catch
-                {
-                    return null;
-                }
-        }
-    }
-
-    private static float? GunTemplate_TryGetFloat(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        switch (value)
-        {
-            case float f: return f;
-            case double d: return (float)d;
-            case int i: return i;
-            case long l: return l;
-            default:
-                try
-                {
-                    return System.Convert.ToSingle(value);
-                }
-                catch
-                {
-                    return null;
-                }
-        }
-    }
 }

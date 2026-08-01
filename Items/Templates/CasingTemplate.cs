@@ -9,7 +9,7 @@ public class CasingData
 {
     // 弹壳类型标签，如 "9mm_casing"、"7_62_casing"、"12gauge_hull"。
     // 弹药通过 casing_type 匹配此标签，开火后生成对应弹壳物品。
-    public string CasingType = "9mm_casing";
+    public string CasingType = "7_62x51mm_casing";
 }
 
 // 弹壳物品模板：预设 empty 容器（装弹壳）+ 运行时弹壳注册表 + 查询 API。
@@ -35,13 +35,17 @@ public class CasingTemplate : ItemTemplate
     {
         return new JObject
         {
+            // ---- 顶级字段 ----
+            // 弹壳不指定 origin_prefab，由 ItemRegistry 的默认逻辑处理。
             ["category"] = "tool",
-            ["combinable"] = true,
             ["weight"] = 0.01,
-            ["custom_data"] = new JObject
+
+            // ---- template 子对象 ----
+            // 布尔标记 "casing": true 是 CacheCasingItem 的类型识别标志，必须保留。
+            ["template"] = new JObject
             {
-                ["casing"] = true,
-                ["casing_type"] = "9mm_casing"
+                ["casing"] = true,           // 缓存类型标记（必须）
+                ["casing_type"] = "7_62x51mm_casing"
             }
         };
     }
@@ -50,12 +54,12 @@ public class CasingTemplate : ItemTemplate
 
     private static readonly Dictionary<string, CasingData> Registry = new();
 
-    // ItemLoader 回调：检测 ItemDef.CustomData 中 casing == true 则缓存。
-    public static void CacheCasingItem(string itemId, Dictionary<string, object>? customData)
+    // ItemLoader 回调：检测 template 中 casing 标记则缓存。
+    public static void CacheCasingItem(string itemId, JObject? template)
     {
-        if (customData is null) return;
-        if (customData.TryGetValue("casing", out var flag) && flag is true)
-            Registry[itemId] = CasingDataFromDict(customData);
+        if (template is null) return;
+        if (template.TryGetValue("casing", out var flag) && flag.Value<bool>())
+            Registry[itemId] = CasingDataFromJObject(template);
     }
 
     // ItemLoader 回调：模组热重载时清除弹壳条目
@@ -64,11 +68,11 @@ public class CasingTemplate : ItemTemplate
         Registry.Remove(itemId);
     }
 
-    private static CasingData CasingDataFromDict(Dictionary<string, object> dict)
+    private static CasingData CasingDataFromJObject(JObject t)
     {
         return new CasingData
         {
-            CasingType = Casing_TryGetString(dict, "casing_type") ?? "9mm_casing"
+            CasingType = (string?)t["casing_type"] ?? "7_62x51mm_casing"
         };
     }
 
@@ -88,7 +92,7 @@ public class CasingTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.CasingType
-            : "9mm_casing";
+            : "7_62x51mm_casing";
     }
 
     // 查询匹配指定 casing_type 的所有弹壳物品 ID
@@ -97,11 +101,4 @@ public class CasingTemplate : ItemTemplate
         return (from kv in Registry where kv.Value.CasingType == casingType select kv.Key).ToList();
     }
 
-    // ==================== Helpers ====================
-
-    private static string? Casing_TryGetString(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        return value as string ?? value.ToString();
-    }
 }
