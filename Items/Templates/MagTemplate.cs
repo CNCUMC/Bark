@@ -90,7 +90,7 @@ public class MagTemplate : ItemTemplate
     {
         return new MagData
         {
-            MagType = (string?)t["mag_type"] ?? "pistol_mag",
+            MagType = (string?)t["mag_type"] ?? "rifle_mag",
             AmmoType = (string?)t["ammo_type"] ?? "7_62x51mm",
             Capacity = (int?)t["capacity"] ?? 15,
             MaxWeight = (float?)t["max_weight"] ?? (int?)t["capacity"] * 0.03f ?? 0.5f
@@ -98,6 +98,9 @@ public class MagTemplate : ItemTemplate
     }
 
     // ==================== Query API ====================
+
+    // 返回所有已注册弹匣的物品 ID
+    public static IEnumerable<string> GetAllMagIds() => Registry.Keys;
 
     public static bool IsMag(string itemId)
     {

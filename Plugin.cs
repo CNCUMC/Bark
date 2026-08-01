@@ -5,6 +5,7 @@ using Bark.Event;
 using Bark.Event.Listener;
 using Bark.Example;
 using Bark.Items;
+using Bark.Items.Runtime;
 using Bark.Items.Templates;
 using Bark.Moodle;
 using Bark.Script;
@@ -53,6 +54,8 @@ public class Plugin : BaseUnityPlugin
         TileEventListener.Stop();
         TileScriptRunner.Stop();
         GunEventListener.Stop();
+        GunRuntimeManager.Unapply();
+        GunMagTracker.ClearAll();
         _scriptModLoader?.Dispose();
     }
 
@@ -80,6 +83,10 @@ public class Plugin : BaseUnityPlugin
 
         // 注册内置物品模板（如 gun 模板），供后续模组的物品 JSON 引用
         InitializeBuiltinTemplates();
+
+        // 安装枪械运行时补丁，覆盖 GunScript 原生装弹/卸弹/开火逻辑，
+        // 用模板标签匹配替换硬编码的弹药类型枚举
+        GunRuntimeManager.Apply();
 
         LoadScriptMods();
 

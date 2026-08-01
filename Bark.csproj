@@ -62,6 +62,9 @@
         <Reference Include="UnityEngine.PhysicsModule">
             <HintPath>$(ManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>$(ManagedDir)/UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.TilemapModule">
             <HintPath>$(ManagedDir)/UnityEngine.TilemapModule.dll</HintPath>
         </Reference>

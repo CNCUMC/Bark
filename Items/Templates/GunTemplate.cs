@@ -9,7 +9,7 @@ public class GunData
 {
     // 子弹口径标签，如 "9mm"、"7_62x51mm"、"5_56x45mm"、"12gauge"。
     // 枪械只接受 ammo_type 标签匹配的弹匣或弹药。
-    public string AmmoType = "9mm";
+    public string AmmoType = "7_62x51mm";
 
     // 射击模式: semi_auto / auto / pump
     public string FiringMode = "semi_auto";
@@ -31,7 +31,7 @@ public class GunData
     public float AnimalDamage = 25f;
 
     // 枪声大小（影响 NPC 反应范围）
-    public float Loudness = 60f;
+    public float Loudness = 25f;
 
     // 每次开火的弹丸数（霰弹枪 >1）
     public int ShotsPerFire = 1;
@@ -41,6 +41,41 @@ public class GunData
 
     // 每次开火的耐久消耗
     public float ConditionLossPerShot = 0.01f;
+
+    // 直装枪械（Direct=true）的内部管/仓容量，
+    // 如霰弹枪 6 发、杠杆步枪 5 发。
+    // 弹匣供弹枪（Direct=false）忽略此字段。
+    // 为 0 时使用 GunRuntimeManager 内置默认值（6）。
+    public int Capacity;
+
+    // 半自动/全自动的枪机循环延迟（秒）。
+    // 控制每次射击后到下一次可击发的时间间隔，
+    // 泵动式（pump）忽略此字段。
+    public float DesiredGasTime = 0.1f;
+
+    // 出厂时是否开启保险（start_safe）。
+    // true 表示捡起后需要手动关保险才能射击，false 表示可以直接射击。
+    public bool StartSafe;
+
+    // 枪膛初始状态（start_chambered）。
+    // true = 出厂膛内有弹，GunScript.Update() 渲染 HUD 并允许手动击发。
+    // false = 出厂膛空，需先拉膛上弹才能击发。
+    // 默认 true。注意 RoundInChamber 枚举只有 Round / None 两个值，不含弹药类型。
+    public bool StartChambered = true;
+
+    // 供弹方式: "mag"（弹匣）、"direct"（管/仓直装）、"revolver"（转轮）。
+    // 与 FiringMode 不同：FiringMode 控制射击行为（semi_auto/auto/pump），
+    // FeedType 控制 GunsScript 的内部装填逻辑。
+    // 默认 "mag"。
+    public string FeedType = "mag";
+
+    // 枪口偏移量（相对于枪身根节点的 localPosition）。
+    // X 为正 → 精灵右侧枪口方向，绝对值取决于精灵尺寸。
+    // 通用预制体（geofruit/rifle）无自带 barrel 子对象时，GunRuntimeManager
+    // 用此偏移量创建枪口 Transform，控制子弹生成位置和射击方向。
+    // 默认 (0.5, 0.0) 适合步枪，手枪可设为 (0.2, 0.0)，霰弹枪 (0.6, 0.0)。
+    public float BarrelOffsetX = 0.5f;
+    public float BarrelOffsetY;
 }
 
 // 枪械物品模板：预设 tool 类别枪械的通用默认值 + 运行时枪械注册表 + 查询 API。
@@ -52,7 +87,8 @@ public class GunData
 //   "ammo_type": "7_62x51mm",
 //   "mag_type": "ar15_mag",
 //   "firing_mode": "auto",
-//   "origin_prefab": "rifle"
+//   "origin_prefab": "rifle",
+//   "barrel_offset": { "x": 0.5, "y": 0.0 }
 // }
 //
 // ---- 脚本端查询（JS/Lua 通过 ApiRegistry 代理调用） ----
@@ -71,31 +107,36 @@ public class GunTemplate : ItemTemplate
     {
         return new JObject
         {
-            ["category"] = "tool",
+            // ---- 顶级字段（与 ItemDef 对齐） ----
+            // origin_prefab 决定生成的 GameObject 使用哪个 Unity 预制体。
+            // "rifle" 预制体自带 GunScript 组件（ammoType=Rifle, feedType=Mag, firingMode=SemiAuto）。
+            // 用户可在 JSON 根级覆盖此值以更换预制体。
+            ["origin_prefab"] = "rifle",
+            ["category"] = "utility",
             ["only_hold_in_hands"] = true,
-            ["origin_prefab"] = "pistol",
-            ["wearable"] = new JObject
+
+            // ---- template 子对象（仅供模板系统消费，不参与 ItemDef 反序列化） ----
+            // 布尔标记 "gun": true 是 CacheGunItem 的类型识别标志，必须保留。
+            ["template"] = new JObject
             {
-                ["slot_id"] = "weapon",
-                ["desired_limb"] = "HandF",
-                ["dual_wielded"] = false,
-                ["sorting_order"] = 0,
-                ["can_be_held"] = true
-            },
-            ["custom_data"] = new JObject
-            {
-                ["gun"] = true,
-                ["ammo_type"] = "9mm",
+                ["gun"] = true,              // 缓存类型标记（必须）
+                ["ammo_type"] = "7_62x51mm",
                 ["firing_mode"] = "semi_auto",
-                ["mag_type"] = "pistol_mag",
+                ["mag_type"] = "rifle_mag",
                 ["direct"] = false,
                 ["knockback"] = 0.5,
                 ["structure_damage"] = 12.0,
                 ["animal_damage"] = 25.0,
-                ["loudness"] = 60.0,
+                ["loudness"] = 25.0,
                 ["shots_per_fire"] = 1,
                 ["vertical_spread"] = 5.0,
-                ["condition_loss_per_shot"] = 0.01
+                ["condition_loss_per_shot"] = 0.01,
+                ["capacity"] = 0,
+                ["desired_gas_time"] = 0.1,
+                ["start_safe"] = false,
+                ["start_chambered"] = true,
+                ["feed_type"] = "mag",
+                ["barrel_offset"] = new JObject { ["x"] = 0.5, ["y"] = 0.0 }
             }
         };
     }
@@ -104,13 +145,13 @@ public class GunTemplate : ItemTemplate
 
     private static readonly Dictionary<string, GunData> Registry = new();
 
-    // ItemLoader 回调：检测 ItemDef.CustomData 中 gun == true 则缓存。
-    // customData 可为 null（非枪械物品或未配置）。
-    public static void CacheGunItem(string itemId, Dictionary<string, object>? customData)
+    // ItemLoader 回调：检测 template 中 gun 标记则缓存。
+    // template 可为 null（非模板注册物品）。
+    public static void CacheGunItem(string itemId, JObject? template)
     {
-        if (customData is null) return;
-        if (customData.TryGetValue("gun", out var flag) && flag is true)
-            Registry[itemId] = GunDataFromDict(customData);
+        if (template is null) return;
+        if (template.TryGetValue("gun", out var flag) && flag.Value<bool>())
+            Registry[itemId] = GunDataFromJObject(template);
     }
 
     // ItemLoader 回调：模组热重载时清除枪械条目
@@ -119,27 +160,43 @@ public class GunTemplate : ItemTemplate
         Registry.Remove(itemId);
     }
 
-    // 将反序列化后的 Dictionary<string, object> 转为强类型 GunData。
-    // Newtonsoft 将 JSON 整数反序列化为 long、浮点数为 double，此处做容错转换。
-    private static GunData GunDataFromDict(Dictionary<string, object> dict)
+    private static GunData GunDataFromJObject(JObject t)
     {
         return new GunData
         {
-            AmmoType = TryGetString(dict, "ammo_type") ?? "9mm",
-            FiringMode = TryGetString(dict, "firing_mode") ?? "semi_auto",
-            MagType = TryGetString(dict, "mag_type") ?? "pistol_mag",
-            Direct = TryGetBool(dict, "direct"),
-            Knockback = TryGetFloat(dict, "knockback") ?? 0.5f,
-            StructureDamage = TryGetFloat(dict, "structure_damage") ?? 12f,
-            AnimalDamage = TryGetFloat(dict, "animal_damage") ?? 25f,
-            Loudness = TryGetFloat(dict, "loudness") ?? 60f,
-            ShotsPerFire = TryGetInt(dict, "shots_per_fire") ?? 1,
-            VerticalSpread = TryGetFloat(dict, "vertical_spread") ?? 5f,
-            ConditionLossPerShot = TryGetFloat(dict, "condition_loss_per_shot") ?? 0.01f
+            AmmoType = (string?)t["ammo_type"] ?? "7_62x51mm",
+            FiringMode = (string?)t["firing_mode"] ?? "semi_auto",
+            MagType = (string?)t["mag_type"] ?? "rifle_mag",
+            Direct = t.TryGetValue("direct", out var dv) && dv.Value<bool>(),
+            Knockback = (float?)t["knockback"] ?? 0.5f,
+            StructureDamage = (float?)t["structure_damage"] ?? 12f,
+            AnimalDamage = (float?)t["animal_damage"] ?? 25f,
+            Loudness = (float?)t["loudness"] ?? 25f,
+            ShotsPerFire = (int?)t["shots_per_fire"] ?? 1,
+            VerticalSpread = (float?)t["vertical_spread"] ?? 5f,
+            ConditionLossPerShot = (float?)t["condition_loss_per_shot"] ?? 0.01f,
+            Capacity = (int?)t["capacity"] ?? 0,
+            DesiredGasTime = (float?)t["desired_gas_time"] ?? 0.1f,
+            StartSafe = t.TryGetValue("start_safe", out var ss) && ss.Value<bool>(),
+            StartChambered = !t.TryGetValue("start_chambered", out var sc) || sc.Value<bool>(),
+            FeedType = (string?)t["feed_type"] ?? "mag",
+            BarrelOffsetX = ParseBarrelOffset(t, "x", 0.5f),
+            BarrelOffsetY = ParseBarrelOffset(t, "y", 0f)
         };
     }
 
+    // 解析 barrel_offset.{x|y} 子字段，不存在时返回默认值。
+    private static float ParseBarrelOffset(JObject t, string axis, float defaultValue)
+    {
+        var offset = t["barrel_offset"] as JObject;
+        if (offset is null) return defaultValue;
+        return (float?)offset[axis] ?? defaultValue;
+    }
+
     // ==================== Query API ====================
+
+    // 返回所有已注册枪械的物品 ID
+    public static IEnumerable<string> GetAllGunIds() => Registry.Keys;
 
     public static bool IsGun(string itemId)
     {
@@ -155,7 +212,7 @@ public class GunTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.AmmoType
-            : "9mm";
+            : "7_62x51mm";
     }
 
     public static string GetFiringMode(string itemId)
@@ -202,7 +259,7 @@ public class GunTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.Loudness
-            : 60f;
+            : 25f;
     }
 
     public static int GetShotsPerFire(string itemId)
@@ -226,66 +283,11 @@ public class GunTemplate : ItemTemplate
             : 0.01f;
     }
 
-    // ==================== Helpers ====================
-
-    private static string? TryGetString(Dictionary<string, object> dict, string key)
+    public static int GetCapacity(string itemId)
     {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        return value as string ?? value.ToString();
+        return Registry.TryGetValue(itemId, out var d)
+            ? d.Capacity
+            : 0;
     }
 
-    private static bool TryGetBool(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return false;
-        if (value is bool b) return b;
-        return false;
-    }
-
-    private static int? TryGetInt(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        switch (value)
-        {
-            case int i:
-                return i;
-            case long l:
-                return (int)l;
-            case double d:
-                return (int)d;
-            default:
-                try
-                {
-                    return System.Convert.ToInt32(value);
-                }
-                catch
-                {
-                    return null;
-                }
-        }
-    }
-
-    private static float? TryGetFloat(Dictionary<string, object> dict, string key)
-    {
-        if (!dict.TryGetValue(key, out var value)) return null;
-        switch (value)
-        {
-            case float f:
-                return f;
-            case double d:
-                return (float)d;
-            case int i:
-                return i;
-            case long l:
-                return l;
-            default:
-                try
-                {
-                    return System.Convert.ToSingle(value);
-                }
-                catch
-                {
-                    return null;
-                }
-        }
-    }
 }

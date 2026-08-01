@@ -115,7 +115,7 @@ public static class JsonUtil
     public static void WriteFile(string path, JObject obj)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, obj.ToString(Formatting.Indented) + Environment.NewLine);
+        File.WriteAllText(path, JsonConvert.SerializeObject(obj, Formatting.Indented) + Environment.NewLine);
     }
 
     // 从 JObject 中安全获取值
@@ -153,6 +153,6 @@ public static class JsonUtil
     public static string PrettyPrint(string json)
     {
         var obj = JToken.Parse(json);
-        return obj.ToString(Formatting.Indented);
+        return JsonConvert.SerializeObject(obj, Formatting.Indented);
     }
 }

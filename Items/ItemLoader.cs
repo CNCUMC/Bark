@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Bark.Items.Runtime;
 using Bark.Items.Templates;
 using Bark.Liquid;
 using Bark.Script;
@@ -97,6 +98,9 @@ public static class ItemLoader
 
         if (loadedCount > 0)
             LogUtil.Info("items.loaded_count", manifest.Id, loadedCount);
+
+        // 热重载完成后刷新所有已存在枪械的枪口位置（barrel_offset 变更即时生效）
+        GunRuntimeManager.RefreshAllBarrelOffsets();
     }
 
     // 在引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry
@@ -506,6 +510,15 @@ public static class ItemLoader
         if (GunTemplate.IsGun(itemId))
         {
             info.usable = true;
+            // usableWithLMB + autoAttack 是手持枪械手动开枪和渲染 HUD 的必要条件。
+            // 缺少这两个标志时，物品栏"使用"可开火（useAction 绕过状态检查），
+            // 但手持时 GunScript.Update() 不处理击发输入也不渲染 HUD。
+            info.usableWithLMB = true;
+            info.autoAttack = true;
+            // 将 "gun" 追加到 tags，避免覆盖用户在 JSON 中自定义的标签。
+            info.tags = string.IsNullOrEmpty(def.Tags)
+                ? "gun"
+                : (def.Tags.Contains("gun") ? def.Tags : def.Tags + ",gun");
             info.useAction = (_, item) =>
             {
                 var gs = item.GetComponent<GunScript>();
