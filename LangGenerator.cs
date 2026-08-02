@@ -503,6 +503,123 @@ internal class LangGenerator : ModLangGenMultiBase
             "已補丁 GunScript.{0}",
             "Запатчен GunScript.{0}");
 
+        // Log - Gun Runtime
+        Log("gun_runtime.gunscript_not_found",
+            "GunScript type not found in game assemblies, gun runtime patches skipped",
+            "未在游戏程序集中找到 GunScript 类型，已跳过枪械运行时补丁",
+            "未在遊戲組件中找到 GunScript 類型，已跳過槍械運行時補丁",
+            "Тип GunScript не найден в сборках игры, патчи пропущены");
+        Log("gun_runtime.patches_applied",
+            "Gun runtime patches applied",
+            "枪械运行时补丁已应用",
+            "槍械運行時補丁已應用",
+            "Патчи GunRuntime применены");
+        Log("gun_runtime.patch_failed",
+            "Gun runtime patch failed: {0}",
+            "枪械运行时补丁失败: {0}",
+            "槍械運行時補丁失敗: {0}",
+            "Ошибка патча GunRuntime: {0}");
+        Log("gun_runtime.load_mag",
+            "load_mag gunId={0} ammoId={1} rounds={2}",
+            "装弹匣 gunId={0} ammoId={1} 弹数={2}",
+            "裝彈匣 gunId={0} ammoId={1} 彈數={2}",
+            "load_mag gunId={0} ammoId={1} патронов={2}");
+        Log("gun_runtime.incompatible_ammo_type",
+            "Ammo type '{0}' incompatible with gun ammo type '{1}'",
+            "弹药类型 '{0}' 与枪械弹药类型 '{1}' 不兼容",
+            "彈藥類型 '{0}' 與槍械彈藥類型 '{1}' 不相容",
+            "Тип боеприпаса '{0}' несовместим с типом '{1}' оружия");
+        Log("gun_runtime.load_round",
+            "load_round gunId={0} ammoId={1} state_rounds={2}",
+            "装弹 gunId={0} ammoId={1} 膛内={2}",
+            "裝彈 gunId={0} ammoId={1} 膛內={2}",
+            "load_round gunId={0} ammoId={1} в_стволе={2}");
+        Log("gun_runtime.unload_direct",
+            "unload_direct gunId={0} rounds={1}",
+            "退弹（直装） gunId={0} 弹数={1}",
+            "退彈（直裝） gunId={0} 彈數={1}",
+            "unload_direct gunId={0} патронов={1}");
+        Log("gun_runtime.unload_mag",
+            "unload_mag gunId={0} magId={1} rounds={2}",
+            "退弹匣 gunId={0} 弹匣={1} 弹数={2}",
+            "退彈匣 gunId={0} 彈匣={1} 彈數={2}",
+            "unload_mag gunId={0} magId={1} патронов={2}");
+        Log("gun_runtime.gun_init",
+            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
+            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
+            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
+            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}");
+        Log("gun_runtime.gun_init_no_sprite",
+            "gun_init_no_sprite itemId={0} — cannot find sprites, placeholder texture used. Check SpriteRenderer and Resources prefab.",
+            "gun_init_no_sprite itemId={0} — 无法获取任何精灵，使用占位纹理。请检查预制体 SpriteRenderer 和 Resources 中是否存在对应枪械预制体。",
+            "gun_init_no_sprite itemId={0} — 無法獲取任何精靈，使用佔位紋理。請檢查預製體 SpriteRenderer 和 Resources 中是否存在對應槍械預製體。",
+            "gun_init_no_sprite itemId={0} — не удалось получить спрайты, используется заглушка. Проверьте SpriteRenderer и префаб.");
+        Log("gun_runtime.gun_init_capacity_zero",
+            "gun_init_capacity_zero itemId={0} feedType={1} — capacity not set, using fallback={2}. Add \"capacity\": XX in template JSON.",
+            "gun_init_capacity_zero itemId={0} feedType={1} — 未在模板中设置 capacity，使用回退值 {2}。请在 JSON 中添加 \"capacity\": XX",
+            "gun_init_capacity_zero itemId={0} feedType={1} — 未在模板中設定 capacity，使用回退值 {2}。請在 JSON 中添加 \"capacity\": XX",
+            "gun_init_capacity_zero itemId={0} feedType={1} — вместимость не задана, резерв={2}. Добавьте \"capacity\": XX в JSON шаблона.");
+        Log("gun_runtime.gun_init_no_mag_by_type",
+            "gun_init_no_mag_by_type itemId={0} gun_mag_type={1} gun_ammo_type={2} — no registered mag matching mag_type, falling back to ammo_type lookup",
+            "gun_init_no_mag_by_type itemId={0} gun_mag_type={1} gun_ammo_type={2} — 没有已注册弹匣的 mag_type 匹配此枪，将按 ammo_type 回退查找",
+            "gun_init_no_mag_by_type itemId={0} gun_mag_type={1} gun_ammo_type={2} — 沒有已註冊彈匣的 mag_type 匹配此槍，將按 ammo_type 回退查找",
+            "gun_init_no_mag_by_type itemId={0} gun_mag_type={1} gun_ammo_type={2} — нет магазина с mag_type, откат к поиску по ammo_type");
+        Log("gun_runtime.gun_init_mag_type_mismatch",
+            "gun_init_mag_type_mismatch itemId={0} gun_mag_type={1} mag_id={2} mag_mag_type={3} — mag_type mismatch! Add \"mag_type\": \"{4}\" to the magazine JSON.",
+            "gun_init_mag_type_mismatch itemId={0} gun_mag_type={1} mag_id={2} mag_mag_type={3} — 弹匣 mag_type 与枪械不匹配，装弹会失败！请在弹匣 JSON 中设置 \"mag_type\": \"{4}\"",
+            "gun_init_mag_type_mismatch itemId={0} gun_mag_type={1} mag_id={2} mag_mag_type={3} — 彈匣 mag_type 與槍械不匹配，裝彈會失敗！請在彈匣 JSON 中設置 \"mag_type\": \"{4}\"",
+            "gun_init_mag_type_mismatch itemId={0} gun_mag_type={1} mag_id={2} mag_mag_type={3} — несовпадение mag_type! Добавьте \"mag_type\": \"{4}\" в JSON магазина.");
+        Log("gun_runtime.handle_gun_menu_null_barrel",
+            "handle_gun_menu_null_barrel — GunScript.barrel is null",
+            "handle_gun_menu_null_barrel — GunScript.barrel 为 null",
+            "handle_gun_menu_null_barrel — GunScript.barrel 為 null",
+            "handle_gun_menu_null_barrel — GunScript.barrel равен null");
+        Log("gun_runtime.handle_gun_menu_null_gunscript",
+            "handle_gun_menu_null_gunscript — item has 'gun' tag but GetComponent<GunScript>() returns null",
+            "handle_gun_menu_null_gunscript — 物品有 'gun' 标签但 GetComponent<GunScript>() 返回 null",
+            "handle_gun_menu_null_gunscript — 物品有 'gun' 標籤但 GetComponent<GunScript>() 返回 null",
+            "handle_gun_menu_null_gunscript — предмет с тегом 'gun' но GetComponent<GunScript>() возвращает null");
+        Log("gun_runtime.handle_gun_menu_prefix_error",
+            "handle_gun_menu_prefix_error: {0}: {1}",
+            "handle_gun_menu_prefix_error: {0}: {1}",
+            "handle_gun_menu_prefix_error: {0}: {1}",
+            "handle_gun_menu_prefix_error: {0}: {1}");
+        Log("gun_runtime.handle_gun_menu_null_pc_field",
+            "handle_gun_menu_null_pc_field field={0}",
+            "handle_gun_menu_null_pc_field 字段={0}",
+            "handle_gun_menu_null_pc_field 欄位={0}",
+            "handle_gun_menu_null_pc_field поле={0}");
+        Log("gun_runtime.load_mag_attempt",
+            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
+            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
+            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
+            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}");
+        Log("gun_runtime.load_mag_incompatible_mag_type",
+            "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}",
+            "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}",
+            "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}",
+            "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}");
+        Log("gun_runtime.load_mag_incompatible_ammo_type",
+            "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
+            "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
+            "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
+            "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}");
+        Log("gun_runtime.on_unload_mag",
+            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
+            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
+            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
+            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}");
+        Log("gun_runtime.unload_mag_fallback_mag_type",
+            "unload_mag_fallback find_by_mag_type={0} found={1}",
+            "unload_mag_fallback find_by_mag_type={0} found={1}",
+            "unload_mag_fallback find_by_mag_type={0} found={1}",
+            "unload_mag_fallback find_by_mag_type={0} found={1}");
+        Log("gun_runtime.unload_mag_fallback_ammo_type",
+            "unload_mag_fallback find_by_ammo_type={0} found={1}",
+            "unload_mag_fallback find_by_ammo_type={0} found={1}",
+            "unload_mag_fallback find_by_ammo_type={0} found={1}",
+            "unload_mag_fallback find_by_ammo_type={0} found={1}");
+
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
             "Lua mod '{0}' failed to load: {1}",

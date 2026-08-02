@@ -36,8 +36,9 @@ public class GunData
     // 每次开火的弹丸数（霰弹枪 >1）
     public int ShotsPerFire = 1;
 
-    // 垂直散布角度
-    public float VerticalSpread = 5f;
+    // 垂直散布（tan 值，非角度）。Fire 公式: dir = right + up * (Random * spread)
+    // 0.05 ≈ 2.9° 最大散布，0.1 ≈ 5.7°，0.02 ≈ 1.1°。设 0 为完全精准。
+    public float VerticalSpread = 0.05f;
 
     // 每次开火的耐久消耗
     public float ConditionLossPerShot = 0.01f;
@@ -129,7 +130,7 @@ public class GunTemplate : ItemTemplate
                 ["animal_damage"] = 25.0,
                 ["loudness"] = 25.0,
                 ["shots_per_fire"] = 1,
-                ["vertical_spread"] = 5.0,
+                ["vertical_spread"] = 0.05,
                 ["condition_loss_per_shot"] = 0.01,
                 ["capacity"] = 0,
                 ["desired_gas_time"] = 0.1,
@@ -173,7 +174,7 @@ public class GunTemplate : ItemTemplate
             AnimalDamage = (float?)t["animal_damage"] ?? 25f,
             Loudness = (float?)t["loudness"] ?? 25f,
             ShotsPerFire = (int?)t["shots_per_fire"] ?? 1,
-            VerticalSpread = (float?)t["vertical_spread"] ?? 5f,
+            VerticalSpread = (float?)t["vertical_spread"] ?? 0.05f,
             ConditionLossPerShot = (float?)t["condition_loss_per_shot"] ?? 0.01f,
             Capacity = (int?)t["capacity"] ?? 0,
             DesiredGasTime = (float?)t["desired_gas_time"] ?? 0.1f,
@@ -273,7 +274,7 @@ public class GunTemplate : ItemTemplate
     {
         return Registry.TryGetValue(itemId, out var d)
             ? d.VerticalSpread
-            : 5f;
+            : 0.05f;
     }
 
     public static float GetConditionLossPerShot(string itemId)

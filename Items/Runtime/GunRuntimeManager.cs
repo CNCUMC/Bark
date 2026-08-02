@@ -51,29 +51,9 @@ public static class GunRuntimeManager
         try
         {
             // ============================================================
-            // [临时注释] 装弹/退弹/开火补丁暂注，待逐步恢复。
+            // barrel/精灵字段的初始化在 OnTemplateCreatedPostfix 中完成（模板创建时
+            // 直接创建 barrel 子对象）。不再尝试 patch Awake（Unity 魔法方法不可 patch）。
             // ============================================================
-
-            // Awake Postfix：立即补全 barrel 和精灵引用。
-            // HandleGunMenu 在 PlayerCamera.LateUpdate 中调用，可能早于 GunScript.Start，
-            // 因此必须在 Awake（Instantiate 时同步调用）阶段就把这些字段设为非空。
-            var gunAwake = AccessTools.Method(gunScriptType, "Awake");
-            if (gunAwake != null && gunAwake.DeclaringType == gunScriptType)
-            {
-                // GunScript 自带 Awake 覆写
-                _harmony.Patch(gunAwake,
-                    postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnGunAwakePostfix)));
-            }
-            else
-            {
-                // GunScript 未覆写 Awake，回退到 MonoBehaviour.Awake 并做类型过滤
-                var monoAwake = AccessTools.Method(typeof(MonoBehaviour), "Awake");
-                if (monoAwake != null)
-                {
-                    _harmony.Patch(monoAwake,
-                        postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnGunAwakePostfix)));
-                }
-            }
 
             // Start Postfix：将模板 GunData 写入 GunScript 组件 + 补全运行时关键字段。
             var start = AccessTools.Method(gunScriptType, "Start");
@@ -178,43 +158,6 @@ public static class GunRuntimeManager
     }
 
     // ============================================================
-    // GunScript.Awake Postfix：立即设置 NRE 关键字段（barrel + sprite）
-    // ============================================================
-    //
-    // Awake 在 Instantiate 时同步调用，早于任何 Update/LateUpdate。
-    // 如果只在 Start 中设置 barrel，HandleGunMenu（PlayerCamera.LateUpdate）
-    // 可能在同一帧内先执行，导致 barrel 为 null 触发 NRE。
-    //
-    // 注意：如果 GunScript 没有覆写 Awake，我们会回退到 patching
-    // MonoBehaviour.Awake（带类型过滤）。此 postfix 是轻量安全网，
-    // 不做模板数据初始化（交给 Start postfix）。
-
-    private static void OnGunAwakePostfix(object __instance)
-    {
-        if (__instance is not GunScript gun) return;
-
-        // 枪管子对象：如果模板阶段创建的被序列化克隆，这里 barrel 已有值。
-        // 非序列化字段回退时，从 GunData 读取各枪的 barrel_offset。
-        if (gun.barrel == null)
-        {
-            var (bx, by) = GetBarrelOffset(gun);
-            CreateBarrelChild(gun.gameObject, gun, bx, by);
-        }
-
-        if (gun.normalSprite == null)
-        {
-            var sr = gun.GetComponent<SpriteRenderer>();
-            if (sr != null && sr.sprite != null)
-            {
-                gun.normalSprite = sr.sprite;
-                gun.rackedSprite = sr.sprite;
-                gun.normalSpriteNoMag = sr.sprite;
-                gun.rackedSpriteNoMag = sr.sprite;
-            }
-        }
-    }
-
-    // ============================================================
     // GunScript.Start Postfix：将模板 GunData 写入 GunScript 组件
     // ============================================================
     //
@@ -304,7 +247,7 @@ public static class GunRuntimeManager
         // 把 Item 当前的 sprite 拷贝进去，防止 Update 把 SpriteRenderer.sprite 设成 null，
         // 从而引发 HandleCurrentlyHeldIcon / InvButton.UpdateGraphic 的 NRE。
         var sr = __instance.GetComponent<SpriteRenderer>();
-        if (sr is not null && sr.sprite is not null)
+        if (sr?.sprite != null)
         {
             __instance.normalSprite = sr.sprite;
             __instance.rackedSprite = sr.sprite;
@@ -329,7 +272,7 @@ public static class GunRuntimeManager
         // 正常流程不应走到这里，仅作安全网使用。
         if (__instance.normalSprite == null)
         {
-            Plugin.Logger.LogWarning($"[Bark] gun_init_no_sprite itemId={item.id} — 无法获取任何精灵，使用占位纹理。请检查预制体 SpriteRenderer 和 Resources 中是否存在对应枪械预制体。");
+            LogUtil.Warning("gun_runtime.gun_init_no_sprite", item.id);
             var tex = new Texture2D(4, 4, TextureFormat.ARGB32, false) { hideFlags = HideFlags.DontSave };
             var pixels = new Color32[16];
             for (var i = 0; i < 16; i++) pixels[i] = new Color32(64, 64, 64, 255);
@@ -375,7 +318,7 @@ public static class GunRuntimeManager
         {
             var cap = gunData.Capacity > 0 ? gunData.Capacity : DefaultDirectCapacity;
             if (gunData.Capacity <= 0)
-                Plugin.Logger.LogWarning($"[Bark] gun_init_capacity_zero itemId={item.id} feedType={gunData.FeedType} — 未在模板中设置 capacity，使用回退值 {DefaultDirectCapacity}，请检查 JSON 并添加 \"capacity\": XX");
+                LogUtil.Warning("gun_runtime.gun_init_capacity_zero", item.id, gunData.FeedType, DefaultDirectCapacity);
 
             __instance.magCapacity = cap;
             __instance.hasMag = true;
@@ -388,14 +331,14 @@ public static class GunRuntimeManager
             var defaultMagIds = MagTemplate.FindMagsByType(gunData.MagType);
             if (defaultMagIds.Count == 0)
             {
-                Plugin.Logger.LogWarning($"[Bark] gun_init_no_mag_by_type itemId={item.id} gun_mag_type={gunData.MagType} gun_ammo_type={gunData.AmmoType} — 没有已注册弹匣的 mag_type 匹配此枪，将按 ammo_type 回退查找");
+                LogUtil.Warning("gun_runtime.gun_init_no_mag_by_type", item.id, gunData.MagType, gunData.AmmoType);
                 defaultMagIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
             }
             if (defaultMagIds.Count > 0)
             {
                 var foundMagData = MagTemplate.GetMagData(defaultMagIds[0]);
                 if (foundMagData != null && foundMagData.MagType != gunData.MagType)
-                    Plugin.Logger.LogWarning($"[Bark] gun_init_mag_type_mismatch itemId={item.id} gun_mag_type={gunData.MagType} mag_id={defaultMagIds[0]} mag_mag_type={foundMagData.MagType} — 弹匣的 mag_type 与枪械不匹配，装弹会失败！请在弹匣 JSON 中也设置 \"mag_type\": \"{gunData.MagType}\"");
+                    LogUtil.Warning("gun_runtime.gun_init_mag_type_mismatch", item.id, gunData.MagType, defaultMagIds[0], foundMagData.MagType, gunData.MagType);
             }
             state.MagItemId = defaultMagIds.Count > 0 ? defaultMagIds[0] : null;
         }
@@ -421,7 +364,7 @@ public static class GunRuntimeManager
             __instance.muzzleParticle = CloneMuzzleFromPrefab(__instance.ammoType, __instance.transform);
         }
 
-        Plugin.Logger.LogInfo($"[Bark] gun_init itemId={item.id} mag_type={gunData.MagType} ammo_type={gunData.AmmoType} feedType={gunData.FeedType} capacity={gunData.Capacity}");
+        LogUtil.Info("gun_runtime.gun_init", item.id, gunData.MagType, gunData.AmmoType, gunData.FeedType, gunData.Capacity);
     }
 
     // 从游戏 pistol/shotgun 预制体克隆枪口粒子。
@@ -443,7 +386,7 @@ public static class GunRuntimeManager
             if (prefab.transform.childCount <= childIdx) goto fallback;
 
             var src = prefab.transform.GetChild(childIdx).gameObject;
-            var clone = UnityEngine.Object.Instantiate(src);
+            var clone = Object.Instantiate(src);
             clone.transform.SetParent(parent, false);
             clone.transform.localPosition = Vector3.zero;
             clone.transform.localRotation = Quaternion.identity;
@@ -523,14 +466,14 @@ public static class GunRuntimeManager
             var gun = ((Component)item).GetComponent<GunScript>();
             if (gun == null)
             {
-                Plugin.Logger.LogWarning("[Bark] handle_gun_menu_null_gunscript — item has 'gun' tag but GetComponent<GunScript>() returns null");
+                LogUtil.Warning("gun_runtime.handle_gun_menu_null_gunscript");
                 return false;
             }
 
             // 5. GunScript.barrel — HandleGunMenu:2470 访问 barrel.transform.position
             if (gun.barrel == null)
             {
-                Plugin.Logger.LogWarning("[Bark] handle_gun_menu_null_barrel — GunScript.barrel is null");
+                LogUtil.Warning("gun_runtime.handle_gun_menu_null_barrel");
                 return false;
             }
 
@@ -539,7 +482,7 @@ public static class GunRuntimeManager
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning($"[Bark] handle_gun_menu_prefix_error: {ex.GetType().Name}: {ex.Message}");
+            LogUtil.Warning("gun_runtime.handle_gun_menu_prefix_error", ex.GetType().Name, ex.Message);
             return false;
         }
     }
@@ -573,7 +516,7 @@ public static class GunRuntimeManager
         return true;
 
         static void Log(string field) =>
-            Plugin.Logger.LogWarning($"[Bark] handle_gun_menu_null_pc_field field={field}");
+            LogUtil.Warning("gun_runtime.handle_gun_menu_null_pc_field", field);
     }
 
     // CCL 创建模板物品后，按 Bark 模板类型动态补加 GunScript / AmmoScript。
@@ -634,7 +577,9 @@ public static class GunRuntimeManager
 
     // 为枪械创建 barrel 子 Transform 作为枪口引用点。
     // 原版枪械预制体自带此子对象，GunScript.barrel 指向它；
-    // GunScript.Fire 用 barrel.position 作为子弹生成位置、barrel.right 作为射击方向。
+    // GunScript.Fire 用 barrel.position 作为子弹生成位置，用 transform.right 作为射击方向。
+    // HandleGunMenu 用 barrel.position + transform.right * distance 放置准星。
+    // 两者在同一射线上，barrel 只影响生成点/准星位置，不影响方向。
     // geofruit/rifle 通用预制体无此子对象，使用时 barrel=transform 会导致：
     //   - 子弹从枪中心而非枪口射出 → 弹道偏移
     //   - 如果 barrel 不是序列化字段 → clone 后为 null
@@ -681,7 +626,7 @@ public static class GunRuntimeManager
         var guns = Object.FindObjectsOfType<GunScript>();
         foreach (var gun in guns)
         {
-            if (gun is null || gun.barrel is null) continue;
+            if (gun?.barrel is null) continue;
 
             var (bx, by) = GetBarrelOffset(gun);
             gun.barrel.localPosition = new Vector3(bx, by, 0f);
@@ -710,7 +655,7 @@ public static class GunRuntimeManager
         if (spawned == null) return true;
 
         PlayerCamera.main.body.AutoPickUpItem(spawned.GetComponent<Item>());
-        Sound.Play("gunloadshell", (Vector2)__instance.transform.position);
+        Sound.Play("gunloadshell", __instance.transform.position);
         --__instance.rounds;
 
         return false; // 阻止原版 UnloadRound
@@ -741,8 +686,8 @@ public static class GunRuntimeManager
         if (__instance.rounds >= __instance.maxRounds) return false;
 
         ++__instance.rounds;
-        Sound.Play("gunloadshell", (Vector2)__instance.transform.position);
-        Object.Destroy((Object)ammo.gameObject);
+        Sound.Play("gunloadshell", __instance.transform.position);
+        Object.Destroy(ammo.gameObject);
 
         return false; // 阻止原版 LoadRound
     }
@@ -763,7 +708,7 @@ public static class GunRuntimeManager
         var ammoItem = ammo.GetComponent<Item>();
         var ammoItemId = ammoItem?.id;
 
-        Plugin.Logger.LogInfo($"[Bark] load_mag_attempt gunId={gunItem.id} ammoId={ammoItemId} itemType={ammo.itemType} isBarkMag={MagTemplate.IsMag(ammoItemId ?? string.Empty)}");
+        LogUtil.Info("gun_runtime.load_mag_attempt", gunItem.id, ammoItemId ?? "null", ammo.itemType, MagTemplate.IsMag(ammoItemId ?? string.Empty));
 
         switch (ammo.itemType)
         {
@@ -776,11 +721,11 @@ public static class GunRuntimeManager
                 return true;
             // 验证 mag_type 兼容
             case AmmoScript.AmmoItemType.Magazine when MagTemplate.GetMagType(ammoItemId) != gunData.MagType:
-                Plugin.Logger.LogWarning($"[Bark] incompatible_mag ammoId={ammoItemId} ammo.mag_type={MagTemplate.GetMagType(ammoItemId)} gun.mag_type={gunData.MagType}");
+                LogUtil.Warning("gun_runtime.load_mag_incompatible_mag_type", ammoItemId, MagTemplate.GetMagType(ammoItemId), gunData.MagType);
                 return false;
             // 验证 ammo_type 兼容
             case AmmoScript.AmmoItemType.Magazine when MagTemplate.GetAmmoType(ammoItemId) != gunData.AmmoType:
-                Plugin.Logger.LogWarning($"[Bark] incompatible_ammo_type ammoId={ammoItemId} ammo.ammo_type={MagTemplate.GetAmmoType(ammoItemId)} gun.ammo_type={gunData.AmmoType}");
+                LogUtil.Warning("gun_runtime.load_mag_incompatible_ammo_type", ammoItemId, MagTemplate.GetAmmoType(ammoItemId), gunData.AmmoType);
                 return false;
             case AmmoScript.AmmoItemType.Magazine:
             {
@@ -934,7 +879,7 @@ public static class GunRuntimeManager
         var magItemId = state?.MagItemId;
         var magRounds = state?.RoundsInMag ?? __instance.roundsInMag;
 
-        Plugin.Logger.LogInfo($"[Bark] unload_mag state_mag_id={magItemId} state_rounds={state?.RoundsInMag} gun_rounds={__instance.roundsInMag}");
+        LogUtil.Info("gun_runtime.on_unload_mag", magItemId ?? "null", state?.RoundsInMag ?? 0, __instance.roundsInMag);
 
         // 即使 magRounds==0 也要生成弹匣物品（destroy_at_zero_condition=false 控制销毁）。
         if (!string.IsNullOrEmpty(magItemId))
@@ -961,16 +906,16 @@ public static class GunRuntimeManager
 
         // 如果 tracker 状态丢失（换背包/丢弃后实例 ID 变化导致 GetInstanceID 不同），
         // 用枪械的 mag_type 和 ammo_type 回退查找匹配弹匣，避免「弹匣消失但没生成物品」。
-        if (string.IsNullOrEmpty(magItemId) && __instance.hasMag && __instance.roundsInMag > 0)
+        if (string.IsNullOrEmpty(magItemId) && __instance is { hasMag: true, roundsInMag: > 0 })
         {
             var fallbackMagIds = MagTemplate.FindMagsByType(gunData.MagType);
-            Plugin.Logger.LogInfo($"[Bark] unload_mag_fallback find_by_mag_type={gunData.MagType} found={fallbackMagIds.Count}");
+            LogUtil.Info("gun_runtime.unload_mag_fallback_mag_type", gunData.MagType, fallbackMagIds.Count);
             if (fallbackMagIds.Count > 0)
                 magItemId = fallbackMagIds[0];
             else
             {
                 var altIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
-                Plugin.Logger.LogInfo($"[Bark] unload_mag_fallback find_by_ammo_type={gunData.AmmoType} found={altIds.Count}");
+                LogUtil.Info("gun_runtime.unload_mag_fallback_ammo_type", gunData.AmmoType, altIds.Count);
                 if (altIds.Count > 0) magItemId = altIds[0];
             }
 
