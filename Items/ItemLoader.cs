@@ -401,11 +401,11 @@ public static class ItemLoader
 
         // 穿戴贴图: Assets/Item/{itemId}_worn.png，缺失则回退到主贴图
         var importScale = spriteDef.ImportScale;
-        info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_worn.png"), importScale);
+        info.WornSprite = LoadSpriteWithFallback(assetsDir, itemId, "_worn.png", importScale);
         if (isWearable && info.WornSprite == null)
         {
             // 回退：使用主贴图作为穿戴贴图
-            info.WornSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + ".png"), importScale);
+            info.WornSprite = LoadSpriteWithFallback(assetsDir, itemId, ".png", importScale);
             if (info.WornSprite == null)
             {
                 // 两者都不存在 → 加入黑名单，阻止装备
@@ -423,7 +423,7 @@ public static class ItemLoader
         if (w?.Multi != null)
             foreach (var kv in w.Multi)
             {
-                var multiSprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_mw_" + kv.Key + ".png"),
+                var multiSprite = LoadSpriteWithFallback(assetsDir, itemId, "_mw_" + kv.Key + ".png",
                     importScale);
                 if (multiSprite == null) continue;
                 info.MultiWornSprites[kv.Key] = multiSprite;
@@ -610,7 +610,7 @@ public static class ItemLoader
 
         // 液体填充贴图: Assets/Item/{itemId}_fill.png
         var importScale = def.SpriteDef?.ImportScale ?? 6f;
-        info.LiquidMask = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + "_fill.png"), importScale);
+        info.LiquidMask = LoadSpriteWithFallback(assetsDir, itemId, "_fill.png", importScale);
 
         // 默认液体
         if (def.DefaultLiquid is { Count: > 0 })
@@ -651,10 +651,27 @@ public static class ItemLoader
         return info;
     }
 
+    // 从 Assets/Item/ 加载精灵：先查 {itemId}{suffix}，回退到裸名 {name}{suffix}
+    // ID 重构（v2.2.0）后 itemId 为 {modId}.{name}，但 PNG 文件通常仍以裸名命名
+    private static Sprite? LoadSpriteWithFallback(string assetsDir, string itemId, string suffix, float importScale)
+    {
+        // 1. 命名空间路径: {modId}.{name}{suffix}
+        var path = Path.Combine(assetsDir, itemId + suffix);
+        var sprite = ItemUtil.LoadSprite(path, importScale);
+        if (sprite != null) return sprite;
+
+        // 2. 回退到裸名: {name}{suffix}
+        var dotIndex = itemId.IndexOf('.');
+        if (dotIndex > 0 && dotIndex < itemId.Length - 1)
+            sprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId[(dotIndex + 1)..] + suffix), importScale);
+
+        return sprite;
+    }
+
     // 从 Assets/Item/ 加载物品精灵图：先查 {itemId}.png，回退到 originPrefab 的 SpriteRenderer
     private static Sprite? LoadItemSprite(string originPrefab, string itemId, string assetsDir, float importScale = 1f)
     {
-        var sprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId + ".png"), importScale);
+        var sprite = LoadSpriteWithFallback(assetsDir, itemId, ".png", importScale);
         if (sprite != null)
             return sprite;
 

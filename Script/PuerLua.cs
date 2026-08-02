@@ -30,9 +30,17 @@ public class PuerLua : ScriptEngine
             // 注入 API 到全局作用域（无 bark. 前缀）
             InjectBarkApi();
 
-            // 执行入口脚本
+            // 执行入口脚本（设置上下文以便入口脚本调用 API 时自动补全物品 ID）
             var script = File.ReadAllText(Manifest.EntryFile);
-            _scriptEnv.Eval(script);
+            ScriptCallContext.CurrentModId = Manifest.Id;
+            try
+            {
+                _scriptEnv.Eval(script);
+            }
+            finally
+            {
+                ScriptCallContext.CurrentModId = null;
+            }
 
             _isLoaded = true;
 
@@ -78,6 +86,7 @@ public class PuerLua : ScriptEngine
     {
         if (_scriptEnv == null) return;
 
+        ScriptCallContext.CurrentModId = Manifest.Id;
         try
         {
             _scriptEnv.Eval($"if type({hookName}) == 'function' then {hookName}() end");
@@ -85,6 +94,10 @@ public class PuerLua : ScriptEngine
         catch (Exception ex)
         {
             LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, hookName, ex.Message);
+        }
+        finally
+        {
+            ScriptCallContext.CurrentModId = null;
         }
     }
 
@@ -116,6 +129,7 @@ public class PuerLua : ScriptEngine
     {
         if (_scriptEnv == null) return;
 
+        ScriptCallContext.CurrentModId = Manifest.Id;
         try
         {
             // 注入事件数据，供脚本侧通过 __barkEvent 或传参访问
@@ -138,6 +152,7 @@ public class PuerLua : ScriptEngine
         }
         finally
         {
+            ScriptCallContext.CurrentModId = null;
             EventScriptContext.CurrentEvent = null;
         }
     }
@@ -152,6 +167,7 @@ public class PuerLua : ScriptEngine
         // 暂存上下文供 Lua 侧通过 CS.Bark.Items.ItemScriptContext 访问
         ItemScriptContext.CurrentItem = item;
         ItemScriptContext.CurrentAction = action;
+        ScriptCallContext.CurrentModId = Manifest.Id;
 
         try
         {
@@ -181,6 +197,7 @@ public class PuerLua : ScriptEngine
         }
         finally
         {
+            ScriptCallContext.CurrentModId = null;
             ItemScriptContext.CurrentItem = null;
             ItemScriptContext.CurrentAction = null;
         }
@@ -195,6 +212,7 @@ public class PuerLua : ScriptEngine
         // 暂存上下文供 Lua 侧通过 CS.Bark.Tile.TileScriptContext 访问
         TileScriptContext.CurrentContext = context;
         TileScriptContext.CurrentAction = action;
+        ScriptCallContext.CurrentModId = Manifest.Id;
 
         try
         {
@@ -215,6 +233,7 @@ public class PuerLua : ScriptEngine
         }
         finally
         {
+            ScriptCallContext.CurrentModId = null;
             TileScriptContext.CurrentContext = null;
             TileScriptContext.CurrentAction = null;
         }
@@ -225,6 +244,7 @@ public class PuerLua : ScriptEngine
     {
         if (_scriptEnv == null || !_isLoaded) return;
 
+        ScriptCallContext.CurrentModId = Manifest.Id;
         try
         {
             _scriptEnv.Eval("if type(onUpdate) == 'function' then onUpdate() end");
@@ -232,6 +252,10 @@ public class PuerLua : ScriptEngine
         catch
         {
             // 静默跳过：onUpdate 无需日志，避免每帧刷屏
+        }
+        finally
+        {
+            ScriptCallContext.CurrentModId = null;
         }
     }
 

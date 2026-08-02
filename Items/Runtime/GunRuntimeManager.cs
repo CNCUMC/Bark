@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using Bark.Audio;
 using Bark.Events;
@@ -31,6 +32,17 @@ public static class GunRuntimeManager
 
     // 所有 patch 共用同一个 Harmony 实例，以便一次性 Unpatch。
     private static Harmony? _harmony;
+
+    // 静音 AudioClip：当 SoundProfile 接管开火音效时，将 gun.fireSound 设为此值，
+    // 确保 GunScript.Fire() 内的 Sound.Play(fireSound, ...) 不会崩溃（Sound.Play 需要有效 clip）。
+    // OnFirePostfix 中再播放 profile 的真实音效。
+    private static AudioClip? _silentClip;
+    private static AudioClip GetSilentClip()
+    {
+        if (_silentClip == null)
+            _silentClip = AudioClip.Create("Bark_Silent", 1, 1, 44100, false);
+        return _silentClip;
+    }
 
     // ============================================================
     // 生命周期
@@ -86,14 +98,25 @@ public static class GunRuntimeManager
             {
                 _harmony.Patch(fire,
                     postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePostfix)));
+                // Transpiler：替换 Fire() 中的 ldstr "gunjam" 为 DoPlayJamSound
+                _harmony.Patch(fire,
+                    transpiler: new HarmonyMethod(typeof(GunRuntimeManager), nameof(TranspileFire)));
             }
 
-            // Update Transpiler（替换抛壳物品 ID）
+            // Update Transpiler（替换抛壳物品 ID + trigger/jam 音效）
             var update = AccessTools.Method(gunScriptType, "Update");
             if (update != null)
             {
                 _harmony.Patch(update,
                     transpiler: new HarmonyMethod(typeof(GunRuntimeManager), nameof(TranspileUpdate)));
+            }
+
+            // ToggleSafety Prefix：拦截自定义枪械的保险开关，播放 SoundProfile.Safety 音效
+            var toggleSafety = AccessTools.Method(gunScriptType, "ToggleSafety");
+            if (toggleSafety != null)
+            {
+                _harmony.Patch(toggleSafety,
+                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnToggleSafetyPrefix)));
             }
 
             // GetOrCreateTemplate Postfix：在 CCL 创建模板时动态添加运行时组件。
@@ -304,8 +327,13 @@ public static class GunRuntimeManager
         // 半自动/全自动枪机循环延迟（pump 模式忽略此字段）
         __instance.desiredGasTime = gunData.DesiredGasTime;
 
-        // 枪声：优先使用模板自定义路径，为空则按 ammoType 回退默认音效。
-        if (!string.IsNullOrEmpty(gunData.FireSound))
+        // 枪声：音效档案优先 → 模板路径 → ammoType 默认回退
+        if (gunData.SoundProfile?.Fire is { Count: > 0 })
+        {
+            // profile 接管开火音效 → fireSound 设为静音，实际播放由 OnFirePostfix 处理
+            __instance.fireSound = GetSilentClip();
+        }
+        else if (!string.IsNullOrEmpty(gunData.FireSound))
         {
             __instance.fireSound = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
         }
@@ -320,14 +348,28 @@ public static class GunRuntimeManager
             };
         }
 
-        // 拉膛 / 回膛音效（自定义路径优先，为空则 GunScript.Update 使用默认 "gunrack"/"gununrack"）
-        // 没有回膛音效但有上膛音效时，回退使用上膛音效。
-        if (!string.IsNullOrEmpty(gunData.RackSound))
+        // 拉膛 / 回膛音效：音效档案优先 → 模板路径 → 游戏默认 "gunrack"/"gununrack"
+        if (gunData.SoundProfile?.Rack is { Count: > 0 })
+        {
+            __instance.customRack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Rack);
+        }
+        else if (!string.IsNullOrEmpty(gunData.RackSound))
+        {
             __instance.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
-        if (!string.IsNullOrEmpty(gunData.UnrackSound))
+        }
+
+        if (gunData.SoundProfile?.Unrack is { Count: > 0 })
+        {
+            __instance.customUnrack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Unrack);
+        }
+        else if (!string.IsNullOrEmpty(gunData.UnrackSound))
+        {
             __instance.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
+        }
         else if (__instance.customRack != null)
+        {
             __instance.customUnrack = __instance.customRack;
+        }
 
         // 弹匣供弹枪：出厂预装满弹匣
         if (!gunData.Direct && gunData.FeedType != "revolver")
@@ -655,21 +697,39 @@ public static class GunRuntimeManager
             // 枪口位置
             gun.barrel?.localPosition = new Vector3(gunData.BarrelOffsetX, gunData.BarrelOffsetY, 0f);
 
-            // 开火音效（为空则保持现有效果）
-            if (!string.IsNullOrEmpty(gunData.FireSound))
+            // 开火音效：profile 优先 → 模板路径 → 保持现有效果
+            if (gunData.SoundProfile?.Fire is { Count: > 0 })
+            {
+                gun.fireSound = GetSilentClip();
+            }
+            else if (!string.IsNullOrEmpty(gunData.FireSound))
             {
                 var clip = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
                 if (clip != null) gun.fireSound = clip;
             }
 
-            // 拉膛 / 回膛音效
-            // 没有回膛音效但有上膛音效时，回退使用上膛音效。
-            if (!string.IsNullOrEmpty(gunData.RackSound))
+            // 拉膛 / 回膛音效：profile 优先 → 模板路径 → 保持现有效果
+            if (gunData.SoundProfile?.Rack is { Count: > 0 })
+            {
+                gun.customRack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Rack);
+            }
+            else if (!string.IsNullOrEmpty(gunData.RackSound))
+            {
                 gun.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
-            if (!string.IsNullOrEmpty(gunData.UnrackSound))
+            }
+
+            if (gunData.SoundProfile?.Unrack is { Count: > 0 })
+            {
+                gun.customUnrack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Unrack);
+            }
+            else if (!string.IsNullOrEmpty(gunData.UnrackSound))
+            {
                 gun.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
+            }
             else if (gun.customRack != null)
+            {
                 gun.customUnrack = gun.customRack;
+            }
         }
     }
 
@@ -783,8 +843,11 @@ public static class GunRuntimeManager
                 state.RoundsInMag = rounds;
                 state.AmmoItemId = null; // 弹药类型从弹匣的 ammo_type 推断
 
-                // 播放音效
-                Sound.Play("gunloadmag", __instance.transform.position);
+                // 播放音效：profile 优先，否则默认 "gunloadmag"
+                if (gunData.SoundProfile?.LoadMag is { Count: > 0 })
+                    gunData.SoundProfile.PlayRandom(gunData.SoundProfile.LoadMag, __instance.transform.position);
+                else
+                    Sound.Play("gunloadmag", __instance.transform.position);
 
                 // 销毁弹药 GameObject
                 Object.Destroy(ammo.gameObject);
@@ -839,7 +902,11 @@ public static class GunRuntimeManager
                 state.RoundsInMag = __instance.roundsInMag;
                 state.AmmoItemId = ammoItemId;
 
-                Sound.Play("gunloadmag", __instance.transform.position);
+                // 播放音效：profile 优先，否则默认 "gunloadshell"（逐发装弹）
+                if (gunData.SoundProfile?.LoadShell is { Count: > 0 })
+                    gunData.SoundProfile.PlayRandom(gunData.SoundProfile.LoadShell, __instance.transform.position);
+                else
+                    Sound.Play("gunloadshell", __instance.transform.position);
                 Object.Destroy(ammo.gameObject);
 
                 EventUtil.Trigger(new GunLoadAmmoEvent
@@ -985,7 +1052,11 @@ public static class GunRuntimeManager
         __instance.roundsInMag = 0;
         GunMagTracker.Remove(gunItem);
 
-        Sound.Play("gununloadmag", __instance.transform.position);
+        // 播放音效：profile 优先，否则默认 "gununloadmag"
+        if (gunData.SoundProfile?.UnloadMag is { Count: > 0 })
+            gunData.SoundProfile.PlayRandom(gunData.SoundProfile.UnloadMag, __instance.transform.position);
+        else
+            Sound.Play("gununloadmag", __instance.transform.position);
 
         EventUtil.Trigger(new GunUnloadEvent
         {
@@ -1036,6 +1107,9 @@ public static class GunRuntimeManager
 
         // 注意：耐久损耗已在 GunScript.Start Postfix 中完成配置，
         // GunScript.Fire 内部会通过 conditionLossPerShot * 0.01f 自动扣除。
+
+        // 音效档案开火音效：当 profile 接管时 fireSound 为静音 clip，此处播放真实音效
+        gunData.SoundProfile?.PlayRandom(gunData.SoundProfile.Fire, __instance.transform.position);
     }
 
     // 推断当前弹药对应的弹壳类型
@@ -1096,19 +1170,16 @@ public static class GunRuntimeManager
         var casingIdx = -1;
         for (var i = 0; i < codes.Count; i++)
         {
-            if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s == "casing")
-            {
-                casingIdx = i;
-                break;
-            }
+            if (codes[i].opcode != OpCodes.Ldstr || codes[i].operand is not string s || s != "casing") continue;
+            casingIdx = i;
+            break;
         }
 
         if (casingIdx < 0) return codes;
 
         // Step 2: 确认下一条是 br/br.s（跳过 false 分支直达 ternary 汇合点）
         var brIdx = casingIdx + 1;
-        if (brIdx >= codes.Count) return codes;
-        if (codes[brIdx].opcode != OpCodes.Br && codes[brIdx].opcode != OpCodes.Br_S) return codes;
+        if (brIdx >= codes.Count || codes[brIdx].opcode != OpCodes.Br && codes[brIdx].opcode != OpCodes.Br_S) return codes;
 
         // Step 3: 找到 call Object.Instantiate（在 Resources.Load + pos/rot args 之后）
         var instantiateIdx = -1;
@@ -1117,11 +1188,9 @@ public static class GunRuntimeManager
             var op = codes[i].opcode;
             if (op != OpCodes.Call && op != OpCodes.Callvirt) continue;
             if (codes[i].operand is not System.Reflection.MethodBase m) continue;
-            if (m.Name == "Instantiate" && m.DeclaringType == typeof(Object))
-            {
-                instantiateIdx = i;
-                break;
-            }
+            if (m.Name != "Instantiate" || m.DeclaringType != typeof(Object)) continue;
+            instantiateIdx = i;
+            break;
         }
 
         if (instantiateIdx < 0) return codes;
@@ -1140,6 +1209,103 @@ public static class GunRuntimeManager
         // 下游 isinst GameObject → GetComponent<Rigidbody2D> → velocity 无需改动
         codes[casingIdx] = new CodeInstruction(OpCodes.Ldarg_0);
         codes.Insert(casingIdx + 1, new CodeInstruction(OpCodes.Call, doSpawnMethod));
+
+        // --- Stage 2: 替换硬编码的 trigger/jam 音效 ---
+        // GunScript.Update() 中有：
+        //   1 个 ldstr "guntrigger" → Sound.Play(string, Vector2)
+        //   2 个 ldstr "gunjam"     → Sound.Play(string, Vector2, bool)
+        // 用 DoPlayTriggerSound / DoPlayJamSound 回调替换，使 SoundProfile 字段生效。
+        var doTriggerMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayTriggerSound),
+            BindingFlags.NonPublic | BindingFlags.Static);
+        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        if (doTriggerMethod != null && doJamMethod != null)
+        {
+            for (var i = codes.Count - 1; i >= 0; i--)
+            {
+                if (codes[i].opcode != OpCodes.Ldstr || codes[i].operand is not string str)
+                    continue;
+
+                MethodInfo? targetMethod = str switch
+                {
+                    "guntrigger" => doTriggerMethod,
+                    "gunjam" => doJamMethod,
+                    _ => null
+                };
+                if (targetMethod == null) continue;
+
+                // 找到随后最近的 Sound.Play 调用
+                var playIdx = -1;
+                for (var j = i + 1; j < Math.Min(i + 12, codes.Count); j++)
+                {
+                    if ((codes[j].opcode == OpCodes.Call || codes[j].opcode == OpCodes.Callvirt)
+                        && codes[j].operand is MethodInfo m
+                        && m.DeclaringType?.Name == "Sound"
+                        && m.Name == "Play")
+                    {
+                        playIdx = j;
+                        break;
+                    }
+                }
+
+                if (playIdx > i)
+                {
+                    // 将 ldstr → Sound.Play 整段替换为 ldarg.0 + call DoPlayXSound
+                    var range = playIdx - i + 1;
+                    codes.RemoveRange(i, range);
+                    codes.InsertRange(i, new[]
+                    {
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Call, targetMethod)
+                    });
+                }
+            }
+        }
+
+        return codes;
+    }
+
+    // Transpiler: 替换 GunScript.Fire() 中硬编码的 ldstr "gunjam" → DoPlayJamSound。
+    // Fire() 有 1 个 ldstr "gunjam" → Sound.Play(string, Vector2, bool)，
+    // 只有自动/半自动模式卡壳时触发。
+    private static IEnumerable<CodeInstruction> TranspileFire(IEnumerable<CodeInstruction> instructions)
+    {
+        var codes = new List<CodeInstruction>(instructions);
+        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+            BindingFlags.NonPublic | BindingFlags.Static);
+        if (doJamMethod == null) return codes;
+
+        for (var i = codes.Count - 1; i >= 0; i--)
+        {
+            if (codes[i].opcode != OpCodes.Ldstr || codes[i].operand is not "gunjam")
+                continue;
+
+            // 找到随后最近的 Sound.Play 调用
+            var playIdx = -1;
+            for (var j = i + 1; j < Math.Min(i + 12, codes.Count); j++)
+            {
+                if ((codes[j].opcode == OpCodes.Call || codes[j].opcode == OpCodes.Callvirt)
+                    && codes[j].operand is MethodInfo m
+                    && m.DeclaringType?.Name == "Sound"
+                    && m.Name == "Play")
+                {
+                    playIdx = j;
+                    break;
+                }
+            }
+
+            if (playIdx > i)
+            {
+                var range = playIdx - i + 1;
+                codes.RemoveRange(i, range);
+                codes.InsertRange(i, new[]
+                {
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, doJamMethod)
+                });
+            }
+        }
 
         return codes;
     }
@@ -1177,5 +1343,65 @@ public static class GunRuntimeManager
         return prefab != null
             ? Object.Instantiate(prefab, gun.transform.position, gun.transform.rotation)
             : null;
+    }
+
+    // Transpiler 回调：播放扳机音效（替代 ldstr "guntrigger"）。
+    // 由 TranspileUpdate 动态注入到 GunScript.Update 中。
+    // 模板枪械：优先播放 SoundProfile.Trigger 随机条目；否则退回到默认 Sound.Play("guntrigger")。
+    private static void DoPlayTriggerSound(GunScript gun)
+    {
+        if (gun == null) return;
+        var item = gun.GetComponent<Item>();
+        if (item != null && GunTemplate.IsGun(item.id))
+        {
+            var gunData = GunTemplate.GetGunData(item.id);
+            if (gunData?.SoundProfile?.Trigger is { Count: > 0 })
+            {
+                gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Trigger, gun.transform.position);
+                return;
+            }
+        }
+        Sound.Play("guntrigger", gun.transform.position);
+    }
+
+    // Transpiler 回调：播放卡壳音效（替代 ldstr "gunjam"）。
+    // 由 TranspileUpdate/TranspileFire 动态注入到 Update/Fire 方法中。
+    // 模板枪械：优先播放 SoundProfile.Jam 随机条目；否则退回到默认 Sound.Play("gunjam")。
+    private static void DoPlayJamSound(GunScript gun)
+    {
+        if (gun == null) return;
+        var item = gun.GetComponent<Item>();
+        if (item != null && GunTemplate.IsGun(item.id))
+        {
+            var gunData = GunTemplate.GetGunData(item.id);
+            if (gunData?.SoundProfile?.Jam is { Count: > 0 })
+            {
+                gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Jam, gun.transform.position);
+                return;
+            }
+        }
+        Sound.Play("gunjam", gun.transform.position, true);
+    }
+
+    // ToggleSafety Prefix：拦截自定义枪械的保险开关，播放 SoundProfile.Safety 音效。
+    // 模板枪械：优先播放 profile Safety 随机条目，否则退回到默认 "gunsafety"。
+    // 返回 false 阻止原版 ToggleSafety，手动完成 safe 状态翻转和音效播放。
+    private static bool OnToggleSafetyPrefix(GunScript __instance)
+    {
+        var item = __instance?.GetComponent<Item>();
+        if (item == null || !GunTemplate.IsGun(item.id)) return true;
+
+        var gunData = GunTemplate.GetGunData(item.id);
+
+        // 手动切换保险状态（替代原方法中的 this.safe = !this.safe）
+        __instance!.safe = !__instance.safe;
+
+        // 播放音效：profile 优先，否则默认 "gunsafety"
+        if (gunData?.SoundProfile?.Safety is { Count: > 0 })
+            gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Safety, __instance.transform.position);
+        else
+            Sound.Play("gunsafety", __instance.transform.position);
+
+        return false; // 阻止原版 ToggleSafety
     }
 }

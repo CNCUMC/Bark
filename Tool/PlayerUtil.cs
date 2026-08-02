@@ -1,5 +1,6 @@
 using System;
 using Bark.BetterCCL;
+using Bark.Script;
 using Bark.ScriptApi;
 using CUCoreLib.Helpers;
 using UnityEngine;
@@ -39,9 +40,13 @@ public static class PlayerUtil
         if (slot is < 0 or >= MaxInventorySlots)
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
                 LocaleLog("player.slot.out_of_range", MaxInventorySlots));
+
+        // 从脚本调用时自动补全为 {modId}.{itemId}；原版物品或无上下文时原样使用
+        var resolved = ScriptCallContext.ResolveItemId(item);
         var pos = BodyUtil.Body.transform.position;
-        var go = Utils.Create(item, pos, 0f) ??
-                 throw new InvalidOperationException(LocaleLog("player.load_item.fail", item));
+        var go = Utils.Create(resolved, pos, 0f)
+              ?? (resolved != item ? Utils.Create(item, pos, 0f) : null)
+              ?? throw new InvalidOperationException(LocaleLog("player.load_item.fail", item));
         var cmp = go.GetComponent<Item>() ??
                   throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
         BodyUtil.Body.PickUpItem(cmp, slot, force);
@@ -73,11 +78,14 @@ public static class PlayerUtil
     {
         if (string.IsNullOrEmpty(itemId) || BodyUtil.Body is not { transform: var t } body) return;
 
+        // 从脚本调用时自动补全为 {modId}.{itemId}；原版物品或无上下文时原样使用
+        var resolved = ScriptCallContext.ResolveItemId(itemId);
         var pos = t.position;
         var actual = count > 0 ? count : 1;
         for (var i = 0; i < actual; i++)
         {
-            var go = Utils.Create(itemId, pos, 0f);
+            var go = Utils.Create(resolved, pos, 0f)
+                  ?? (resolved != itemId ? Utils.Create(itemId, pos, 0f) : null);
             if (go == null) continue;
             var cmp = go.GetComponent<Item>();
             if (cmp != null) body.AutoPickUpItem(cmp);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Bark.Audio;
 
 namespace Bark.Items.Templates;
 
@@ -93,6 +94,17 @@ public class GunData
 
     // 回膛（退壳）音效路径（同上约定）。空字符串时使用游戏默认 "gununrack"。
     public string UnrackSound = "";
+
+    // 音效档案名，对应 {ModDir}/Audio/{sound}.json 中定义的 GunSoundProfile。
+    // 设置此项后，开火/拉膛/回膛/装弹/卸弹优先使用档案中的音效配置，
+    // 而非 fire_sound / rack_sound / unrack_sound 单一文件路径。
+    // 空字符串表示不使用音效档案。
+    public string Sound = "";
+
+    // 已加载的音效档案实例（若 Sound 非空且加载成功）。
+    // 由 CacheGunItem 填充。
+    [Newtonsoft.Json.JsonIgnore]
+    public GunSoundProfile? SoundProfile;
 }
 
 // 枪械物品模板：预设 tool 类别枪械的通用默认值 + 运行时枪械注册表 + 查询 API。
@@ -157,6 +169,7 @@ public class GunTemplate : ItemTemplate
                 ["start_chambered"] = true,
                 ["feed_type"] = "mag",
                 ["barrel_offset"] = new JObject { ["x"] = 0.5, ["y"] = 0.0 },
+                ["sound"] = "",               // 音效档案名，对应 ModDir/Audio/{sound}.json
                 ["fire_sound"] = "",
                 ["rack_sound"] = "",
                 ["unrack_sound"] = ""
@@ -178,6 +191,13 @@ public class GunTemplate : ItemTemplate
         {
             var data = GunDataFromJObject(template);
             data.ModDir = modDir;
+
+            // 若设置了 sound 档案名，加载对应的 GunSoundProfile
+            if (!string.IsNullOrEmpty(data.Sound))
+            {
+                data.SoundProfile = GunSoundProfile.Load(modDir, data.Sound);
+            }
+
             Registry[itemId] = data;
         }
     }
@@ -212,7 +232,8 @@ public class GunTemplate : ItemTemplate
             BarrelOffsetY = ParseBarrelOffset(t, "y", 0f),
             FireSound = (string?)t["fire_sound"] ?? "",
             RackSound = (string?)t["rack_sound"] ?? "",
-            UnrackSound = (string?)t["unrack_sound"] ?? ""
+            UnrackSound = (string?)t["unrack_sound"] ?? "",
+            Sound = (string?)t["sound"] ?? ""
         };
     }
 
