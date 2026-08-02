@@ -209,6 +209,18 @@ query them with `Moodle`. Three lifecycle phases: get (obtained), iterate (polli
 
 See [Custom Moodles](script-mod/moodle.md) for full documentation.
 
+## Custom Item Templates
+
+Templates are preset groups of item properties. Guns, magazines, ammo, casings, and more come with built-in templates — reference them via the `"template"` field to dramatically simplify item JSON. You can also register your own templates in the `item-template/` directory.
+
+See [Item Templates](script-mod/item-template/index.md).
+
+## Custom Audio
+
+Place custom audio files under your mod's `Assets/Audio/`. Supported formats include `.wav`, `.mp3`, `.aif` and more. Gun templates accept `fire_sound` / `rack_sound` / `unrack_sound` as paths relative to the mod root (bare filenames auto-prepend `Assets/Audio/`); `AudioManager` handles loading and caching automatically.
+
+See [Custom Audio](script-mod/audio.md).
+
 ## Full Example
 
 A working mod: auto-heal and injury alerts:

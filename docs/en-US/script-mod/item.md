@@ -2,6 +2,12 @@
 
 # Custom Items
 
+> 💡 **Using `"template"` dramatically simplifies item JSON.**  
+> Guns, magazines, ammo, casings, and more come with built-in templates. One line of `"template": { "type": "gun" }` auto-fills prefab, weight, durability, and a dozen other defaults.  
+> See **[Item Template Documentation](./item-template/index.md)**.
+
+---
+
 Define custom items, liquid containers, and pure liquids via JSON. Place the JSON files in your mod's `Item/`
 directory and sprite images in `Assets/Item/`.
 

@@ -77,6 +77,22 @@ public class GunData
     // 默认 (0.5, 0.0) 适合步枪，手枪可设为 (0.2, 0.0)，霰弹枪 (0.6, 0.0)。
     public float BarrelOffsetX = 0.5f;
     public float BarrelOffsetY;
+
+    // 所属模组的根目录（绝对路径），用于解析 Assets/Audio/ 下的音效文件。
+    // 由 ItemLoader 在 CacheGunItem 时注入。
+    public string ModDir = "";
+
+    // 开火音效路径，相对于模组目录（ModDir），如 "Assets/Audio/ak47_shot.wav"。
+    // 纯文件名（不含 / 或 \）自动补全为 "Assets/Audio/filename"。
+    // 通过 AssetLoader.LoadAudioFromFile 加载，支持 .wav/.mp3/.aif 等格式（不支持 .ogg）。
+    // 空字符串时回退到默认音效（按 ammoType 自动选择 pistolshot/rifleshot/shotgunshot）。
+    public string FireSound = "";
+
+    // 拉膛音效路径（同上约定）。空字符串时使用游戏默认 "gunrack"。
+    public string RackSound = "";
+
+    // 回膛（退壳）音效路径（同上约定）。空字符串时使用游戏默认 "gununrack"。
+    public string UnrackSound = "";
 }
 
 // 枪械物品模板：预设 tool 类别枪械的通用默认值 + 运行时枪械注册表 + 查询 API。
@@ -89,7 +105,10 @@ public class GunData
 //   "mag_type": "ar15_mag",
 //   "firing_mode": "auto",
 //   "origin_prefab": "rifle",
-//   "barrel_offset": { "x": 0.5, "y": 0.0 }
+//   "barrel_offset": { "x": 0.5, "y": 0.0 },
+//   "fire_sound": "Assets/Audio/ak47_shot.wav",
+//   "rack_sound": "Assets/Audio/ak47_rack.wav",
+//   "unrack_sound": ""
 // }
 //
 // ---- 脚本端查询（JS/Lua 通过 ApiRegistry 代理调用） ----
@@ -137,7 +156,10 @@ public class GunTemplate : ItemTemplate
                 ["start_safe"] = false,
                 ["start_chambered"] = true,
                 ["feed_type"] = "mag",
-                ["barrel_offset"] = new JObject { ["x"] = 0.5, ["y"] = 0.0 }
+                ["barrel_offset"] = new JObject { ["x"] = 0.5, ["y"] = 0.0 },
+                ["fire_sound"] = "",
+                ["rack_sound"] = "",
+                ["unrack_sound"] = ""
             }
         };
     }
@@ -148,11 +170,16 @@ public class GunTemplate : ItemTemplate
 
     // ItemLoader 回调：检测 template 中 gun 标记则缓存。
     // template 可为 null（非模板注册物品）。
-    public static void CacheGunItem(string itemId, JObject? template)
+    // modDir 用于解析 Assets/Audio/ 下的音效文件路径。
+    public static void CacheGunItem(string itemId, JObject? template, string modDir)
     {
         if (template is null) return;
         if (template.TryGetValue("gun", out var flag) && flag.Value<bool>())
-            Registry[itemId] = GunDataFromJObject(template);
+        {
+            var data = GunDataFromJObject(template);
+            data.ModDir = modDir;
+            Registry[itemId] = data;
+        }
     }
 
     // ItemLoader 回调：模组热重载时清除枪械条目
@@ -182,7 +209,10 @@ public class GunTemplate : ItemTemplate
             StartChambered = !t.TryGetValue("start_chambered", out var sc) || sc.Value<bool>(),
             FeedType = (string?)t["feed_type"] ?? "mag",
             BarrelOffsetX = ParseBarrelOffset(t, "x", 0.5f),
-            BarrelOffsetY = ParseBarrelOffset(t, "y", 0f)
+            BarrelOffsetY = ParseBarrelOffset(t, "y", 0f),
+            FireSound = (string?)t["fire_sound"] ?? "",
+            RackSound = (string?)t["rack_sound"] ?? "",
+            UnrackSound = (string?)t["unrack_sound"] ?? ""
         };
     }
 

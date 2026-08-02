@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Bark.Audio;
 using Bark.BetterCCL;
 using Bark.Event;
 using Bark.Event.Listener;
@@ -56,12 +57,16 @@ public class Plugin : BaseUnityPlugin
         GunEventListener.Stop();
         GunRuntimeManager.Unapply();
         GunMagTracker.ClearAll();
+        AudioManager.Shutdown();
         _scriptModLoader?.Dispose();
     }
 
     private void AwakeInternal()
     {
         Logger = base.Logger;
+
+        // 音频管理器初始化，供所有物品系统加载自定义音效
+        AudioManager.Initialize(this);
 
         new LangGenerator().Initialize(Logger);
 

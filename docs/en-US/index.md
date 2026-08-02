@@ -18,6 +18,8 @@ localization, and configuration management.
 | [Script Event Hooks](script-events.md)           | All event hooks listenable from scripts                          |
 | [C# Event System](csharp-events.md)              | Event subscription / trigger / custom events from C#             |
 | [Custom Items](script-mod/item.md)               | Define custom items & liquids via JSON, auto registration        |
+| [Item Templates](script-mod/item-template/index.md)         | Preset item properties, simplify JSON, guns/mags/ammo/casings    |
+| [Custom Audio](script-mod/audio.md)              | Audio file loading, caching, and template integration            |
 | [Custom Moodles](script-mod/moodle.md)           | Define custom status effects via JSON, auto registration         |
 | [Custom Recipes](script-mod/recipe.md)           | Define crafting recipes via JSON, integrate with custom items    |
 | [Script Commands](script-mod/command.md)         | Register console commands via JSON, trigger script onCommand     |

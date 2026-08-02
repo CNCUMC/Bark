@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using Bark.Audio;
 using Bark.Events;
 using Bark.Items.Templates;
 using Bark.Tool;
@@ -303,15 +304,30 @@ public static class GunRuntimeManager
         // 半自动/全自动枪机循环延迟（pump 模式忽略此字段）
         __instance.desiredGasTime = gunData.DesiredGasTime;
 
-        // 枪声：按口径区分，rifle 口径直接使用 rifleshot。
-        // 自定义枪声需模板提供 WAV 文件，通过 set_fireSound 覆写。
-        __instance.fireSound = __instance.ammoType switch
+        // 枪声：优先使用模板自定义路径，为空则按 ammoType 回退默认音效。
+        if (!string.IsNullOrEmpty(gunData.FireSound))
         {
-            GunScript.AmmoType.Shotgun => Resources.Load<AudioClip>("sounds/shotgunshot"),
-            GunScript.AmmoType.Rifle => Resources.Load<AudioClip>("sounds/rifleshot")
-                ?? Resources.Load<AudioClip>("sounds/shotgunshot"),
-            _ => Resources.Load<AudioClip>("sounds/pistolshot"),
-        };
+            __instance.fireSound = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
+        }
+        if (__instance.fireSound == null)
+        {
+            __instance.fireSound = __instance.ammoType switch
+            {
+                GunScript.AmmoType.Shotgun => Resources.Load<AudioClip>("sounds/shotgunshot"),
+                GunScript.AmmoType.Rifle => Resources.Load<AudioClip>("sounds/rifleshot")
+                    ?? Resources.Load<AudioClip>("sounds/shotgunshot"),
+                _ => Resources.Load<AudioClip>("sounds/pistolshot"),
+            };
+        }
+
+        // 拉膛 / 回膛音效（自定义路径优先，为空则 GunScript.Update 使用默认 "gunrack"/"gununrack"）
+        // 没有回膛音效但有上膛音效时，回退使用上膛音效。
+        if (!string.IsNullOrEmpty(gunData.RackSound))
+            __instance.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
+        if (!string.IsNullOrEmpty(gunData.UnrackSound))
+            __instance.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
+        else if (__instance.customRack != null)
+            __instance.customUnrack = __instance.customRack;
 
         // 弹匣供弹枪：出厂预装满弹匣
         if (!gunData.Direct && gunData.FeedType != "revolver")
@@ -386,17 +402,19 @@ public static class GunRuntimeManager
             if (prefab.transform.childCount <= childIdx) goto fallback;
 
             var src = prefab.transform.GetChild(childIdx).gameObject;
-            var clone = Object.Instantiate(src);
-            clone.transform.SetParent(parent, false);
+            var clone = Object.Instantiate(src, parent, false);
             clone.transform.localPosition = Vector3.zero;
             clone.transform.localRotation = Quaternion.identity;
 
             var ps = clone.GetComponent<ParticleSystem>();
             if (ps != null) return ps;
         }
-        catch {}
+        catch
+        {
+            // ignored
+        }
 
-    fallback:
+        fallback:
         // 回退：创建空占位防止 NRE，禁用发射避免紫色方块
         var fallbackPs = parent.gameObject.AddComponent<ParticleSystem>();
         fallbackPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -618,18 +636,40 @@ public static class GunRuntimeManager
         return (gunData.BarrelOffsetX, gunData.BarrelOffsetY);
     }
 
-    // 热重载后刷新所有已存在枪械实例的枪口位置。
-    // 模板 JSON 的 barrel_offset 变更后调用此方法，已刷出的枪无需重新创建即可生效。
+    // 热重载后刷新所有已存在枪械实例的可热更属性（枪口位置 + 音效）。
+    // 模板 JSON 变更后调用此方法，已刷出的枪无需重新创建即可生效。
     // 由 ItemLoader.RegisterFromMod 在模板重载完成后自动调用。
     public static void RefreshAllBarrelOffsets()
     {
         var guns = Object.FindObjectsOfType<GunScript>();
         foreach (var gun in guns)
         {
-            if (gun?.barrel is null) continue;
+            if (gun is null) continue;
 
-            var (bx, by) = GetBarrelOffset(gun);
-            gun.barrel.localPosition = new Vector3(bx, by, 0f);
+            var item = gun.GetComponent<Item>();
+            if (item is null) continue;
+
+            var gunData = GunTemplate.GetGunData(item.id);
+            if (gunData is null) continue;
+
+            // 枪口位置
+            gun.barrel?.localPosition = new Vector3(gunData.BarrelOffsetX, gunData.BarrelOffsetY, 0f);
+
+            // 开火音效（为空则保持现有效果）
+            if (!string.IsNullOrEmpty(gunData.FireSound))
+            {
+                var clip = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
+                if (clip != null) gun.fireSound = clip;
+            }
+
+            // 拉膛 / 回膛音效
+            // 没有回膛音效但有上膛音效时，回退使用上膛音效。
+            if (!string.IsNullOrEmpty(gunData.RackSound))
+                gun.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
+            if (!string.IsNullOrEmpty(gunData.UnrackSound))
+                gun.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
+            else if (gun.customRack != null)
+                gun.customUnrack = gun.customRack;
         }
     }
 

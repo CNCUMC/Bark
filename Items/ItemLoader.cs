@@ -152,6 +152,7 @@ public static class ItemLoader
         }
 
         // 模板解析：合并 template 引用的预设模板后再进行类型检测
+        var modDir = Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty;
         var templateNode = obj["template"];
         if (templateNode is JObject templateObj)
         {
@@ -160,7 +161,7 @@ public static class ItemLoader
             {
                 // 缓存模板数据：直接从 merged.template JObject 读取，不与 custom_data 混合
                 var template = merged["template"] as JObject;
-                GunTemplate.CacheGunItem(itemId, template);
+                GunTemplate.CacheGunItem(itemId, template, modDir);
                 MagTemplate.CacheMagItem(itemId, template);
                 AmmunitionTemplate.CacheAmmoItem(itemId, template);
                 CasingTemplate.CacheCasingItem(itemId, template);
@@ -169,8 +170,6 @@ public static class ItemLoader
                 obj = merged;
             }
         }
-
-        var modDir = Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty;
 
         // 自动检测类型：capacity → 液体容器, color 且无 weight → 纯液体, 否则 → 普通物品
         if (obj["capacity"] != null)
@@ -518,7 +517,9 @@ public static class ItemLoader
             // 将 "gun" 追加到 tags，避免覆盖用户在 JSON 中自定义的标签。
             info.tags = string.IsNullOrEmpty(def.Tags)
                 ? "gun"
-                : (def.Tags.Contains("gun") ? def.Tags : def.Tags + ",gun");
+                : (def.Tags.Contains("gun")
+                    ? def.Tags
+                    : def.Tags + ",gun");
             info.useAction = (_, item) =>
             {
                 var gs = item.GetComponent<GunScript>();

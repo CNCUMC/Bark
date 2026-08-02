@@ -204,6 +204,18 @@ JSON 配置格式详见 [自定义物品](script-mod/item.md)。
 
 详见 [自定义 Moodle](script-mod/moodle.md)。
 
+## 自定义物品模板
+
+模板是一组预设的物品属性。枪械、弹匣、弹药、弹壳等常见类型已有内置模板，通过 `"template"` 字段引用即可大幅简化物品 JSON。你还可以在 `item-template/` 目录下注册自己的模板。
+
+详见 [物品模板](script-mod/item-template/index.md)。
+
+## 自定义音效
+
+自定义音效文件放在模组的 `Assets/Audio/` 下，支持 `.wav` `.mp3` `.aif` 等格式。枪械模板的 `fire_sound` / `rack_sound` / `unrack_sound` 写相对路径（纯文件名自动补全 `Assets/Audio/` 前缀），`AudioManager` 自动加载并缓存。
+
+详见 [自定义音效](script-mod/audio.md)。
+
 ## 完整示例
 
 一个实际可用的脚本模组，进游戏后自动回血、受伤时弹提示：
