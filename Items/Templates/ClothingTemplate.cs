@@ -52,7 +52,7 @@ public class ClothingTemplate : ItemTemplate
         return new JObject
         {
             // ---- ItemDef 顶级字段 ----
-            ["origin_prefab"] = "geofruit",
+            ["origin_prefab"] = "holidayhat",
             ["category"] = "utility",
             ["destroy_at_zero_condition"] = false,
             ["weight"] = 1.0,
