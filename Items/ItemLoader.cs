@@ -167,6 +167,7 @@ public static class ItemLoader
                 AmmunitionTemplate.CacheAmmoItem(itemId, template);
                 CasingTemplate.CacheCasingItem(itemId, template);
                 FoodTemplate.CacheFoodItem(itemId, template);
+                ClothingTemplate.CacheClothingItem(itemId, template);
 
                 json = merged.ToString();
                 obj = merged;
@@ -724,6 +725,7 @@ public static class ItemLoader
                 AmmunitionTemplate.RemoveAmmoItem(entry.Id);
                 CasingTemplate.RemoveCasingItem(entry.Id);
                 FoodTemplate.RemoveFoodItem(entry.Id);
+                ClothingTemplate.RemoveClothingItem(entry.Id);
             }
 
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);

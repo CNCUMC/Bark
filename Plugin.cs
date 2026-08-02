@@ -199,5 +199,6 @@ public class Plugin : BaseUnityPlugin
         new AmmunitionTemplate().Register();
         new CasingTemplate().Register();
         new FoodTemplate().Register();
+        new ClothingTemplate().Register();
     }
 }

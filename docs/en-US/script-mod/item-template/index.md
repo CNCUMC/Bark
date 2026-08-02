@@ -60,7 +60,7 @@ Specify the template type and parameters in the item JSON's `template` field:
 
 | template field | Description |
 |----------------|-------------|
-| `type` | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` |
+| `type` | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` `"clothing"` |
 | `fire_sound` etc. | Type parameters, fill as needed; unset fields use template defaults |
 
 > ⚠️ `type` is the only required field. Not sure what parameters are available? Read on for each template type.
@@ -76,6 +76,7 @@ Bark ships four built-in template types:
 | Ammo  | Bullets         | `"ammo"`   | [Ammo Template](ammo.md) |
 | Casing | Post-fire drops | `"casing"` | [Casing Template](casing.md) |
 | Food  | Edible items    | `"food"`   | [Food Template](food.md) |
+| Clothing | Wearable garments | `"clothing"`   | [Clothing Template](clothing.md) |
 
 ## Custom Templates
 
