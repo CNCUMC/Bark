@@ -1,14 +1,12 @@
 using System;
 using Bark.Audio;
-using Bark.Events;
 using Bark.Items.Templates;
 using Bark.Tool;
-using CUCoreLib.Helpers;
 using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // Partial：枪械实例初始化、UI 守卫、模板创建、枪管偏移
 public static partial class GunRuntimeManager
@@ -428,9 +426,8 @@ public static partial class GunRuntimeManager
         if (pc.Field("gunBulletSprites").GetValue() == null) { Log("gunBulletSprites"); return false; }
 
         // HandleGunMenu:2469 gunCrosshair.gameObject.SetActive(!component.safe)
-        if (pc.Field("gunCrosshair").GetValue() == null) { Log("gunCrosshair"); return false; }
-
-        return true;
+        if (pc.Field("gunCrosshair").GetValue() != null) return true;
+        Log("gunCrosshair"); return false;
 
         static void Log(string field) =>
             LogUtil.Warning("gun_runtime.handle_gun_menu_null_pc_field", field);

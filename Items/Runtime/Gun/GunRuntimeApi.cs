@@ -3,7 +3,7 @@ using Bark.Items.Templates;
 using Bark.ScriptApi;
 using UnityEngine;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // 枪械运行时查询 API，暴露给 Lua/JS 脚本，标注 [ScriptApi] 自动注册到 ApiRegistry。
 // 脚本侧通过全局变量 gunRuntime 调用，如 gunRuntime.getRoundsInMag("my_ak47")。
@@ -98,6 +98,24 @@ public static class GunRuntimeApi
     {
         if (string.IsNullOrWhiteSpace(itemId)) return false;
         return CasingTemplate.IsCasing(itemId);
+    }
+
+    // 获取指定枪械的耳鸣倍率（运行时覆盖优先，否则取模板默认值）
+    [ScriptMethod]
+    public static float GetTinnitusMultiplier(string gunItemId)
+    {
+        if (string.IsNullOrWhiteSpace(gunItemId)) return 1.0f;
+        return GunRuntimeManager.GetEffectiveTinnitusMultiplier(gunItemId);
+    }
+
+    // 设置指定枪械的运行时耳鸣倍率覆盖。
+    // 0.0 = 完全无耳鸣，0.5 = 减半，1.0 = 与原版相同，>1.0 = 加速耳鸣积累。
+    // 传 null 清除覆盖，恢复使用模板 JSON 中的 tinnitus_multiplier 值。
+    [ScriptMethod]
+    public static void SetTinnitusMultiplier(string gunItemId, float? multiplier = null)
+    {
+        if (string.IsNullOrWhiteSpace(gunItemId)) return;
+        GunRuntimeManager.SetTinnitusMultiplierOverride(gunItemId, multiplier);
     }
 
     // ============================================================

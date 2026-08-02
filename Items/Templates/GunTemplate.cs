@@ -31,8 +31,13 @@ public class GunData
     // 对生物的伤害倍率
     public float AnimalDamage = 25f;
 
-    // 枪声大小（影响 NPC 反应范围）
+    // 枪声大小（影响 NPC 反应范围 + player.hearingLoss）
     public float Loudness = 25f;
+
+    // 耳鸣倍率：每枪对玩家听力损失的额外缩放系数。
+    // 1.0 = 与原版相同；0.5 = 耳鸣积累减半；0.0 = 完全无耳鸣。
+    // 由模板 JSON 字段 "tinnitus_multiplier" 指定，脚本端可运行时覆盖。
+    public float TinnitusMultiplier = 0.1f;
 
     // 每次开火的弹丸数（霰弹枪 >1）
     public int ShotsPerFire = 1;
@@ -160,6 +165,7 @@ public class GunTemplate : ItemTemplate
                 ["structure_damage"] = 12.0,
                 ["animal_damage"] = 25.0,
                 ["loudness"] = 25.0,
+                ["tinnitus_multiplier"] = 0.1,
                 ["shots_per_fire"] = 1,
                 ["vertical_spread"] = 0.05,
                 ["condition_loss_per_shot"] = 0.01,
@@ -220,6 +226,7 @@ public class GunTemplate : ItemTemplate
             StructureDamage = (float?)t["structure_damage"] ?? 12f,
             AnimalDamage = (float?)t["animal_damage"] ?? 25f,
             Loudness = (float?)t["loudness"] ?? 25f,
+            TinnitusMultiplier = (float?)t["tinnitus_multiplier"] ?? 0.1f,
             ShotsPerFire = (int?)t["shots_per_fire"] ?? 1,
             VerticalSpread = (float?)t["vertical_spread"] ?? 0.05f,
             ConditionLossPerShot = (float?)t["condition_loss_per_shot"] ?? 0.01f,

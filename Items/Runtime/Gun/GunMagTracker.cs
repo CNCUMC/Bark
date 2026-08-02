@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // 内存弹药状态追踪器，键为枪械 Item 实例（Unity GameObject 引用），
 // 支持实例级状态独立追踪，不同枪械各自独立。

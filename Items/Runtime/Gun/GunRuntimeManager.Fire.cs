@@ -1,15 +1,24 @@
-using System;
-using Bark.Audio;
-using Bark.Events;
 using Bark.Items.Templates;
-using Bark.Tool;
 using UnityEngine;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
-// Partial：开火、弹壳解析、音效回调、保险
+// Partial：开火、弹壳解析、音效回调、保险、耳鸣自定义
 public static partial class GunRuntimeManager
 {
+    // ============================================================
+    // Fire Prefix：保存开火前的 hearingLoss，供 Postfix 做耳鸣倍率校准
+    // ============================================================
+
+    private static void OnFirePrefix(GunScript __instance)
+    {
+        var (gunItem, _) = TryGetTemplateGun(__instance);
+        if (gunItem != null && PlayerCamera.main != null)
+            _preFireHearingLoss = PlayerCamera.main.body.hearingLoss;
+        else
+            _preFireHearingLoss = -1f;
+    }
+
     // ============================================================
     // Fire Postfix：消耗弹药、记录弹壳类型、应用耐久损耗
     // ============================================================
@@ -46,6 +55,20 @@ public static partial class GunRuntimeManager
 
         // 音效档案开火音效：当 profile 接管时 fireSound 为静音 clip，此处播放真实音效
         gunData.SoundProfile?.PlayRandom(gunData.SoundProfile.Fire, __instance.transform.position);
+
+        // 耳鸣倍率校准：Prefix 已记录开火前 hearingLoss，
+        // 此处用 tinnitus_multiplier 缩放原版新增的听力损失量。
+        if (!(_preFireHearingLoss >= 0f) || PlayerCamera.main == null) return;
+        var preValue = _preFireHearingLoss;
+        var postValue = PlayerCamera.main.body.hearingLoss;
+        var vanillaDelta = postValue - preValue;
+        if (vanillaDelta > 0f)
+        {
+            var multiplier = GetEffectiveTinnitusMultiplier(gunItem.id);
+            if (!Mathf.Approximately(multiplier, 1.0f))
+                PlayerCamera.main.body.hearingLoss = preValue + vanillaDelta * multiplier;
+        }
+        _preFireHearingLoss = -1f;
     }
 
     // 推断当前弹药对应的弹壳类型

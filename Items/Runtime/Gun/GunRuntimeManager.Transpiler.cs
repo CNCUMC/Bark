@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Bark.Items.Templates;
-using CUCoreLib.Helpers;
 using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // Partial：IL Transpiler — GunScript.Update/Fire 的 IL 织入
 public static partial class GunRuntimeManager
@@ -32,7 +31,7 @@ public static partial class GunRuntimeManager
     private static IEnumerable<CodeInstruction> TranspileUpdate(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
-        var doSpawnMethod = AccessTools.Method(typeof(GunRuntimeManager), nameof(DoSpawnCasing));
+        var doSpawnMethod = AccessTools.Method(typeof(Gun.GunRuntimeManager), nameof(DoSpawnCasing));
 
         // Step 1: 找到 ldstr "casing"（true 分支）
         var casingIdx = -1;
@@ -84,9 +83,9 @@ public static partial class GunRuntimeManager
         //   1 个 ldstr "guntrigger" → Sound.Play(string, Vector2)
         //   2 个 ldstr "gunjam"     → Sound.Play(string, Vector2, bool)
         // 用 DoPlayTriggerSound / DoPlayJamSound 回调替换，使 SoundProfile 字段生效。
-        var doTriggerMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayTriggerSound),
+        var doTriggerMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayTriggerSound),
             BindingFlags.NonPublic | BindingFlags.Static);
-        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+        var doJamMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
             BindingFlags.NonPublic | BindingFlags.Static);
 
         if (doTriggerMethod == null || doJamMethod == null) return codes;
@@ -136,7 +135,7 @@ public static partial class GunRuntimeManager
     private static IEnumerable<CodeInstruction> TranspileFire(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
-        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+        var doJamMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
             BindingFlags.NonPublic | BindingFlags.Static);
         if (doJamMethod == null) return codes;
 

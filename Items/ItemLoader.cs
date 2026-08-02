@@ -13,6 +13,7 @@ using CUCoreLib.Registries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 
 namespace Bark.Items;
 

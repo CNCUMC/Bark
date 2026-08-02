@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Bark.Audio;
 using Bark.Items.Templates;
 using Bark.Tool;
@@ -6,7 +7,7 @@ using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // 枪械运行时管理器：通过 Harmony 补丁覆盖 GunScript 的原生装弹/卸弹/开火逻辑，
 // 用模板标签匹配替换硬编码的弹药类型枚举，打通 Gun → Mag → Ammo → Casing 四层模板链路。
@@ -27,6 +28,14 @@ public static partial class GunRuntimeManager
 
     // 所有 patch 共用同一个 Harmony 实例，以便一次性 Unpatch。
     private static Harmony? _harmony;
+
+    // 耳鸣倍率运行时覆盖表：脚本端可通过 GunRuntimeApi.SetTinnitusMultiplier 设置，
+    // 键为枪械物品 ID，值为覆盖的 tinnitus_multiplier（null 表示使用模板默认值）。
+    private static readonly Dictionary<string, float> TinnitusMultiplierOverrides = new();
+
+    // Fire Prefix → Postfix 间传递的 preFire hearingLoss。
+    // Unity 主线程顺序执行，无需线程安全。
+    private static float _preFireHearingLoss = -1f;
 
     // 静音 AudioClip：当 SoundProfile 接管开火音效时，将 gun.fireSound 设为此值，
     // 确保 GunScript.Fire() 内的 Sound.Play(fireSound, ...) 不会崩溃（Sound.Play 需要有效 clip）。
@@ -54,6 +63,24 @@ public static partial class GunRuntimeManager
     // ============================================================
     // 生命周期
     // ============================================================
+
+    // 获取指定枪械的耳鸣倍率（运行时覆盖优先，否则取模板默认值）
+    internal static float GetEffectiveTinnitusMultiplier(string gunItemId)
+    {
+        if (TinnitusMultiplierOverrides.TryGetValue(gunItemId, out var overrideValue))
+            return overrideValue;
+        var gunData = GunTemplate.GetGunData(gunItemId);
+        return gunData?.TinnitusMultiplier ?? 0.1f;
+    }
+
+    // 脚本端运行时设置耳鸣倍率覆盖，传 null 清除覆盖恢复模板默认
+    internal static void SetTinnitusMultiplierOverride(string gunItemId, float? multiplier)
+    {
+        if (multiplier.HasValue)
+            TinnitusMultiplierOverrides[gunItemId] = multiplier.Value;
+        else
+            TinnitusMultiplierOverrides.Remove(gunItemId);
+    }
 
     // 安装所有 Harmony 补丁。幂等：多次调用不会重复 Patch。
     public static void Apply()
@@ -99,10 +126,12 @@ public static partial class GunRuntimeManager
                     prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnUnloadMagPrefix)));
             }
 
-            // Fire Postfix
+            // Fire Prefix + Postfix
             var fire = AccessTools.Method(gunScriptType, "Fire");
             if (fire != null)
             {
+                _harmony.Patch(fire,
+                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePrefix)));
                 _harmony.Patch(fire,
                     postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePostfix)));
                 // Transpiler：替换 Fire() 中的 ldstr "gunjam" 为 DoPlayJamSound

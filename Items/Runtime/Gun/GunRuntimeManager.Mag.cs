@@ -1,5 +1,3 @@
-using System;
-using Bark.Audio;
 using Bark.Events;
 using Bark.Items.Templates;
 using Bark.Tool;
@@ -7,7 +5,7 @@ using CUCoreLib.Helpers;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Bark.Items.Runtime;
+namespace Bark.Items.Runtime.Gun;
 
 // Partial：弹匣装卸 + 弹药脚本补丁
 public static partial class GunRuntimeManager

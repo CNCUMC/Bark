@@ -7,6 +7,7 @@ using Bark.Event.Listener;
 using Bark.Example;
 using Bark.Items;
 using Bark.Items.Runtime;
+using Bark.Items.Runtime.Gun;
 using Bark.Items.Templates;
 using Bark.Moodle;
 using Bark.Script;
@@ -16,6 +17,7 @@ using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 
 namespace Bark;
 
