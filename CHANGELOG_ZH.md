@@ -10,7 +10,9 @@
 
 ### Added
 
-- 物品模板系统：脚本模组可通过 JSON 模板定义自定义物品，不同模板类型使用各自的 schema。支持模板类型：gun、mag、ammo、casing。包含运行时跟踪（`GunMagTracker`、`GunRuntimeManager`）实现弹匣换弹、弹药消耗、弹壳抛射、开火音效等功能。
+- 物品模板系统：脚本模组可通过 JSON 模板定义自定义物品，不同模板类型使用各自的 schema。支持模板类型：gun、mag、ammo、casing、clothing、food。包含运行时跟踪（`GunMagTracker`、`GunRuntimeManager`）实现弹匣换弹、弹药消耗、弹壳抛射、开火音效等功能。
+- 衣物模板：通过 JSON 模板定义自定义衣物/护甲物品（`ClothingTemplate`），含 `ClothingData` schema，支持伤害抗性、保温、体积、装备类别等属性。包含文档 `docs/zh-CN/script-mod/item-template/clothing.md`。
+- 食物模板：通过 JSON 模板定义自定义食物/饮品物品（`FoodTemplate`），支持营养值、腐败、容器物品、效果等属性。包含文档 `docs/zh-CN/script-mod/item-template/food.md`。
 - `ItemUtil` 工具类，提供 `LoadSprite(path)` 和 `HexToColor(hex)` 辅助方法用于物品资产加载。
 - 枪械音效档案系统（`GunSoundProfile`）：支持 JSON 定义多维音效（fire/rack/unrack/load_mag/load_shell/unload_mag/trigger/jam/safety），每条音效支持音量、音高、权重随机，音频文件自动预加载和缓存。
 - 音效档案系统文档（`docs/zh-CN/script-mod/audio.md`、`docs/en-US/script-mod/audio.md`），覆盖档案 JSON schema、AudioManager API、简单模式与档案模式回退链、性能注意事项。

@@ -11,7 +11,9 @@ to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Item template system: script mods can define custom items via JSON templates with type-specific schemas. Supported template types: gun, mag, ammo, casing. Includes runtime tracking (`GunMagTracker`, `GunRuntimeManager`) for magazine reloads, ammo consumption, casing spawning, and firing sounds.
+- Item template system: script mods can define custom items via JSON templates with type-specific schemas. Supported template types: gun, mag, ammo, casing, clothing, food. Includes runtime tracking (`GunMagTracker`, `GunRuntimeManager`) for magazine reloads, ammo consumption, casing spawning, and firing sounds.
+- Clothing template: define custom clothing/armor items via JSON templates (`ClothingTemplate`) with `ClothingData` schema, supporting damage resistance, insulation, volume, and equipment categories. Includes documentation in `docs/en-US/script-mod/item-template/clothing.md`.
+- Food template: define custom food/drink items via JSON templates (`FoodTemplate`), supporting nutrition values, spoilage, container items, and effects. Includes documentation in `docs/en-US/script-mod/item-template/food.md`.
 - `ItemUtil` utility class with `LoadSprite(path)` and `HexToColor(hex)` helpers for item asset loading.
 - Gun sound profile system (`GunSoundProfile`): JSON-defined multi-category sound profiles (fire/rack/unrack/load_mag/load_shell/unload_mag/trigger/jam/safety) with per-entry volume, pitch, and weighted random selection. Audio files are automatically preloaded and cached.
 - Audio system documentation (`docs/zh-CN/script-mod/audio.md`, `docs/en-US/script-mod/audio.md`) covering profile JSON schema, AudioManager API, simple vs profile mode fallback chain, and performance notes.
