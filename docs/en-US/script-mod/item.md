@@ -80,7 +80,7 @@ Item type is auto-detected from the JSON fields:
 | `script`        | object | null         | Action → script mapping (see below)   |
 | `custom_data`   | object | null         | Arbitrary data for scripts to read    |
 
-> 📝 Item ID is the filename without `.json` (e.g. `bandage123.json` → ID `"bandage123"`). It is NOT a JSON field.
+> 📝 Item ID = `{modId}.{filename}` (namespaced format), e.g. mod `my_mod` with `bandage123.json` → ID `"my_mod.bandage123"`. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
 
 ### Wearable Fields
 
@@ -349,7 +349,7 @@ Script paths in the `script` array are relative to the **mod directory**, not th
 ```js
 // bandage123_use.js
 function main(itemId, item, action) {
-    // itemId: "bandage123"
+    // itemId: "my_mod.bandage123"
     // item:    C# Item instance
     // action:  "use"
 
@@ -444,7 +444,7 @@ geofruit)* sprite.
 
 ## Notes
 
-- If two mods both define `"bandage123"`, the last loaded wins
+- If two mods both define items with the same name, the last loaded wins (but the namespace prefix effectively prevents such conflicts)
 - JSON fields use `snake_case` naming (words are all lowercase, connected by underscores `_`)
 - If an item only needs a script (no custom sprite), you can omit `Assets/Item/` entirely
 - `script reload`/`rs` reloads item definitions — no restart needed during development

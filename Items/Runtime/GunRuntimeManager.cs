@@ -1072,59 +1072,110 @@ public static class GunRuntimeManager
     }
 
     // ============================================================
-    // Update Transpiler：替换抛壳时的物品 ID
+    // Update Transpiler：替换抛壳逻辑，用 Utils.Create 直接创建自定义弹壳
     // ============================================================
-
-    // Transpiler：查找 GunScript.Update() 中用于生成弹壳的 ldstr "casing" 指令，
-    // 替换为 ldarg.0 + call ResolveCasingItemId(GunScript)，
-    // 使得抛壳时生成模板匹配的弹壳物品而非硬编码的 "casing"。
+    //
+    // GunScript.Update() 中 rack 事件原始抛壳 IL：
+    //   ldstr "casing" → call Resources.Load → [pos/rot args] → call Object.Instantiate
+    //   → isinst GameObject → GetComponent<Rigidbody2D> → velocity
+    //
+    // 问题：Resources.Load 只能加载 Unity Resources 目录下的预制体，
+    // 自定义弹壳通过 CCL 的 CustomInstantiate 注册，Resources.Load 返回 null。
+    //
+    // 修复：将 true 分支（弹壳路径）的 ldstr "casing" ~ Object.Instantiate
+    // 替换为 ldarg.0 + call DoSpawnCasing(GunScript)，直接通过 Utils.Create
+    // 创建自定义弹壳物品并返回 GameObject。
+    // 然后修改 br.s 跳转目标直接跳到 Instantiate 之后，
+    // 这样自定义弹壳路径完全绕过 Resources.Load + Instantiate。
     private static IEnumerable<CodeInstruction> TranspileUpdate(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
-        var resolveMethod = AccessTools.Method(typeof(GunRuntimeManager), nameof(ResolveCasingItemId));
+        var doSpawnMethod = AccessTools.Method(typeof(GunRuntimeManager), nameof(DoSpawnCasing));
 
+        // Step 1: 找到 ldstr "casing"（true 分支）
+        var casingIdx = -1;
         for (var i = 0; i < codes.Count; i++)
         {
-            var code = codes[i];
-
-            // 查找 ldstr "casing"
-            if (code.opcode != OpCodes.Ldstr || code.operand is not string str || str != "casing") continue;
-            // 防御：确保替换位置的后续指令不会因堆栈变化而出错
-            // ldstr "casing" 在堆栈上放置一个 string。
-            // 替换为：ldarg.0（this GunScript） + call ResolveCasingItemId(GunScript) → 返回 string。
-            // 堆栈结果相同（一个 string），不影响后续指令。
-            code.opcode = OpCodes.Ldarg_0;
-            code.operand = null;
-            codes.Insert(i + 1, new CodeInstruction(OpCodes.Call, resolveMethod));
-            break; // 只替换第一处（Update 中抛壳应只有一处）
+            if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s == "casing")
+            {
+                casingIdx = i;
+                break;
+            }
         }
+
+        if (casingIdx < 0) return codes;
+
+        // Step 2: 确认下一条是 br/br.s（跳过 false 分支直达 ternary 汇合点）
+        var brIdx = casingIdx + 1;
+        if (brIdx >= codes.Count) return codes;
+        if (codes[brIdx].opcode != OpCodes.Br && codes[brIdx].opcode != OpCodes.Br_S) return codes;
+
+        // Step 3: 找到 call Object.Instantiate（在 Resources.Load + pos/rot args 之后）
+        var instantiateIdx = -1;
+        for (var i = brIdx + 1; i < codes.Count; i++)
+        {
+            var op = codes[i].opcode;
+            if (op != OpCodes.Call && op != OpCodes.Callvirt) continue;
+            if (codes[i].operand is not System.Reflection.MethodBase m) continue;
+            if (m.Name == "Instantiate" && m.DeclaringType == typeof(Object))
+            {
+                instantiateIdx = i;
+                break;
+            }
+        }
+
+        if (instantiateIdx < 0) return codes;
+
+        // Step 4: 将 br.s 跳转目标从 ternary 汇合点改为 Instantiate 之后
+        // true 分支（弹壳）直接跳到 Instantiate 之后，绕过 Resources.Load + args + Instantiate
+        // false 分支（实弹）保持原路径不变：AmmoTypeToItem → Resources.Load → Instantiate
+        var postInstantiateIdx = instantiateIdx + 1;
+        if (postInstantiateIdx >= codes.Count) return codes;
+        var postInstantiateLabel = new Label();
+        codes[postInstantiateIdx].labels.Add(postInstantiateLabel);
+        codes[brIdx] = new CodeInstruction(OpCodes.Br, postInstantiateLabel);
+
+        // Step 5: 将 ldstr "casing" 替换为 ldarg.0 + call DoSpawnCasing
+        // DoSpawnCasing 返回 Object（GameObject），与 Instantiate 返回类型一致，
+        // 下游 isinst GameObject → GetComponent<Rigidbody2D> → velocity 无需改动
+        codes[casingIdx] = new CodeInstruction(OpCodes.Ldarg_0);
+        codes.Insert(casingIdx + 1, new CodeInstruction(OpCodes.Call, doSpawnMethod));
 
         return codes;
     }
 
-    // Transpiler 回调：根据当前枪械的 PendingCasingType 返回模板匹配的弹壳物品 ID。
-    // 由 Update 的 Transpiler 动态调用。若未找到匹配或 PendingCasingType 为空，返回 "casing" 兜底。
-    // 注意：此方法由 Transpiler 注入到 GunScript.Update 中，请勿在此处使用 LogUtil 以避免热路径日志洪水。
-    public static string ResolveCasingItemId(GunScript gun)
+    // Transpiler 回调：直接创建自定义弹壳 GameObject。
+    // 由 Update Transpiler 动态注入到 GunScript.Update 的 true 分支（弹壳路径）。
+    // 若无法匹配自定义弹壳则退回原版 Resources.Load("casing") + Instantiate 兜底。
+    // 注意：此方法由 Transpiler 注入到 Update 中，请勿在此处使用 LogUtil 以避免热路径日志洪水。
+    private static Object? DoSpawnCasing(GunScript gun)
     {
-        if (gun == null) return "casing";
+        if (gun == null) return null;
 
         var item = gun.GetComponent<Item>();
-        if (item == null) return "casing";
+        if (item == null) return null;
 
+        // 通过模板查找自定义弹壳物品
+        string? casingId = null;
         var state = GunMagTracker.Get(item);
-        if (state == null) return "casing";
+        if (state?.PendingCasingType != null)
+        {
+            var casingIds = CasingTemplate.FindCasingsByType(state.PendingCasingType);
+            casingId = casingIds.Count > 0 ? casingIds[0] : null;
+            state.PendingCasingType = null; // 消费一次
+        }
 
-        var pending = state.PendingCasingType;
-        if (pending == null) return "casing";
+        // 自定义弹壳：通过 CCL 的 Utils.Create 创建
+        if (casingId != null)
+        {
+            var go = Utils.Create(casingId, gun.transform.position, gun.transform.rotation.eulerAngles.z);
+            if (go != null) return go;
+        }
 
-        // 通过模板查找匹配的弹壳物品
-        var casingIds = CasingTemplate.FindCasingsByType(pending);
-        var casingId = casingIds.Count > 0 ? casingIds[0] : null;
-
-        // 消费标记（只消费一次）
-        state.PendingCasingType = null;
-
-        return casingId ?? "casing";
+        // 兜底：原版 "casing" 预制体
+        var prefab = Resources.Load("casing");
+        return prefab != null
+            ? Object.Instantiate(prefab, gun.transform.position, gun.transform.rotation)
+            : null;
     }
 }

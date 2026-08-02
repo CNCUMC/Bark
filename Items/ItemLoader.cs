@@ -122,12 +122,12 @@ public static class ItemLoader
         LogUtil.Info("items.scripts_registered", manifest.Id, count);
     }
 
-    // 加载单个 JSON 文件，自动检测类型并注册。物品 ID 取自文件名（不含扩展名）。
+    // 加载单个 JSON 文件，自动检测类型并注册。物品 ID = {modId}.{文件名} 命名空间格式。
     // assetsDir: ModDir/Assets/Item/，用于加载图片等资产。
     // 成功时返回记录项并暂存脚本映射（如有），失败返回 null。
     private static ItemEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId)
     {
-        var itemId = Path.GetFileNameWithoutExtension(jsonFile);
+        var itemId = $"{modId}.{Path.GetFileNameWithoutExtension(jsonFile)}";
 
         string json;
         try

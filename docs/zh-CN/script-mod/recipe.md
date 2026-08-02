@@ -22,7 +22,7 @@ ScriptMod/Mods/
 
 ```json
 {
-  "id": "my_custom_item",
+  "id": "my_mod.my_custom_item",
   "int": 5,
   "category": "Medicine",
   "amount": 3,
@@ -57,7 +57,7 @@ ScriptMod/Mods/
 
 | 字段                       | 类型   | 默认值        | 说明                                                            |
 |----------------------------|--------|---------------|-----------------------------------------------------------------|
-| `id`                       | string | (必填)        | 产物物品 ID                                                     |
+| `id`                       | string | (必填)        | 产物物品 ID（自定义物品使用 `{modId}.{itemName}` 命名空间格式） |
 | `int`                      | int    | 0             | 制作所需智力                                                    |
 | `category`                 | string | `"Materials"` | 配方分类：`Materials`, `Tools`, `Medicine`, `Utilities`, `Food` |
 | `amount`                   | int    | 1             | 每次合成产物数量                                                |
@@ -72,7 +72,7 @@ ScriptMod/Mods/
 | 字段                | 类型   | 默认值 | 说明                                                      |
 |---------------------|--------|--------|-----------------------------------------------------------|
 | `specific`          | bool   | false  | `true` = 精确匹配物品 ID，`false` = 按 `quality` 特性匹配 |
-| `specific_id`       | string | `""`   | `specific=true` 时的目标物品 ID                           |
+| `specific_id`       | string | `""`   | `specific=true` 时的目标物品 ID（自定义物品使用命名空间格式，原版物品直接写名称如 `bandage`） |
 | `quality`           | string | `""`   | 制作特性关键字，拥有该特性的物品都可作为材料              |
 | `quality_condition` | float  | 1.0    | 特性消耗量                                                |
 | `minimum_condition` | float  | 0.9    | 材料物品最小耐久度                                        |

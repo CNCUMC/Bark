@@ -79,7 +79,7 @@ ScriptMod/Mods/
 | `script`        | object | null         | 动作 → 脚本映射（见下文）      |
 | `custom_data`   | object | null         | 自定义数据，供脚本读取         |
 
-> 📝 物品 ID 就是文件名（不含 `.json` 扩展名），如 `bandage123.json` → ID 为 `"bandage123"`。 **不是** JSON 里的字段。
+> 📝 物品 ID = `{模组ID}.{文件名}`（命名空间格式），如模组 `my_mod` 的 `bandage123.json` → ID `"my_mod.bandage123"`。原版物品（如 `bandage`）无前缀，直接使用物品名。 **不是** JSON 里的字段。
 
 ### 可穿戴字段
 
@@ -339,7 +339,7 @@ ScriptMod/Mods/
 ```js
 // bandage123_use.js
 function main(itemId, item, action) {
-    // itemId: "bandage123"
+    // itemId: "my_mod.bandage123"
     // item:    C# Item 实例
     // action:  "use"
 
@@ -432,7 +432,7 @@ function main(itemId, item, action) {
 
 ## 注意事项
 
-- 两个脚本模组同时定义 `"bandage123"` 时，后加载的会覆盖先加载的
+- 两个脚本模组同时定义同名物品时，后加载的会覆盖先加载的（但命名空间前缀有效防止此类冲突）
 - JSON 字段使用 `snake_case` 命名（所有单词全部小写，单词与单词之间使用下划线 `_` 链接）
 - 如果物品只需要脚本而不需要自定义贴图，可以完全省略在 `Assets/Item/` 目录下放置贴图
 - 开发时无需重启游戏，指令 `script reload`/`rs` 会重载物品定义
