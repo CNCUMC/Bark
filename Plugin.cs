@@ -198,5 +198,6 @@ public class Plugin : BaseUnityPlugin
         new MagTemplate().Register();
         new AmmunitionTemplate().Register();
         new CasingTemplate().Register();
+        new FoodTemplate().Register();
     }
 }

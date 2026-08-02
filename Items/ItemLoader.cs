@@ -166,6 +166,7 @@ public static class ItemLoader
                 MagTemplate.CacheMagItem(itemId, template);
                 AmmunitionTemplate.CacheAmmoItem(itemId, template);
                 CasingTemplate.CacheCasingItem(itemId, template);
+                FoodTemplate.CacheFoodItem(itemId, template);
 
                 json = merged.ToString();
                 obj = merged;
@@ -538,6 +539,26 @@ public static class ItemLoader
                 am.UnloadRound();
             };
         }
+        else if (FoodTemplate.IsFood(itemId))
+        {
+            // usable 已由模板默认值设为 true，此处确保不被覆盖
+            info.usable = true;
+            info.useAction = (body, item) =>
+            {
+                var foodData = FoodTemplate.GetFoodData(itemId);
+                if (foodData is null) return;
+
+                body.Eat(foodData.Nutrition, foodData.WeightOffset);
+                body.Drink(foodData.Hydration);
+                body.happiness += foodData.Happiness;
+                item.condition -= foodData.ConditionLoss;
+
+                if (!string.IsNullOrEmpty(foodData.EatSound))
+                    Sound.Play(foodData.EatSound, body.transform.position);
+                if (foodData.EatGoodVoice)
+                    body.talker.EatGood();
+            };
+        }
 
         return FinalizeItemInfo(info, def);
     }
@@ -702,6 +723,7 @@ public static class ItemLoader
                 MagTemplate.RemoveMagItem(entry.Id);
                 AmmunitionTemplate.RemoveAmmoItem(entry.Id);
                 CasingTemplate.RemoveCasingItem(entry.Id);
+                FoodTemplate.RemoveFoodItem(entry.Id);
             }
 
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);
