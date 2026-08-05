@@ -82,8 +82,7 @@ Full documentation at [`docs/en-US/`](docs/en-US) (and [简体中文](docs/zh-CN
 1. Install [BepInEx 5.x](https://github.com/BepInEx/BepInEx) for Casualties Unknown.
 2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 — place `CUCoreLib.dll` into
    `BepInEx/plugins/CUCoreLib/`.
-3. Download the latest `Bark.dll` from the [Releases](https://github.com/CNCUMC/Bark/releases) page.
-4. Place `Bark.dll` into your `BepInEx/plugins/` folder.
+3. Install [Bark](https://www.nexusmods.com/scavprototype/mods/362) Extract it and place it in the `BepInEx/plugins/` folder.
 
 > **For mod developers:** Reference `Bark.dll` in your project, and add `[BepInDependency("org.cucnmc.bark")]` to your
 > plugin class.
