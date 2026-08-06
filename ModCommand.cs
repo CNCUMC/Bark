@@ -71,7 +71,7 @@ public static class ModCommand
                 PrintHelp();
                 break;
             case "reload":
-                CUCoreUtils.ConsoleRunCommand(ConsoleScript.instance, "rs");
+                CUCoreUtils.ConsoleRunCommand(ConsoleScript.instance, "sr");
                 break;
             case "list":
                 PrintList();

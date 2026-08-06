@@ -45,7 +45,6 @@ Language is detected from the entry file extension — `main.js` = JS mod, `main
 | `bark_version` | string | No       | Required Bark version (semver range)                                              |
 | `game_version` | string | No       | Compatible game version (semver range)                                            |
 | `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]`                 |
-| `tiles`        | object | No       | Tile index mapping, e.g. `{"marble": 50}`, see [Custom Tiles](script-mod/tile.md) |
 
 ### Entry File
 

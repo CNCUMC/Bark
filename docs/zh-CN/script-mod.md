@@ -44,7 +44,6 @@ ScriptMod/Mods/
 | `bark_version` | string | ❌   | 要求的 Bark 版本（semver range）                                        |
 | `game_version` | string | ❌   | 兼容的游戏版本（semver range）                                          |
 | `dependencies` | array  | ❌   | 依赖的脚本模组，格式 `[{"id": "some_mod", "version": "1.0.0"}]`         |
-| `tiles`        | object | ❌   | 物块索引映射，如 `{"marble": 50}`，详见[自定义物块](script-mod/tile.md) |
 
 ### 入口文件
 
