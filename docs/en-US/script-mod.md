@@ -7,16 +7,35 @@ the [Lua Notes](#lua-notes) section.
 
 ## Creating a Script
 
-Create your own folder under `ScriptMod/Mods/` with a `mod.json` and an entry script:
+Create your own folder under `ScriptMod/Mods/` with a `mod.json`. An entry script is **optional**:
 
 ```
 ScriptMod/Mods/
   MyMod/
     mod.json
-    main.js        ← Entry file: main.js / main.mjs / main.lua
+    main.js        ← Entry file: main.js / main.mjs / main.lua (optional)
 ```
 
 Language is detected from the entry file extension — `main.js` = JS mod, `main.lua` = Lua mod.
+
+### Data-only Mods
+
+A mod without any entry script (`main.js` / `main.mjs` / `main.lua`) is treated as a **data-only mod**.
+It is still loaded and can provide JSON content (items, tiles, recipes, moodles, commands) via the
+`Assets/` folders, but no script engine is started and no lifecycle hooks run.
+
+```
+ScriptMod/Mods/
+  MyDataMod/
+    mod.json
+    Assets/
+      Item/
+        my_item.json
+      Recipe/
+        my_recipe.json
+```
+
+You can also combine both: a mod with an entry script may additionally define JSON content.
 
 ### mod.json
 
@@ -250,11 +269,14 @@ function onLimbBroken() {
 
 Bark registers several in-game console commands useful for development.
 
-| Command         | Alias | What It Does            |
-|-----------------|-------|-------------------------|
-| `script help`   | —     | Show command help       |
-| `script reload` | `rs`  | Reload all script mods  |
-| `script list`   | —     | List loaded script mods |
+| Command           | Alias | What It Does                                                  |
+|-------------------|-------|---------------------------------------------------------------|
+| `script help`     | —     | Show command help                                             |
+| `script reload`   | `rs`  | Reload all script mods                                        |
+| `script list`     | —     | List loaded script mods                                       |
+| `script spawn`    | `basp`| Spawn a Bark item by its registered ID                        |
+| `script tile`     | `bast`| Place a Bark tile by its registered ID                         |
+| `script moodle`   | `basm`| Apply a Bark moodle by its key                                 |
 
 Usage: press `` ` `` in-game to open the console, type the command and press Enter.
 
@@ -269,6 +291,38 @@ All script mods reloaded
 ```
 
 > 💡 `script reload` is the most-used command. Modify scripts, hit `sr` — no need to restart the game.
+
+### Spawning / Placing Bark Content
+
+These commands create content that was registered by Bark (items, tiles, moodles from any script mod or C# mod).
+They only accept **Bark-registered IDs** — vanilla CCL items/tiles are still spawned via the game's `cuspawn` / `settile`.
+
+The content ID is the full registered name, formatted as `modid.entryname` (e.g. `hello_world_js.ak47`).
+Press `Tab` to auto-complete from all Bark-registered content. The completion list refreshes after `script reload`.
+
+**Spawn an item** — forwards to CCL `cuspawn`, arguments in order: `[id] [position] [condition] [count]`.
+
+```text
+> basp hello_world_js.ak47
+> script spawn hello_world_js.improved_headlamp 100 1
+```
+
+**Place a tile** — the Bark string tile ID is converted to a CCL tile index, then forwarded to CCL `settile`
+(`[tileIndex] [position]`).
+
+```text
+> bast hello_world_js.marble
+> script tile hello_world_js.marble 12,34
+```
+
+**Apply a moodle** — applies a registered moodle to the player. CCL has no equivalent command, so Bark calls
+`MoodleUtil.ApplyMoodle` directly. Arguments: `[moodleKey] [holdSeconds]` (`holdSeconds` optional, defaults to the
+JSON-defined duration).
+
+```text
+> basm hello_world_js.bleeding
+> script moodle hello_world_js.bleeding 30
+```
 
 ### Registering Custom Commands
 

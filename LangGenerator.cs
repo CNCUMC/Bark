@@ -60,6 +60,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "重载所有脚本模组",
             "重載所有腳本模組",
             "Перезагрузить все скриптовые моды");
+        Command("script.help.spawn",
+            "Spawn a Bark item: spawn [itemId] [position] [condition] [count]",
+            "生成 Bark 物品: spawn [物品ID] [位置] [状态] [数量]",
+            "生成 Bark 物品: spawn [物品ID] [位置] [狀態] [數量]",
+            "Создать предмет Bark: spawn [itemId] [position] [condition] [count]");
+        Command("script.help.list",
+            "List loaded script mods",
+            "列出已加载的脚本模组",
+            "列出已載入的腳本模組",
+            "Список загруженных скриптовых модов");
         Command("script.list",
             "Script mod list",
             "脚本模组列表",
@@ -75,6 +85,54 @@ internal class LangGenerator : ModLangGenMultiBase
             "  {0} v{1} [{2}] ({3}) ",
             "  {0} v{1} [{2}] ({3}) ",
             "  {0} v{1} [{2}] ({3})");
+        // 列表中的语言标签：纯数据模组（无入口脚本）显示为 Data
+        Command("script.list.language.none",
+            "Data",
+            "纯数据",
+            "純資料",
+            "Данные");
+        Command("script.list.language.javascript",
+            "JavaScript",
+            "JavaScript",
+            "JavaScript",
+            "JavaScript");
+        Command("script.list.language.lua",
+            "Lua",
+            "Lua",
+            "Lua",
+            "Lua");
+        Command("script.help.tile",
+            "Place a Bark tile: tile [tileId] [position]",
+            "生成 Bark 物块: tile [物块ID] [位置]",
+            "生成 Bark 物塊: tile [物塊ID] [位置]",
+            "Разместить тайл Bark: tile [tileId] [position]");
+        Command("script.help.moodle",
+            "Apply a Bark moodle: moodle [moodleKey] [holdSeconds]",
+            "应用 Bark 状态: moodle [情绪Key] [持续时间]",
+            "應用 Bark 狀態: moodle [情緒Key] [持續時間]",
+            "Применить настроение Bark: moodle [moodleKey] [holdSeconds]");
+
+        // Log - script spawn
+        Log("script.spawn.usage",
+            "Usage: script spawn [itemId] [position] [condition] [count]",
+            "用法: script spawn [物品ID] [位置] [状态] [数量]",
+            "用法: script spawn [物品ID] [位置] [狀態] [數量]",
+            "Использование: script spawn [itemId] [position] [condition] [count]");
+        Log("script.tile.usage",
+            "Usage: script tile [tileId] [position]",
+            "用法: script tile [物块ID] [位置]",
+            "用法: script tile [物塊ID] [位置]",
+            "Использование: script tile [tileId] [position]");
+        Log("script.moodle.usage",
+            "Usage: script moodle [moodleKey] [holdSeconds]",
+            "用法: script moodle [状态Key] [持续时间]",
+            "用法: script moodle [狀態Key] [持續時間]",
+            "Использование: script moodle [moodleKey] [holdSeconds]");
+        Log("script.moodle.invalid_hold",
+            "Invalid holdSeconds '{0}', expected a number",
+            "无效的持续时间 '{0}'，应为数字",
+            "無效的持續時間 '{0}'，應為數字",
+            "Недопустимая длительность '{0}', ожидается число");
 
         // Log - Console
         Log("console.null_or_empty",
@@ -92,7 +150,7 @@ internal class LangGenerator : ModLangGenMultiBase
         Log("world.place_block",
             "At {0} place block {1} failed: {2}",
             "在 {0} 生成物块 {1} 失败: {2}",
-            "在 {0} 生成方塊 {1} 失敗: {2}",
+            "在 {0} 生成物塊 {1} 失敗: {2}",
             "В {0} не удалось разместить блок {1}: {2}");
         Log("world.place_item",
             "At {0} place item {1} failed: {2}",
@@ -228,26 +286,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "已将 puerts/ 运行时文件夹复制到游戏根目录",
             "已將 puerts/ 運行時資料夾複製到遊戲根目錄",
             "Папка运行时 puerts/ скопирована в корневую директорию игры");
-        Log("puerpython.bundled_ready",
-            "Python runtime ready at {0}",
-            "Python 运行环境已就绪 {0}",
-            "Python 執行環境已就緒 {0}",
-            "Среда выполнения Python готова в {0}");
-        Log("puerpython.system_not_found",
-            "Python runtime not found in Python/Python3142/, Python scripts will be skipped",
-            "Python/Python3142/ 中未找到 Python 运行环境，Python 脚本将被跳过",
-            "Python/Python3142/ 中未找到 Python 執行環境，Python 腳本將被跳過",
-            "Среда выполнения Python не найдена в Python/Python3142/, скрипты Python будут пропущены");
-        Log("puerpython.wrong_version",
-            "Python version mismatch: expected 3.14.2, got {0}. Python scripts will be skipped",
-            "Python 版本不匹配：需要 3.14.2，当前 {0}。Python 脚本将被跳过",
-            "Python 版本不符：需要 3.14.2，當前 {0}。Python 腳本將被跳過",
-            "Несовместимая версия Python: требуется 3.14.2, найдена {0}. Скрипты Python будут пропущены");
-        Log("script_mod_loader.dir_not_found",
-            "ScriptMods directory not found: {0}",
-            "ScriptMods 目录不存在: {0}",
-            "ScriptMods 目錄不存在: {0}",
-            "Каталог ScriptMods не найден: {0}");
+        // Log("puerpython.bundled_ready",
+        //     "Python runtime ready at {0}",
+        //     "Python 运行环境已就绪 {0}",
+        //     "Python 執行環境已就緒 {0}",
+        //     "Среда выполнения Python готова в {0}");
+        // Log("puerpython.system_not_found",
+        //     "Python runtime not found in Python/Python3142/, Python scripts will be skipped",
+        //     "Python/Python3142/ 中未找到 Python 运行环境，Python 脚本将被跳过",
+        //     "Python/Python3142/ 中未找到 Python 執行環境，Python 腳本將被跳過",
+        //     "Среда выполнения Python не найдена в Python/Python3142/, скрипты Python будут пропущены");
+        // Log("puerpython.wrong_version",
+        //     "Python version mismatch: expected 3.14.2, got {0}. Python scripts will be skipped",
+        //     "Python 版本不匹配：需要 3.14.2，当前 {0}。Python 脚本将被跳过",
+        //     "Python 版本不符：需要 3.14.2，當前 {0}。Python 腳本將被跳過",
+        //     "Несовместимая версия Python: требуется 3.14.2, найдена {0}. Скрипты Python будут пропущены");
         Log("script_mod_loader.dir_created",
             "Created ScriptMods directory: {0}",
             "已创建 ScriptMods 目录: {0}",
@@ -273,11 +326,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "已清理孤儿缓存 '{0}'（zip 已被删除）",
             "已清理孤兒快取 '{0}'（zip 已被刪除）",
             "Очищен потерянный кэш '{0}' (zip больше не существует)");
-        Log("script_mod_loader.found_manifests",
-            "Found {0} mod manifest(s)",
-            "发现 {0} 个模组清单",
-            "發現 {0} 個模組清單",
-            "Найдено {0} манифест(ов)");
         Log("script_mod_loader.skip_no_manifest",
             "Skipped (no mod.json): {0}",
             "跳过 (无 mod.json): {0}",
@@ -303,26 +351,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "缺少 version 字段: {0}",
             "缺少 version 欄位: {0}",
             "Отсутствует поле 'version': {0}");
-        Log("script_mod_loader.no_entry_file",
-            "Entry file not found (main.js/lua/py): {0}",
-            "未找到入口文件 (main.js/lua/py): {0}",
-            "未找到入口檔案 (main.js/lua/py): {0}",
-            "Файл входа не найден (main.js/lua/py): {0}");
-        Log("script_mod_loader.manifest_read",
-            "Manifest read: {0} v{1} ({2})",
-            "已读取清单: {0} v{1} ({2})",
-            "已讀取清單: {0} v{1} ({2})",
-            "Манифест прочитан: {0} v{1} ({2})");
+        Log("script_mod_loader.data_only_mod",
+            "No entry script (main.js/lua/mjs); treated as data-only mod: {0} ({1})",
+            "无入口脚本 (main.js/lua/mjs)，按纯数据模组处理: {0} ({1})",
+            "無入口腳本 (main.js/lua/mjs)，按純資料模組處理: {0} ({1})",
+            "Нет входного скрипта (main.js/lua/mjs); модуль только с данными: {0} ({1})");
+        Log("script_mod_loader.data_mod_loaded",
+            "[Data] Loaded {0} v{1}",
+            "[纯数据] 已加载 {0} v{1}",
+            "[純資料] 已載入 {0} v{1}",
+            "[Данные] Загружен {0} v{1}");
         Log("script_mod_loader.manifest_read_error",
             "Failed to read manifest: {0} - {1}",
             "读取清单失败: {0} - {1}",
             "讀取清單失敗: {0} - {1}",
             "Не удалось прочитать манифест: {0} - {1}");
-        Log("script_mod_loader.loaded_count",
-            "Successfully loaded {0} script mod(s)",
-            "成功加载 {0} 个脚本模组",
-            "成功載入 {0} 個腳本模組",
-            "Успешно загружено {0} скриптовых мод(ов)");
         Log("script_mod_loader.duplicate_id",
             "Duplicate mod ID: {0}, skipped",
             "重复的模组 ID: {0}，跳过",
@@ -333,11 +376,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "不支持的语言: {0} ({1})",
             "不支援的語言: {0} ({1})",
             "Неподдерживаемый язык: {0} ({1})");
-        Log("script_mod_loader.mod_loaded",
-            "Loaded: {0} v{1}",
-            "已加载: {0} v{1}",
-            "已載入: {0} v{1}",
-            "Загружено: {0} v{1}");
         Log("script_mod_loader.load_failed",
             "Failed to load: {0} - {1}",
             "加载失败: {0} - {1}",
@@ -363,11 +401,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "卸载模组 '{0}' 失败: {1}",
             "卸載模組 '{0}' 失敗: {1}",
             "Не удалось выгрузить мод '{0}': {1}");
-        Log("script_mod_loader.python_not_available",
-            "Python runtime not available, skipping mod '{0}'",
-            "Python 运行时不可用，跳过模组 '{0}'",
-            "Python 運行時不可用，跳過模組 '{0}'",
-            "Python рантайм недоступен, пропуск мода '{0}'");
+        // Log("script_mod_loader.python_not_available",
+        //     "Python runtime not available, skipping mod '{0}'",
+        //     "Python 运行时不可用，跳过模组 '{0}'",
+        //     "Python 運行時不可用，跳過模組 '{0}'",
+        //     "Python рантайм недоступен, пропуск мода '{0}'");
 
         // Log - OptionsUtil
         Log("options_util.def_parse_failed",
@@ -605,21 +643,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "JS 引擎释放错误 '{0}': {1}",
             "JS 引擎釋放錯誤 '{0}': {1}",
             "Ошибка освобождения JS-движка '{0}': {1}");
-        Log("script_engine.py_load_failed",
-            "Python mod '{0}' failed to load: {1}",
-            "Python 模组 '{0}' 加载失败: {1}",
-            "Python 模組 '{0}' 載入失敗: {1}",
-            "Python-мод '{0}' не удалось загрузить: {1}");
-        Log("script_engine.py_exec_file_failed",
-            "Python mod '{0}' failed to execute '{1}': {2}",
-            "Python 模组 '{0}' 执行脚本 '{1}' 失败: {2}",
-            "Python 模組 '{0}' 執行腳本 '{1}' 失敗: {2}",
-            "Python-мод '{0}' не удалось выполнить '{1}': {2}");
-        Log("script_engine.py_dispose_error",
-            "Python engine dispose error '{0}': {1}",
-            "Python 引擎释放错误 '{0}': {1}",
-            "Python 引擎釋放錯誤 '{0}': {1}",
-            "Ошибка освобождения Python-движка '{0}': {1}");
+        // Log("script_engine.py_load_failed",
+        //     "Python mod '{0}' failed to load: {1}",
+        //     "Python 模组 '{0}' 加载失败: {1}",
+        //     "Python 模組 '{0}' 載入失敗: {1}",
+        //     "Python-мод '{0}' не удалось загрузить: {1}");
+        // Log("script_engine.py_exec_file_failed",
+        //     "Python mod '{0}' failed to execute '{1}': {2}",
+        //     "Python 模组 '{0}' 执行脚本 '{1}' 失败: {2}",
+        //     "Python 模組 '{0}' 執行腳本 '{1}' 失敗: {2}",
+        //     "Python-мод '{0}' не удалось выполнить '{1}': {2}");
+        // Log("script_engine.py_dispose_error",
+        //     "Python engine dispose error '{0}': {1}",
+        //     "Python 引擎释放错误 '{0}': {1}",
+        //     "Python 引擎釋放錯誤 '{0}': {1}",
+        //     "Ошибка освобождения Python-движка '{0}': {1}");
 
         // Log - Items
         Log("items.load_error",

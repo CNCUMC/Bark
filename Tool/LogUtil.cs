@@ -26,7 +26,7 @@ public static class LogUtil
 
     public static void Info(string text, ManualLogSource? logger)
     {
-        LogToConsole($"[INFO] {text}");
+        LogToConsole(text);
         logger?.LogInfo(text);
     }
 
@@ -50,7 +50,7 @@ public static class LogUtil
 
     public static void Message(string text, ManualLogSource? logger)
     {
-        LogToConsole($"[MESSAGE] {text}");
+        LogToConsole(text);
         logger?.LogMessage(text);
     }
 

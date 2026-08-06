@@ -6,16 +6,35 @@ Bark 支持用 JavaScript 或 Lua 写脚本。本文用 JavaScript 作为示例�
 
 ## 创建脚本
 
-在 `ScriptMod/Mods/` 下创建你自己的文件夹，里面放一个 `mod.json` 和入口脚本：
+在 `ScriptMod/Mods/` 下创建你自己的文件夹，里面放一个 `mod.json`。入口脚本是**可选的**：
 
 ```
 ScriptMod/Mods/
   MyMod/
     mod.json
-    main.js        ← 入口文件固定为 main.js / main.mjs / main.lua
+    main.js        ← 入口文件可选：main.js / main.mjs / main.lua
 ```
 
 语言由入口文件的扩展名自动判定——放 `main.js` 就是 JS 脚本模组，放 `main.lua` 就是 Lua 脚本模组。
+
+### 纯数据模组
+
+没有入口脚本（`main.js` / `main.mjs` / `main.lua`）的模组会被当作**纯数据模组**处理。
+它依然会被加载，并可以通过 `Assets/` 文件夹提供 JSON 内容（物品、物块、配方、情绪、命令），
+但不会启动任何脚本引擎，也不会执行生命周期钩子。
+
+```
+ScriptMod/Mods/
+  MyDataMod/
+    mod.json
+    Assets/
+      Item/
+        my_item.json
+      Recipe/
+        my_recipe.json
+```
+
+两者也可以同时存在：带入口脚本的模组同样可以定义 JSON 内容。
 
 ### mod.json
 
@@ -245,11 +264,14 @@ function onLimbBroken() {
 
 Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 
-| 指令            | 别名 | 作用                 |
-|-----------------|------|----------------------|
-| `script help`   | —    | 显示指令帮助         |
-| `script reload` | `rs` | 重载所有脚本模组     |
-| `script list`   | —    | 列出已加载的脚本模组 |
+| 指令            | 别名 | 作用                           |
+|-----------------|------|--------------------------------|
+| `script help`   | —    | 显示指令帮助                   |
+| `script reload` | `rs` | 重载所有脚本模组               |
+| `script list`   | —    | 列出已加载的脚本模组           |
+| `script spawn`  | `basp` | 按注册 ID 生成 Bark 物品     |
+| `script tile`   | `bast` | 按注册 ID 放置 Bark 物块     |
+| `script moodle` | `basm` | 按 key 应用 Bark 情绪        |
 
 用法：在游戏内按 `` ` `` 打开控制台，输入指令回车。
 
@@ -264,6 +286,37 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 ```
 
 > 💡 `script reload` 是最常用的指令。改了脚本不需要重启游戏，输一下 `sr` 就能看到效果。
+
+### 生成 / 放置 Bark 内容
+
+这些指令用于生成由 Bark 注册的内容（来自任意脚本模组或 C# 模组的物品、物块、情绪）。
+它们**只接受 Bark 注册的 ID**——原版 CCL 物品/物块仍用游戏自带的 `cuspawn` / `settile` 生成。
+
+内容 ID 是完整的注册名，格式为 `modid.entryname`（例如 `hello_world_js.ak47`）。
+输入时按 `Tab` 可从所有 Bark 注册内容中自动补全，补全列表在 `script reload` 后自动刷新。
+
+**生成物品** —— 转发给 CCL 的 `cuspawn`，参数按顺序：`[id] [位置] [状态] [数量]`。
+
+```text
+> basp hello_world_js.ak47
+> script spawn hello_world_js.improved_headlamp 100 1
+```
+
+**放置物块** —— 先把 Bark 字符串物块 ID 转换成 CCL 的物块索引，再转发给 CCL 的 `settile`
+（`[tileIndex] [位置]`）。
+
+```text
+> bast hello_world_js.marble
+> script tile hello_world_js.marble 12,34
+```
+
+**应用情绪** —— 给玩家应用一个已注册的情绪。CCL 没有对应指令，因此 Bark 直接调用
+`MoodleUtil.ApplyMoodle`。参数：`[moodleKey] [holdSeconds]`（`holdSeconds` 可选，缺省时用 JSON 定义的持续时间）。
+
+```text
+> basm hello_world_js.bleeding
+> script moodle hello_world_js.bleeding 30
+```
 
 ### 注册自定义命令
 

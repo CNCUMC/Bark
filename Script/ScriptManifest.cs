@@ -63,6 +63,8 @@ public class ModDependency
 // 相关实现已归档至 TodoPython/ 目录。
 public enum ScriptLanguage
 {
+    // 纯数据模组：无入口脚本文件，仅加载 JSON 内容（Item/Tile/Recipe/Moodle/Command）
+    None,
     JavaScript,
     Lua
 }

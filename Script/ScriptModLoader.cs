@@ -45,6 +45,37 @@ public class ScriptModLoader(string modsPath) : IDisposable
     public static IReadOnlyList<ScriptManifest> LoadedLuaMods =>
         _loadedMods.Values.Where(m => m.Language == ScriptLanguage.Lua).ToList().AsReadOnly();
 
+    // 各 Loader 收集到的 Bark 内容 ID，集中暴露供外部（命令补全、查询等）统一调用。
+    // 内容分散记录在各 Loader 的 Loaded* 字典中（各自负责所有权与热重载），
+    // 此处仅做聚合视图（属性每次访问实时读取），不重复存储，避免双写不一致。
+
+    // Bark 注册的全部物品 ID（形如 modid.itemid）
+    public static IReadOnlyList<string> Items =>
+        ItemLoader.LoadedItems.Values.SelectMany(list => list).Select(e => e.Id).ToList().AsReadOnly();
+
+    // Bark 注册的全部物块 ID（形如 modid.tileid）
+    public static IReadOnlyList<string> Tiles =>
+        TileLoader.LoadedTiles.Values.SelectMany(list => list).Select(e => e.TileId).ToList().AsReadOnly();
+
+    // Bark 注册的全部配方 ID
+    public static IReadOnlyList<string> Recipes =>
+        RecipeLoader.LoadedRecipes.Values.SelectMany(list => list).Select(e => e.Id).ToList().AsReadOnly();
+
+    // Bark 注册的全部 Moodle key
+    public static IReadOnlyList<string> Moodles =>
+        MoodleLoader.LoadedMoodles.Values.SelectMany(list => list).Select(e => e.Key).ToList().AsReadOnly();
+
+    // 汇总所有通过 Bark 注册的内容 ID（物品/物块/配方/Moodle），去重。
+    public static List<string> GetRegisteredContentIds()
+    {
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var id in Items) ids.Add(id);
+        foreach (var id in Tiles) ids.Add(id);
+        foreach (var id in Recipes) ids.Add(id);
+        foreach (var id in Moodles) ids.Add(id);
+        return ids.ToList();
+    }
+
     // 卸载所有已加载的模组并释放资源
     public void Dispose()
     {
@@ -259,16 +290,18 @@ public class ScriptModLoader(string modsPath) : IDisposable
             // 设置运行时字段
             manifest.Directory = modDir;
 
-            // 查找入口文件
+            // 查找入口文件：纯数据模组（仅 JSON 内容，无脚本）可缺省入口文件
             var entryFile = FindEntryFile(modDir);
             if (entryFile == null)
             {
-                LogUtil.Warning("script_mod_loader.no_entry_file", modDir);
-                return null;
+                manifest.Language = ScriptLanguage.None;
+                LogUtil.Info("script_mod_loader.data_only_mod", manifest.Id, modDir);
             }
-
-            manifest.EntryFile = entryFile;
-            manifest.Language = GetLanguage(entryFile);
+            else
+            {
+                manifest.EntryFile = entryFile;
+                manifest.Language = GetLanguage(entryFile);
+            }
 
             return manifest;
         }
@@ -298,7 +331,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
     }
 
     // 加载单个模组（路由到对应 PuerTS 引擎）
-    private void LoadMod(ScriptManifest manifest)
+    private static void LoadMod(ScriptManifest manifest)
     {
         if (_loadedMods.ContainsKey(manifest.Id))
         {
@@ -311,6 +344,11 @@ public class ScriptModLoader(string modsPath) : IDisposable
             ScriptEngine? engine;
             switch (manifest.Language)
             {
+                // 纯数据模组：无入口脚本，仅注册 JSON 内容（已在 LoadAll 中完成），不创建脚本引擎
+                case ScriptLanguage.None:
+                    _loadedMods[manifest.Id] = manifest;
+                    LogUtil.Message("script_mod_loader.data_mod_loaded", manifest.Name, manifest.Version);
+                    return;
                 case ScriptLanguage.JavaScript:
                     engine = LoadJavaScriptMod(manifest);
                     break;
