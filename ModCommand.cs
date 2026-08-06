@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Bark.BetterCCL;
 using Bark.Items;
 using Bark.Moodle;
+using Bark.Recipe;
 using Bark.Script;
 using Bark.Tile;
 using Bark.Tool;
 using BepInEx;
 using CUCoreLib.Helpers;
 using CUCoreLib.Registries;
+using HarmonyLib;
+using TMPro;
 
 namespace Bark;
 
@@ -57,17 +61,54 @@ public static class ModCommand
             BarkApplyMoodle,
             BuildBarkMoodleAutofill()
         );
+
+        // scd = script detail 的别名，索引 0 直接补全模组 ID（按类型独立，不与内容 ID 混用）
+        ConsoleCommandRegistry.Register(
+            "scd",
+            LocaleCommand("help.detail"),
+            args => PrintDetail(args, 1),
+            BuildScriptDetailAutofill()
+        );
     }
 
     // 构造 script 命令的自动补全：
-    //   索引 0 = 子命令词（help/reload/list/spawn/tile/moodle）
-    //   索引 1 = Bark 注册的全部内容 ID（供 spawn/tile/moodle 子命令补全）
+    //   索引 0 = 子命令词（help/reload/list/spawn/tile/moodle/detail）
+    //   索引 1 = 候选列表，由 SyncScriptAutofill 按当前子命令（args[1]）动态切换，
+    //            使 script spawn 只补物品、script tile 只补物块、script moodle 只补状态、
+    //            script detail 只补模组 ID，而不是把所有 ID 混在一起。
+    // 注：CCL 的 argAutofill 按参数位置索引补全、本身无法根据子命令切换候选，
+    //     因此由 ConsoleAutofillPatch 在补全前实时调用 SyncScriptAutofill 改写索引 1。
     private static Dictionary<int, List<string>> BuildScriptAutofill()
     {
         return new Dictionary<int, List<string>>
         {
-            { 0, ["help", "reload", "list", "spawn", "tile", "moodle"] },
-            { 1, GetRegisteredSpawnIds() }
+            { 0, ["help", "reload", "list", "spawn", "tile", "moodle", "detail"] },
+            { 1, [] }
+        };
+    }
+
+    // 构造 scd（script detail 别名）命令的自动补全：索引 0 = 已加载的模组 ID
+    private static Dictionary<int, List<string>> BuildScriptDetailAutofill()
+    {
+        return new Dictionary<int, List<string>>
+        {
+            { 0, ScriptModLoader.ListMods().Select(m => m.Id).ToList() }
+        };
+    }
+
+    // 按子命令切换 script 命令的索引 1 候选列表（供 ConsoleAutofillPatch 在补全前调用）。
+    // sub 为用户输入的子命令词；未知子命令回退为空列表（这些子命令无第二参数）。
+    public static void SyncScriptAutofill(string sub)
+    {
+        var command = ConsoleScript.SearchExact("script");
+
+        command?.argAutofill?[1] = sub switch
+        {
+            "spawn" => [.. ScriptModLoader.Items],
+            "tile" => [.. ScriptModLoader.Tiles],
+            "moodle" => [.. ScriptModLoader.Moodles],
+            "detail" => [.. ScriptModLoader.ListMods().Select(m => m.Id)],
+            _ => []
         };
     }
 
@@ -98,21 +139,14 @@ public static class ModCommand
         };
     }
 
-    // 收集 Bark 注册的内容 ID（物品/物块/配方/Moodle），用于 spawn 子命令的自动补全。
-    // 统一取自 ScriptModLoader.GetRegisteredContentIds()，只包含 Bark 添加的内容，
-    // 不会混入 CCL 原版或其他模组的物品。
-    private static List<string> GetRegisteredSpawnIds()
-    {
-        return [.. ScriptModLoader.GetRegisteredContentIds()];
-    }
-
-    // 刷新 script/basp/bast/basm 的补全名单（重载物品后调用）
+    // 刷新 script/basp/bast/basm/scd 的补全名单（重载物品后调用）
     private static void RefreshSpawnAutofill()
     {
         RefreshCommandAutofill("script", BuildScriptAutofill());
         RefreshCommandAutofill("basp", BuildBarkSpawnAutofill());
         RefreshCommandAutofill("bast", BuildBarkTileAutofill());
         RefreshCommandAutofill("basm", BuildBarkMoodleAutofill());
+        RefreshCommandAutofill("scd", BuildScriptDetailAutofill());
     }
 
     private static void RefreshCommandAutofill(string name, Dictionary<int, List<string>> autofill)
@@ -171,6 +205,9 @@ public static class ModCommand
             case "moodle":
                 BarkApplyMoodle(args, 2);
                 break;
+            case "detail":
+                PrintDetail(args, 2);
+                break;
             default:
                 PrintHelp();
                 break;
@@ -186,7 +223,8 @@ public static class ModCommand
             ("list", LocaleCommand("help.list")),
             ("spawn", LocaleCommand("help.spawn")),
             ("tile", LocaleCommand("help.tile")),
-            ("moodle", LocaleCommand("help.moodle"))
+            ("moodle", LocaleCommand("help.moodle")),
+            ("detail", LocaleCommand("help.detail"))
         };
 
         var header = LocaleCommand("help.header");
@@ -206,7 +244,85 @@ public static class ModCommand
 
         MessageCommand("list.header", mods.Count);
         foreach (var mod in mods)
-            MessageCommand("list.item", mod.Name, mod.Version, mod.Language, mod.Id);
+            MessageCommand("list.item", mod.Name, mod.Version, GetLanguageLabel(mod.Language), mod.Id);
+    }
+
+    // 查询单个脚本模组注册的内容统计：物品 / 物块 / 配方 / 状态数量，以及脚本语言。
+    // 数据取自各 Loader 的 Loaded* 字典（按 modId 过滤），与脚本 reload 实时一致。
+    // skip = 需跳过的命令前缀 token 数（script detail = 2，scd = 1）。
+    private static void PrintDetail(string[] args, int skip)
+    {
+        if (args.Length <= skip)
+        {
+            LogUtil.Info("script.detail.usage", Plugin.Logger);
+            return;
+        }
+
+        var modId = args[skip];
+        var mod = ScriptModLoader.ListMods().FirstOrDefault(m => m.Id == modId);
+        if (mod is null)
+        {
+            LogUtil.Info("script.detail.not_found", modId);
+            return;
+        }
+
+        var itemCount = ItemLoader.LoadedItems.TryGetValue(modId, out var items)
+            ? items.Count
+            : 0;
+        var tileCount = TileLoader.LoadedTiles.TryGetValue(modId, out var tiles)
+            ? tiles.Count
+            : 0;
+        var recipeCount = RecipeLoader.LoadedRecipes.TryGetValue(modId, out var recipes)
+            ? recipes.Count
+            : 0;
+        var moodleCount = MoodleLoader.LoadedMoodles.TryGetValue(modId, out var moodles)
+            ? moodles.Count
+            : 0;
+
+        MessageCommand("detail.header", mod.Name, mod.Version, GetLanguageLabel(mod.Language));
+
+        // 元数据（mod.json 字段）
+        var authorText = mod.Author.Count == 0
+            ? LocaleCommand("detail.none")
+            : string.Join(", ", mod.Author.Select(kv => $"{kv.Key}: {kv.Value}"));
+        MessageCommand("detail.author", authorText);
+        MessageCommand("detail.description", string.IsNullOrEmpty(mod.Description)
+            ? LocaleCommand("detail.none")
+            : mod.Description);
+        MessageCommand("detail.bark_version", string.IsNullOrEmpty(mod.BarkVersion)
+            ? LocaleCommand("detail.none")
+            : mod.BarkVersion);
+        MessageCommand("detail.game_version", string.IsNullOrEmpty(mod.GameVersion)
+            ? LocaleCommand("detail.none")
+            : mod.GameVersion);
+        MessageCommand("detail.repository", mod.Repository ?? LocaleCommand("detail.none"));
+
+        // 依赖列表
+        MessageCommand("detail.dependencies");
+        if (mod.Dependencies.Count == 0)
+            MessageCommand("detail.none");
+        else
+            foreach (var dep in mod.Dependencies)
+                MessageCommand("detail.dep_item", dep.Id, dep.Version);
+
+        // 注册内容统计
+        MessageCommand("detail.items", itemCount);
+        MessageCommand("detail.tiles", tileCount);
+        MessageCommand("detail.recipes", recipeCount);
+        MessageCommand("detail.moodles", moodleCount);
+    }
+
+    // 把脚本语言枚举转为列表显示的本地化标签（None 显示为 Data）
+    private static string GetLanguageLabel(ScriptLanguage language)
+    {
+        var suffix = language switch
+        {
+            ScriptLanguage.None => "none",
+            ScriptLanguage.JavaScript => "javascript",
+            ScriptLanguage.Lua => "lua",
+            _ => "none"
+        };
+        return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.list.language.{suffix}");
     }
 
     private static void ReloadScripts()
@@ -228,9 +344,22 @@ public static class ModCommand
             return;
         }
 
-        // 跳过前缀后剩余参数原样转发给 cuspawn
+        // 跳过前缀后剩余参数原样转发给 cuspawn。
+        // 注意：不能用 CUCoreUtils.ConsoleRunCommand，它底层走 RunCommandString 会把 '_' 替换成空格，
+        // 而物品 ID 形如 modid.itemid 含下划线，替换后无法被 CCL 正确识别。
+        // 改为反射调用 ConsoleScript.ExecuteCommand（直接 Split，不替换下划线）。
         var cuspawnArgs = string.Join(" ", args, skip, args.Length - skip);
-        CUCoreUtils.ConsoleRunCommand(ConsoleScript.instance, $"cuspawn {cuspawnArgs}");
+        RunCommandRaw($"cuspawn {cuspawnArgs}");
+    }
+
+    // 通过反射调用 ConsoleScript.ExecuteCommand（public 实例方法），
+    // 直接按空格拆分参数执行，不会像 RunCommandString 那样把 '_' 替换成空格，
+    // 从而保证 bark.itemid 这类含下划线的内容 ID 能被 CCL 正确解析。
+    private static void RunCommandRaw(string command)
+    {
+        var instance = ConsoleScript.instance;
+        if (instance == null) return;
+        CUCoreUtils.InvokeMethod(instance, "ExecuteCommand", command);
     }
 
     // basp 命令入口：args[0]="basp"，直接接物品参数
@@ -267,8 +396,10 @@ public static class ModCommand
         var settileArgs = args.Length > skip + 1
             ? string.Join(" ", args, skip + 1, args.Length - skip - 1)
             : string.Empty;
-        var command = string.IsNullOrEmpty(settileArgs) ? $"settile {index}" : $"settile {index} {settileArgs}";
-        CUCoreUtils.ConsoleRunCommand(ConsoleScript.instance, command);
+        var command = string.IsNullOrEmpty(settileArgs)
+            ? $"settile {index}"
+            : $"settile {index} {settileArgs}";
+        RunCommandRaw(command);
     }
 
     // bast 命令入口：args[0]="bast"，直接接物块参数
@@ -313,5 +444,55 @@ public static class ModCommand
     private static string LocaleCommand(string key, params object[] args)
     {
         return BetterLocale.GetCommand($"{Plugin.NameSpace}.script.{key}", args);
+    }
+
+    // 让 script 命令的自动补全按子命令类型切换候选，而不是把全部 ID 混在一起。
+    //
+    // 背景：CCL 的 Command.argAutofill 是按参数位置索引（int）补全的，
+    //      补全时只读取 command.argAutofill[key] 这个固定列表，无法根据 args[1] 的子命令值动态路由。
+    //      因此 script spawn / script tile / script moodle / script detail 共用同一个索引 1 列表时，
+    //      候选会混成一团（写 script tile 时也会补全物品/状态/脚本 ID）。
+    //
+    // 关键路径（来自 CCL ConsoleScript 反编译）：
+    //   Update() 每帧调用 HandleDescriptionText(args)，候选下拉列表由 HandleDescriptionText 读取
+    //   command.argAutofill[key] 展示；TryFinishCommandPart 仅在按 Tab 时调用（负责插入补全文本）。
+    //   所以必须在本帧、在 HandleDescriptionText 读取之前改写 argAutofill[1]，候选下拉才能正确切换。
+    //
+    // 方案：Harmony patch ConsoleScript.Update 的开头，根据当前输入框文本中的子命令（args[1]）
+    //      实时改写 script 命令的 argAutofill[1]，使补全候选与子命令类型严格对应。
+    // 这也顺带解决了 Bark 内容 ID 含下划线的问题——补全候选来自 Bark 自有列表，不再经过
+    // RunCommandString 的 '_'→' ' 替换。
+    [HarmonyPatch(typeof(ConsoleScript))]
+    [HarmonyPatch("Update")]
+    private static class ConsoleAutofillPatch
+    {
+        // 缓存私有字段访问，避免每帧重复反射
+        private static readonly FieldInfo? InputField = typeof(ConsoleScript)
+            .GetField("input", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public static void Prefix(ConsoleScript __instance)
+        {
+            if (InputField is null)
+                return;
+
+            // input 是 ConsoleScript 的私有 TMP_InputField 字段，反射读取当前输入文本
+            var inputField = InputField.GetValue(__instance);
+            if (inputField is null)
+                return;
+
+            var text = inputField switch
+            {
+                TMP_InputField tmp => tmp.text,
+                _ => inputField.GetType().GetProperty("text")?.GetValue(inputField) as string
+            };
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            var args = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (args.Length < 2 || !string.Equals(args[0], "script", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            SyncScriptAutofill(args[1]);
+        }
     }
 }

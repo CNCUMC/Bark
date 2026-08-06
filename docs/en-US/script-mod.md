@@ -277,6 +277,7 @@ Bark registers several in-game console commands useful for development.
 | `script spawn`    | `basp`| Spawn a Bark item by its registered ID                        |
 | `script tile`     | `bast`| Place a Bark tile by its registered ID                         |
 | `script moodle`   | `basm`| Apply a Bark moodle by its key                                 |
+| `script detail`   | `scd` | Show a mod's metadata and registered-content stats             |
 
 Usage: press `` ` `` in-game to open the console, type the command and press Enter.
 
@@ -298,7 +299,10 @@ These commands create content that was registered by Bark (items, tiles, moodles
 They only accept **Bark-registered IDs** — vanilla CCL items/tiles are still spawned via the game's `cuspawn` / `settile`.
 
 The content ID is the full registered name, formatted as `modid.entryname` (e.g. `hello_world_js.ak47`).
-Press `Tab` to auto-complete from all Bark-registered content. The completion list refreshes after `script reload`.
+
+Press `Tab` to auto-complete, and the candidates are **filtered by subcommand type**: `script spawn` only suggests
+items, `script tile` only tiles, `script moodle` only moodle keys, and `script detail` / `scd` only mod IDs
+(IDs are never mixed together). The completion list refreshes after `script reload`.
 
 **Spawn an item** — forwards to CCL `cuspawn`, arguments in order: `[id] [position] [condition] [count]`.
 
@@ -322,6 +326,26 @@ JSON-defined duration).
 ```text
 > basm hello_world_js.bleeding
 > script moodle hello_world_js.bleeding 30
+```
+
+**Inspect a mod's registered content** — use `script detail <id>` (alias `scd <id>`) to query a loaded mod's
+`mod.json` metadata and how many items / tiles / recipes / moodles it actually registered. Output includes: author,
+description, required Bark version, game version, repository, dependency list, and per-type content counts.
+
+```text
+> scd hello_world_js
+Content of 'hello_world_js' v1.0.0 [JavaScript]:
+  Author: author: Jimmy
+  Description: A hello-world demo mod
+  Requires Bark: >=2.3.0
+  Game version: >=1.0.0
+  Repository: https://github.com/user/hello_world
+  Dependencies:
+    - bark_utils (>=1.0.0)
+  Items: 3
+  Tiles: 2
+  Recipes: 1
+  Moodles: 0
 ```
 
 ### Registering Custom Commands

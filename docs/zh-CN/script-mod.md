@@ -272,6 +272,7 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 | `script spawn`  | `basp` | 按注册 ID 生成 Bark 物品     |
 | `script tile`   | `bast` | 按注册 ID 放置 Bark 物块     |
 | `script moodle` | `basm` | 按 key 应用 Bark 情绪        |
+| `script detail` | `scd`  | 查看某模组注册的元数据与内容统计 |
 
 用法：在游戏内按 `` ` `` 打开控制台，输入指令回车。
 
@@ -293,7 +294,10 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 它们**只接受 Bark 注册的 ID**——原版 CCL 物品/物块仍用游戏自带的 `cuspawn` / `settile` 生成。
 
 内容 ID 是完整的注册名，格式为 `modid.entryname`（例如 `hello_world_js.ak47`）。
-输入时按 `Tab` 可从所有 Bark 注册内容中自动补全，补全列表在 `script reload` 后自动刷新。
+
+输入时按 `Tab` 会自动补全，且**按子命令类型切换候选**：`script spawn` 只补物品、`script tile` 只补物块、
+`script moodle` 只补状态 key、`script detail` / `scd` 只补模组 ID（不会把所有 ID 混在一起）。
+补全列表在 `script reload` 后自动刷新。
 
 **生成物品** —— 转发给 CCL 的 `cuspawn`，参数按顺序：`[id] [位置] [状态] [数量]`。
 
@@ -316,6 +320,26 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 ```text
 > basm hello_world_js.bleeding
 > script moodle hello_world_js.bleeding 30
+```
+
+**查看模组注册内容** —— 用 `script detail <id>`（或别名 `scd <id>`）查询某个已加载模组在 `mod.json`
+里声明的元数据，以及它实际注册了多少物品 / 物块 / 配方 / 状态。输出包含：作者、描述、所需的 Bark 版本、
+游戏版本、仓库地址、依赖列表，以及各类内容的统计数量。
+
+```text
+> scd hello_world_js
+hello_world_js v1.0.0 [JavaScript] 注册的内容:
+  作者: author: Jimmy
+  描述: A hello-world demo mod
+  需要 Bark: >=2.3.0
+  游戏版本: >=1.0.0
+  仓库: https://github.com/user/hello_world
+  依赖:
+    - bark_utils (>=1.0.0)
+  物品: 3
+  物块: 2
+  配方: 1
+  状态: 0
 ```
 
 ### 注册自定义命令

@@ -111,6 +111,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "应用 Bark 状态: moodle [情绪Key] [持续时间]",
             "應用 Bark 狀態: moodle [情緒Key] [持續時間]",
             "Применить настроение Bark: moodle [moodleKey] [holdSeconds]");
+        Command("script.help.detail",
+            "Show registered content of a mod: detail [modId]",
+            "查看模组注册的内容: detail [模组ID]",
+            "查看模組註冊的內容: detail [模組ID]",
+            "Показать зарегистрированный контент мода: detail [modId]");
 
         // Log - script spawn
         Log("script.spawn.usage",
@@ -133,6 +138,81 @@ internal class LangGenerator : ModLangGenMultiBase
             "无效的持续时间 '{0}'，应为数字",
             "無效的持續時間 '{0}'，應為數字",
             "Недопустимая длительность '{0}', ожидается число");
+        Log("script.detail.usage",
+            "Usage: script detail [modId]",
+            "用法: script detail [模组ID]",
+            "用法: script detail [模組ID]",
+            "Использование: script detail [modId]");
+        Log("script.detail.not_found",
+            "Mod not found: {0}",
+            "未找到模组: {0}",
+            "未找到模組: {0}",
+            "Мод не найден: {0}");
+        Log("script.detail.header",
+            "Content of '{0}' v{1} [{2}]:",
+            "'{0}' v{1} [{2}] 注册的内容:",
+            "'{0}' v{1} [{2}] 註冊的內容:",
+            "Контент '{0}' v{1} [{2}]:");
+        Log("script.detail.items",
+            "  Items: {0}",
+            "  物品: {0}",
+            "  物品: {0}",
+            "  Предметы: {0}");
+        Log("script.detail.tiles",
+            "  Tiles: {0}",
+            "  物块: {0}",
+            "  物塊: {0}",
+            "  Тайлы: {0}");
+        Log("script.detail.recipes",
+            "  Recipes: {0}",
+            "  配方: {0}",
+            "  配方: {0}",
+            "  Рецепты: {0}");
+        Log("script.detail.moodles",
+            "  Moodles: {0}",
+            "  状态: {0}",
+            "  狀態: {0}",
+            "  Настроения: {0}");
+        Log("script.detail.author",
+            "  Author: {0}",
+            "  作者: {0}",
+            "  作者: {0}",
+            "  Автор: {0}");
+        Log("script.detail.description",
+            "  Description: {0}",
+            "  描述: {0}",
+            "  描述: {0}",
+            "  Описание: {0}");
+        Log("script.detail.bark_version",
+            "  Requires Bark: {0}",
+            "  需要 Bark: {0}",
+            "  需要 Bark: {0}",
+            "  Требуется Bark: {0}");
+        Log("script.detail.game_version",
+            "  Game version: {0}",
+            "  游戏版本: {0}",
+            "  遊戲版本: {0}",
+            "  Версия игры: {0}");
+        Log("script.detail.repository",
+            "  Repository: {0}",
+            "  仓库: {0}",
+            "  倉庫: {0}",
+            "  Репозиторий: {0}");
+        Log("script.detail.dependencies",
+            "  Dependencies:",
+            "  依赖:",
+            "  依賴:",
+            "  Зависимости:");
+        Log("script.detail.dep_item",
+            "    - {0} ({1})",
+            "    - {0} ({1})",
+            "    - {0} ({1})",
+            "    - {0} ({1})");
+        Log("script.detail.none",
+            "    (none)",
+            "    (无)",
+            "    (無)",
+            "    (нет)");
 
         // Log - Console
         Log("console.null_or_empty",

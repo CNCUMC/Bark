@@ -17,6 +17,12 @@ to [Semantic Versioning](https://semver.org/).
 - Console commands to spawn/place Bark-registered content: `script spawn` / `basp` (item),
   `script tile` / `bast` (tile), `script moodle` / `basm` (moodle). Accepts Bark-registered string
   IDs (e.g. `modid.entryname`) with Tab auto-completion; the list refreshes after `script reload`.
+- `script detail` / `scd` command to inspect a loaded mod's `mod.json` metadata (author, description,
+  required Bark/game version, repository, dependencies) and its registered-content counts
+  (items / tiles / recipes / moodles).
+- Tab auto-completion now switches candidates by subcommand type (`script spawn` → items,
+  `script tile` → tiles, `script moodle` → moodle keys, `script detail` / `scd` → mod IDs) instead
+  of mixing every ID into one list.
 
 ### Fixed
 

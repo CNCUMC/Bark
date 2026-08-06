@@ -15,6 +15,10 @@
 - 用于生成 / 放置 Bark 注册内容的新控制台指令：`script spawn` / `basp`（物品）、
   `script tile` / `bast`（物块）、`script moodle` / `basm`（情绪）。接受 Bark 注册的字符串 ID
   （如 `modid.entryname`），支持 Tab 自动补全，列表在 `script reload` 后自动刷新。
+- `script detail` / `scd` 指令：查看某个已加载模组的 `mod.json` 元数据（作者、描述、所需 Bark/游戏版本、
+  仓库、依赖）及其注册内容统计（物品 / 物块 / 配方 / 情绪数量）。
+- Tab 自动补全现在按子命令类型切换候选（`script spawn` → 物品、`script tile` → 物块、
+  `script moodle` → 情绪 key、`script detail` / `scd` → 模组 ID），不再把所有 ID 混在一起。
 
 ### Fixed
 
