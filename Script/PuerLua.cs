@@ -32,6 +32,11 @@ public class PuerLua : ScriptEngine
 
             // 执行入口脚本（设置上下文以便入口脚本调用 API 时自动补全物品 ID）
             var script = File.ReadAllText(Manifest.EntryFile);
+
+            // 运行前检查：脚本是否覆盖了 Bark 保留的全局 API 名（如 playerUtil / Log / CS）
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+
             ScriptCallContext.CurrentModId = Manifest.Id;
             try
             {
@@ -184,6 +189,11 @@ public class PuerLua : ScriptEngine
 
             // 执行脚本文件（注册 main 函数等定义）
             var script = File.ReadAllText(filePath);
+
+            // 运行前检查：物品脚本是否覆盖了 Bark 保留的全局 API 名
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+
             _scriptEnv.Eval(script);
 
             // 调用 main(itemId, item, action, currentValue, thresholdValue, operator)
@@ -222,6 +232,11 @@ public class PuerLua : ScriptEngine
             _scriptEnv.Eval("__barkAction = CS.Bark.Tile.TileScriptContext.CurrentAction");
 
             var script = File.ReadAllText(filePath);
+
+            // 运行前检查：物块脚本是否覆盖了 Bark 保留的全局 API 名
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+
             _scriptEnv.Eval(script);
 
             _scriptEnv.Eval(

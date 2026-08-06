@@ -264,14 +264,14 @@ function onLimbBroken() {
 
 Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 
-| 指令            | 别名 | 作用                           |
-|-----------------|------|--------------------------------|
-| `script help`   | —    | 显示指令帮助                   |
-| `script reload` | `rs` | 重载所有脚本模组               |
-| `script list`   | —    | 列出已加载的脚本模组           |
-| `script spawn`  | `basp` | 按注册 ID 生成 Bark 物品     |
-| `script tile`   | `bast` | 按注册 ID 放置 Bark 物块     |
-| `script moodle` | `basm` | 按 key 应用 Bark 情绪        |
+| 指令            | 别名   | 作用                             |
+|-----------------|--------|----------------------------------|
+| `script help`   | —      | 显示指令帮助                     |
+| `script reload` | `sr`   | 重载所有脚本模组                 |
+| `script list`   | —      | 列出已加载的脚本模组             |
+| `script spawn`  | `basp` | 按注册 ID 生成 Bark 物品         |
+| `script tile`   | `bast` | 按注册 ID 放置 Bark 物块         |
+| `script moodle` | `basm` | 按 key 应用 Bark 情绪            |
 | `script detail` | `scd`  | 查看某模组注册的元数据与内容统计 |
 
 用法：在游戏内按 `` ` `` 打开控制台，输入指令回车。
@@ -282,7 +282,7 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
   Hello World-JavaScript v1.0.0 [JavaScript] (hello_world_js)
   My Mod v1.0.0 [Lua] (my_mod)
 
-> rs
+> sr
 所有脚本模组已重新加载
 ```
 

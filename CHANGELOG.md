@@ -23,6 +23,10 @@ to [Semantic Versioning](https://semver.org/).
 - Tab auto-completion now switches candidates by subcommand type (`script spawn` → items,
   `script tile` → tiles, `script moodle` → moodle keys, `script detail` / `scd` → mod IDs) instead
   of mixing every ID into one list.
+- Script API guard: before executing any script (entry / item / tile, JS and Lua), Bark now statically
+  scans the source and warns if it overrides a reserved Bark global API name (e.g. `playerUtil`, `Log`,
+  `CS`). Helps catch accidental shadowing that would silently break script functionality. Logs only,
+  never blocks loading.
 
 ### Fixed
 

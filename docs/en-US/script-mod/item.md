@@ -626,4 +626,4 @@ geofruit)* sprite.
 - If two mods both define items with the same name, the last loaded wins (but the namespace prefix effectively prevents such conflicts)
 - JSON fields use `snake_case` naming (words are all lowercase, connected by underscores `_`)
 - If an item only needs a script (no custom sprite), you can omit `Assets/Item/` entirely
-- `script reload`/`rs` reloads item definitions — no restart needed during development
+- `script reload`/`sr` reloads item definitions — no restart needed during development

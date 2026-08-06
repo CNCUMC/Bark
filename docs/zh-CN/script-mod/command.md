@@ -190,7 +190,7 @@ end
 
 ## 注意事项
 
-- 热重载（`script reload` / `rs`）会重新加载所有命令定义
+- 热重载（`script reload` / `sr`）会重新加载所有命令定义
 - 同文件名覆盖：后加载的模组覆盖先加载的
 - JSON 字段使用 `snake_case` 命名
 - 命令名 = 文件名（不含 `.json`），无需在 JSON 中写 `name` 字段

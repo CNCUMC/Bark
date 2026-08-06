@@ -713,6 +713,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "JS 模组 '{0}' 加载失败: {1}",
             "JS 模組 '{0}' 載入失敗: {1}",
             "JS-мод '{0}' не удалось загрузить: {1}");
+        Log("script_engine.reserved_override",
+            "Mod '{0}' overrides reserved Bark API '{1}' at line {2}; this may break script functionality",
+            "模组 '{0}' 在第 {2} 行覆盖了 Bark 保留 API '{1}'，可能导致脚本功能失效",
+            "模組 '{0}' 在第 {2} 行覆蓋了 Bark 保留 API '{1}'，可能導致腳本功能失效",
+            "Мод '{0}' переопределяет зарезервированный API Bark '{1}' в строке {2}; это может нарушить работу скрипта");
         Log("script_engine.js_exec_file_failed",
             "JS mod '{0}' failed to execute '{1}': {2}",
             "JS 模组 '{0}' 执行脚本 '{1}' 失败: {2}",

@@ -44,7 +44,6 @@ The `item-template/` directory is optional. Omit it to use only Bark's built-in 
 Specify the template type and parameters in the item JSON's `template` field:
 
 ```json
-// Item/ak47.json — a gun
 {
   "full_name": "AK-47",
   "category": "Weapons",
@@ -58,10 +57,10 @@ Specify the template type and parameters in the item JSON's `template` field:
 }
 ```
 
-| template field | Description |
-|----------------|-------------|
-| `type` | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` `"clothing"` |
-| `fire_sound` etc. | Type parameters, fill as needed; unset fields use template defaults |
+| template field    | Description                                                                            |
+|-------------------|----------------------------------------------------------------------------------------|
+| `type`            | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` `"clothing"` |
+| `fire_sound` etc. | Type parameters, fill as needed; unset fields use template defaults                    |
 
 > ⚠️ `type` is the only required field. Not sure what parameters are available? Read on for each template type.
 
@@ -69,14 +68,14 @@ Specify the template type and parameters in the item JSON's `template` field:
 
 Bark ships four built-in template types:
 
-| Type  | Purpose         | type value | Detailed Docs     |
-|-------|-----------------|------------|-------------------|
-| Gun   | Fireable weapon | `"gun"`    | [Gun Template](gun.md) |
-| Magazine | Ammo container  | `"mag"`    | [Magazine Template](mag.md) |
-| Ammo  | Bullets         | `"ammo"`   | [Ammo Template](ammo.md) |
-| Casing | Post-fire drops | `"casing"` | [Casing Template](casing.md) |
-| Food  | Edible items    | `"food"`   | [Food Template](food.md) |
-| Clothing | Wearable garments | `"clothing"`   | [Clothing Template](clothing.md) |
+| Type     | Purpose           | type value   | Detailed Docs                    |
+|----------|-------------------|--------------|----------------------------------|
+| Gun      | Fireable weapon   | `"gun"`      | [Gun Template](gun.md)           |
+| Magazine | Ammo container    | `"mag"`      | [Magazine Template](mag.md)      |
+| Ammo     | Bullets           | `"ammo"`     | [Ammo Template](ammo.md)         |
+| Casing   | Post-fire drops   | `"casing"`   | [Casing Template](casing.md)     |
+| Food     | Edible items      | `"food"`     | [Food Template](food.md)         |
+| Clothing | Wearable garments | `"clothing"` | [Clothing Template](clothing.md) |
 
 ## Custom Templates
 
@@ -109,14 +108,14 @@ Then reference it in an item:
 
 Registration methods:
 
-| Method      | Description                                                                       |
-|-------------|-----------------------------------------------------------------------------------|
-| JSON file   | Define in `item-template/templates.json`: key = template name, value = default JSON |
+| Method      | Description                                                                                         |
+|-------------|-----------------------------------------------------------------------------------------------------|
+| JSON file   | Define in `item-template/templates.json`: key = template name, value = default JSON                 |
 | Script-side | `TemplateLoader.Register("name", jsonObj)` or `TemplateLoader.RegisterFromJson("name", jsonString)` |
 
 ## Hot Reload
 
-After `script reload` / `rs`:
+After `script reload` / `sr`:
 
 - All item JSONs are re-parsed, templates re-merged
 - Existing gun instances in the game world auto-refresh **audio clips** and **barrel offsets** (hot-reloadable properties)

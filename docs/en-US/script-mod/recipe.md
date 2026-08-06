@@ -56,7 +56,7 @@ A complete recipe JSON:
 
 | Field                      | Type   | Default       | Description                                                               |
 |----------------------------|--------|---------------|---------------------------------------------------------------------------|
-| `id`                       | string | (required)    | Result item ID (custom items use `{modId}.{itemName}` namespace format) |
+| `id`                       | string | (required)    | Result item ID (custom items use `{modId}.{itemName}` namespace format)   |
 | `int`                      | int    | 0             | Intelligence required for crafting                                        |
 | `category`                 | string | `"Materials"` | Blueprint category: `Materials`, `Tools`, `Medicine`, `Utilities`, `Food` |
 | `amount`                   | int    | 1             | Items produced per craft                                                  |
@@ -68,16 +68,16 @@ A complete recipe JSON:
 
 ### Ingredients (`items[i]`)
 
-| Field               | Type   | Default | Description                                                  |
-|---------------------|--------|---------|--------------------------------------------------------------|
-| `specific`          | bool   | false   | `true` = match exact item ID, `false` = match by `quality`   |
+| Field               | Type   | Default | Description                                                                                                         |
+|---------------------|--------|---------|---------------------------------------------------------------------------------------------------------------------|
+| `specific`          | bool   | false   | `true` = match exact item ID, `false` = match by `quality`                                                          |
 | `specific_id`       | string | `""`    | Target item ID when `specific=true` (custom items use namespace format, vanilla items use bare name e.g. `bandage`) |
-| `quality`           | string | `""`    | Crafting quality keyword — any item with this quality counts |
-| `quality_condition` | float  | 1.0     | Amount of quality to consume                                 |
-| `minimum_condition` | float  | 0.9     | Minimum condition for the ingredient                         |
-| `destroy_item`      | bool   | true    | Whether the ingredient is consumed after crafting            |
-| `is_liquid`         | bool   | false   | Whether this ingredient is a liquid                          |
-| `ignored_id`        | string | `""`    | Specific item ID to exclude                                  |
+| `quality`           | string | `""`    | Crafting quality keyword — any item with this quality counts                                                        |
+| `quality_condition` | float  | 1.0     | Amount of quality to consume                                                                                        |
+| `minimum_condition` | float  | 0.9     | Minimum condition for the ingredient                                                                                |
+| `destroy_item`      | bool   | true    | Whether the ingredient is consumed after crafting                                                                   |
+| `is_liquid`         | bool   | false   | Whether this ingredient is a liquid                                                                                 |
+| `ignored_id`        | string | `""`    | Specific item ID to exclude                                                                                         |
 
 ### Supported Crafting Qualities
 
@@ -108,7 +108,7 @@ foreach (var entry in entries["my_mod"])
 
 ## Hot Reload
 
-`script reload`/`rs` reloads all mod recipes — no restart needed during development. `RecipeLoader` clears the mod's old
+`script reload`/`sr` reloads all mod recipes — no restart needed during development. `RecipeLoader` clears the mod's old
 recipes before registering new ones, preventing duplicates.
 
 ## Integration with Items

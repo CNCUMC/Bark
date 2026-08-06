@@ -191,7 +191,7 @@ end
 
 ## Notes
 
-- `script reload` / `rs` reloads all command definitions
+- `script reload` / `sr` reloads all command definitions
 - Same filename overwrites: later-loaded mods override earlier ones
 - JSON fields use `snake_case` naming
 - Command name = filename (without `.json`), no `name` field needed in JSON

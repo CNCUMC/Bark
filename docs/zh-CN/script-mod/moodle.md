@@ -203,7 +203,7 @@ var isCritical = Moodle.IsCritical('poison');
 
 ## 注意事项
 
-- 热重载（`script reload` / `rs`）会重新加载所有 Moodle 定义
+- 热重载（`script reload` / `sr`）会重新加载所有 Moodle 定义
 - 同 key 覆盖：后加载的模组定义覆盖先加载的
 - JSON 字段使用 `snake_case` 命名
 - Moodle 脚本的 `main` 函数接收一个参数：`moodleKey`（string），Moodle 的唯一标识

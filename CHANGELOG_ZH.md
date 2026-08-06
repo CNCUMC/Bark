@@ -19,6 +19,9 @@
   仓库、依赖）及其注册内容统计（物品 / 物块 / 配方 / 情绪数量）。
 - Tab 自动补全现在按子命令类型切换候选（`script spawn` → 物品、`script tile` → 物块、
   `script moodle` → 情绪 key、`script detail` / `scd` → 模组 ID），不再把所有 ID 混在一起。
+- 脚本 API 保留词守护：在执行任何脚本前（入口脚本 / 物品脚本 / 物块脚本，JS 与 Lua 均覆盖），
+  Bark 会静态扫描源码，若检测到覆盖了 Bark 保留的全局 API 名（如 `playerUtil`、`Log`、`CS` 等）则输出警告。
+  用于及早发现意外 shadow 导致脚本功能静默失效的问题。仅告警、不阻断加载。
 
 ### Fixed
 

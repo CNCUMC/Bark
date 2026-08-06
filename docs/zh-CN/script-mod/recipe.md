@@ -109,7 +109,7 @@ foreach (var entry in entries["my_mod"])
 
 ## 热重载
 
-开发时无需重启游戏，指令 `script reload`/`rs` 会重载合成表定义。`RecipeLoader` 会先清除该脚本模组的旧配方再注册新的，避免新旧配方共存。
+开发时无需重启游戏，指令 `script reload`/`sr` 会重载合成表定义。`RecipeLoader` 会先清除该脚本模组的旧配方再注册新的，避免新旧配方共存。
 
 ## 与物品系统联动
 

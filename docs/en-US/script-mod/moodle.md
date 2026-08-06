@@ -205,7 +205,7 @@ Full API reference at [Moodle](moodle.md).
 
 ## Notes
 
-- `script reload` / `rs` reloads all Moodle definitions
+- `script reload` / `sr` reloads all Moodle definitions
 - Same key overwrites: later-loaded mods override earlier ones
 - JSON fields use `snake_case` naming
 - Moodle script `main` functions receive one argument: `moodleKey` (string), the Moodle's unique identifier

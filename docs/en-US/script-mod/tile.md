@@ -182,4 +182,4 @@ You can also expose data to scripts via `custom_data`:
 - Tile ID comes from the JSON filename (without extension). Files are sorted alphabetically for deterministic
   assignment.
 - JSON fields use `snake_case`
-- `script reload` / `rs` reloads tile definitions — no restart needed during development
+- `script reload` / `sr` reloads tile definitions — no restart needed during development

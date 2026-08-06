@@ -554,8 +554,6 @@ function main(itemId, item, action, currentValue, thresholdValue, operator) {
 }
 ```
 
-```
-
 ### 完整示例
 
 攻击时销毁自身的一支自定义箭：
@@ -614,4 +612,4 @@ function main(itemId, item, action) {
 - 两个脚本模组同时定义同名物品时，后加载的会覆盖先加载的（但命名空间前缀有效防止此类冲突）
 - JSON 字段使用 `snake_case` 命名（所有单词全部小写，单词与单词之间使用下划线 `_` 链接）
 - 如果物品只需要脚本而不需要自定义贴图，可以完全省略在 `Assets/Item/` 目录下放置贴图
-- 开发时无需重启游戏，指令 `script reload`/`rs` 会重载物品定义
+- 开发时无需重启游戏，指令 `script reload`/`sr` 会重载物品定义

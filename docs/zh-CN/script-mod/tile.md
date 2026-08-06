@@ -179,4 +179,4 @@ end
 - 物块索引由 Bark 自动分配（>= 36），模组无需在 `mod.json` 中声明
 - 物块 ID 取自 JSON 文件名（不含扩展名），按字母排序以确定索引分配顺序
 - JSON 字段使用 `snake_case`
-- 开发时无需重启游戏，`script reload` / `rs` 会重载物块定义
+- 开发时无需重启游戏，`script reload` / `sr` 会重载物块定义

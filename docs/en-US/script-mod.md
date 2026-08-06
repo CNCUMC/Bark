@@ -269,15 +269,15 @@ function onLimbBroken() {
 
 Bark registers several in-game console commands useful for development.
 
-| Command           | Alias | What It Does                                                  |
-|-------------------|-------|---------------------------------------------------------------|
-| `script help`     | —     | Show command help                                             |
-| `script reload`   | `rs`  | Reload all script mods                                        |
-| `script list`     | —     | List loaded script mods                                       |
-| `script spawn`    | `basp`| Spawn a Bark item by its registered ID                        |
-| `script tile`     | `bast`| Place a Bark tile by its registered ID                         |
-| `script moodle`   | `basm`| Apply a Bark moodle by its key                                 |
-| `script detail`   | `scd` | Show a mod's metadata and registered-content stats             |
+| Command         | Alias  | What It Does                                       |
+|-----------------|--------|----------------------------------------------------|
+| `script help`   | —      | Show command help                                  |
+| `script reload` | `sr`   | Reload all script mods                             |
+| `script list`   | —      | List loaded script mods                            |
+| `script spawn`  | `basp` | Spawn a Bark item by its registered ID             |
+| `script tile`   | `bast` | Place a Bark tile by its registered ID             |
+| `script moodle` | `basm` | Apply a Bark moodle by its key                     |
+| `script detail` | `scd`  | Show a mod's metadata and registered-content stats |
 
 Usage: press `` ` `` in-game to open the console, type the command and press Enter.
 
@@ -287,7 +287,7 @@ Script Mod List (3):
   Hello World-JavaScript v1.0.0 [JavaScript] (hello_world_js)
   My Mod v1.0.0 [Lua] (my_mod)
 
-> rs
+> sr
 All script mods reloaded
 ```
 
