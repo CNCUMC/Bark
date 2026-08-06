@@ -87,9 +87,6 @@ public static partial class GunRuntimeManager
         var ammoItem = ammo.GetComponent<Item>();
         var ammoItemId = ammoItem?.id;
 
-        LogUtil.Info("gun_runtime.load_mag_attempt", gunItem.id, ammoItemId ?? "null", ammo.itemType,
-            MagTemplate.IsMag(ammoItemId ?? string.Empty));
-
         switch (ammo.itemType)
         {
             // ============================================================
@@ -142,7 +139,6 @@ public static partial class GunRuntimeManager
                     Rounds = rounds
                 });
 
-                LogUtil.Info("gun_runtime.load_mag", gunItem.id, ammoItemId, rounds);
                 return false;
             }
             // ============================================================
@@ -199,7 +195,6 @@ public static partial class GunRuntimeManager
                     Rounds = 1
                 });
 
-                LogUtil.Info("gun_runtime.load_round", gunItem.id, ammoItemId, state.RoundsInMag);
                 return false;
             }
             default:
@@ -253,7 +248,6 @@ public static partial class GunRuntimeManager
                 RoundsUnloaded = roundsToUnload
             });
 
-            LogUtil.Info("gun_runtime.unload_direct", gunItem.id, roundsToUnload);
             return false;
         }
 
@@ -262,9 +256,6 @@ public static partial class GunRuntimeManager
         // ============================================================
         var magItemId = state?.MagItemId;
         var magRounds = state?.RoundsInMag ?? __instance.roundsInMag;
-
-        LogUtil.Info("gun_runtime.on_unload_mag", magItemId ?? "null", state?.RoundsInMag ?? 0,
-            __instance.roundsInMag);
 
         // 即使 magRounds==0 也要生成弹匣物品（destroy_at_zero_condition=false 控制销毁）。
         if (!string.IsNullOrEmpty(magItemId))
@@ -294,13 +285,11 @@ public static partial class GunRuntimeManager
         if (string.IsNullOrEmpty(magItemId) && __instance is { hasMag: true, roundsInMag: > 0 })
         {
             var fallbackMagIds = MagTemplate.FindMagsByType(gunData.MagType);
-            LogUtil.Info("gun_runtime.unload_mag_fallback_mag_type", gunData.MagType, fallbackMagIds.Count);
             if (fallbackMagIds.Count > 0)
                 magItemId = fallbackMagIds[0];
             else
             {
                 var altIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
-                LogUtil.Info("gun_runtime.unload_mag_fallback_ammo_type", gunData.AmmoType, altIds.Count);
                 if (altIds.Count > 0) magItemId = altIds[0];
             }
 
@@ -342,7 +331,6 @@ public static partial class GunRuntimeManager
             RoundsUnloaded = magRounds
         });
 
-        LogUtil.Info("gun_runtime.unload_mag", gunItem.id, magItemId ?? "unknown", magRounds);
         return false;
     }
 }

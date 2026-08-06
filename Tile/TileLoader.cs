@@ -53,30 +53,44 @@ public static class TileLoader
     private static readonly FieldInfo? s_resolvedHitSoundsField = typeof(TileRegistry).GetField(
         "ResolvedHitSounds", BindingFlags.NonPublic | BindingFlags.Static);
 
-    // 从模组目录加载所有自定义物块
+    // 从脚本模组目录加载所有自定义物块（脚本模组入口）
     public static void RegisterFromMod(ScriptManifest manifest)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        var tilesDir = Path.Combine(manifest.Directory, "Tile");
+        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+    }
+
+    // 从任意模组目录加载所有自定义物块，供脚本模组与 C# 模组共用。
+    // modId    - 物块所有权标记（通常取 mod.json 的 id）
+    // modDir   - 模组根目录，扫描 {modDir}/Tile/*.json，资产目录为 {modDir}/Assets/Tile/
+    // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。脚本模组传 true；C# 模组传 false。
+    public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        if (modDir is null)
+            throw new ArgumentNullException(nameof(modDir));
+
+        var tilesDir = Path.Combine(modDir, "Tile");
         if (!Directory.Exists(tilesDir))
-            return;
+            return 0;
 
         var jsonFiles = Directory.GetFiles(tilesDir, "*.json", SearchOption.TopDirectoryOnly);
         if (jsonFiles.Length == 0)
-            return;
+            return 0;
 
         // 热重载：保存旧索引映射以便复用
-        var oldIndices = LoadedTiles.TryGetValue(manifest.Id, out var oldTiles)
+        var oldIndices = LoadedTiles.TryGetValue(modId, out var oldTiles)
             ? oldTiles.ToDictionary(e => e.TileId, e => e.TileIndex)
             : null;
 
         // 清除该模组之前注册的物块
-        ClearModTiles(manifest.Id);
+        ClearModTiles(modId);
 
         // 资产目录：ModDir/Assets/Tile/
-        var assetsTileDir = Path.Combine(manifest.Directory, "Assets", "Tile");
+        var assetsTileDir = Path.Combine(modDir, "Assets", "Tile");
 
         var loadedList = new List<TileEntry>();
         var loadedCount = 0;
@@ -96,24 +110,42 @@ public static class TileLoader
                 else
                     tileIndex = _nextTileIndex++;
 
-                var entry = LoadAndRegister(jsonFile, assetsTileDir, manifest.Id, tileId, tileIndex);
+                var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, tileId, tileIndex);
                 if (entry == null) continue;
                 loadedCount++;
                 loadedList.Add(entry);
             }
             catch (Exception ex)
             {
-                LogUtil.Error("tiles.load_error", jsonFile, manifest.Id, ex.Message);
+                LogUtil.Error("tiles.load_error", jsonFile, modId, ex.Message);
             }
 
-        LoadedTiles[manifest.Id] = loadedList;
+        LoadedTiles[modId] = loadedList;
 
         // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
-        if (PendingScripts.TryGetValue(manifest.Id, out var existing) && existing.Count > 0)
-            LogUtil.Info("tiles.scripts_pending", manifest.Id, existing.Count);
+        if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
+        {
+            if (allowPendingScripts)
+                LogUtil.Info("tiles.scripts_pending", modId, existing.Count);
+            else
+            {
+                LogUtil.Warning("tiles.csharp.scripts_ignored", modId, existing.Count);
+                PendingScripts.Remove(modId);
+            }
+        }
 
         if (loadedCount > 0)
-            LogUtil.Info("tiles.loaded_count", manifest.Id, loadedCount);
+            LogUtil.Info("tiles.loaded_count", modId, loadedCount);
+
+        return loadedCount;
+    }
+
+    // 清除指定模组此前注册的所有物块（C# 端热重载 / 卸载时调用）
+    public static void UnregisterOwner(string modId)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        ClearModTiles(modId);
     }
 
     // 在引擎就绪后，将暂存的物块脚本映射写入 TileScriptRegistry

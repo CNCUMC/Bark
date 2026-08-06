@@ -28,7 +28,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.2.0";
+    public const string Version = "2.3.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
@@ -90,6 +90,10 @@ public class Plugin : BaseUnityPlugin
 
         // 注册内置物品模板（如 gun 模板），供后续模组的物品 JSON 引用
         InitializeBuiltinTemplates();
+
+        // 以 Bark 自身作为模组加载 JSON 物品：扫描与本程序集同目录的 mod.json + Item/ 子目录。
+        // 这样 Bark 自带的 C# 物品（如 BepInEx/plugins/Bark/Item/*.json）也会注册进 ItemRegistry。
+        // LoadOwnItems();
 
         // 安装枪械运行时补丁，覆盖 GunScript 原生装弹/卸弹/开火逻辑，
         // 用模板标签匹配替换硬编码的弹药类型枚举
@@ -201,4 +205,12 @@ public class Plugin : BaseUnityPlugin
         new FoodTemplate().Register();
         new ClothingTemplate().Register();
     }
+
+    // 以 Bark 自身作为模组加载 JSON 内容：
+    // 读取与本程序集同目录的 mod.json 拿到 id，再扫描同目录 Item/Tile/Recipe/Moodle 子目录注册。
+    // private static void LoadOwnItems()
+    // {
+    //     var assemblyLocation = typeof(Plugin).Assembly.Location;
+    //     ModContentApi.LoadFromPluginDirectory(assemblyLocation);
+    // }
 }

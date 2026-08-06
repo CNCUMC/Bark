@@ -47,10 +47,23 @@ public static class RecipeLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        // 重载时先清除该模组之前注册的配方
-        ClearModRecipes(manifest.Id);
+        RegisterFromDirectory(manifest.Id, manifest.Directory);
+    }
 
-        var recipeDir = Path.Combine(manifest.Directory, "Recipe");
+    // 从任意模组目录加载所有自定义配方，供脚本模组与 C# 模组共用。
+    // modId  - 配方所有权标记（通常取 mod.json 的 id）
+    // modDir - 模组根目录，扫描 {modDir}/Recipe/*.json
+    public static void RegisterFromDirectory(string modId, string modDir)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        if (modDir is null)
+            throw new ArgumentNullException(nameof(modDir));
+
+        // 重载时先清除该模组之前注册的配方
+        ClearModRecipes(modId);
+
+        var recipeDir = Path.Combine(modDir, "Recipe");
         if (!Directory.Exists(recipeDir))
             return;
 
@@ -62,7 +75,7 @@ public static class RecipeLoader
         var loadedCount = 0;
 
         // 标记配方所有权，以便热重载时清除
-        using (RecipeRegistry.BeginOwnerRegistration(manifest.Id))
+        using (RecipeRegistry.BeginOwnerRegistration(modId))
         {
             foreach (var jsonFile in jsonFiles)
                 try
@@ -74,14 +87,22 @@ public static class RecipeLoader
                 }
                 catch (Exception ex)
                 {
-                    LogUtil.Error("recipe.load_error", jsonFile, manifest.Id, ex.Message);
+                    LogUtil.Error("recipe.load_error", jsonFile, modId, ex.Message);
                 }
         }
 
-        LoadedRecipes[manifest.Id] = loadedList;
+        LoadedRecipes[modId] = loadedList;
 
         if (loadedCount > 0)
-            LogUtil.Message("recipe.loaded_count", manifest.Id, loadedCount);
+            LogUtil.Message("recipe.loaded_count", modId, loadedCount);
+    }
+
+    // 清除指定模组此前注册的所有配方（C# 端热重载 / 卸载时调用）
+    public static void UnregisterOwner(string modId)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        ClearModRecipes(modId);
     }
 
     // 加载并注册单个配方 JSON，成功时返回配方记录，失败返回 null

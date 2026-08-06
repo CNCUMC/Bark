@@ -1,4 +1,5 @@
 using Bark.Items.Templates;
+using Bark.Tool;
 using UnityEngine;
 
 namespace Bark.Items.Runtime.Gun;
@@ -143,10 +144,10 @@ public static partial class GunRuntimeManager
         if (gunData == null) return true;
 
         // 手动切换保险状态（替代原方法中的 this.safe = !this.safe）
-        __instance!.safe = !__instance.safe;
+        __instance.safe = !__instance.safe;
 
         // 播放音效：profile 优先，否则默认 "gunsafety"
-        if (gunData?.SoundProfile?.Safety is { Count: > 0 })
+        if (gunData.SoundProfile?.Safety is { Count: > 0 })
             gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Safety, __instance.transform.position);
         else
             Sound.Play("gunsafety", __instance.transform.position);

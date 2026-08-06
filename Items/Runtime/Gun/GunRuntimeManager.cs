@@ -168,6 +168,19 @@ public static partial class GunRuntimeManager
                 }
             }
 
+            // ApplyLight Postfix：CUCoreLib 创建光源子物体后，按 JSON light.rotation 旋转光源。
+            // CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，Bark 在物品注册时记录 rotation，
+            // 此处拿到光源子物体 transform 设置其 localRotation，克隆到实例后保留。
+            var itemRegistryPatchesType = AccessTools.TypeByName("ItemRegistryPatches");
+            var applyLight = itemRegistryPatchesType != null
+                ? AccessTools.Method(itemRegistryPatchesType, "ApplyLight")
+                : null;
+            if (applyLight != null)
+            {
+                _harmony.Patch(applyLight,
+                    postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnApplyLightPostfix)));
+            }
+
             // UnloadRound Prefix：自定义弹匣退弹时生成模板弹药物品，而非原版硬编码弹药。
             var ammoScriptType = AccessTools.TypeByName("AmmoScript");
             if (ammoScriptType != null)
@@ -215,6 +228,38 @@ public static partial class GunRuntimeManager
         if (_harmony == null) return;
         _harmony.UnpatchSelf();
         _harmony = null;
+    }
+
+    // ApplyLight Postfix：CUCoreLib 创建光源子物体后，按 JSON light.rotation 旋转光源。
+    // CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，无法通过 data 层传旋转，
+    // 故在此直接旋转光源子物体 transform；克隆到物品实例后保留该局部旋转。
+    private static void OnApplyLightPostfix(Item item)
+    {
+        if (item == null) return;
+        if (!ItemLoader.LightRotations.TryGetValue(item.id, out var rotation)) return;
+
+        // 光源子物体：CUCoreLib 1.0.3 实际命名为 "Light"（反编译片段里的 "CustomLight" 是 nightly 版）。
+        // 优先找直接子级，找不到则递归遍历所有层级。
+        var lightChild = item.transform.Find("Light");
+        if (lightChild == null)
+            lightChild = FindChildRecursive(item.transform, "Light");
+        if (lightChild == null)
+            lightChild = FindChildRecursive(item.transform, "CustomLight");
+        if (lightChild == null) return;
+
+        lightChild.localRotation = Quaternion.Euler(0f, 0f, rotation);
+    }
+
+    // 递归查找指定名字的子物体
+    private static Transform? FindChildRecursive(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name) return child;
+            var found = FindChildRecursive(child, name);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     // 热重载后刷新所有已存在枪械实例的可热更属性（枪口位置 + 音效）。

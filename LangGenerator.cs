@@ -519,36 +519,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "枪械运行时补丁失败: {0}",
             "槍械運行時補丁失敗: {0}",
             "Ошибка патча GunRuntime: {0}");
-        Log("gun_runtime.load_mag",
-            "load_mag gunId={0} ammoId={1} rounds={2}",
-            "装弹匣 gunId={0} ammoId={1} 弹数={2}",
-            "裝彈匣 gunId={0} ammoId={1} 彈數={2}",
-            "load_mag gunId={0} ammoId={1} патронов={2}");
         Log("gun_runtime.incompatible_ammo_type",
             "Ammo type '{0}' incompatible with gun ammo type '{1}'",
             "弹药类型 '{0}' 与枪械弹药类型 '{1}' 不兼容",
             "彈藥類型 '{0}' 與槍械彈藥類型 '{1}' 不相容",
             "Тип боеприпаса '{0}' несовместим с типом '{1}' оружия");
-        Log("gun_runtime.load_round",
-            "load_round gunId={0} ammoId={1} state_rounds={2}",
-            "装弹 gunId={0} ammoId={1} 膛内={2}",
-            "裝彈 gunId={0} ammoId={1} 膛內={2}",
-            "load_round gunId={0} ammoId={1} в_стволе={2}");
-        Log("gun_runtime.unload_direct",
-            "unload_direct gunId={0} rounds={1}",
-            "退弹（直装） gunId={0} 弹数={1}",
-            "退彈（直裝） gunId={0} 彈數={1}",
-            "unload_direct gunId={0} патронов={1}");
-        Log("gun_runtime.unload_mag",
-            "unload_mag gunId={0} magId={1} rounds={2}",
-            "退弹匣 gunId={0} 弹匣={1} 弹数={2}",
-            "退彈匣 gunId={0} 彈匣={1} 彈數={2}",
-            "unload_mag gunId={0} magId={1} патронов={2}");
-        Log("gun_runtime.gun_init",
-            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
-            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
-            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}",
-            "gun_init itemId={0} mag_type={1} ammo_type={2} feedType={3} capacity={4}");
         Log("gun_runtime.gun_init_no_sprite",
             "gun_init_no_sprite itemId={0} — cannot find sprites, placeholder texture used. Check SpriteRenderer and Resources prefab.",
             "gun_init_no_sprite itemId={0} — 无法获取任何精灵，使用占位纹理。请检查预制体 SpriteRenderer 和 Resources 中是否存在对应枪械预制体。",
@@ -589,11 +564,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "handle_gun_menu_null_pc_field 字段={0}",
             "handle_gun_menu_null_pc_field 欄位={0}",
             "handle_gun_menu_null_pc_field поле={0}");
-        Log("gun_runtime.load_mag_attempt",
-            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
-            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
-            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}",
-            "load_mag_attempt gunId={0} ammoId={1} itemType={2} isBarkMag={3}");
         Log("gun_runtime.load_mag_incompatible_mag_type",
             "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}",
             "load_mag_incompatible_mag_type ammoId={0} ammo.mag_type={1} gun.mag_type={2}",
@@ -604,22 +574,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}");
-        Log("gun_runtime.on_unload_mag",
-            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
-            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
-            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}",
-            "on_unload_mag state_mag_id={0} state_rounds={1} gun_rounds={2}");
-        Log("gun_runtime.unload_mag_fallback_mag_type",
-            "unload_mag_fallback find_by_mag_type={0} found={1}",
-            "unload_mag_fallback find_by_mag_type={0} found={1}",
-            "unload_mag_fallback find_by_mag_type={0} found={1}",
-            "unload_mag_fallback find_by_mag_type={0} found={1}");
-        Log("gun_runtime.unload_mag_fallback_ammo_type",
-            "unload_mag_fallback find_by_ammo_type={0} found={1}",
-            "unload_mag_fallback find_by_ammo_type={0} found={1}",
-            "unload_mag_fallback find_by_ammo_type={0} found={1}",
-            "unload_mag_fallback find_by_ammo_type={0} found={1}");
-
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
             "Lua mod '{0}' failed to load: {1}",
@@ -787,6 +741,48 @@ internal class LangGenerator : ModLangGenMultiBase
             "合并模板 '{0}' 失败：{1}",
             "合併模板 '{0}' 失敗：{1}",
             "Не удалось объединить шаблон '{0}': {1}");
+
+        // Log - Mod Content (C# mod JSON loading)
+        Log("mod_content.manifest_missing",
+            "C# mod content load skipped: mod.json not found at: {0}",
+            "C# 模组内容加载跳过：未找到 mod.json：{0}",
+            "C# 模組內容載入跳過：找不到 mod.json：{0}",
+            "C# загрузка контента мода пропущена: mod.json не найден: {0}");
+        Log("mod_content.manifest_parse_failed",
+            "Failed to parse mod.json: {0}",
+            "解析 mod.json 失败：{0}",
+            "解析 mod.json 失敗：{0}",
+            "Не удалось разобрать mod.json: {0}");
+        Log("mod_content.manifest_no_id",
+            "mod.json is missing required 'id' field: {0}",
+            "mod.json 缺少必填的 'id' 字段：{0}",
+            "mod.json 缺少必填的 'id' 欄位：{0}",
+            "В mod.json отсутствует обязательное поле 'id': {0}");
+        Log("mod_content.manifest_read_error",
+            "Error reading mod.json '{0}': {1}",
+            "读取 mod.json 错误 '{0}'：{1}",
+            "讀取 mod.json 錯誤 '{0}'：{1}",
+            "Ошибка чтения mod.json '{0}': {1}");
+        Log("mod_content.assembly_dir_missing",
+            "C# mod content load skipped: cannot resolve assembly directory from: {0}",
+            "C# 模组内容加载跳过：无法从以下路径解析程序集目录：{0}",
+            "C# 模組內容載入跳過：無法從以下路徑解析組件目錄：{0}",
+            "C# загрузка контента мода пропущена: не удалось определить каталог сборки: {0}");
+        Log("mod_content.loaded",
+            "Mod '{0}' loaded {1} item(s), {2} tile(s), {3} recipe(s), {4} moodle(s)",
+            "模组 '{0}' 加载了 {1} 个物品、{2} 个物块、{3} 个配方、{4} 个状态",
+            "模組 '{0}' 載入了 {1} 個物品、{2} 個物塊、{3} 個配方、{4} 個狀態",
+            "Мод '{0}' загрузил {1} предм., {2} блоков, {3} рецептов, {4} настроений");
+        Log("tiles.csharp.scripts_ignored",
+            "Mod '{0}' has {1} tile script(s) in JSON but C# mods have no script engine; script bindings ignored",
+            "模组 '{0}' 的 JSON 含 {1} 个物块脚本，但 C# 模组无脚本引擎，脚本绑定已忽略",
+            "模組 '{0}' 的 JSON 含 {1} 個物塊腳本，但 C# 模組無腳本引擎，腳本綁定已忽略",
+            "Мод '{0}' содержит {1} скрипт(ов) блоков в JSON, но у C# модов нет движка; привязки проигнорированы");
+        Log("moodle.csharp.scripts_ignored",
+            "Mod '{0}' has {1} moodle script(s) in JSON but C# mods have no script engine; script bindings ignored",
+            "模组 '{0}' 的 JSON 含 {1} 个状态脚本，但 C# 模组无脚本引擎，脚本绑定已忽略",
+            "模組 '{0}' 的 JSON 含 {1} 個狀態腳本，但 C# 模組無腳本引擎，腳本綁定已忽略",
+            "Мод '{0}' содержит {1} скрипт(ов) настроений в JSON, но у C# модов нет движка; привязки проигнорированы");
 
         // Log - Recipe
         Log("recipe.load_error",

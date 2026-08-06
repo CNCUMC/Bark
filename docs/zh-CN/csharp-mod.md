@@ -47,7 +47,7 @@ public static class MyEventHandlers
 
 | 类                           | 文档                                  |
 |------------------------------|---------------------------------------|
-| `BodyUtil`                   | [生理系统](script-api/body-system.md) |
+| `BodyUtil`                   | [生理系统](script-api/body.md)        |
 | `PlayerUtil`                 | [玩家](script-api/player.md)          |
 | `LimbUtil`                   | [肢体](script-api/limbs.md)           |
 | `InventoryUtil` / `ItemUtil` | [背包与物品](script-api/inventory.md) |
@@ -192,14 +192,18 @@ UpdateUtil.Check("你的GitHub用户名/仓库名", "模组名", "当前版本",
 
 详细 API 见 [UpdateUtil](csharp-api/update.md)。
 
-## 加载 JSON 物品
+## 加载 JSON 内容
 
-除了写代码创建物品，你的 C# 模组也能像脚本模组一样，把物品定义写在 JSON 文件里，由 Bark 解析并注册到游戏的 `ItemRegistry`。
-这样你可以用纯数据描述物品，复用 Bark 的物品模板系统（gun / mag / ammo / casing / clothing / food），无需手写注册代码。
+除了写代码注册，你的 C# 模组也能像脚本模组一样，把物品、物块、配方、状态等内容定义在 JSON 文件里，
+由 Bark 解析并注册到对应的 CUCoreLib 注册表。这样你可以用纯数据描述内容，复用 Bark 的物品模板系统
+（gun / mag / ammo / casing / clothing / food），无需手写注册代码。
+
+- 配置项请用 [BetterCCL 的 BetterOptions](script-api/options.md) 直接注册，不走 JSON。
+- 命令请用 CCL 的 `ConsoleCommandRegistry` 直接注册，不走 JSON。
 
 ### 目录结构
 
-把物品 JSON 和贴图放到你的插件目录下，约定与脚本模组一致：
+把内容 JSON 和贴图放到你的插件目录下，约定与脚本模组一致：
 
 ```
 BepInEx/
@@ -207,23 +211,30 @@ BepInEx/
     your_mod/                  ← 模组根目录（即你的 DLL 所在目录）
       your_mod.dll
       mod.json                 ← 模组清单（至少含 id）
-      Item/                    ← 物品 JSON（文件名即物品本地名）
+      Item/                    ← 物品 JSON
         my_rifle.json
-        my_armor.json
+      Tile/                    ← 物块 JSON
+        marble.json
+      Recipe/                  ← 配方 JSON
+        ripping.json
+      Moodle/                  ← 状态 JSON
+        thirsty.json
       Assets/
-        Item/                  ← 贴图等资产
-          my_rifle.png
-          my_armor.png
-          my_armor_worn.png
+        Item/                  ← 物品贴图
+        Tile/                  ← 物块贴图
+        Moodle/                ← 状态图标
 ```
 
-- `Item/*.json`：每个文件定义一个物品，物品 ID 为 `{modId}.{文件名}`（例如 `your_mod.my_rifle`）。
-- `Assets/Item/*.png`：贴图文件，命名规则与脚本模组相同（详见[物品文档](script-mod/item.md)）。
+- `Item/*.json`：每个文件定义一个物品，物品 ID 为 `{modId}.{文件名}`。
+- `Tile/*.json`：每个文件定义一个物块，物块 ID 即文件名（不带 modId 前缀）。
+- `Recipe/*.json`：每个文件定义一个配方。
+- `Moodle/*.json`：每个文件定义一个状态。
+- `Assets/{Item|Tile|Moodle}/*.png`：对应贴图，命名规则与脚本模组相同。
 
 ### mod.json
 
-在模组根目录（DLL 所在目录）放一个 `mod.json`，至少包含 `id` 字段——它就是物品 ID 的命名空间前缀。
-`id` 用 snake_case（如 `your_mod`），物品 ID 为 `{id}.{文件名}`（例如 `your_mod.my_rifle`）。
+在模组根目录（DLL 所在目录）放一个 `mod.json`，至少包含 `id` 字段——它就是物品 ID 的命名空间前缀，
+也用于追踪该模组注册的所有内容（热重载时清除）。`id` 用 snake_case（如 `your_mod`）。
 其余字段（`name`、`version` 等）为可选元数据，C# 端只读取 `id`。
 
 ```json
@@ -236,7 +247,7 @@ BepInEx/
 
 ### 调用方式
 
-在 `Plugin.Awake()` 里调用 `ItemLoaderApi` 即可，模组 id 来自 `mod.json`，无需在代码里硬编码。
+在 `Plugin.Awake()` 里调用 `ModContentApi` 即可，模组 id 来自 `mod.json`，无需在代码里硬编码。
 
 ```csharp
 using Bark.Items;
@@ -245,15 +256,15 @@ public class MyPlugin : BaseUnityPlugin
 {
     public void Awake()
     {
-        // 方式一（推荐）：自动在 DLL 目录查找 mod.json
-        var count = ItemLoaderApi.LoadFromPluginDirectory(GetType().Assembly.Location);
-        Logger.LogInfo($"加载了 {count} 个物品");
+        // 方式一（推荐）：自动在 DLL 目录查找 mod.json，加载 Item/Tile/Recipe/Moodle
+        var result = ModContentApi.LoadFromPluginDirectory(GetType().Assembly.Location);
+        Logger.LogInfo($"加载了 {result.Items} 物品 / {result.Tiles} 物块 / {result.Recipes} 配方 / {result.Moodles} 状态");
 
         // 方式二：明确指定 mod.json 路径
-        ItemLoaderApi.LoadFromManifest(Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location)!, "mod.json"));
+        ModContentApi.LoadFromManifest(Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location)!, "mod.json"));
 
         // 方式三：从 BepInEx/plugins/{modName} 自动查找 mod.json
-        ItemLoaderApi.LoadFromPlugins("your_mod");
+        ModContentApi.LoadFromPlugins("your_mod");
     }
 }
 ```
@@ -261,21 +272,23 @@ public class MyPlugin : BaseUnityPlugin
 如果你不想用 `mod.json`，也可以直接传 `modId` 和根目录（底层接口）：
 
 ```csharp
-ItemLoaderApi.Load("your_mod", Path.GetDirectoryName(GetType().Assembly.Location)!);
+ModContentApi.Load("your_mod", Path.GetDirectoryName(GetType().Assembly.Location)!);
 ```
 
 ### 热重载 / 卸载
 
-如果需要支持热重载或卸载模组，先调用 `Unload` 清除此前注册的物品，再重新加载：
+如果需要支持热重载或卸载模组，先调用 `Unload` 清除此前注册的全部内容，再重新加载：
 
 ```csharp
-ItemLoaderApi.Unload("your_mod");
-ItemLoaderApi.LoadFromPluginDirectory(GetType().Assembly.Location);
+ModContentApi.Unload("your_mod");
+ModContentApi.LoadFromPluginDirectory(GetType().Assembly.Location);
 ```
 
 ### 注意事项
 
-- 物品 JSON 的格式、模板用法与脚本模组**完全一致**，可参考[物品模板文档](script-mod/item-template/index.md)。
-- C# 模组的 JSON 中**不要包含 `script` 字段**——C# 模组没有脚本引擎，JSON 里的脚本绑定会被忽略并输出警告。
-  若需要物品行为逻辑，请用 C# 的 `[EventBusSubscriber]` + `[HarmonyPatch]` 实现。
-- 贴图资产从 `Assets/Item/` 加载，缺失时回退到 `origin_prefab` 引用的原版精灵。
+- 各类 JSON 的格式、模板用法与脚本模组**完全一致**，可参考对应文档：
+  [物品](script-mod/item.md) / [物品模板](script-mod/item-template/index.md) / [物块](script-mod/tile.md) /
+  [配方](script-mod/recipe.md) / [状态](script-mod/moodle.md)。
+- C# 模组的 JSON 中**不要包含 `script` 字段**——C# 模组没有脚本引擎，物品/物块/状态的脚本绑定会被忽略并输出警告。
+  若需要行为逻辑，请用 C# 的 `[EventBusSubscriber]` + `[HarmonyPatch]` 实现。
+- 贴图资产从 `Assets/{Item|Tile|Moodle}/` 加载，缺失时回退到 `origin_prefab` 引用的原版精灵。

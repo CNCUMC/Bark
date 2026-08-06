@@ -38,8 +38,6 @@ public static partial class GunRuntimeManager
         InitMagazineState(__instance, item, gunData);
         ApplyChamberInitState(__instance, gunData);
         EnsureMuzzleParticle(__instance);
-
-        LogUtil.Info("gun_runtime.gun_init", item.id, gunData.MagType, gunData.AmmoType, gunData.FeedType, gunData.Capacity);
     }
 
     // 射击模式 + 供弹方式

@@ -18,13 +18,10 @@ using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 namespace Bark.Items;
 
 // 已加载物品的记录项
-public class ItemEntry(string id, string type)
+public class ItemEntry(string id)
 {
     // 物品 ID（即 JSON 文件名）
     public string Id = id;
-
-    // 物品类型: item / liquid-item / liquid
-    public string Type = type;
 }
 
 // 自定义物品加载器：扫描 ModDir/Item/*.json 注册物品，
@@ -38,6 +35,11 @@ public static class ItemLoader
 
     // 已注册为 wearable 但缺少穿戴贴图的物品 ID 集合，供热 Harmony 守卫跳过装备防止 NRE
     public static readonly HashSet<string> WearableWithoutWornSprite = [];
+
+    // 物品光源旋转表（itemId → rotation 角度）。
+    // CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，Bark 在注册时记录该值，
+    // 并在 ApplyLight 创建 CustomLight 子物体后按此值旋转其 transform。
+    public static readonly Dictionary<string, float> LightRotations = new();
 
     // 暂存的脚本映射（modId → itemId → (itemDef, modDir)），待引擎创建后注册
     private static readonly Dictionary<string, Dictionary<string, (ItemDef def, string modDir)>> PendingScripts =
@@ -215,17 +217,17 @@ public static class ItemLoader
         if (obj["capacity"] != null)
         {
             var ok = LoadLiquidItem(json, itemId, assetsDir, modId, modDir, jsonFile);
-            return ok ? new ItemEntry(itemId, "liquid-item") : null;
+            return ok ? new ItemEntry(itemId) : null;
         }
 
         if (obj["color"] != null && obj["weight"] == null)
         {
             var ok = LoadLiquid(json, itemId, modId);
-            return ok ? new ItemEntry(itemId, "liquid") : null;
+            return ok ? new ItemEntry(itemId) : null;
         }
 
         var ok2 = LoadItem(json, itemId, assetsDir, modId, modDir, jsonFile);
-        return ok2 ? new ItemEntry(itemId, "item") : null;
+        return ok2 ? new ItemEntry(itemId) : null;
     }
 
     // ---- 普通物品 ----
@@ -411,7 +413,8 @@ public static class ItemLoader
             SpawnFrequency = spawn.Frequency,
             WorldSpawnPerChunk = spawn.WorldPerChunk,
             SpriteScale = spriteDef.Scale,
-            InventoryIconScale = spriteDef.InventoryIconScale
+            InventoryIconScale = spriteDef.InventoryIconScale,
+            CustomData = def.CustomData ?? new Dictionary<string, object>()
         };
 
         // Sprite 缩放维度：优先用 JSON 配置，未配置则回退到 prefab 精灵尺寸
@@ -544,6 +547,105 @@ public static class ItemLoader
                     break;
             }
         }
+
+        // 图标 / 穿戴动画 ID
+        if (!string.IsNullOrEmpty(def.IconAnimationId))
+            info.IconAnimationId = def.IconAnimationId;
+        if (!string.IsNullOrEmpty(def.WornSpriteAnimationId))
+            info.WornSpriteAnimationId = def.WornSpriteAnimationId;
+
+        // 手持精灵偏移
+        if (def.HeldSpriteOffset != null)
+        {
+            var hs = def.HeldSpriteOffset;
+            info.HeldSpriteOffset = new Vector2(hs.X, hs.Y);
+        }
+
+        // 光源
+        if (def.Light != null)
+        {
+            var ld = def.Light;
+            info.Light = new LightProperties
+            {
+                Intensity = ld.Intensity,
+                Color = ItemUtil.HexToColor(ld.Color),
+                Offset = new Vector2(ld.XOffset, ld.YOffset),
+                PointLightInnerAngle = ld.PointLightInnerAngle,
+                PointLightInnerRadius = ld.PointLightInnerRadius,
+                PointLightOuterAngle = ld.PointLightOuterAngle,
+                PointLightOuterRadius = ld.PointLightOuterRadius
+            };
+
+            // light_type: 字符串 → CustomLightType 枚举，无效值回退 Point
+            if (Enum.TryParse<CustomLightType>(ld.LightType, true, out var lightType))
+                info.Light.LightType = lightType;
+
+            // 光源旋转：CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，
+            // Bark 记录该值，ApplyLight postfix 会按此旋转 CustomLight 子物体。
+            LightRotations[itemId] = ld.Rotation;
+        }
+
+        // 绷带
+        if (def.Bandage != null)
+        {
+            var bd = def.Bandage;
+            info.Bandage = new BandageProperties
+            {
+                Effectiveness = bd.Effectiveness,
+                SkinHealAmount = bd.SkinHealAmount,
+                BandageSlowAmount = bd.BandageSlowAmount,
+                PainReduction = bd.PainReduction,
+                BoneHealTimerReduction = bd.BoneHealTimerReduction,
+                DislocationTimerReduction = bd.DislocationTimerReduction,
+                CreateWrapSprite = bd.CreateWrapSprite,
+                WrapSpritePath = bd.WrapSpritePath,
+                WrapSpriteColor = ItemUtil.HexToColor(bd.WrapSpriteColor),
+                MinigameColor = ItemUtil.HexToColor(bd.MinigameColor)
+            };
+        }
+
+        // 注射器
+        if (def.Syringe != null)
+        {
+            var sd = def.Syringe;
+            info.Syringe = new SyringeProperties
+            {
+                Capacity = sd.Capacity,
+                AutoFill = sd.AutoFill,
+                AmountPerFullUse = sd.AmountPerFullUse,
+                UseAverageColor = sd.UseAverageColor,
+                MinigameColor = ItemUtil.HexToColor(sd.MinigameColor)
+            };
+        }
+
+        // 工具 / 近战
+        if (def.Tool != null)
+        {
+            var td = def.Tool;
+            info.Tool = new ToolProperties
+            {
+                Damage = td.Damage,
+                StructuralDamage = td.StructuralDamage,
+                AttackCooldownMultiplier = td.AttackCooldownMultiplier,
+                Distance = td.Distance,
+                KnockBack = td.KnockBack,
+                Cooldown = td.Cooldown,
+                AttackAnimation = td.AttackAnimation,
+                StaminaUse = td.StaminaUse,
+                Piercing = td.Piercing,
+                SwingSounds = td.SwingSounds,
+                Volume = td.Volume,
+                RotateAmount = td.RotateAmount,
+                PhysicalSwing = td.PhysicalSwing,
+                DoAttackAnimation = td.DoAttackAnimation,
+                MetalMoreDamage = td.MetalMoreDamage,
+                ConditionLossOnHit = td.ConditionLossOnHit
+            };
+        }
+
+        // 生成组件
+        if (def.SpawnComponents is { Count: > 0 })
+            info.SpawnComponents = new List<string>(def.SpawnComponents);
 
         // 模板物品的 useAction：枪械按下扳机，弹匣退出一发子弹
         if (GunTemplate.IsGun(itemId))
@@ -763,6 +865,7 @@ public static class ItemLoader
                 CasingTemplate.RemoveCasingItem(entry.Id);
                 FoodTemplate.RemoveFoodItem(entry.Id);
                 ClothingTemplate.RemoveClothingItem(entry.Id);
+                LightRotations.Remove(entry.Id);
             }
 
         s_clearItemOwnerEntries?.Invoke(null, [ownerId, null!]);

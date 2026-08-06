@@ -48,24 +48,34 @@ public static class MoodleLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
+        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+    }
+
+    // 从任意模组目录加载所有自定义 Moodle，供脚本模组与 C# 模组共用。
+    // modId    - Moodle 所有权标记（通常取 mod.json 的 id）
+    // modDir   - 模组根目录，扫描 {modDir}/Moodle/*.json，资产目录为 {modDir}/Assets/Moodle/
+    // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。脚本模组传 true；C# 模组传 false。
+    public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        if (modDir is null)
+            throw new ArgumentNullException(nameof(modDir));
+
         // 热重载时清除旧记录
-        LoadedMoodles.Remove(manifest.Id);
-        PendingScripts.Remove(manifest.Id);
+        LoadedMoodles.Remove(modId);
+        PendingScripts.Remove(modId);
 
-        // 清除该模组的所有旧 MoodleDef（key 匹配的条目）
-        // —— 用 key 前缀不够准确，这里直接依赖同 key 覆盖即可
-        // LoadedMoodleDefs 在下方的 LoadAndRegister 中逐条覆盖
-
-        var moodleDir = Path.Combine(manifest.Directory, "Moodle");
+        var moodleDir = Path.Combine(modDir, "Moodle");
         if (!Directory.Exists(moodleDir))
-            return;
+            return 0;
 
         var jsonFiles = Directory.GetFiles(moodleDir, "*.json", SearchOption.TopDirectoryOnly);
         if (jsonFiles.Length == 0)
-            return;
+            return 0;
 
         // 资产目录：ModDir/Assets/Moodle/
-        var assetsMoodleDir = Path.Combine(manifest.Directory, "Assets", "Moodle");
+        var assetsMoodleDir = Path.Combine(modDir, "Assets", "Moodle");
 
         var loadedList = new List<MoodleEntry>();
         var loadedCount = 0;
@@ -73,20 +83,42 @@ public static class MoodleLoader
         foreach (var jsonFile in jsonFiles)
             try
             {
-                var entry = LoadAndRegister(jsonFile, assetsMoodleDir, manifest.Id, manifest.Directory);
+                var entry = LoadAndRegister(jsonFile, assetsMoodleDir, modId, modDir);
                 if (entry == null) continue;
                 loadedCount++;
                 loadedList.Add(entry);
             }
             catch (Exception ex)
             {
-                LogUtil.Error("moodle.load_error", jsonFile, manifest.Id, ex.Message);
+                LogUtil.Error("moodle.load_error", jsonFile, modId, ex.Message);
             }
 
-        LoadedMoodles[manifest.Id] = loadedList;
+        LoadedMoodles[modId] = loadedList;
+
+        if (PendingScripts.TryGetValue(modId, out var pending) && pending.Count > 0)
+        {
+            if (allowPendingScripts)
+                LogUtil.Info("moodle.scripts_pending", modId, pending.Count);
+            else
+            {
+                LogUtil.Warning("moodle.csharp.scripts_ignored", modId, pending.Count);
+                PendingScripts.Remove(modId);
+            }
+        }
 
         if (loadedCount > 0)
-            LogUtil.Message("moodle.loaded_count", manifest.Id, loadedCount);
+            LogUtil.Message("moodle.loaded_count", modId, loadedCount);
+
+        return loadedCount;
+    }
+
+    // 清除指定模组此前注册的所有 Moodle（C# 端热重载 / 卸载时调用）
+    public static void UnregisterOwner(string modId)
+    {
+        if (modId is null)
+            throw new ArgumentNullException(nameof(modId));
+        LoadedMoodles.Remove(modId);
+        PendingScripts.Remove(modId);
     }
 
     // 在引擎就绪后，将暂存的 Moodle 脚本映射写入 MoodleScriptRegistry

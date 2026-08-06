@@ -65,19 +65,27 @@ ScriptMod/Mods/
 }
 ```
 
-| 字段            | 类型   | 默认值       | 说明                           |
-|-----------------|--------|--------------|--------------------------------|
-| `full_name`     | string | `""`         | 显示名称                       |
-| `description`   | string | `""`         | 悬浮提示                       |
-| `category`      | string | `""`         | 背包分类                       |
-| `weight`        | float  | `0`          | 重量（千克）                   |
-| `value`         | int    | `0`          | 货币价值                       |
-| `tags`          | string | `""`         | 逗号分隔的标签                 |
-| `sprite`        | object | —            | 精灵图相关配置（见下方）       |
-| `origin_prefab` | string | `"geofruit"` | 回退用的预制体（用于精灵尺寸） |
-| `spawn`         | object | —            | 世界生成/掉落配置（见下方）    |
-| `script`        | object | null         | 动作 → 脚本映射（见下文）      |
-| `custom_data`   | object | null         | 自定义数据，供脚本读取         |
+| 字段                       | 类型     | 默认值       | 说明                             |
+|----------------------------|----------|--------------|----------------------------------|
+| `full_name`                | string   | `""`         | 显示名称                         |
+| `description`              | string   | `""`         | 悬浮提示                         |
+| `category`                 | string   | `""`         | 背包分类                         |
+| `weight`                   | float    | `0`          | 重量（千克）                     |
+| `value`                    | int      | `0`          | 货币价值                         |
+| `tags`                     | string   | `""`         | 逗号分隔的标签                   |
+| `sprite`                   | object   | —            | 精灵图相关配置（见下方）         |
+| `origin_prefab`            | string   | `"geofruit"` | 回退用的预制体（用于精灵尺寸）   |
+| `spawn`                    | object   | —            | 世界生成/掉落配置（见下方）      |
+| `script`                   | object   | null         | 动作 → 脚本映射（见下文）        |
+| `custom_data`              | object   | null         | 自定义数据，供脚本读取           |
+| `spawn_components`         | string[] | null         | 生成时附加的组件类型名（见下文） |
+| `icon_animation_id`        | string   | null         | 物品栏图标动画 ID                |
+| `worn_sprite_animation_id` | string   | null         | 穿戴贴图动画 ID                  |
+| `held_sprite_offset`       | object   | null         | 手持精灵偏移 `{ "x", "y" }`      |
+| `light`                    | object   | null         | 光源配置（见下文）               |
+| `bandage`                  | object   | null         | 绷带配置（见下文）               |
+| `syringe`                  | object   | null         | 注射器配置（见下文）             |
+| `tool`                     | object   | null         | 工具/近战配置（见下文）          |
 
 > 📝 物品 ID = `{模组ID}.{文件名}`（命名空间格式），如模组 `my_mod` 的 `bandage123.json` → ID `"my_mod.bandage123"`。原版物品（如 `bandage`）无前缀，直接使用物品名。 **不是** JSON 里的字段。
 
@@ -158,6 +166,177 @@ ScriptMod/Mods/
 
 可选预设：`"small"`（50 电量）、`"medium"`（100）、`"large"`（300）。不填 `preset` 时可自定义
 `max_allowed_charge` 和 `start_charge`。
+
+### 光源字段
+
+让物品发光（手电、应急灯等）：
+
+```json
+{
+  "light": {
+    "intensity": 1.2,
+    "color": "#FFFFAA",
+    "light_type": "Point",
+    "x_offset": 0,
+    "y_offset": 0,
+    "point_light_inner_angle": 360,
+    "point_light_inner_radius": 0,
+    "point_light_outer_angle": 360,
+    "point_light_outer_radius": 8
+  }
+}
+```
+
+| 字段                             | 类型   | 默认值      | 说明                                                                                                                  |
+|----------------------------------|--------|-------------|-----------------------------------------------------------------------------------------------------------------------|
+| `light.intensity`                | float  | `10`        | 光照强度（过大时散光多次重叠，视觉上像渲染了两遍，建议根据半径调低）                                                  |
+| `light.color`                    | string | `"#FFFFFF"` | 十六进制颜色 (#RRGGBB)                                                                                                |
+| `light.light_type`               | string | `"Point"`   | 光源类型：`Point`/`Sprite`/`Global` 等                                                                                |
+| `light.rotation`                 | float  | `-90`       | 光源旋转角度。CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，Bark 在物品生成时直接旋转光源子物体（`Light`）实现 |
+| `light.follow_mouse`             | bool   | `false`     | 光源是否跟随鼠标                                                                                                      |
+| `light.light_on_zero_condition`  | bool   | `false`     | 物品耐久归零时光源是否仍亮                                                                                            |
+| `light.x_offset`                 | float  | `0`         | 光源水平偏移                                                                                                          |
+| `light.y_offset`                 | float  | `0`         | 光源垂直偏移                                                                                                          |
+| `light.point_light_inner_angle`  | float  | `360`       | 点光源内锥角                                                                                                          |
+| `light.point_light_inner_radius` | float  | `0`         | 点光源内半径                                                                                                          |
+| `light.point_light_outer_angle`  | float  | `360`       | 点光源外锥角                                                                                                          |
+| `light.point_light_outer_radius` | float  | `8`         | 点光源外半径                                                                                                          |
+
+### 绷带字段
+
+让物品具有绷带行为（包扎伤口、减速出血等）：
+
+```json
+{
+  "bandage": {
+    "effectiveness": 8,
+    "skin_heal_amount": 8,
+    "bandage_slow_amount": 18,
+    "pain_reduction": 40,
+    "bone_heal_timer_reduction": 5,
+    "dislocation_timer_reduction": 5,
+    "create_wrap_sprite": true,
+    "wrap_sprite_path": "Special/bandageWrap",
+    "wrap_sprite_color": "#FFFFFF",
+    "minigame_color": "#E6E6E6"
+  }
+}
+```
+
+| 字段                                  | 类型   | 默认值                  | 说明                     |
+|---------------------------------------|--------|-------------------------|--------------------------|
+| `bandage.effectiveness`               | float  | `8`                     | 治疗效果                 |
+| `bandage.skin_heal_amount`            | float  | `8`                     | 皮肤愈合量               |
+| `bandage.bandage_slow_amount`         | float  | `18`                    | 减速出血量               |
+| `bandage.pain_reduction`              | float  | `40`                    | 减痛量                   |
+| `bandage.bone_heal_timer_reduction`   | float  | `5`                     | 骨折愈合加速（秒）       |
+| `bandage.dislocation_timer_reduction` | float  | `5`                     | 脱位愈合加速（秒）       |
+| `bandage.create_wrap_sprite`          | bool   | `true`                  | 是否生成包扎贴图         |
+| `bandage.wrap_sprite_path`            | string | `"Special/bandageWrap"` | 包扎贴图路径             |
+| `bandage.wrap_sprite_color`           | string | `"#FFFFFF"`             | 包扎贴图颜色 (#RRGGBB)   |
+| `bandage.minigame_color`              | string | `"#E6E6E6"`             | 小游戏界面颜色 (#RRGGBB) |
+
+### 注射器字段
+
+让物品作为注射器（抽取/注射液体）：
+
+```json
+{
+  "syringe": {
+    "capacity": 100,
+    "auto_fill": false,
+    "amount_per_full_use": 100,
+    "use_average_color": true,
+    "minigame_color": "#FFFFFF"
+  }
+}
+```
+
+| 字段                          | 类型   | 默认值      | 说明                     |
+|-------------------------------|--------|-------------|--------------------------|
+| `syringe.capacity`            | float  | `100`       | 最大容量（毫升）         |
+| `syringe.auto_fill`           | bool   | `false`     | 生成时自动填充           |
+| `syringe.amount_per_full_use` | float  | `100`       | 每次完整使用消耗的量     |
+| `syringe.use_average_color`   | bool   | `true`      | 是否使用平均颜色         |
+| `syringe.minigame_color`      | string | `"#FFFFFF"` | 小游戏界面颜色 (#RRGGBB) |
+
+### 工具字段
+
+让物品成为近战/工具（可挥舞攻击）：
+
+```json
+{
+  "tool": {
+    "damage": 25,
+    "structural_damage": 25,
+    "attack_cooldown_multiplier": 0.66,
+    "distance": 2.5,
+    "knock_back": 270,
+    "cooldown": 0.35,
+    "attack_animation": "SwingAnim",
+    "stamina_use": 0.5,
+    "piercing": false,
+    "swing_sounds": ["BSSwing1", "BSSwing2"],
+    "volume": 0.5,
+    "rotate_amount": 15.5,
+    "physical_swing": true,
+    "do_attack_animation": true,
+    "metal_more_damage": false,
+    "condition_loss_on_hit": 0.02
+  }
+}
+```
+
+| 字段                              | 类型     | 默认值        | 说明                 |
+|-----------------------------------|----------|---------------|----------------------|
+| `tool.damage`                     | float    | `25`          | 伤害                 |
+| `tool.structural_damage`          | float    | `25`          | 结构伤害             |
+| `tool.attack_cooldown_multiplier` | float    | `0.66`        | 攻击冷却倍率         |
+| `tool.distance`                   | float    | `2.5`         | 攻击距离             |
+| `tool.knock_back`                 | float    | `270`         | 击退力               |
+| `tool.cooldown`                   | float    | `0.35`        | 冷却时间             |
+| `tool.attack_animation`           | string   | `"SwingAnim"` | 攻击动画名           |
+| `tool.stamina_use`                | float    | `0.5`         | 体力消耗             |
+| `tool.piercing`                   | bool     | `false`       | 是否穿刺             |
+| `tool.swing_sounds`               | string[] | 4 个默认值    | 挥舞音效             |
+| `tool.volume`                     | float    | `0.5`         | 音量                 |
+| `tool.rotate_amount`              | float    | `15.5`        | 旋转量               |
+| `tool.physical_swing`             | bool     | `true`        | 是否物理挥舞         |
+| `tool.do_attack_animation`        | bool     | `true`        | 是否播放攻击动画     |
+| `tool.metal_more_damage`          | bool     | `false`       | 金属是否造成更多伤害 |
+| `tool.condition_loss_on_hit`      | float    | `0.02`        | 命中时耐久损失       |
+
+### 生成组件
+
+生成物品时附加自定义组件（按类型名）：
+
+```json
+{
+  "spawn_components": ["MyMod.MyComponent", "MyMod.AnotherComponent"]
+}
+```
+
+| 字段               | 类型       | 说明                                       |
+|--------------------|------------|--------------------------------------------|
+| `spawn_components` | string[]   | 生成物品时附加的组件类型全名（含命名空间） |
+
+> ⚠️ 组件类型必须存在于运行时程序集中，否则会被忽略。
+
+### 图标 / 穿戴动画与手持偏移
+
+```json
+{
+  "icon_animation_id": "my_icon_anim",
+  "worn_sprite_animation_id": "my_worn_anim",
+  "held_sprite_offset": { "x": 2, "y": -1 }
+}
+```
+
+| 字段                       | 类型   | 说明                                      |
+|----------------------------|--------|-------------------------------------------|
+| `icon_animation_id`        | string | 物品栏图标动画 ID                         |
+| `worn_sprite_animation_id` | string | 穿戴贴图动画 ID                           |
+| `held_sprite_offset`       | object | 手持精灵偏移 `{ "x": float, "y": float }` |
 
 ## 液体容器
 

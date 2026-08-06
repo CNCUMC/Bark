@@ -32,6 +32,15 @@ public class ItemDef
 
     // 容器（替代旧 container_data）
     [JsonProperty("container")] public ContainerDef? Container;
+
+    // 光源（替代旧 light 顶层字段）
+    [JsonProperty("light")] public LightItemDef? Light;
+
+    // 绷带 / 注射器 / 工具行为
+    [JsonProperty("bandage")] public BandageDef? Bandage;
+    [JsonProperty("syringe")] public SyringeDef? Syringe;
+    [JsonProperty("tool")] public ToolDef? Tool;
+
     [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
 
     // 腐烂
@@ -43,6 +52,14 @@ public class ItemDef
 
     // ---- 基础字段（顶层） ----
     [JsonProperty("full_name")] public string FullName = string.Empty;
+
+    // 图标 / 穿戴精灵动画 ID
+    [JsonProperty("icon_animation_id")] public string? IconAnimationId;
+    [JsonProperty("worn_sprite_animation_id")] public string? WornSpriteAnimationId;
+
+    // 手持精灵偏移
+    [JsonProperty("held_sprite_offset")] public Vector2Def? HeldSpriteOffset;
+
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
     [JsonProperty("only_hold_in_hands")] public bool OnlyHoldInHands;
     [JsonProperty("origin_prefab")] public string OriginPrefab = "geofruit";
@@ -57,6 +74,9 @@ public class ItemDef
 
     // 生成 / 掉落
     [JsonProperty("spawn")] public SpawnDef? Spawn;
+
+    // 生成时附加的组件类型名列表
+    [JsonProperty("spawn_components")] public List<string>? SpawnComponents;
 
     // 精灵图 / 显示
     [JsonProperty("sprite")] public SpriteDef? SpriteDef;
@@ -190,6 +210,14 @@ public class WornSpriteOffset
     [JsonProperty("sprite_offset_y")] public float SpriteOffsetY;
 }
 
+// 二维向量（手持偏移等）
+public class Vector2Def
+{
+    [JsonProperty("x")] public float X;
+
+    [JsonProperty("y")] public float Y;
+}
+
 // 物品栏精灵目标缩放尺寸
 public class SpriteScaleDimensionsDef
 {
@@ -237,10 +265,9 @@ public class QualitiesDef
 // 物品光源配置
 public class LightItemDef
 {
-    [JsonProperty("add_light_item")] public bool AddLightItem;
     [JsonProperty("color")] public string Color = "#FFFFFF";
     [JsonProperty("follow_mouse")] public bool FollowMouse;
-    [JsonProperty("intensity")] public float Intensity = 10f;
+    [JsonProperty("intensity")] public float Intensity = 1f;
 
     [JsonProperty("light_on_zero_condition")]
     public bool LightOnZeroCondition;
@@ -275,6 +302,87 @@ public class LiquidItemDef : ItemDef
     [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
 }
 
+// 绷带行为配置
+public class BandageDef
+{
+    [JsonProperty("effectiveness")] public float Effectiveness = 8f;
+
+    [JsonProperty("skin_heal_amount")] public float SkinHealAmount = 8f;
+
+    [JsonProperty("bandage_slow_amount")] public float BandageSlowAmount = 18f;
+
+    [JsonProperty("pain_reduction")] public float PainReduction = 40f;
+
+    [JsonProperty("bone_heal_timer_reduction")]
+    public float BoneHealTimerReduction = 5f;
+
+    [JsonProperty("dislocation_timer_reduction")]
+    public float DislocationTimerReduction = 5f;
+
+    [JsonProperty("create_wrap_sprite")] public bool CreateWrapSprite = true;
+
+    [JsonProperty("wrap_sprite_path")] public string WrapSpritePath = "Special/bandageWrap";
+
+    [JsonProperty("wrap_sprite_color")] public string WrapSpriteColor = "#FFFFFF";
+
+    [JsonProperty("minigame_color")] public string MinigameColor = "#E6E6E6";
+}
+
+// 注射器行为配置
+public class SyringeDef
+{
+    [JsonProperty("capacity")] public float Capacity = 100f;
+
+    [JsonProperty("auto_fill")] public bool AutoFill;
+
+    [JsonProperty("amount_per_full_use")] public float AmountPerFullUse = 100f;
+
+    [JsonProperty("use_average_color")] public bool UseAverageColor = true;
+
+    [JsonProperty("minigame_color")] public string MinigameColor = "#FFFFFF";
+
+    // liquidId -> amount (ml)
+    [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
+}
+
+// 工具 / 近战行为配置
+public class ToolDef
+{
+    [JsonProperty("damage")] public float Damage = 25f;
+
+    [JsonProperty("structural_damage")] public float StructuralDamage = 25f;
+
+    [JsonProperty("attack_cooldown_multiplier")]
+    public float AttackCooldownMultiplier = 0.66f;
+
+    [JsonProperty("distance")] public float Distance = 2.5f;
+
+    [JsonProperty("knock_back")] public float KnockBack = 270f;
+
+    [JsonProperty("cooldown")] public float Cooldown = 0.35f;
+
+    [JsonProperty("attack_animation")] public string AttackAnimation = "SwingAnim";
+
+    [JsonProperty("stamina_use")] public float StaminaUse = 0.5f;
+
+    [JsonProperty("piercing")] public bool Piercing;
+
+    [JsonProperty("swing_sounds")] public string[] SwingSounds =
+        ["BSSwing1", "BSSwing2", "BSSwing3", "BSSwing4"];
+
+    [JsonProperty("volume")] public float Volume = 0.5f;
+
+    [JsonProperty("rotate_amount")] public float RotateAmount = 15.5f;
+
+    [JsonProperty("physical_swing")] public bool PhysicalSwing = true;
+
+    [JsonProperty("do_attack_animation")] public bool DoAttackAnimation = true;
+
+    [JsonProperty("metal_more_damage")] public bool MetalMoreDamage;
+
+    [JsonProperty("condition_loss_on_hit")] public float ConditionLossOnHit = 0.02f;
+}
+
 // ---- 旧版模型（向后兼容，仅在 JSON 检测为旧格式时使用） ----
 
 public class LegacyItemDef
@@ -294,6 +402,14 @@ public class LegacyItemDef
 
     [JsonProperty("drop_pool")] public string[]? DropPool;
     [JsonProperty("full_name")] public string FullName = string.Empty;
+
+    // 图标 / 穿戴精灵动画 ID
+    [JsonProperty("icon_animation_id")] public string? IconAnimationId;
+    [JsonProperty("worn_sprite_animation_id")] public string? WornSpriteAnimationId;
+
+    // 手持精灵偏移
+    [JsonProperty("held_sprite_offset")] public Vector2Def? HeldSpriteOffset;
+
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
     [JsonProperty("inventory_icon_scale")] public float InventoryIconScale = 4f;
     [JsonProperty("multi_worn")] public Dictionary<string, LegacyWornSpriteOffset>? MultiWorn;

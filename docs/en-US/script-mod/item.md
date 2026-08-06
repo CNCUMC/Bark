@@ -66,19 +66,27 @@ Item type is auto-detected from the JSON fields:
 }
 ```
 
-| Field           | Type   | Default      | Notes                                 |
-|-----------------|--------|--------------|---------------------------------------|
-| `full_name`     | string | `""`         | Display name                          |
-| `description`   | string | `""`         | Tooltip text                          |
-| `category`      | string | `""`         | Inventory category                    |
-| `weight`        | float  | `0`          | Weight in kg                          |
-| `value`         | int    | `0`          | Monetary value                        |
-| `tags`          | string | `""`         | Comma-separated tags                  |
-| `sprite`        | object | —            | Sprite-related config (see below)     |
-| `origin_prefab` | string | `"geofruit"` | Fallback prefab for sprite size       |
-| `spawn`         | object | —            | World spawn / loot config (see below) |
-| `script`        | object | null         | Action → script mapping (see below)   |
-| `custom_data`   | object | null         | Arbitrary data for scripts to read    |
+| Field                      | Type     | Default      | Notes                                              |
+|----------------------------|----------|--------------|----------------------------------------------------|
+| `full_name`                | string   | `""`         | Display name                                       |
+| `description`              | string   | `""`         | Tooltip text                                       |
+| `category`                 | string   | `""`         | Inventory category                                 |
+| `weight`                   | float    | `0`          | Weight in kg                                       |
+| `value`                    | int      | `0`          | Monetary value                                     |
+| `tags`                     | string   | `""`         | Comma-separated tags                               |
+| `sprite`                   | object   | —            | Sprite-related config (see below)                  |
+| `origin_prefab`            | string   | `"geofruit"` | Fallback prefab for sprite size                    |
+| `spawn`                    | object   | —            | World spawn / loot config (see below)              |
+| `script`                   | object   | null         | Action → script mapping (see below)                |
+| `custom_data`              | object   | null         | Arbitrary data for scripts to read                 |
+| `spawn_components`         | string[] | null         | Component type names attached on spawn (see below) |
+| `icon_animation_id`        | string   | null         | Inventory icon animation ID                        |
+| `worn_sprite_animation_id` | string   | null         | Worn sprite animation ID                           |
+| `held_sprite_offset`       | object   | null         | Held sprite offset `{ "x", "y" }`                  |
+| `light`                    | object   | null         | Light config (see below)                           |
+| `bandage`                  | object   | null         | Bandage config (see below)                         |
+| `syringe`                  | object   | null         | Syringe config (see below)                         |
+| `tool`                     | object   | null         | Tool/melee config (see below)                      |
 
 > 📝 Item ID = `{modId}.{filename}` (namespaced format), e.g. mod `my_mod` with `bandage123.json` → ID `"my_mod.bandage123"`. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
 
@@ -161,6 +169,177 @@ To make an item battery-powered:
 
 Valid presets: `"small"` (50 charge), `"medium"` (100), `"large"` (300). Omit `preset` to define custom
 `max_allowed_charge` and `start_charge`.
+
+### Light Fields
+
+To make an item emit light (flashlight, emergency light, etc.):
+
+```json
+{
+  "light": {
+    "intensity": 1.2,
+    "color": "#FFFFAA",
+    "light_type": "Point",
+    "x_offset": 0,
+    "y_offset": 0,
+    "point_light_inner_angle": 360,
+    "point_light_inner_radius": 0,
+    "point_light_outer_angle": 360,
+    "point_light_outer_radius": 8
+  }
+}
+```
+
+| Field                            | Type   | Default     | Description                                                                                                                                                    |
+|----------------------------------|--------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `light.intensity`                | float  | `10`        | Light intensity (too high causes overlapping scatter that looks doubled; lower it based on radius)                                                             |
+| `light.color`                    | string | `"#FFFFFF"` | Hex color (#RRGGBB)                                                                                                                                            |
+| `light.light_type`               | string | `"Point"`   | Light type: `Point`/`Sprite`/`Global` etc.                                                                                                                     |
+| `light.rotation`                 | float  | `-90`       | Light rotation angle. CUCoreLib 1.0.3's LightProperties has no Rotation field; Bark rotates the light child object (`Light`) directly when the item is created |
+| `light.follow_mouse`             | bool   | `false`     | Whether the light follows the mouse                                                                                                                            |
+| `light.light_on_zero_condition`  | bool   | `false`     | Whether the light stays on at zero condition                                                                                                                   |
+| `light.x_offset`                 | float  | `0`         | Light horizontal offset                                                                                                                                        |
+| `light.y_offset`                 | float  | `0`         | Light vertical offset                                                                                                                                          |
+| `light.point_light_inner_angle`  | float  | `360`       | Point light inner cone angle                                                                                                                                   |
+| `light.point_light_inner_radius` | float  | `0`         | Point light inner radius                                                                                                                                       |
+| `light.point_light_outer_angle`  | float  | `360`       | Point light outer cone angle                                                                                                                                   |
+| `light.point_light_outer_radius` | float  | `8`         | Point light outer radius                                                                                                                                       |
+
+### Bandage Fields
+
+To give an item bandage behavior (wound dressing, bleeding slowdown, etc.):
+
+```json
+{
+  "bandage": {
+    "effectiveness": 8,
+    "skin_heal_amount": 8,
+    "bandage_slow_amount": 18,
+    "pain_reduction": 40,
+    "bone_heal_timer_reduction": 5,
+    "dislocation_timer_reduction": 5,
+    "create_wrap_sprite": true,
+    "wrap_sprite_path": "Special/bandageWrap",
+    "wrap_sprite_color": "#FFFFFF",
+    "minigame_color": "#E6E6E6"
+  }
+}
+```
+
+| Field                                 | Type   | Default                 | Description                       |
+|---------------------------------------|--------|-------------------------|-----------------------------------|
+| `bandage.effectiveness`               | float  | `8`                     | Treatment effectiveness           |
+| `bandage.skin_heal_amount`            | float  | `8`                     | Skin heal amount                  |
+| `bandage.bandage_slow_amount`         | float  | `18`                    | Bleeding slowdown amount          |
+| `bandage.pain_reduction`              | float  | `40`                    | Pain reduction                    |
+| `bandage.bone_heal_timer_reduction`   | float  | `5`                     | Fracture heal acceleration (s)    |
+| `bandage.dislocation_timer_reduction` | float  | `5`                     | Dislocation heal acceleration (s) |
+| `bandage.create_wrap_sprite`          | bool   | `true`                  | Whether to create wrap sprite     |
+| `bandage.wrap_sprite_path`            | string | `"Special/bandageWrap"` | Wrap sprite path                  |
+| `bandage.wrap_sprite_color`           | string | `"#FFFFFF"`             | Wrap sprite color (#RRGGBB)       |
+| `bandage.minigame_color`              | string | `"#E6E6E6"`             | Minigame UI color (#RRGGBB)       |
+
+### Syringe Fields
+
+To make an item a syringe (extract/inject liquids):
+
+```json
+{
+  "syringe": {
+    "capacity": 100,
+    "auto_fill": false,
+    "amount_per_full_use": 100,
+    "use_average_color": true,
+    "minigame_color": "#FFFFFF"
+  }
+}
+```
+
+| Field                         | Type   | Default     | Description                  |
+|-------------------------------|--------|-------------|------------------------------|
+| `syringe.capacity`            | float  | `100`       | Max capacity (ml)            |
+| `syringe.auto_fill`           | bool   | `false`     | Auto-fill on spawn           |
+| `syringe.amount_per_full_use` | float  | `100`       | Amount consumed per full use |
+| `syringe.use_average_color`   | bool   | `true`      | Use average color            |
+| `syringe.minigame_color`      | string | `"#FFFFFF"` | Minigame UI color (#RRGGBB)  |
+
+### Tool Fields
+
+To make an item a melee/tool (swingable attack):
+
+```json
+{
+  "tool": {
+    "damage": 25,
+    "structural_damage": 25,
+    "attack_cooldown_multiplier": 0.66,
+    "distance": 2.5,
+    "knock_back": 270,
+    "cooldown": 0.35,
+    "attack_animation": "SwingAnim",
+    "stamina_use": 0.5,
+    "piercing": false,
+    "swing_sounds": ["BSSwing1", "BSSwing2"],
+    "volume": 0.5,
+    "rotate_amount": 15.5,
+    "physical_swing": true,
+    "do_attack_animation": true,
+    "metal_more_damage": false,
+    "condition_loss_on_hit": 0.02
+  }
+}
+```
+
+| Field                             | Type     | Default       | Description                |
+|-----------------------------------|----------|---------------|----------------------------|
+| `tool.damage`                     | float    | `25`          | Damage                     |
+| `tool.structural_damage`          | float    | `25`          | Structural damage          |
+| `tool.attack_cooldown_multiplier` | float    | `0.66`        | Attack cooldown multiplier |
+| `tool.distance`                   | float    | `2.5`         | Attack distance            |
+| `tool.knock_back`                 | float    | `270`         | Knockback force            |
+| `tool.cooldown`                   | float    | `0.35`        | Cooldown time              |
+| `tool.attack_animation`           | string   | `"SwingAnim"` | Attack animation name      |
+| `tool.stamina_use`                | float    | `0.5`         | Stamina use                |
+| `tool.piercing`                   | bool     | `false`       | Whether piercing           |
+| `tool.swing_sounds`               | string[] | 4 defaults    | Swing sound effects        |
+| `tool.volume`                     | float    | `0.5`         | Volume                     |
+| `tool.rotate_amount`              | float    | `15.5`        | Rotate amount              |
+| `tool.physical_swing`             | bool     | `true`        | Physical swing             |
+| `tool.do_attack_animation`        | bool     | `true`        | Play attack animation      |
+| `tool.metal_more_damage`          | bool     | `false`       | Metal deals more damage    |
+| `tool.condition_loss_on_hit`      | float    | `0.02`        | Durability loss on hit     |
+
+### Spawn Components
+
+Attach custom components (by type name) when the item spawns:
+
+```json
+{
+  "spawn_components": ["MyMod.MyComponent", "MyMod.AnotherComponent"]
+}
+```
+
+| Field              | Type     | Description                                                  |
+|--------------------|----------|--------------------------------------------------------------|
+| `spawn_components` | string[] | Component type full names (with namespace) attached on spawn |
+
+> ⚠️ Component types must exist in the runtime assembly, otherwise they are ignored.
+
+### Icon / Worn Animation and Held Offset
+
+```json
+{
+  "icon_animation_id": "my_icon_anim",
+  "worn_sprite_animation_id": "my_worn_anim",
+  "held_sprite_offset": { "x": 2, "y": -1 }
+}
+```
+
+| Field                       | Type   | Description                                          |
+|-----------------------------|--------|------------------------------------------------------|
+| `icon_animation_id`         | string | Inventory icon animation ID                          |
+| `worn_sprite_animation_id`  | string | Worn sprite animation ID                             |
+| `held_sprite_offset`        | object | Held sprite offset `{ "x": float, "y": float }`      |
 
 ## Liquid Container
 
