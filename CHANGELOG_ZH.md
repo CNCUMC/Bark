@@ -6,25 +6,9 @@
 
 ---
 
-## v2.2.0
+## v2.3.0
 
 ### Added
 
-- 物品模板系统：脚本模组可通过 JSON 模板定义自定义物品，不同模板类型使用各自的 schema。支持模板类型：gun、mag、ammo、casing、clothing、food。包含运行时跟踪（`GunMagTracker`、`GunRuntimeManager`）实现弹匣换弹、弹药消耗、弹壳抛射、开火音效等功能。
-- 衣物模板：通过 JSON 模板定义自定义衣物/护甲物品（`ClothingTemplate`），含 `ClothingData` schema，支持伤害抗性、保温、体积、装备类别等属性。包含文档 `docs/zh-CN/script-mod/item-template/clothing.md`。
-- 食物模板：通过 JSON 模板定义自定义食物/饮品物品（`FoodTemplate`），支持营养值、腐败、容器物品、效果等属性。包含文档 `docs/zh-CN/script-mod/item-template/food.md`。
-- `ItemUtil` 工具类，提供 `LoadSprite(path)` 和 `HexToColor(hex)` 辅助方法用于物品资产加载。
-- 枪械音效档案系统（`GunSoundProfile`）：支持 JSON 定义多维音效（fire/rack/unrack/load_mag/load_shell/unload_mag/trigger/jam/safety），每条音效支持音量、音高、权重随机，音频文件自动预加载和缓存。
-- 音效档案系统文档（`docs/zh-CN/script-mod/audio.md`、`docs/en-US/script-mod/audio.md`），覆盖档案 JSON schema、AudioManager API、简单模式与档案模式回退链、性能注意事项。
-
-### Changed
-
-- **Breaking** 物品 ID 从单一文件名（如 `ak47`）改为 `{模组ID}.{文件名}` 命名空间格式（如 `my_mod.ak47`），防止跨模组物品冲突。原版物品 ID（如 `bandage`、`pistol`）不受影响。
-
-### Fixed
-
-- 枪械模板抛壳：通过 `CasingTemplate` 注册的自定义弹壳现在能正确生成。旧版 Transpiler 仅替换了传给 `Resources.Load` 的弹壳 ID 字符串，但 `Resources.Load` 无法加载 CCL `CustomInstantiate` 注册的自定义物品。新版 Transpiler 完全绕过 `Resources.Load + Instantiate` 流程，直接调用 `Utils.Create` 通过 CCL 注册表生成自定义弹壳。
-- 修复弹匣装填分支的音效回退代码被 `LoadShell` 逻辑意外覆盖的 bug。
-- 逐发装弹音效：支持 `LoadShell` 音效档案，优先播放 profile 中的 `load_shell`，回退到默认 `"gunloadshell"`。
-- 扳机/卡壳音效：通过 Transpiler 挂钩 `GunScript.Update()` 和 `GunScript.Fire()` 中的 `Sound.Play("guntrigger")` / `Sound.Play("gunjam")`，替换为 `GunSoundProfile` 优先的回调。
-- 保险音效：通过 Prefix 挂钩 `GunScript.ToggleSafety()`，支持 `Safety` 音效档案，回退到默认 `"gunsafety"`。
+- C# 模组 JSON 物品加载：普通 BepInEx 模组现在可通过 `ItemLoaderApi` 从 JSON 注册自定义物品，复用与脚本模组完全相同的解析 / 模板合并 / 资产加载 / 注册流程。模组 id（物品命名空间前缀）从 DLL 同目录下的 `mod.json` 读取；物品从 `{模组根目录}/Item/*.json` 加载，贴图从 `{模组根目录}/Assets/Item/` 读取。提供 `LoadFromManifest(path)`、`LoadFromPluginDirectory(assemblyLocation)`、`LoadFromPlugins(modName)`、`Load(modId, modDir)`（底层）以及热重载用的 `Unload(modId)`。
+- C# 模组 JSON 物品加载文档（`docs/en-US/csharp-mod.md`、`docs/zh-CN/csharp-mod.md`），涵盖目录结构、API 用法、热重载，以及 JSON 不含 `script` 字段的注意事项。

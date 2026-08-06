@@ -729,6 +729,43 @@ internal class LangGenerator : ModLangGenMultiBase
             "模組 '{0}' 註冊了 {1} 個物品腳本",
             "Мод '{0}' зарегистрировал {1} скрипт(ов) предметов");
 
+        // C# 端 JSON 物品加载相关日志
+        Log("items.csharp.dir_missing",
+            "C# item load skipped for mod '{0}': directory not found: {1}",
+            "C# 物品加载跳过（模组 '{0}'）：目录不存在：{1}",
+            "C# 物品載入跳過（模組 '{0}'）：目錄不存在：{1}",
+            "C# загрузка предметов пропущена для мода '{0}': каталог не найден: {1}");
+        Log("items.csharp.assembly_dir_missing",
+            "C# item load skipped for mod '{0}': cannot resolve assembly directory from: {1}",
+            "C# 物品加载跳过（模组 '{0}'）：无法从以下路径解析程序集目录：{1}",
+            "C# 物品載入跳過（模組 '{0}'）：無法從以下路徑解析組件目錄：{1}",
+            "C# загрузка предметов пропущена для мода '{0}': не удалось определить каталог сборки: {1}");
+        Log("items.csharp.scripts_ignored",
+            "Mod '{0}' has {1} item script(s) in JSON but C# mods have no script engine; script bindings ignored",
+            "模组 '{0}' 的 JSON 含 {1} 个物品脚本，但 C# 模组无脚本引擎，脚本绑定已忽略",
+            "模組 '{0}' 的 JSON 含 {1} 個物品腳本，但 C# 模組無腳本引擎，腳本綁定已忽略",
+            "Мод '{0}' содержит {1} скрипт(ов) в JSON, но у C# модов нет движка скриптов; привязки проигнорированы");
+        Log("items.csharp.manifest_missing",
+            "C# item load skipped: mod.json not found at: {0}",
+            "C# 物品加载跳过：未找到 mod.json：{0}",
+            "C# 物品載入跳過：找不到 mod.json：{0}",
+            "C# загрузка предметов пропущена: mod.json не найден: {0}");
+        Log("items.csharp.manifest_parse_failed",
+            "Failed to parse mod.json: {0}",
+            "解析 mod.json 失败：{0}",
+            "解析 mod.json 失敗：{0}",
+            "Не удалось разобрать mod.json: {0}");
+        Log("items.csharp.manifest_no_id",
+            "mod.json is missing required 'id' field: {0}",
+            "mod.json 缺少必填的 'id' 字段：{0}",
+            "mod.json 缺少必填的 'id' 欄位：{0}",
+            "В mod.json отсутствует обязательное поле 'id': {0}");
+        Log("items.csharp.manifest_read_error",
+            "Error reading mod.json '{0}': {1}",
+            "读取 mod.json 错误 '{0}'：{1}",
+            "讀取 mod.json 錯誤 '{0}'：{1}",
+            "Ошибка чтения mod.json '{0}': {1}");
+
         // Log - Template
         Log("template.registered",
             "Template '{0}' registered",

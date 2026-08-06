@@ -50,58 +50,95 @@ public static class ItemLoader
     private static readonly MethodInfo? s_clearLiquidOwnerEntries = typeof(LiquidRegistry).GetMethod(
         "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
 
-    // 从模组目录加载所有自定义物品
+    // 从脚本模组目录加载所有自定义物品（脚本模组入口）。
+    // 内部委托 RegisterFromDirectory；脚本引用类由后续 RegisterScripts 在引擎就绪后绑定。
     public static void RegisterFromMod(ScriptManifest manifest)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        // 重载时先清除该模组之前注册的物品与液体
-        ClearModItems(manifest.Id);
+        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+    }
 
-        var itemsDir = Path.Combine(manifest.Directory, "Item");
+    // 从任意模组目录加载所有自定义物品，供脚本模组与 C# 模组共用。
+    // modId    - 物品命名空间前缀，物品 ID = {modId}.{文件名}
+    // modDir   - 模组根目录，扫描 {modDir}/Item/*.json，资产目录为 {modDir}/Assets/Item/
+    // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。
+    //                      脚本模组传 true（后续由 RegisterScripts 绑定引擎）；
+    //                      C# 模组传 false（无脚本引擎，JSON 不应含 script 字段，若有则警告并跳过）。
+    // 返回：成功加载的物品数量。
+    public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
+    {
+        if (modId is null) throw new ArgumentNullException(nameof(modId));
+        if (modDir is null) throw new ArgumentNullException(nameof(modDir));
+
+        if (string.IsNullOrWhiteSpace(modId))
+            throw new ArgumentException("modId must not be empty", nameof(modId));
+
+        // 重载时先清除该模组之前注册的物品与液体
+        ClearModItems(modId);
+
+        var itemsDir = Path.Combine(modDir, "Item");
         if (!Directory.Exists(itemsDir))
-            return;
+            return 0;
 
         var jsonFiles = Directory.GetFiles(itemsDir, "*.json", SearchOption.TopDirectoryOnly);
         if (jsonFiles.Length == 0)
-            return;
+            return 0;
 
         // 资产目录：ModDir/Assets/Item/
-        var assetsItemDir = Path.Combine(manifest.Directory, "Assets", "Item");
+        var assetsItemDir = Path.Combine(modDir, "Assets", "Item");
 
         var loadedList = new List<ItemEntry>();
         var loadedCount = 0;
 
         // 标记物品与液体所有权，以便热重载时清除
-        using (ItemRegistry.BeginOwnerRegistration(manifest.Id))
-        using (LiquidRegistry.BeginOwnerRegistration(manifest.Id))
+        using (ItemRegistry.BeginOwnerRegistration(modId))
+        using (LiquidRegistry.BeginOwnerRegistration(modId))
         {
             foreach (var jsonFile in jsonFiles)
                 try
                 {
-                    var entry = LoadAndRegister(jsonFile, assetsItemDir, manifest.Id);
+                    var entry = LoadAndRegister(jsonFile, assetsItemDir, modId);
                     if (entry == null) continue;
                     loadedCount++;
                     loadedList.Add(entry);
                 }
                 catch (Exception ex)
                 {
-                    LogUtil.Error("items.load_error", jsonFile, manifest.Id, ex.Message);
+                    LogUtil.Error("items.load_error", jsonFile, modId, ex.Message);
                 }
         }
 
-        LoadedItems[manifest.Id] = loadedList;
+        LoadedItems[modId] = loadedList;
 
         // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
-        if (PendingScripts.TryGetValue(manifest.Id, out var existing) && existing.Count > 0)
-            LogUtil.Info("items.scripts_pending", manifest.Id, existing.Count);
+        if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
+        {
+            if (allowPendingScripts)
+                LogUtil.Info("items.scripts_pending", modId, existing.Count);
+            else
+            {
+                // C# 模组无脚本引擎，JSON 不应包含 script 字段；若有则警告并丢弃暂存
+                LogUtil.Warning("items.csharp.scripts_ignored", modId, existing.Count);
+                PendingScripts.Remove(modId);
+            }
+        }
 
         if (loadedCount > 0)
-            LogUtil.Info("items.loaded_count", manifest.Id, loadedCount);
+            LogUtil.Info("items.loaded_count", modId, loadedCount);
 
         // 热重载完成后刷新所有已存在枪械的枪口位置（barrel_offset 变更即时生效）
         GunRuntimeManager.RefreshAllBarrelOffsets();
+
+        return loadedCount;
+    }
+
+    // 清除指定模组此前注册的所有物品与液体（C# 端热重载 / 卸载时调用）
+    public static void UnregisterOwner(string modId)
+    {
+        if (modId is null) throw new ArgumentNullException(nameof(modId));
+        ClearModItems(modId);
     }
 
     // 在引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry

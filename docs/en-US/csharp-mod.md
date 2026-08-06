@@ -196,3 +196,94 @@ UpdateUtil.Check("YourGitHubUsername/Repo", "ModName", "CurrentVersion", Logger)
 ```
 
 Detailed API at [UpdateUtil](csharp-api/update.md).
+
+## Loading JSON Items
+
+Besides creating items in code, your C# mod can define items in JSON files just like script mods — Bark parses and
+registers them into the game's `ItemRegistry`. This lets you describe items as pure data and reuse Bark's item template
+system (gun / mag / ammo / casing / clothing / food) without hand-writing registration code.
+
+### Directory Layout
+
+Place item JSON and sprites under your plugin directory, following the same convention as script mods:
+
+```
+BepInEx/
+  plugins/
+    your_mod/                  <- mod root (the directory your DLL lives in)
+      your_mod.dll
+      mod.json                 <- mod manifest (at least an id)
+      Item/                    <- item JSON (file name is the item's local name)
+        my_rifle.json
+        my_armor.json
+      Assets/
+        Item/                  <- sprites and other assets
+          my_rifle.png
+          my_armor.png
+          my_armor_worn.png
+```
+
+- `Item/*.json`: one file per item. The item ID is `{modId}.{fileName}` (e.g. `your_mod.my_rifle`).
+- `Assets/Item/*.png`: sprites, named by the same rules as script mods (see the [item docs](script-mod/item.md)).
+
+### mod.json
+
+Place a `mod.json` in your mod root (the directory your DLL lives in). It must at least contain an `id` field — this is
+the namespace prefix for all item IDs. Use snake_case for `id` (e.g. `your_mod`); the item ID becomes
+`{id}.{fileName}` (e.g. `your_mod.my_rifle`). Other fields (`name`, `version`, ...) are optional metadata — the C# side
+only reads `id`.
+
+```json
+{
+  "id": "your_mod",
+  "name": "My C# Mod",
+  "version": "1.0.0"
+}
+```
+
+### Usage
+
+Call `ItemLoaderApi` from `Plugin.Awake()`. The mod id comes from `mod.json`, so you don't hard-code it in code.
+
+```csharp
+using Bark.Items;
+
+public class MyPlugin : BaseUnityPlugin
+{
+    public void Awake()
+    {
+        // Option 1 (recommended): auto-find mod.json in the DLL directory
+        var count = ItemLoaderApi.LoadFromPluginDirectory(GetType().Assembly.Location);
+        Logger.LogInfo($"Loaded {count} item(s)");
+
+        // Option 2: pass the mod.json path explicitly
+        ItemLoaderApi.LoadFromManifest(Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location)!, "mod.json"));
+
+        // Option 3: locate mod.json from BepInEx/plugins/{modName}
+        ItemLoaderApi.LoadFromPlugins("your_mod");
+    }
+}
+```
+
+If you don't want a `mod.json`, you can pass `modId` and the root directory directly (low-level API):
+
+```csharp
+ItemLoaderApi.Load("your_mod", Path.GetDirectoryName(GetType().Assembly.Location)!);
+```
+
+### Hot Reload / Unload
+
+To support hot reload or mod unload, call `Unload` to clear previously registered items, then load again:
+
+```csharp
+ItemLoaderApi.Unload("your_mod");
+ItemLoaderApi.LoadFromPluginDirectory(GetType().Assembly.Location);
+```
+
+### Notes
+
+- The item JSON format and template usage are **identical** to script mods — see the
+  [item template docs](script-mod/item-template/index.md).
+- Do **not** include a `script` field in your JSON — C# mods have no script engine, so any script bindings in JSON are
+  ignored with a warning. Implement item behavior in C# via `[EventBusSubscriber]` + `[HarmonyPatch]` instead.
+- Sprites are loaded from `Assets/Item/`, falling back to the `origin_prefab`'s vanilla sprite when missing.
