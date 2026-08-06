@@ -18,10 +18,10 @@
 }
 ```
 
-| Parameter    | Type   | Default              | Description |
-|--------------|--------|----------------------|-------------|
-| `casing`     | bool   | `true`               | Internal marker, **do not remove** |
-| `casing_type`| string | `"7_62x51mm_casing"` | Casing type tag, matched by ammo's `casing_type` |
+| Parameter     | Type   | Default              | Description                                      |
+|---------------|--------|----------------------|--------------------------------------------------|
+| `casing`      | bool   | `true`               | Internal marker, **do not remove**               |
+| `casing_type` | string | `"7_62x51mm_casing"` | Casing type tag, matched by ammo's `casing_type` |
 
 ## Script-Side Queries
 

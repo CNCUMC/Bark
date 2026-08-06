@@ -20,8 +20,8 @@ Language is detected from the entry file extension — `main.js` = JS mod, `main
 
 ### Data-only Mods
 
-A mod without any entry script (`main.js` / `main.mjs` / `main.lua`) is treated as a **data-only mod**.
-It is still loaded and can provide JSON content (items, tiles, recipes, moodles, commands) via the
+A mod without any entry script (`main.js` / `main.mjs` / `main.lua`) is treated as a **data-only mod**. It is still
+loaded and can provide JSON content (items, tiles, recipes, moodles, commands) via the
 `Assets/` folders, but no script engine is started and no lifecycle hooks run.
 
 ```
@@ -54,16 +54,16 @@ You can also combine both: a mod with an entry script may additionally define JS
 }
 ```
 
-| Field          | Type   | Required | Description                                                                       |
-|----------------|--------|----------|-----------------------------------------------------------------------------------|
-| `id`           | string | Yes      | Unique ID, use snake_case, don't conflict with others                             |
-| `name`         | string | Yes      | Display name                                                                      |
-| `version`      | string | Yes      | Semver, e.g. `"1.0.0"`                                                            |
-| `author`       | object | No       | Contributors, key = role (code, art, etc.), value = name                          |
-| `description`  | string | No       | Mod description                                                                   |
-| `bark_version` | string | No       | Required Bark version (semver range)                                              |
-| `game_version` | string | No       | Compatible game version (semver range)                                            |
-| `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]`                 |
+| Field          | Type   | Required | Description                                                       |
+|----------------|--------|----------|-------------------------------------------------------------------|
+| `id`           | string | Yes      | Unique ID, use snake_case, don't conflict with others             |
+| `name`         | string | Yes      | Display name                                                      |
+| `version`      | string | Yes      | Semver, e.g. `"1.0.0"`                                            |
+| `author`       | object | No       | Contributors, key = role (code, art, etc.), value = name          |
+| `description`  | string | No       | Mod description                                                   |
+| `bark_version` | string | No       | Required Bark version (semver range)                              |
+| `game_version` | string | No       | Compatible game version (semver range)                            |
+| `dependencies` | array  | No       | Dependent mods, format `[{"id": "some_mod", "version": "1.0.0"}]` |
 
 ### Entry File
 
@@ -229,13 +229,17 @@ See [Custom Moodles](script-mod/moodle.md) for full documentation.
 
 ## Custom Item Templates
 
-Templates are preset groups of item properties. Guns, magazines, ammo, casings, and more come with built-in templates — reference them via the `"template"` field to dramatically simplify item JSON. You can also register your own templates in the `item-template/` directory.
+Templates are preset groups of item properties. Guns, magazines, ammo, casings, and more come with built-in templates —
+reference them via the `"template"` field to dramatically simplify item JSON. You can also register your own templates
+in the `item-template/` directory.
 
 See [Item Templates](script-mod/item-template/index.md).
 
 ## Custom Audio
 
-Place custom audio files under your mod's `Assets/Audio/`. Supported formats include `.wav`, `.mp3`, `.aif` and more. Gun templates accept `fire_sound` / `rack_sound` / `unrack_sound` as paths relative to the mod root (bare filenames auto-prepend `Assets/Audio/`); `AudioManager` handles loading and caching automatically.
+Place custom audio files under your mod's `Assets/Audio/`. Supported formats include `.wav`, `.mp3`, `.aif` and more.
+Gun templates accept `fire_sound` / `rack_sound` / `unrack_sound` as paths relative to the mod root (bare filenames
+auto-prepend `Assets/Audio/`); `AudioManager` handles loading and caching automatically.
 
 See [Custom Audio](script-mod/audio.md).
 
@@ -295,14 +299,14 @@ All script mods reloaded
 
 ### Spawning / Placing Bark Content
 
-These commands create content that was registered by Bark (items, tiles, moodles from any script mod or C# mod).
-They only accept **Bark-registered IDs** — vanilla CCL items/tiles are still spawned via the game's `cuspawn` / `settile`.
+These commands create content that was registered by Bark (items, tiles, moodles from any script mod or C# mod). They
+only accept **Bark-registered IDs** — vanilla CCL items/tiles are still spawned via the game's `cuspawn` / `settile`.
 
 The content ID is the full registered name, formatted as `modid.entryname` (e.g. `hello_world_js.ak47`).
 
 Press `Tab` to auto-complete, and the candidates are **filtered by subcommand type**: `script spawn` only suggests
-items, `script tile` only tiles, `script moodle` only moodle keys, and `script detail` / `scd` only mod IDs
-(IDs are never mixed together). The completion list refreshes after `script reload`.
+items, `script tile` only tiles, `script moodle` only moodle keys, and `script detail` / `scd` only mod IDs (IDs are
+never mixed together). The completion list refreshes after `script reload`.
 
 **Spawn an item** — forwards to CCL `cuspawn`, arguments in order: `[id] [position] [condition] [count]`.
 

@@ -124,7 +124,7 @@ public static class InventoryUtil
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
         var resolved = ScriptCallContext.ResolveItemId(id);
         return BodyUtil.Body.HoldingItem(resolved)
-            || (resolved != id && BodyUtil.Body.HoldingItem(id));
+               || (resolved != id && BodyUtil.Body.HoldingItem(id));
     }
 
     public static bool HasItem(Predicate<ItemInfo> predicate)
@@ -177,6 +177,7 @@ public static class InventoryUtil
             if (itemId == resolved || (resolved != id && itemId == id))
                 c++;
         }
+
         return c;
     }
 
@@ -253,7 +254,7 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdSurface(resolved, out item)
-            || (resolved != id && body.FindByIdSurface(id, out item));
+               || (resolved != id && body.FindByIdSurface(id, out item));
     }
 
     // ============================================================
@@ -349,7 +350,7 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdThorough(resolved, out _)
-            || (resolved != id && body.FindByIdThorough(id, out _));
+               || (resolved != id && body.FindByIdThorough(id, out _));
     }
 
     public static bool HasItemThoroughByTag(string tag)
@@ -407,7 +408,7 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdThorough(resolved, out item)
-            || (resolved != id && body.FindByIdThorough(id, out item));
+               || (resolved != id && body.FindByIdThorough(id, out item));
     }
 
     // ============================================================

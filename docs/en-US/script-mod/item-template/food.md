@@ -4,7 +4,8 @@
 
 # Food Template
 
-`"type": "food"` — Edible food items. The template presets the `geofruit` prefab with all default geofruit properties (decay, weight, qualities, etc.), and calls `body.Eat()`, `body.Drink()`, and other native methods on consumption.
+`"type": "food"` — Edible food items. The template presets the `geofruit` prefab with all default geofruit properties
+(decay, weight, qualities, etc.), and calls `body.Eat()`, `body.Drink()`, and other native methods on consumption.
 
 ## Quick Reference
 
@@ -38,16 +39,16 @@ These control the eating effects, located inside the `template` object:
 }
 ```
 
-| Parameter         | Type   | Default       | Description                                                    |
-|-------------------|--------|---------------|----------------------------------------------------------------|
-| `food`            | bool   | `true`        | Internal marker — **do not remove**                           |
-| `nutrition`       | float  | `3.5`         | Hunger restored, passed to `body.Eat(hunger, weight)`         |
-| `weight_offset`   | float  | `0.1`         | Weight gain, passed to `body.Eat(hunger, weight)`             |
-| `hydration`       | float  | `5.0`         | Thirst restored, passed to `body.Drink(thirst)`               |
-| `happiness`       | float  | `0.5`         | Happiness gain: `body.happiness +=`                           |
-| `condition_loss`  | float  | `0.5`         | Durability consumed per use: `item.condition -=`              |
-| `eat_sound`       | string | `"eatCrunch"` | Sound effect name for `Sound.Play()`. Empty string = no sound |
-| `eat_good_voice`  | bool   | `true`        | Whether to trigger `body.talker.EatGood()` voice line         |
+| Parameter        | Type   | Default       | Description                                                   |
+|------------------|--------|---------------|---------------------------------------------------------------|
+| `food`           | bool   | `true`        | Internal marker — **do not remove**                           |
+| `nutrition`      | float  | `3.5`         | Hunger restored, passed to `body.Eat(hunger, weight)`         |
+| `weight_offset`  | float  | `0.1`         | Weight gain, passed to `body.Eat(hunger, weight)`             |
+| `hydration`      | float  | `5.0`         | Thirst restored, passed to `body.Drink(thirst)`               |
+| `happiness`      | float  | `0.5`         | Happiness gain: `body.happiness +=`                           |
+| `condition_loss` | float  | `0.5`         | Durability consumed per use: `item.condition -=`              |
+| `eat_sound`      | string | `"eatCrunch"` | Sound effect name for `Sound.Play()`. Empty string = no sound |
+| `eat_good_voice` | bool   | `true`        | Whether to trigger `body.talker.EatGood()` voice line         |
 
 ## Overridable General Fields (top-level)
 
@@ -75,19 +76,19 @@ The food template presets these `ItemInfo` fields. Override them at the top leve
 }
 ```
 
-| Field                         | Type   | Default  | Description                                                                |
-|-------------------------------|--------|----------|----------------------------------------------------------------------------|
-| `weight`                      | float  | `0.75`   | Item weight                                                                |
-| `value`                       | int    | `1`      | Item value                                                                 |
-| `ignore_depression`           | bool   | `false`  | `true` = can be eaten while depressed (comfort food)                       |
-| `recognition`                 | int    | `3`      | Recognition level                                                          |
-| `tags`                        | string | `cangetwet` | Comma-separated tags                                                    |
-| `destroy_at_zero_condition`   | bool   | `true`   | `true` = destroy item when condition reaches 0                             |
-| `scale_weight_with_condition` | bool   | `true`   | `true` = weight scales proportionally with condition                       |
-| `decay.info`                  | int    | `0`      | Decay type flags: `1` = NoDecayWithoutContainerItem (canned food)          |
-| `decay.minutes`               | float  | `12.0`   | Decay time in minutes                                                      |
-| `sprite.slot_rotation`        | float  | `45`     | Inventory slot rotation in degrees                                         |
-| `qualities`                   | array  | `[{type:"produce"}]` | Crafting quality list                                               |
+| Field                         | Type   | Default              | Description                                                       |
+|-------------------------------|--------|----------------------|-------------------------------------------------------------------|
+| `weight`                      | float  | `0.75`               | Item weight                                                       |
+| `value`                       | int    | `1`                  | Item value                                                        |
+| `ignore_depression`           | bool   | `false`              | `true` = can be eaten while depressed (comfort food)              |
+| `recognition`                 | int    | `3`                  | Recognition level                                                 |
+| `tags`                        | string | `cangetwet`          | Comma-separated tags                                              |
+| `destroy_at_zero_condition`   | bool   | `true`               | `true` = destroy item when condition reaches 0                    |
+| `scale_weight_with_condition` | bool   | `true`               | `true` = weight scales proportionally with condition              |
+| `decay.info`                  | int    | `0`                  | Decay type flags: `1` = NoDecayWithoutContainerItem (canned food) |
+| `decay.minutes`               | float  | `12.0`               | Decay time in minutes                                             |
+| `sprite.slot_rotation`        | float  | `45`                 | Inventory slot rotation in degrees                                |
+| `qualities`                   | array  | `[{type:"produce"}]` | Crafting quality list                                             |
 
 ## Examples
 
@@ -168,7 +169,8 @@ Fully identical to geofruit.
 
 ## Script Integration
 
-The entire eating flow is handled by C# `useAction` — no script required. To add extra logic (buffs, VFX, etc.) before or after eating, define `use` scripts in your item JSON:
+The entire eating flow is handled by C# `useAction` — no script required. To add extra logic (buffs, VFX, etc.) before
+or after eating, define `use` scripts in your item JSON:
 
 ```json
 {
@@ -181,24 +183,26 @@ The entire eating flow is handled by C# `useAction` — no script required. To a
 }
 ```
 
-Note: defining a `use` array will override the auto Eat/Drink effects — you'll need to call them manually from script. If you only want additional side effects, prefer `onUse` hooks (currently, `use` scripts and template useAction are mutually exclusive; this may be merged in a future version).
+Note: defining a `use` array will override the auto Eat/Drink effects — you'll need to call them manually from script.
+If you only want additional side effects, prefer `onUse` hooks (currently, `use` scripts and template useAction are
+mutually exclusive; this may be merged in a future version).
 
 ## Comparison with geofruit
 
-| Property                      | geofruit | Food Template Default |
-|-------------------------------|----------|-----------------------|
-| Prefab                        | geofruit | geofruit             |
-| Inventory rotation            | 45°      | 45°                  |
-| Usable                        | ✓        | ✓                    |
-| Decay time (min)              | 12       | 12                   |
-| Destroy at zero condition     | ✓        | ✓                    |
-| Weight                        | 0.75     | 0.75                 |
-| Weight scales with condition  | ✓        | ✓                    |
-| `body.Eat(hunger)`           | 3.5      | 3.5                  |
-| `body.Eat(weight)`           | 0.1      | 0.1                  |
-| `body.Drink(thirst)`         | 5        | 5                    |
-| `body.happiness`             | +0.5     | +0.5                 |
-| `item.condition`             | -0.5     | -0.5                 |
-| Eating sound                   | eatCrunch | eatCrunch           |
-| "Good food" voice              | ✓        | ✓                    |
-| Crafting quality               | produce  | produce              |
+| Property                     | geofruit  | Food Template Default |
+|------------------------------|-----------|-----------------------|
+| Prefab                       | geofruit  | geofruit              |
+| Inventory rotation           | 45°       | 45°                   |
+| Usable                       | ✓        | ✓                    |
+| Decay time (min)             | 12        | 12                    |
+| Destroy at zero condition    | ✓        | ✓                    |
+| Weight                       | 0.75      | 0.75                  |
+| Weight scales with condition | ✓        | ✓                    |
+| `body.Eat(hunger)`           | 3.5       | 3.5                   |
+| `body.Eat(weight)`           | 0.1       | 0.1                   |
+| `body.Drink(thirst)`         | 5         | 5                     |
+| `body.happiness`             | +0.5      | +0.5                  |
+| `item.condition`             | -0.5      | -0.5                  |
+| Eating sound                 | eatCrunch | eatCrunch             |
+| "Good food" voice            | ✓        | ✓                    |
+| Crafting quality             | produce   | produce               |

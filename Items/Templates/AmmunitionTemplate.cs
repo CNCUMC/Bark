@@ -32,6 +32,9 @@ public class AmmoData
 // AmmunitionTemplate.GetAmmoData(itemId)   → AmmoData / null
 public class AmmunitionTemplate : ItemTemplate
 {
+    // ==================== Registry ====================
+
+    private static readonly Dictionary<string, AmmoData> Registry = new();
     // ==================== Template ====================
 
     public override string Name => "ammo";
@@ -52,16 +55,12 @@ public class AmmunitionTemplate : ItemTemplate
             // 布尔标记 "ammo": true 是 CacheAmmoItem 的类型识别标志，必须保留。
             ["template"] = new JObject
             {
-                ["ammo"] = true,             // 缓存类型标记（必须）
+                ["ammo"] = true, // 缓存类型标记（必须）
                 ["ammo_type"] = "7_62x51mm",
                 ["casing_type"] = "7_62x51mm_casing"
             }
         };
     }
-
-    // ==================== Registry ====================
-
-    private static readonly Dictionary<string, AmmoData> Registry = new();
 
     // ItemLoader 回调：检测 template 中 ammo 标记则缓存。
     public static void CacheAmmoItem(string itemId, JObject? template)
@@ -118,5 +117,4 @@ public class AmmunitionTemplate : ItemTemplate
     {
         return [.. from kv in Registry where kv.Value.AmmoType == ammoType select kv.Key];
     }
-
 }

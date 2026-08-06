@@ -65,6 +65,12 @@ public class ScriptModLoader(string modsPath) : IDisposable
     public static IReadOnlyList<string> Moodles =>
         MoodleLoader.LoadedMoodles.Values.SelectMany(list => list).Select(e => e.Key).ToList().AsReadOnly();
 
+    // 卸载所有已加载的模组并释放资源
+    public void Dispose()
+    {
+        UnloadAll();
+    }
+
     // 汇总所有通过 Bark 注册的内容 ID（物品/物块/配方/Moodle），去重。
     public static List<string> GetRegisteredContentIds()
     {
@@ -73,13 +79,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
         foreach (var id in Tiles) ids.Add(id);
         foreach (var id in Recipes) ids.Add(id);
         foreach (var id in Moodles) ids.Add(id);
-        return ids.ToList();
-    }
-
-    // 卸载所有已加载的模组并释放资源
-    public void Dispose()
-    {
-        UnloadAll();
+        return [.. ids];
     }
 
     // 扫描并加载所有脚本模组
@@ -518,7 +518,7 @@ public class ScriptModLoader(string modsPath) : IDisposable
             }
             catch
             {
-                // 单个模组 Update 失败不中断其他模组
+                // ignored
             }
     }
 }

@@ -3,7 +3,8 @@
 # Custom Items
 
 > 💡 **Using `"template"` dramatically simplifies item JSON.**  
-> Guns, magazines, ammo, casings, and more come with built-in templates. One line of `"template": { "type": "gun" }` auto-fills prefab, weight, durability, and a dozen other defaults.  
+> Guns, magazines, ammo, casings, and more come with built-in templates. One line of `"template": { "type": "gun" }`
+> auto-fills prefab, weight, durability, and a dozen other defaults.  
 > See **[Item Template Documentation](./item-template/index.md)**.
 
 ---
@@ -88,7 +89,8 @@ Item type is auto-detected from the JSON fields:
 | `syringe`                  | object   | null         | Syringe config (see below)                         |
 | `tool`                     | object   | null         | Tool/melee config (see below)                      |
 
-> 📝 Item ID = `{modId}.{filename}` (namespaced format), e.g. mod `my_mod` with `bandage123.json` → ID `"my_mod.bandage123"`. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
+> 📝 Item ID = `{modId}.{filename}` (namespaced format), e.g. mod `my_mod` with `bandage123.json` → ID
+> `"my_mod.bandage123"`. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
 
 ### Wearable Fields
 
@@ -335,11 +337,11 @@ Attach custom components (by type name) when the item spawns:
 }
 ```
 
-| Field                       | Type   | Description                                          |
-|-----------------------------|--------|------------------------------------------------------|
-| `icon_animation_id`         | string | Inventory icon animation ID                          |
-| `worn_sprite_animation_id`  | string | Worn sprite animation ID                             |
-| `held_sprite_offset`        | object | Held sprite offset `{ "x": float, "y": float }`      |
+| Field                      | Type   | Description                                     |
+|----------------------------|--------|-------------------------------------------------|
+| `icon_animation_id`        | string | Inventory icon animation ID                     |
+| `worn_sprite_animation_id` | string | Worn sprite animation ID                        |
+| `held_sprite_offset`       | object | Held sprite offset `{ "x": float, "y": float }` |
 
 ## Liquid Container
 
@@ -623,7 +625,8 @@ geofruit)* sprite.
 
 ## Notes
 
-- If two mods both define items with the same name, the last loaded wins (but the namespace prefix effectively prevents such conflicts)
+- If two mods both define items with the same name, the last loaded wins (but the namespace prefix effectively prevents
+  such conflicts)
 - JSON fields use `snake_case` naming (words are all lowercase, connected by underscores `_`)
 - If an item only needs a script (no custom sprite), you can omit `Assets/Item/` entirely
 - `script reload`/`sr` reloads item definitions — no restart needed during development

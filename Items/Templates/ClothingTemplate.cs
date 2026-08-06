@@ -43,6 +43,9 @@ public class ClothingData
 // ClothingTemplate.GetClothingData(itemId)   → ClothingData / null
 public class ClothingTemplate : ItemTemplate
 {
+    // ==================== Registry ====================
+
+    private static readonly Dictionary<string, ClothingData> Registry = new();
     // ==================== Template ====================
 
     public override string Name => "clothing";
@@ -122,10 +125,6 @@ public class ClothingTemplate : ItemTemplate
             }
         };
     }
-
-    // ==================== Registry ====================
-
-    private static readonly Dictionary<string, ClothingData> Registry = new();
 
     // ItemLoader 回调：检测 template 中 clothing 标记则缓存。
     public static void CacheClothingItem(string itemId, JObject? template)

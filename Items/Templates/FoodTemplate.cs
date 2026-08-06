@@ -6,26 +6,26 @@ namespace Bark.Items.Templates;
 // 食物属性数据容器，由 FoodTemplate 从 ItemDef.CustomData 填充。
 public class FoodData
 {
+    // 每次使用消耗的 condition（耐久度）
+    public float ConditionLoss = 0.5f;
+
+    // 是否触发 body.talker.EatGood() 语音
+    public bool EatGoodVoice = true;
+
+    // 咀嚼音效名称（Sound.Play 使用），空字符串表示不播放
+    public string EatSound = "eatCrunch";
+
+    // body.happiness 增量
+    public float Happiness = 0.5f;
+
+    // body.Drink() 参数，口渴值恢复
+    public float Hydration = 5f;
+
     // body.Eat() 第一参数，饥饿值恢复
     public float Nutrition = 3.5f;
 
     // body.Eat() 第二参数，体重增量
     public float WeightOffset = 0.1f;
-
-    // body.Drink() 参数，口渴值恢复
-    public float Hydration = 5f;
-
-    // body.happiness 增量
-    public float Happiness = 0.5f;
-
-    // 每次使用消耗的 condition（耐久度）
-    public float ConditionLoss = 0.5f;
-
-    // 咀嚼音效名称（Sound.Play 使用），空字符串表示不播放
-    public string EatSound = "eatCrunch";
-
-    // 是否触发 body.talker.EatGood() 语音
-    public bool EatGoodVoice = true;
 }
 
 // 食物物品模板：运行时食物注册表 + 查询 API。
@@ -59,6 +59,9 @@ public class FoodData
 // FoodTemplate.GetFoodData(itemId)   → FoodData / null
 public class FoodTemplate : ItemTemplate
 {
+    // ==================== Registry ====================
+
+    private static readonly Dictionary<string, FoodData> Registry = new();
     // ==================== Template ====================
 
     public override string Name => "food";
@@ -111,10 +114,6 @@ public class FoodTemplate : ItemTemplate
             }
         };
     }
-
-    // ==================== Registry ====================
-
-    private static readonly Dictionary<string, FoodData> Registry = new();
 
     // ItemLoader 回调：检测 template 中 food 标记则缓存。
     public static void CacheFoodItem(string itemId, JObject? template)

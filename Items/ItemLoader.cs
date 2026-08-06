@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Bark.Items.Runtime;
 using Bark.Items.Templates;
 using Bark.Liquid;
 using Bark.Script;
@@ -59,7 +58,7 @@ public static class ItemLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+        RegisterFromDirectory(manifest.Id, manifest.Directory, true);
     }
 
     // 从任意模组目录加载所有自定义物品，供脚本模组与 C# 模组共用。
@@ -118,7 +117,9 @@ public static class ItemLoader
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
         {
             if (allowPendingScripts)
+            {
                 LogUtil.Info("items.scripts_pending", modId, existing.Count);
+            }
             else
             {
                 // C# 模组无脚本引擎，JSON 不应包含 script 字段；若有则警告并丢弃暂存
@@ -659,9 +660,9 @@ public static class ItemLoader
             // 将 "gun" 追加到 tags，避免覆盖用户在 JSON 中自定义的标签。
             info.tags = string.IsNullOrEmpty(def.Tags)
                 ? "gun"
-                : (def.Tags.Contains("gun")
+                : def.Tags.Contains("gun")
                     ? def.Tags
-                    : def.Tags + ",gun");
+                    : def.Tags + ",gun";
             info.useAction = (_, item) =>
             {
                 var gs = item.GetComponent<GunScript>();

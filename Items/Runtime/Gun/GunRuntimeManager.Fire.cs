@@ -1,5 +1,4 @@
 using Bark.Items.Templates;
-using Bark.Tool;
 using UnityEngine;
 
 namespace Bark.Items.Runtime.Gun;
@@ -33,23 +32,15 @@ public static partial class GunRuntimeManager
 
         // 消耗一发（如果 Tracker 追踪的余弹为 0，用 GunScript 的值兜底）
         if (state.RoundsInMag > 0)
-        {
             state.RoundsInMag--;
-        }
-        else if (__instance.roundsInMag > 0)
-        {
-            state.RoundsInMag = __instance.roundsInMag - 1;
-        }
+        else if (__instance.roundsInMag > 0) state.RoundsInMag = __instance.roundsInMag - 1;
 
         // 同步到 GunScript（游戏原生的 Update 也依赖这个值来膛装下一发）
         __instance.roundsInMag = state.RoundsInMag;
 
         // 确定弹壳类型
         var casingType = ResolveAmmoCasingType(state, gunData);
-        if (casingType != null)
-        {
-            state.PendingCasingType = casingType;
-        }
+        if (casingType != null) state.PendingCasingType = casingType;
 
         // 注意：耐久损耗已在 GunScript.Start Postfix 中完成配置，
         // GunScript.Fire 内部会通过 conditionLossPerShot * 0.01f 自动扣除。
@@ -69,6 +60,7 @@ public static partial class GunRuntimeManager
             if (!Mathf.Approximately(multiplier, 1.0f))
                 PlayerCamera.main.body.hearingLoss = preValue + vanillaDelta * multiplier;
         }
+
         _preFireHearingLoss = -1f;
     }
 
@@ -117,6 +109,7 @@ public static partial class GunRuntimeManager
             gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Trigger, gun.transform.position);
             return;
         }
+
         Sound.Play("guntrigger", gun.transform.position);
     }
 
@@ -132,6 +125,7 @@ public static partial class GunRuntimeManager
             gunData.SoundProfile.PlayRandom(gunData.SoundProfile.Jam, gun.transform.position);
             return;
         }
+
         Sound.Play("gunjam", gun.transform.position, true);
     }
 

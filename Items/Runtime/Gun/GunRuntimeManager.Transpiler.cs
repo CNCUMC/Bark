@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Bark.Items.Templates;
-using Bark.Tool;
 using CUCoreLib.Helpers;
 using HarmonyLib;
 using UnityEngine;
@@ -34,7 +33,7 @@ public static partial class GunRuntimeManager
     private static IEnumerable<CodeInstruction> TranspileUpdate(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
-        var doSpawnMethod = AccessTools.Method(typeof(Gun.GunRuntimeManager), nameof(DoSpawnCasing));
+        var doSpawnMethod = AccessTools.Method(typeof(GunRuntimeManager), nameof(DoSpawnCasing));
 
         // Step 1: 找到 ldstr "casing"（true 分支起点，由 beq 跳转至此）
         var casingIdx = -1;
@@ -82,7 +81,7 @@ public static partial class GunRuntimeManager
         // 原 IL：ldarg.0 → ldfld ammoType → call AmmoScript.AmmoTypeToItem → br L_merge
         // 改写为：ldarg.0（保留）→ call DoSpawnRound → br postInst，
         // 使退实弹时走 CustomInstantiate 创建自定义弹药，绕过 Resources.Load + Instantiate。
-        var doRoundMethod = AccessTools.Method(typeof(Gun.GunRuntimeManager), nameof(DoSpawnRound));
+        var doRoundMethod = AccessTools.Method(typeof(GunRuntimeManager), nameof(DoSpawnRound));
         var ammoIdx = -1;
         for (var i = casingIdx - 1; i >= 0; i--)
         {
@@ -99,15 +98,13 @@ public static partial class GunRuntimeManager
             var mergeBrIdx = ammoIdx + 1;
             if (mergeBrIdx < codes.Count &&
                 (codes[mergeBrIdx].opcode == OpCodes.Br || codes[mergeBrIdx].opcode == OpCodes.Br_S))
-            {
                 codes[mergeBrIdx] = new CodeInstruction(OpCodes.Br, postInstantiateLabel);
-            }
 
             // call AmmoTypeToItem → call DoSpawnRound（复用栈上已压入的 this）
             codes[ammoIdx] = new CodeInstruction(OpCodes.Call, doRoundMethod);
 
             // 删除前一条 ldfld ammoType（其压入的 ammoType 不再需要）
-            if (ammoIdx - 1 >= 0 && codes[ammoIdx - 1].opcode == OpCodes.Ldfld)
+            if (codes[ammoIdx - 1].opcode == OpCodes.Ldfld)
                 codes.RemoveAt(ammoIdx - 1);
         }
 
@@ -116,9 +113,9 @@ public static partial class GunRuntimeManager
         //   1 个 ldstr "guntrigger" → Sound.Play(string, Vector2)
         //   2 个 ldstr "gunjam"     → Sound.Play(string, Vector2, bool)
         // 用 DoPlayTriggerSound / DoPlayJamSound 回调替换，使 SoundProfile 字段生效。
-        var doTriggerMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayTriggerSound),
+        var doTriggerMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayTriggerSound),
             BindingFlags.NonPublic | BindingFlags.Static);
-        var doJamMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
             BindingFlags.NonPublic | BindingFlags.Static);
 
         if (doTriggerMethod == null || doJamMethod == null) return codes;
@@ -168,7 +165,7 @@ public static partial class GunRuntimeManager
     private static IEnumerable<CodeInstruction> TranspileFire(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
-        var doJamMethod = typeof(Gun.GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
+        var doJamMethod = typeof(GunRuntimeManager).GetMethod(nameof(DoPlayJamSound),
             BindingFlags.NonPublic | BindingFlags.Static);
         if (doJamMethod == null) return codes;
 

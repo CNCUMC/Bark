@@ -116,9 +116,7 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
         var result = new List<string>();
         foreach (var entry in UseEntries.Where(entry => entry.LimbSlot is not { Count: > 0 })
                      .Where(entry => !IsHandOnlyEntry(entry)))
-        {
             result.AddRange(entry.Script);
-        }
 
         return result;
     }
@@ -129,9 +127,7 @@ public class ItemScriptEntry(ScriptEngine engine, ItemDef def, string modId, str
         var result = new List<string>();
         foreach (var entry in UseEntries.Where(entry => entry.LimbSlot is not { Count: > 0 })
                      .Where(entry => IsHandOnlyEntry(entry) || IsAllSlotsEntry(entry)))
-        {
             result.AddRange(entry.Script);
-        }
 
         return result;
     }

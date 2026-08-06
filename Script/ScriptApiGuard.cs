@@ -46,10 +46,8 @@ public static class ScriptApiGuard
                 continue;
 
             foreach (var name in reserved)
-            {
                 if (IsOverride(line, name, lang))
                     result.Add((name, i + 1));
-            }
         }
 
         return result;

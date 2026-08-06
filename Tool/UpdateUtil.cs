@@ -44,8 +44,8 @@ public static class UpdateUtil
             yield break;
         }
 
-        if (IsNewer(currentVersion, latestTag!))
-            LogUtil.Warning(LocaleLog("update.available", modName, currentVersion, latestTag!), logger);
+        if (IsNewer(currentVersion, latestTag))
+            LogUtil.Warning(LocaleLog("update.available", modName, currentVersion, latestTag), logger);
         else
             LogUtil.Info(LocaleLog("update.up_to_date", modName, currentVersion), logger);
     }

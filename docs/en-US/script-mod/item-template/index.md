@@ -2,7 +2,8 @@
 
 # Item Templates
 
-Templates are preset groups of item properties. By referencing a template via the `"template"` field, you can dramatically simplify item JSON — the template provides defaults, and you only override what needs changing.
+Templates are preset groups of item properties. By referencing a template via the `"template"` field, you can
+dramatically simplify item JSON — the template provides defaults, and you only override what needs changing.
 
 ## Why Templates
 
@@ -16,9 +17,11 @@ Say you want to define an AK-47. The base game has no "assault rifle" item type.
 }
 ```
 
-The template automatically fills prefab, weight, durability, fire interval, recoil, and a dozen other defaults — zero configuration needed. Hand-writing the equivalent takes dozens of lines.
+The template automatically fills prefab, weight, durability, fire interval, recoil, and a dozen other defaults — zero
+configuration needed. Hand-writing the equivalent takes dozens of lines.
 
-**Templates are not magic**: the merged result is identical to a pure hand-written JSON. Override any field by simply writing it.
+**Templates are not magic**: the merged result is identical to a pure hand-written JSON. Override any field by simply
+writing it.
 
 ## Directory Layout
 
@@ -82,6 +85,7 @@ Bark ships four built-in template types:
 Beyond Bark's built-in templates, you can register your own in `item-template/templates.json`:
 
 **`item-template/templates.json`**:
+
 ```json
 {
   "my_melee": {
@@ -99,6 +103,7 @@ Beyond Bark's built-in templates, you can register your own in `item-template/te
 ```
 
 Then reference it in an item:
+
 ```json
 {
   "full_name": "Custom Machete",
@@ -118,7 +123,8 @@ Registration methods:
 After `script reload` / `sr`:
 
 - All item JSONs are re-parsed, templates re-merged
-- Existing gun instances in the game world auto-refresh **audio clips** and **barrel offsets** (hot-reloadable properties)
+- Existing gun instances in the game world auto-refresh **audio clips** and **barrel offsets** (hot-reloadable
+  properties)
 - Magazine, ammo, and casing registries auto-update
 
 No game restart needed.

@@ -1,11 +1,11 @@
 using System;
 using System.IO;
-using BepInEx;
 using Bark.Moodle;
 using Bark.Recipe;
 using Bark.Script;
 using Bark.Tile;
 using Bark.Tool;
+using BepInEx;
 
 namespace Bark.Items;
 
@@ -30,22 +30,6 @@ public static class ModContentApi
 {
     // mod.json 文件名（与脚本模组一致）
     private const string ManifestFileName = "mod.json";
-
-    // C# 端加载结果统计
-    public class LoadResult
-    {
-        // 模组 id（取自 mod.json）
-        public string ModId { get; set; } = string.Empty;
-
-        // 各内容加载数量
-        public int Items { get; set; }
-        public int Tiles { get; set; }
-        public int Recipes { get; set; }
-        public int Moodles { get; set; }
-
-        // 内容总数
-        public int Total => Items + Tiles + Recipes + Moodles;
-    }
 
     // 从 mod.json 加载全部支持的模组内容。
     // modJsonPath - mod.json 的完整路径，其所在目录即模组根目录
@@ -128,13 +112,16 @@ public static class ModContentApi
     // 物品 → 物块 → 配方（依赖物品）→ 状态。C# 端跳过脚本引擎绑定（allowPendingScripts=false）。
     private static LoadResult LoadInternal(string modId, string modDir)
     {
-        var result = new LoadResult { ModId = modId };
+        var result = new LoadResult
+        {
+            ModId = modId,
+            Items = ItemLoader.RegisterFromDirectory(modId, modDir, false),
+            Tiles = TileLoader.RegisterFromDirectory(modId, modDir, false)
+        };
 
-        result.Items = ItemLoader.RegisterFromDirectory(modId, modDir, allowPendingScripts: false);
-        result.Tiles = TileLoader.RegisterFromDirectory(modId, modDir, allowPendingScripts: false);
         RecipeLoader.RegisterFromDirectory(modId, modDir);
         result.Recipes = RecipeLoader.LoadedRecipes.TryGetValue(modId, out var recipes) ? recipes.Count : 0;
-        MoodleLoader.RegisterFromDirectory(modId, modDir, allowPendingScripts: false);
+        MoodleLoader.RegisterFromDirectory(modId, modDir, false);
         result.Moodles = MoodleLoader.LoadedMoodles.TryGetValue(modId, out var moodles) ? moodles.Count : 0;
 
         if (result.Total > 0)
@@ -170,5 +157,21 @@ public static class ModContentApi
             LogUtil.Warning("mod_content.manifest_read_error", modJsonPath, ex.Message);
             return (null, null);
         }
+    }
+
+    // C# 端加载结果统计
+    public class LoadResult
+    {
+        // 模组 id（取自 mod.json）
+        public string ModId { get; set; } = string.Empty;
+
+        // 各内容加载数量
+        public int Items { get; set; }
+        public int Tiles { get; set; }
+        public int Recipes { get; set; }
+        public int Moodles { get; set; }
+
+        // 内容总数
+        public int Total => Items + Tiles + Recipes + Moodles;
     }
 }

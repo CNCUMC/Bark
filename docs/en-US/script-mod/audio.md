@@ -2,9 +2,11 @@
 
 # Custom Audio
 
-Bark provides **two audio configuration modes**: simple mode (single file path) and sound profile mode (JSON multi-file random pool).
+Bark provides **two audio configuration modes**: simple mode (single file path) and sound profile mode (JSON multi-file
+random pool).
 
-Simple mode is for quick prototyping. Sound profiles are for polished work that needs audio variation and volume/pitch control.
+Simple mode is for quick prototyping. Sound profiles are for polished work that needs audio variation and volume/pitch
+control.
 
 ## Directory Layout
 
@@ -21,7 +23,8 @@ ScriptMod/Mods/MyMod/
       ak47_trigger.wav
 ```
 
-> 📁 **JSON and audio files are stored separately**: `.json` profiles in `Audio/`, actual `.wav`/`.mp3` files in `Assets/Audio/`.
+> 📁 **JSON and audio files are stored separately**: `.json` profiles in `Audio/`, actual `.wav`/`.mp3` files in
+> `Assets/Audio/`.
 
 ## Supported Formats
 
@@ -37,36 +40,38 @@ ScriptMod/Mods/MyMod/
 
 ## GunSoundProfile (Sound Profile)
 
-A sound profile is a JSON file that defines sounds for **all scenarios** a gun can encounter. Each scenario can have multiple audio entries randomly selected by weight.
+A sound profile is a JSON file that defines sounds for **all scenarios** a gun can encounter. Each scenario can have
+multiple audio entries randomly selected by weight.
 
 ### SoundEntry Fields
 
 Each entry in a scenario list is an object with these fields:
 
-| Field    | Type   | Default | Description                                                    |
-|----------|--------|---------|----------------------------------------------------------------|
-| `file`   | string | `""`    | Audio filename, relative to `Assets/Audio/`                   |
-| `volume` | float  | `1.0`   | Volume, range 0.0–1.0                                          |
-| `pitch`  | float  | `1.0`   | Pitch / playback speed, range 0.5–2.0                          |
-| `weight` | float  | `1.0`   | Random weight (higher weight = more likely to be selected)     |
+| Field    | Type   | Default | Description                                                |
+|----------|--------|---------|------------------------------------------------------------|
+| `file`   | string | `""`    | Audio filename, relative to `Assets/Audio/`                |
+| `volume` | float  | `1.0`   | Volume, range 0.0–1.0                                      |
+| `pitch`  | float  | `1.0`   | Pitch / playback speed, range 0.5–2.0                      |
+| `weight` | float  | `1.0`   | Random weight (higher weight = more likely to be selected) |
 
 ### Sound Categories
 
 Each category maps to a specific gun action:
 
-| Category    | JSON key      | Triggered by                                                            |
-|-------------|---------------|-------------------------------------------------------------------------|
-| `Fire`      | `fire`        | Pulling the trigger, firing projectiles                                 |
-| `Rack`      | `rack`        | Racking the slide/bolt (chambering a round)                             |
-| `Unrack`    | `unrack`      | Unracking (ejecting a round/casing)                                     |
-| `LoadMag`   | `load_mag`    | Inserting a magazine                                                    |
-| `LoadShell` | `load_shell`  | Loading individual rounds (direct-feed weapons, one round at a time)    |
-| `UnloadMag` | `unload_mag`  | Removing a magazine                                                     |
-| `Trigger`   | `trigger`     | Pulling the trigger (firing-pin/hammer sound, simultaneous with fire)   |
-| `Jam`       | `jam`         | Jam (round fails to chamber or eject properly)                          |
-| `Safety`    | `safety`      | Toggling the safety on/off                                              |
+| Category    | JSON key     | Triggered by                                                          |
+|-------------|--------------|-----------------------------------------------------------------------|
+| `Fire`      | `fire`       | Pulling the trigger, firing projectiles                               |
+| `Rack`      | `rack`       | Racking the slide/bolt (chambering a round)                           |
+| `Unrack`    | `unrack`     | Unracking (ejecting a round/casing)                                   |
+| `LoadMag`   | `load_mag`   | Inserting a magazine                                                  |
+| `LoadShell` | `load_shell` | Loading individual rounds (direct-feed weapons, one round at a time)  |
+| `UnloadMag` | `unload_mag` | Removing a magazine                                                   |
+| `Trigger`   | `trigger`    | Pulling the trigger (firing-pin/hammer sound, simultaneous with fire) |
+| `Jam`       | `jam`        | Jam (round fails to chamber or eject properly)                        |
+| `Safety`    | `safety`     | Toggling the safety on/off                                            |
 
-Each category can be `null` (fallback to default sound) or empty array `[]` (silent). If omitted entirely, it falls back to the default sound.
+Each category can be `null` (fallback to default sound) or empty array `[]` (silent). If omitted entirely, it falls back
+to the default sound.
 
 ### Random Selection Logic
 
@@ -79,7 +84,8 @@ When a category has multiple `SoundEntry`s, **one** is selected for playback:
 
 ### Volume/Pitch Optimization
 
-If the selected entry has `volume` 1.0 and `pitch` 1.0 (defaults), the game's built-in `Sound.Play` is used directly (preserving 3D falloff). A temporary `AudioSource` is only created when custom values are needed.
+If the selected entry has `volume` 1.0 and `pitch` 1.0 (defaults), the game's built-in `Sound.Play` is used directly
+(preserving 3D falloff). A temporary `AudioSource` is only created when custom values are needed.
 
 ### Full JSON Example
 
@@ -144,11 +150,11 @@ Specify a single audio file path directly. Good for quick prototypes.
 
 **Fallback rules**:
 
-| Field          | Behavior when empty                                                                               |
-|----------------|----------------------------------------------------------------------------------------------------|
-| `fire_sound`   | Auto-selected by `ammo_type`: pistol→`pistolshot`, rifle→`rifleshot`, shotgun→`shotgunshot`       |
-| `rack_sound`   | Uses game default `"gunrack"`                                                                     |
-| `unrack_sound` | If empty but `rack_sound` is set, reuses the rack sound; otherwise defaults to `"gununrack"`      |
+| Field          | Behavior when empty                                                                          |
+|----------------|----------------------------------------------------------------------------------------------|
+| `fire_sound`   | Auto-selected by `ammo_type`: pistol→`pistolshot`, rifle→`rifleshot`, shotgun→`shotgunshot`  |
+| `rack_sound`   | Uses game default `"gunrack"`                                                                |
+| `unrack_sound` | If empty but `rack_sound` is set, reuses the rack sound; otherwise defaults to `"gununrack"` |
 
 ### Profile Mode: `sound`
 
@@ -223,5 +229,6 @@ Both methods internally use `AssetLoader`, which **caches by full file path**:
 ## Performance Notes
 
 - `GunSoundProfile` **preloads all** referenced audio files on load; no runtime IO during gameplay.
-- Custom `volume`/`pitch` creates a temporary `AudioSource` (auto-destroyed after playback). Default parameters use `Sound.Play` directly with zero overhead.
+- Custom `volume`/`pitch` creates a temporary `AudioSource` (auto-destroyed after playback). Default parameters use
+  `Sound.Play` directly with zero overhead.
 - JSON parse failures log an error and return `null` — never crash the game.

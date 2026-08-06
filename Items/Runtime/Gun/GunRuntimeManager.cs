@@ -41,6 +41,7 @@ public static partial class GunRuntimeManager
     // 确保 GunScript.Fire() 内的 Sound.Play(fireSound, ...) 不会崩溃（Sound.Play 需要有效 clip）。
     // OnFirePostfix 中再播放 profile 的真实音效。
     private static AudioClip? _silentClip;
+
     private static AudioClip GetSilentClip()
     {
         if (_silentClip == null)
@@ -105,33 +106,27 @@ public static partial class GunRuntimeManager
             // Start Postfix：将模板 GunData 写入 GunScript 组件 + 补全运行时关键字段。
             var start = AccessTools.Method(gunScriptType, "Start");
             if (start != null)
-            {
                 _harmony.Patch(start,
                     postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnGunStartPostfix)));
-            }
 
             // LoadMag Prefix
             var loadMag = AccessTools.Method(gunScriptType, "LoadMag");
             if (loadMag != null)
-            {
                 _harmony.Patch(loadMag,
-                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnLoadMagPrefix)));
-            }
+                    new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnLoadMagPrefix)));
 
             // UnloadMag Prefix
             var unloadMag = AccessTools.Method(gunScriptType, "UnloadMag");
             if (unloadMag != null)
-            {
                 _harmony.Patch(unloadMag,
-                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnUnloadMagPrefix)));
-            }
+                    new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnUnloadMagPrefix)));
 
             // Fire Prefix + Postfix
             var fire = AccessTools.Method(gunScriptType, "Fire");
             if (fire != null)
             {
                 _harmony.Patch(fire,
-                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePrefix)));
+                    new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePrefix)));
                 _harmony.Patch(fire,
                     postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnFirePostfix)));
                 // Transpiler：替换 Fire() 中的 ldstr "gunjam" 为 DoPlayJamSound
@@ -142,18 +137,14 @@ public static partial class GunRuntimeManager
             // Update Transpiler（替换抛壳物品 ID + trigger/jam 音效）
             var update = AccessTools.Method(gunScriptType, "Update");
             if (update != null)
-            {
                 _harmony.Patch(update,
                     transpiler: new HarmonyMethod(typeof(GunRuntimeManager), nameof(TranspileUpdate)));
-            }
 
             // ToggleSafety Prefix：拦截自定义枪械的保险开关，播放 SoundProfile.Safety 音效
             var toggleSafety = AccessTools.Method(gunScriptType, "ToggleSafety");
             if (toggleSafety != null)
-            {
                 _harmony.Patch(toggleSafety,
-                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnToggleSafetyPrefix)));
-            }
+                    new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnToggleSafetyPrefix)));
 
             // GetOrCreateTemplate Postfix：在 CCL 创建模板时动态添加运行时组件。
             // 这是让游戏识别自定义枪械为枪的关键补丁——geofruit 预制体上没有 GunScript。
@@ -162,10 +153,8 @@ public static partial class GunRuntimeManager
             {
                 var getOrCreateTemplate = AccessTools.Method(customInstantiateType, "GetOrCreateTemplate");
                 if (getOrCreateTemplate != null)
-                {
                     _harmony.Patch(getOrCreateTemplate,
                         postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnTemplateCreatedPostfix)));
-                }
             }
 
             // ApplyLight Postfix：CUCoreLib 创建光源子物体后，按 JSON light.rotation 旋转光源。
@@ -176,10 +165,8 @@ public static partial class GunRuntimeManager
                 ? AccessTools.Method(itemRegistryPatchesType, "ApplyLight")
                 : null;
             if (applyLight != null)
-            {
                 _harmony.Patch(applyLight,
                     postfix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnApplyLightPostfix)));
-            }
 
             // UnloadRound Prefix：自定义弹匣退弹时生成模板弹药物品，而非原版硬编码弹药。
             var ammoScriptType = AccessTools.TypeByName("AmmoScript");
@@ -187,18 +174,14 @@ public static partial class GunRuntimeManager
             {
                 var unloadRound = AccessTools.Method(ammoScriptType, "UnloadRound");
                 if (unloadRound != null)
-                {
                     _harmony.Patch(unloadRound,
-                        prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnUnloadRoundPrefix)));
-                }
+                        new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnUnloadRoundPrefix)));
 
                 // LoadRound Prefix：自定义弹匣装弹时用字符串 ammo_type 标签做兼容性检查。
                 var loadRound = AccessTools.Method(ammoScriptType, "LoadRound");
                 if (loadRound != null)
-                {
                     _harmony.Patch(loadRound,
-                        prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnLoadRoundPrefix)));
-                }
+                        new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnLoadRoundPrefix)));
             }
 
             // HandleGunMenu Prefix：防止自定义枪械字段为 null 导致 NRE。
@@ -209,10 +192,8 @@ public static partial class GunRuntimeManager
             var playerCameraType = typeof(PlayerCamera);
             var handleGunMenu = AccessTools.Method(playerCameraType, "HandleGunMenu");
             if (handleGunMenu != null)
-            {
                 _harmony.Patch(handleGunMenu,
-                    prefix: new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnHandleGunMenuPrefix)));
-            }
+                    new HarmonyMethod(typeof(GunRuntimeManager), nameof(OnHandleGunMenuPrefix)));
 
             LogUtil.Info("gun_runtime.patches_applied");
         }
@@ -259,6 +240,7 @@ public static partial class GunRuntimeManager
             var found = FindChildRecursive(child, name);
             if (found != null) return found;
         }
+
         return null;
     }
 
@@ -270,50 +252,37 @@ public static partial class GunRuntimeManager
         var guns = Object.FindObjectsOfType<GunScript>();
         foreach (var gun in guns)
         {
-            if (gun is null) continue;
-
-            var item = gun.GetComponent<Item>();
+            var item = gun?.GetComponent<Item>();
             if (item is null) continue;
 
             var gunData = GunTemplate.GetGunData(item.id);
             if (gunData is null) continue;
 
             // 枪口位置
-            gun.barrel?.localPosition = new Vector3(gunData.BarrelOffsetX, gunData.BarrelOffsetY, 0f);
+            gun?.barrel?.localPosition = new Vector3(gunData.BarrelOffsetX, gunData.BarrelOffsetY, 0f);
 
             // 开火音效：profile 优先 → 模板路径 → 保持现有效果
             if (gunData.SoundProfile?.Fire is { Count: > 0 })
             {
-                gun.fireSound = GetSilentClip();
+                gun?.fireSound = GetSilentClip();
             }
             else if (!string.IsNullOrEmpty(gunData.FireSound))
             {
                 var clip = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
-                if (clip != null) gun.fireSound = clip;
+                if (clip != null) gun?.fireSound = clip;
             }
 
             // 拉膛 / 回膛音效：profile 优先 → 模板路径 → 保持现有效果
             if (gunData.SoundProfile?.Rack is { Count: > 0 })
-            {
-                gun.customRack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Rack);
-            }
+                gun?.customRack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Rack);
             else if (!string.IsNullOrEmpty(gunData.RackSound))
-            {
-                gun.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
-            }
+                gun?.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
 
             if (gunData.SoundProfile?.Unrack is { Count: > 0 })
-            {
-                gun.customUnrack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Unrack);
-            }
+                gun?.customUnrack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Unrack);
             else if (!string.IsNullOrEmpty(gunData.UnrackSound))
-            {
-                gun.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
-            }
-            else if (gun.customRack != null)
-            {
-                gun.customUnrack = gun.customRack;
-            }
+                gun?.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
+            else if (gun?.customRack != null) gun.customUnrack = gun.customRack;
         }
     }
 }

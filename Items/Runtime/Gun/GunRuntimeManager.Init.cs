@@ -65,21 +65,13 @@ public static partial class GunRuntimeManager
     private static void MapAmmoType(GunScript gun, GunData gunData)
     {
         if (Enum.TryParse<GunScript.AmmoType>(gunData.AmmoType, true, out var parsedAmmoType))
-        {
             gun.ammoType = parsedAmmoType;
-        }
         else if (gunData.AmmoType.StartsWith("12"))
-        {
             gun.ammoType = GunScript.AmmoType.Shotgun;
-        }
         else if (gunData.AmmoType.StartsWith("7_") || gunData.AmmoType.StartsWith("5_"))
-        {
             gun.ammoType = GunScript.AmmoType.Rifle;
-        }
         else
-        {
             gun.ammoType = GunScript.AmmoType.Pistol;
-        }
     }
 
     // 弹道 / 伤害 / 音效数值 + 管容量（直装枪）
@@ -96,10 +88,7 @@ public static partial class GunRuntimeManager
         gun.conditionLossPerShot = gunData.ConditionLossPerShot / 0.01f;
 
         // 直装枪械的管容量
-        if (gunData is { Direct: true, Capacity: > 0 })
-        {
-            gun.magCapacity = gunData.Capacity;
-        }
+        if (gunData is { Direct: true, Capacity: > 0 }) gun.magCapacity = gunData.Capacity;
     }
 
     // 精灵字段：normalSprite / rackedSprite / ...NoMag 四字段填充 + barrel 创建 + 兜底精灵
@@ -158,48 +147,31 @@ public static partial class GunRuntimeManager
     {
         // fireSound
         if (gunData.SoundProfile?.Fire is { Count: > 0 })
-        {
             // profile 接管开火音效 → 设为静音，实际播放由 OnFirePostfix 处理
             gun.fireSound = GetSilentClip();
-        }
         else if (!string.IsNullOrEmpty(gunData.FireSound))
-        {
             gun.fireSound = AudioManager.LoadModAudio(gunData.ModDir, gunData.FireSound);
-        }
         if (gun.fireSound == null)
-        {
             gun.fireSound = gun.ammoType switch
             {
                 GunScript.AmmoType.Shotgun => Resources.Load<AudioClip>("sounds/shotgunshot"),
                 GunScript.AmmoType.Rifle => Resources.Load<AudioClip>("sounds/rifleshot")
-                    ?? Resources.Load<AudioClip>("sounds/shotgunshot"),
-                _ => Resources.Load<AudioClip>("sounds/pistolshot"),
+                                            ?? Resources.Load<AudioClip>("sounds/shotgunshot"),
+                _ => Resources.Load<AudioClip>("sounds/pistolshot")
             };
-        }
 
         // customRack：音效档案优先 → 模板路径 → 游戏默认 "gunrack"
         if (gunData.SoundProfile?.Rack is { Count: > 0 })
-        {
             gun.customRack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Rack);
-        }
         else if (!string.IsNullOrEmpty(gunData.RackSound))
-        {
             gun.customRack = AudioManager.LoadModAudio(gunData.ModDir, gunData.RackSound);
-        }
 
         // customUnrack：音效档案优先 → 模板路径 → customRack 兜底
         if (gunData.SoundProfile?.Unrack is { Count: > 0 })
-        {
             gun.customUnrack = gunData.SoundProfile.GetRandomClip(gunData.SoundProfile.Unrack);
-        }
         else if (!string.IsNullOrEmpty(gunData.UnrackSound))
-        {
             gun.customUnrack = AudioManager.LoadModAudio(gunData.ModDir, gunData.UnrackSound);
-        }
-        else if (gun.customRack != null)
-        {
-            gun.customUnrack = gun.customRack;
-        }
+        else if (gun.customRack != null) gun.customUnrack = gun.customRack;
     }
 
     // 弹匣状态初始化：弹匣供弹 / 转轮 / 直装三分支
@@ -226,6 +198,7 @@ public static partial class GunRuntimeManager
                 LogUtil.Warning("gun_runtime.gun_init_no_mag_by_type", item.id, gunData.MagType, gunData.AmmoType);
                 defaultMagIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
             }
+
             if (defaultMagIds.Count > 0)
             {
                 var foundMagData = MagTemplate.GetMagData(defaultMagIds[0]);
@@ -233,6 +206,7 @@ public static partial class GunRuntimeManager
                     LogUtil.Warning("gun_runtime.gun_init_mag_type_mismatch", item.id, gunData.MagType,
                         defaultMagIds[0], foundMagData.MagType, gunData.MagType);
             }
+
             state.MagItemId = defaultMagIds.Count > 0 ? defaultMagIds[0] : null;
         }
         else if (gunData.FeedType == "revolver")
@@ -272,10 +246,7 @@ public static partial class GunRuntimeManager
     // 枪口粒子：从游戏预制体克隆，防止空 ParticleSystem 渲染紫色方块
     private static void EnsureMuzzleParticle(GunScript gun)
     {
-        if (gun.muzzleParticle == null)
-        {
-            gun.muzzleParticle = CloneMuzzleFromPrefab(gun.ammoType, gun.transform);
-        }
+        if (gun.muzzleParticle == null) gun.muzzleParticle = CloneMuzzleFromPrefab(gun.ammoType, gun.transform);
     }
 
     // 从游戏 pistol/shotgun 预制体克隆枪口粒子。
@@ -288,7 +259,7 @@ public static partial class GunRuntimeManager
             {
                 GunScript.AmmoType.Shotgun => "shotgun",
                 GunScript.AmmoType.Rifle => "rifle",
-                _ => "pistol",
+                _ => "pistol"
             };
             var prefab = Resources.Load(prefabName) as GameObject;
             if (prefab == null) goto fallback;
@@ -326,7 +297,7 @@ public static partial class GunRuntimeManager
         {
             GunScript.AmmoType.Shotgun => "shotgun",
             GunScript.AmmoType.Rifle => "rifle",
-            _ => "pistol",
+            _ => "pistol"
         };
         var prefab = Resources.Load(prefabName) as GameObject;
         return prefab?.GetComponent<SpriteRenderer>()?.sprite;
@@ -407,28 +378,72 @@ public static partial class GunRuntimeManager
     private static bool CheckPlayerCameraUIFields(Traverse pc)
     {
         // HandleGunMenu:2465 gunRackImage.sprite = component.racked ? gunRackedSprite : gunNormalSprite
-        if (pc.Field("gunRackImage").GetValue() == null) { Log("gunRackImage"); return false; }
-        if (pc.Field("gunRackedSprite").GetValue() == null) { Log("gunRackedSprite"); return false; }
-        if (pc.Field("gunNormalSprite").GetValue() == null) { Log("gunNormalSprite"); return false; }
+        if (pc.Field("gunRackImage").GetValue() == null)
+        {
+            Log("gunRackImage");
+            return false;
+        }
+
+        if (pc.Field("gunRackedSprite").GetValue() == null)
+        {
+            Log("gunRackedSprite");
+            return false;
+        }
+
+        if (pc.Field("gunNormalSprite").GetValue() == null)
+        {
+            Log("gunNormalSprite");
+            return false;
+        }
 
         // HandleGunMenu:2466 gunMagButton.interactable = ...
-        if (pc.Field("gunMagButton").GetValue() == null) { Log("gunMagButton"); return false; }
+        if (pc.Field("gunMagButton").GetValue() == null)
+        {
+            Log("gunMagButton");
+            return false;
+        }
 
         // HandleGunMenu:2467 gunSafeImage.sprite = component.safe ? gunSafeSprite : gunUnsafeSprite
-        if (pc.Field("gunSafeImage").GetValue() == null) { Log("gunSafeImage"); return false; }
-        if (pc.Field("gunSafeSprite").GetValue() == null) { Log("gunSafeSprite"); return false; }
-        if (pc.Field("gunUnsafeSprite").GetValue() == null) { Log("gunUnsafeSprite"); return false; }
+        if (pc.Field("gunSafeImage").GetValue() == null)
+        {
+            Log("gunSafeImage");
+            return false;
+        }
+
+        if (pc.Field("gunSafeSprite").GetValue() == null)
+        {
+            Log("gunSafeSprite");
+            return false;
+        }
+
+        if (pc.Field("gunUnsafeSprite").GetValue() == null)
+        {
+            Log("gunUnsafeSprite");
+            return false;
+        }
 
         // HandleGunMenu:2468 gunBulletImage.sprite = gunBulletSprites[...]
-        if (pc.Field("gunBulletImage").GetValue() == null) { Log("gunBulletImage"); return false; }
-        if (pc.Field("gunBulletSprites").GetValue() == null) { Log("gunBulletSprites"); return false; }
+        if (pc.Field("gunBulletImage").GetValue() == null)
+        {
+            Log("gunBulletImage");
+            return false;
+        }
+
+        if (pc.Field("gunBulletSprites").GetValue() == null)
+        {
+            Log("gunBulletSprites");
+            return false;
+        }
 
         // HandleGunMenu:2469 gunCrosshair.gameObject.SetActive(!component.safe)
         if (pc.Field("gunCrosshair").GetValue() != null) return true;
-        Log("gunCrosshair"); return false;
+        Log("gunCrosshair");
+        return false;
 
-        static void Log(string field) =>
+        static void Log(string field)
+        {
             LogUtil.Warning("gun_runtime.handle_gun_menu_null_pc_field", field);
+        }
     }
 
     // ============================================================

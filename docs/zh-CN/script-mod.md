@@ -6,7 +6,7 @@ Bark 支持用 JavaScript 或 Lua 写脚本。本文用 JavaScript 作为示例�
 
 ## 创建脚本
 
-在 `ScriptMod/Mods/` 下创建你自己的文件夹，里面放一个 `mod.json`。入口脚本是**可选的**：
+在 `ScriptMod/Mods/` 下创建你自己的文件夹，里面放一个 `mod.json`。入口脚本是 **可选的**：
 
 ```
 ScriptMod/Mods/
@@ -19,9 +19,8 @@ ScriptMod/Mods/
 
 ### 纯数据模组
 
-没有入口脚本（`main.js` / `main.mjs` / `main.lua`）的模组会被当作**纯数据模组**处理。
-它依然会被加载，并可以通过 `Assets/` 文件夹提供 JSON 内容（物品、物块、配方、情绪、命令），
-但不会启动任何脚本引擎，也不会执行生命周期钩子。
+没有入口脚本（`main.js` / `main.mjs` / `main.lua`）的模组会被当作 **纯数据模组**处理。 它依然会被加载，并可以通过 `Assets/`
+文件夹提供 JSON 内容（物品、物块、配方、情绪、命令）， 但不会启动任何脚本引擎，也不会执行生命周期钩子。
 
 ```
 ScriptMod/Mods/
@@ -53,16 +52,16 @@ ScriptMod/Mods/
 }
 ```
 
-| 字段           | 类型   | 必填 | 说明                                                                    |
-|----------------|--------|------|-------------------------------------------------------------------------|
-| `id`           | string | ✅   | 唯一标识，不要和别人重复，推荐蛇形命名                                  |
-| `name`         | string | ✅   | 显示名称                                                                |
-| `version`      | string | ✅   | 语义化版本，如 `"1.0.0"`                                                |
-| `author`       | object | ❌   | 贡献者，key 为角色（程序、美术等），value 为名字                        |
-| `description`  | string | ❌   | 模组描述                                                                |
-| `bark_version` | string | ❌   | 要求的 Bark 版本（semver range）                                        |
-| `game_version` | string | ❌   | 兼容的游戏版本（semver range）                                          |
-| `dependencies` | array  | ❌   | 依赖的脚本模组，格式 `[{"id": "some_mod", "version": "1.0.0"}]`         |
+| 字段           | 类型   | 必填 | 说明                                                            |
+|----------------|--------|------|-----------------------------------------------------------------|
+| `id`           | string | ✅   | 唯一标识，不要和别人重复，推荐蛇形命名                          |
+| `name`         | string | ✅   | 显示名称                                                        |
+| `version`      | string | ✅   | 语义化版本，如 `"1.0.0"`                                        |
+| `author`       | object | ❌   | 贡献者，key 为角色（程序、美术等），value 为名字                |
+| `description`  | string | ❌   | 模组描述                                                        |
+| `bark_version` | string | ❌   | 要求的 Bark 版本（semver range）                                |
+| `game_version` | string | ❌   | 兼容的游戏版本（semver range）                                  |
+| `dependencies` | array  | ❌   | 依赖的脚本模组，格式 `[{"id": "some_mod", "version": "1.0.0"}]` |
 
 ### 入口文件
 
@@ -224,13 +223,15 @@ JSON 配置格式详见 [自定义物品](script-mod/item.md)。
 
 ## 自定义物品模板
 
-模板是一组预设的物品属性。枪械、弹匣、弹药、弹壳等常见类型已有内置模板，通过 `"template"` 字段引用即可大幅简化物品 JSON。你还可以在 `item-template/` 目录下注册自己的模板。
+模板是一组预设的物品属性。枪械、弹匣、弹药、弹壳等常见类型已有内置模板，通过 `"template"` 字段引用即可大幅简化物品 JSON。你还可以在
+`item-template/` 目录下注册自己的模板。
 
 详见 [物品模板](script-mod/item-template/index.md)。
 
 ## 自定义音效
 
-自定义音效文件放在模组的 `Assets/Audio/` 下，支持 `.wav` `.mp3` `.aif` 等格式。枪械模板的 `fire_sound` / `rack_sound` / `unrack_sound` 写相对路径（纯文件名自动补全 `Assets/Audio/` 前缀），`AudioManager` 自动加载并缓存。
+自定义音效文件放在模组的 `Assets/Audio/` 下，支持 `.wav` `.mp3` `.aif` 等格式。枪械模板的 `fire_sound` / `rack_sound` /
+`unrack_sound` 写相对路径（纯文件名自动补全 `Assets/Audio/` 前缀），`AudioManager` 自动加载并缓存。
 
 详见 [自定义音效](script-mod/audio.md)。
 
@@ -290,14 +291,14 @@ Bark 注册了几个游戏内控制台指令，开发调试时很有用。
 
 ### 生成 / 放置 Bark 内容
 
-这些指令用于生成由 Bark 注册的内容（来自任意脚本模组或 C# 模组的物品、物块、情绪）。
-它们**只接受 Bark 注册的 ID**——原版 CCL 物品/物块仍用游戏自带的 `cuspawn` / `settile` 生成。
+这些指令用于生成由 Bark 注册的内容（来自任意脚本模组或 C# 模组的物品、物块、情绪）。 它们 **只接受 Bark 注册的 ID**——原版 CCL
+物品/物块仍用游戏自带的 `cuspawn` / `settile` 生成。
 
 内容 ID 是完整的注册名，格式为 `modid.entryname`（例如 `hello_world_js.ak47`）。
 
-输入时按 `Tab` 会自动补全，且**按子命令类型切换候选**：`script spawn` 只补物品、`script tile` 只补物块、
-`script moodle` 只补状态 key、`script detail` / `scd` 只补模组 ID（不会把所有 ID 混在一起）。
-补全列表在 `script reload` 后自动刷新。
+输入时按 `Tab` 会自动补全，且 **按子命令类型切换候选**：`script spawn` 只补物品、`script tile` 只补物块、
+`script moodle` 只补状态 key、`script detail` / `scd` 只补模组 ID（不会把所有 ID 混在一起）。 补全列表在 `script reload`
+后自动刷新。
 
 **生成物品** —— 转发给 CCL 的 `cuspawn`，参数按顺序：`[id] [位置] [状态] [数量]`。
 

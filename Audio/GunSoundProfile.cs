@@ -6,6 +6,7 @@ using Bark.Tool;
 using CUCoreLib.Helpers;
 using Newtonsoft.Json;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace Bark.Audio;
@@ -16,11 +17,11 @@ public class SoundEntry
     // 音效文件名（相对于 ModDir/Assets/Audio/，如 "ak47_shot_1.wav"）
     public string File = "";
 
-    // 音量 0.0 ~ 1.0
-    public float Volume = 1f;
-
     // 音高/播放速度 0.5 ~ 2.0
     public float Pitch = 1f;
+
+    // 音量 0.0 ~ 1.0
+    public float Volume = 1f;
 
     // 随机权重（多音效同时存在时，权重越高越容易被选中）
     public float Weight = 1f;
@@ -45,18 +46,17 @@ public class SoundEntry
 // }
 public class GunSoundProfile
 {
-    [JsonProperty("fire")] public List<SoundEntry>? Fire;
-    [JsonProperty("rack")] public List<SoundEntry>? Rack;
-    [JsonProperty("unrack")] public List<SoundEntry>? Unrack;
-    [JsonProperty("load_mag")] public List<SoundEntry>? LoadMag;
-    [JsonProperty("load_shell")] public List<SoundEntry>? LoadShell;
-    [JsonProperty("unload_mag")] public List<SoundEntry>? UnloadMag;
-    [JsonProperty("trigger")] public List<SoundEntry>? Trigger;
-    [JsonProperty("jam")] public List<SoundEntry>? Jam;
-    [JsonProperty("safety")] public List<SoundEntry>? Safety;
-
     // 预加载的 AudioClip 缓存（file → clip），由 Load 时填充
     [JsonIgnore] private readonly Dictionary<string, AudioClip> _clipCache = new();
+    [JsonProperty("fire")] public List<SoundEntry>? Fire;
+    [JsonProperty("jam")] public List<SoundEntry>? Jam;
+    [JsonProperty("load_mag")] public List<SoundEntry>? LoadMag;
+    [JsonProperty("load_shell")] public List<SoundEntry>? LoadShell;
+    [JsonProperty("rack")] public List<SoundEntry>? Rack;
+    [JsonProperty("safety")] public List<SoundEntry>? Safety;
+    [JsonProperty("trigger")] public List<SoundEntry>? Trigger;
+    [JsonProperty("unload_mag")] public List<SoundEntry>? UnloadMag;
+    [JsonProperty("unrack")] public List<SoundEntry>? Unrack;
 
     // 从 JSON 文件加载 SoundProfile 并预加载所有 AudioClip。
     // modDir:   模组根目录（绝对路径），如 "ScriptMod/Mods/hello_world_js/"
@@ -138,15 +138,11 @@ public class GunSoundProfile
             if (clip == null) return;
 
             if (Math.Abs(entry.Volume - 1f) < 0.001f && Math.Abs(entry.Pitch - 1f) < 0.001f)
-            {
                 // 默认参数 → 直接用 Sound.Play
                 Sound.Play(clip, position, true, false);
-            }
             else
-            {
                 // 自定义参数 → AudioSource
                 PlayWithSource(clip, position, entry.Volume, entry.Pitch);
-            }
 
             return;
         }
@@ -223,13 +219,9 @@ public class GunSoundProfile
         if (clip == null) return;
 
         if (Math.Abs(entry.Volume - 1f) < 0.001f && Math.Abs(entry.Pitch - 1f) < 0.001f)
-        {
             Sound.Play(clip, position, true, false);
-        }
         else
-        {
             PlayWithSource(clip, position, entry.Volume, entry.Pitch);
-        }
     }
 
     // 使用临时 AudioSource 播放，支持音量和音高控制。
@@ -252,6 +244,6 @@ public class GunSoundProfile
         source.Play();
 
         // 按实际播放时长（受 pitch 影响）销毁
-        UnityEngine.Object.Destroy(go, clip.length / Mathf.Max(pitch, 0.1f));
+        Object.Destroy(go, clip.length / Mathf.Max(pitch, 0.1f));
     }
 }

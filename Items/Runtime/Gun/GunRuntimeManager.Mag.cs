@@ -30,7 +30,8 @@ public static partial class GunRuntimeManager
         if (ammoIds.Count == 0) return true; // 无自定义弹药，走原版逻辑
 
         var ammoItemId = ammoIds[0];
-        var spawned = CustomInstantiate.InstantiateReturn(ammoItemId, __instance.transform.position, Quaternion.identity);
+        var spawned =
+            CustomInstantiate.InstantiateReturn(ammoItemId, __instance.transform.position, Quaternion.identity);
         if (spawned == null) return true;
 
         PlayerCamera.main.body.AutoPickUpItem(spawned.GetComponent<Item>());
@@ -161,10 +162,8 @@ public static partial class GunRuntimeManager
                 var capacity = gunData.Capacity > 0 ? gunData.Capacity : DefaultDirectCapacity;
 
                 if (state.RoundsInMag >= capacity)
-                {
                     // 已装满
                     return false;
-                }
 
                 // 逐发装填
                 if (!__instance.hasMag)
@@ -286,7 +285,9 @@ public static partial class GunRuntimeManager
         {
             var fallbackMagIds = MagTemplate.FindMagsByType(gunData.MagType);
             if (fallbackMagIds.Count > 0)
+            {
                 magItemId = fallbackMagIds[0];
+            }
             else
             {
                 var altIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
@@ -308,6 +309,7 @@ public static partial class GunRuntimeManager
                             if (MagTemplate.IsMag(magItemId))
                                 ammoComp.maxRounds = MagTemplate.GetCapacity(magItemId);
                         }
+
                         body.AutoPickUpItem(go.GetComponent<Item>());
                     }
                 }

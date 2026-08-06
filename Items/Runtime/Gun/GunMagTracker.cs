@@ -13,22 +13,6 @@ namespace Bark.Items.Runtime.Gun;
 // - 热重载时 ClearAll() 清空所有状态
 public static class GunMagTracker
 {
-    // 单个枪械的弹药运行状态
-    public class MagState
-    {
-        // 当前插入的弹匣物品 ID（模板匹配），null 表示无弹匣或直装
-        public string? MagItemId;
-
-        // 弹匣内当前余弹数（直装枪时为已装填的散装弹药数）
-        public int RoundsInMag;
-
-        // 装入的弹药物品 ID，用于后续查询 CasingType 等弹药属性
-        public string? AmmoItemId;
-
-        // 下次抛壳时应生成的弹壳类型标签，由 Fire Postfix 设置、Update Transpiler 消费后清除
-        public string? PendingCasingType;
-    }
-
     // 枪械 Item 实例 → 弹药状态
     private static readonly Dictionary<Item, MagState> States = new();
 
@@ -67,5 +51,21 @@ public static class GunMagTracker
 
         foreach (var item in toRemove)
             States.Remove(item);
+    }
+
+    // 单个枪械的弹药运行状态
+    public class MagState
+    {
+        // 装入的弹药物品 ID，用于后续查询 CasingType 等弹药属性
+        public string? AmmoItemId;
+
+        // 当前插入的弹匣物品 ID（模板匹配），null 表示无弹匣或直装
+        public string? MagItemId;
+
+        // 下次抛壳时应生成的弹壳类型标签，由 Fire Postfix 设置、Update Transpiler 消费后清除
+        public string? PendingCasingType;
+
+        // 弹匣内当前余弹数（直装枪时为已装填的散装弹药数）
+        public int RoundsInMag;
     }
 }

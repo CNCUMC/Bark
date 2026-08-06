@@ -48,7 +48,7 @@ public static class MoodleLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+        RegisterFromDirectory(manifest.Id, manifest.Directory);
     }
 
     // 从任意模组目录加载所有自定义 Moodle，供脚本模组与 C# 模组共用。
@@ -98,7 +98,9 @@ public static class MoodleLoader
         if (PendingScripts.TryGetValue(modId, out var pending) && pending.Count > 0)
         {
             if (allowPendingScripts)
+            {
                 LogUtil.Info("moodle.scripts_pending", modId, pending.Count);
+            }
             else
             {
                 LogUtil.Warning("moodle.csharp.scripts_ignored", modId, pending.Count);

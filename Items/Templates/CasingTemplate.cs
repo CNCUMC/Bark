@@ -27,6 +27,9 @@ public class CasingData
 // CasingTemplate.GetCasingData(itemId)  → CasingData / null
 public class CasingTemplate : ItemTemplate
 {
+    // ==================== Registry ====================
+
+    private static readonly Dictionary<string, CasingData> Registry = new();
     // ==================== Template ====================
 
     public override string Name => "casing";
@@ -44,15 +47,11 @@ public class CasingTemplate : ItemTemplate
             // 布尔标记 "casing": true 是 CacheCasingItem 的类型识别标志，必须保留。
             ["template"] = new JObject
             {
-                ["casing"] = true,           // 缓存类型标记（必须）
+                ["casing"] = true, // 缓存类型标记（必须）
                 ["casing_type"] = "7_62x51mm_casing"
             }
         };
     }
-
-    // ==================== Registry ====================
-
-    private static readonly Dictionary<string, CasingData> Registry = new();
 
     // ItemLoader 回调：检测 template 中 casing 标记则缓存。
     public static void CacheCasingItem(string itemId, JObject? template)
@@ -100,5 +99,4 @@ public class CasingTemplate : ItemTemplate
     {
         return (from kv in Registry where kv.Value.CasingType == casingType select kv.Key).ToList();
     }
-
 }

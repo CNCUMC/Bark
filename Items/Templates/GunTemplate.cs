@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using Bark.Audio;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bark.Items.Templates;
 
@@ -12,69 +13,8 @@ public class GunData
     // 枪械只接受 ammo_type 标签匹配的弹匣或弹药。
     public string AmmoType = "7_62x51mm";
 
-    // 射击模式: semi_auto / auto / pump
-    public string FiringMode = "semi_auto";
-
-    // 弹匣类型标签，如 "pistol_mag"、"ar15_mag"。
-    // 枪械只接受 mag_type 匹配的弹匣。直装枪将此字段置空。
-    public string MagType = "pistol_mag";
-
-    // 是否支持逐颗装填（Direct），无需弹匣
-    public bool Direct;
-
-    // 后坐力
-    public float Knockback = 0.5f;
-
-    // 对结构的伤害倍率
-    public float StructureDamage = 12f;
-
     // 对生物的伤害倍率
     public float AnimalDamage = 25f;
-
-    // 枪声大小（影响 NPC 反应范围 + player.hearingLoss）
-    public float Loudness = 25f;
-
-    // 耳鸣倍率：每枪对玩家听力损失的额外缩放系数。
-    // 1.0 = 与原版相同；0.5 = 耳鸣积累减半；0.0 = 完全无耳鸣。
-    // 由模板 JSON 字段 "tinnitus_multiplier" 指定，脚本端可运行时覆盖。
-    public float TinnitusMultiplier = 0.1f;
-
-    // 每次开火的弹丸数（霰弹枪 >1）
-    public int ShotsPerFire = 1;
-
-    // 垂直散布（tan 值，非角度）。Fire 公式: dir = right + up * (Random * spread)
-    // 0.05 ≈ 2.9° 最大散布，0.1 ≈ 5.7°，0.02 ≈ 1.1°。设 0 为完全精准。
-    public float VerticalSpread = 0.05f;
-
-    // 每次开火的耐久消耗
-    public float ConditionLossPerShot = 0.01f;
-
-    // 直装枪械（Direct=true）的内部管/仓容量，
-    // 如霰弹枪 6 发、杠杆步枪 5 发。
-    // 弹匣供弹枪（Direct=false）忽略此字段。
-    // 为 0 时使用 GunRuntimeManager 内置默认值（6）。
-    public int Capacity;
-
-    // 半自动/全自动的枪机循环延迟（秒）。
-    // 控制每次射击后到下一次可击发的时间间隔，
-    // 泵动式（pump）忽略此字段。
-    public float DesiredGasTime = 0.1f;
-
-    // 出厂时是否开启保险（start_safe）。
-    // true 表示捡起后需要手动关保险才能射击，false 表示可以直接射击。
-    public bool StartSafe;
-
-    // 枪膛初始状态（start_chambered）。
-    // true = 出厂膛内有弹，GunScript.Update() 渲染 HUD 并允许手动击发。
-    // false = 出厂膛空，需先拉膛上弹才能击发。
-    // 默认 true。注意 RoundInChamber 枚举只有 Round / None 两个值，不含弹药类型。
-    public bool StartChambered = true;
-
-    // 供弹方式: "mag"（弹匣）、"direct"（管/仓直装）、"revolver"（转轮）。
-    // 与 FiringMode 不同：FiringMode 控制射击行为（semi_auto/auto/pump），
-    // FeedType 控制 GunsScript 的内部装填逻辑。
-    // 默认 "mag"。
-    public string FeedType = "mag";
 
     // 枪口偏移量（相对于枪身根节点的 localPosition）。
     // X 为正 → 精灵右侧枪口方向，绝对值取决于精灵尺寸。
@@ -84,9 +24,28 @@ public class GunData
     public float BarrelOffsetX = 0.5f;
     public float BarrelOffsetY;
 
-    // 所属模组的根目录（绝对路径），用于解析 Assets/Audio/ 下的音效文件。
-    // 由 ItemLoader 在 CacheGunItem 时注入。
-    public string ModDir = "";
+    // 直装枪械（Direct=true）的内部管/仓容量，
+    // 如霰弹枪 6 发、杠杆步枪 5 发。
+    // 弹匣供弹枪（Direct=false）忽略此字段。
+    // 为 0 时使用 GunRuntimeManager 内置默认值（6）。
+    public int Capacity;
+
+    // 每次开火的耐久消耗
+    public float ConditionLossPerShot = 0.01f;
+
+    // 半自动/全自动的枪机循环延迟（秒）。
+    // 控制每次射击后到下一次可击发的时间间隔，
+    // 泵动式（pump）忽略此字段。
+    public float DesiredGasTime = 0.1f;
+
+    // 是否支持逐颗装填（Direct），无需弹匣
+    public bool Direct;
+
+    // 供弹方式: "mag"（弹匣）、"direct"（管/仓直装）、"revolver"（转轮）。
+    // 与 FiringMode 不同：FiringMode 控制射击行为（semi_auto/auto/pump），
+    // FeedType 控制 GunsScript 的内部装填逻辑。
+    // 默认 "mag"。
+    public string FeedType = "mag";
 
     // 开火音效路径，相对于模组目录（ModDir），如 "Assets/Audio/ak47_shot.wav"。
     // 纯文件名（不含 / 或 \）自动补全为 "Assets/Audio/filename"。
@@ -94,11 +53,28 @@ public class GunData
     // 空字符串时回退到默认音效（按 ammoType 自动选择 pistolshot/rifleshot/shotgunshot）。
     public string FireSound = "";
 
+    // 射击模式: semi_auto / auto / pump
+    public string FiringMode = "semi_auto";
+
+    // 后坐力
+    public float Knockback = 0.5f;
+
+    // 枪声大小（影响 NPC 反应范围 + player.hearingLoss）
+    public float Loudness = 25f;
+
+    // 弹匣类型标签，如 "pistol_mag"、"ar15_mag"。
+    // 枪械只接受 mag_type 匹配的弹匣。直装枪将此字段置空。
+    public string MagType = "pistol_mag";
+
+    // 所属模组的根目录（绝对路径），用于解析 Assets/Audio/ 下的音效文件。
+    // 由 ItemLoader 在 CacheGunItem 时注入。
+    public string ModDir = "";
+
     // 拉膛音效路径（同上约定）。空字符串时使用游戏默认 "gunrack"。
     public string RackSound = "";
 
-    // 回膛（退壳）音效路径（同上约定）。空字符串时使用游戏默认 "gununrack"。
-    public string UnrackSound = "";
+    // 每次开火的弹丸数（霰弹枪 >1）
+    public int ShotsPerFire = 1;
 
     // 音效档案名，对应 {ModDir}/Audio/{sound}.json 中定义的 GunSoundProfile。
     // 设置此项后，开火/拉膛/回膛/装弹/卸弹优先使用档案中的音效配置，
@@ -108,8 +84,32 @@ public class GunData
 
     // 已加载的音效档案实例（若 Sound 非空且加载成功）。
     // 由 CacheGunItem 填充。
-    [Newtonsoft.Json.JsonIgnore]
-    public GunSoundProfile? SoundProfile;
+    [JsonIgnore] public GunSoundProfile? SoundProfile;
+
+    // 枪膛初始状态（start_chambered）。
+    // true = 出厂膛内有弹，GunScript.Update() 渲染 HUD 并允许手动击发。
+    // false = 出厂膛空，需先拉膛上弹才能击发。
+    // 默认 true。注意 RoundInChamber 枚举只有 Round / None 两个值，不含弹药类型。
+    public bool StartChambered = true;
+
+    // 出厂时是否开启保险（start_safe）。
+    // true 表示捡起后需要手动关保险才能射击，false 表示可以直接射击。
+    public bool StartSafe;
+
+    // 对结构的伤害倍率
+    public float StructureDamage = 12f;
+
+    // 耳鸣倍率：每枪对玩家听力损失的额外缩放系数。
+    // 1.0 = 与原版相同；0.5 = 耳鸣积累减半；0.0 = 完全无耳鸣。
+    // 由模板 JSON 字段 "tinnitus_multiplier" 指定，脚本端可运行时覆盖。
+    public float TinnitusMultiplier = 0.1f;
+
+    // 回膛（退壳）音效路径（同上约定）。空字符串时使用游戏默认 "gununrack"。
+    public string UnrackSound = "";
+
+    // 垂直散布（tan 值，非角度）。Fire 公式: dir = right + up * (Random * spread)
+    // 0.05 ≈ 2.9° 最大散布，0.1 ≈ 5.7°，0.02 ≈ 1.1°。设 0 为完全精准。
+    public float VerticalSpread = 0.05f;
 }
 
 // 枪械物品模板：预设 tool 类别枪械的通用默认值 + 运行时枪械注册表 + 查询 API。
@@ -136,6 +136,9 @@ public class GunData
 // GunTemplate.GetGunData(itemId)      → GunData / null
 public class GunTemplate : ItemTemplate
 {
+    // ==================== Registry ====================
+
+    private static readonly Dictionary<string, GunData> Registry = new();
     // ==================== Template ====================
 
     public override string Name => "gun";
@@ -156,7 +159,7 @@ public class GunTemplate : ItemTemplate
             // 布尔标记 "gun": true 是 CacheGunItem 的类型识别标志，必须保留。
             ["template"] = new JObject
             {
-                ["gun"] = true,              // 缓存类型标记（必须）
+                ["gun"] = true, // 缓存类型标记（必须）
                 ["ammo_type"] = "7_62x51mm",
                 ["firing_mode"] = "semi_auto",
                 ["mag_type"] = "rifle_mag",
@@ -175,17 +178,13 @@ public class GunTemplate : ItemTemplate
                 ["start_chambered"] = true,
                 ["feed_type"] = "mag",
                 ["barrel_offset"] = new JObject { ["x"] = 0.5, ["y"] = 0.0 },
-                ["sound"] = "",               // 音效档案名，对应 ModDir/Audio/{sound}.json
+                ["sound"] = "", // 音效档案名，对应 ModDir/Audio/{sound}.json
                 ["fire_sound"] = "",
                 ["rack_sound"] = "",
                 ["unrack_sound"] = ""
             }
         };
     }
-
-    // ==================== Registry ====================
-
-    private static readonly Dictionary<string, GunData> Registry = new();
 
     // ItemLoader 回调：检测 template 中 gun 标记则缓存。
     // template 可为 null（非模板注册物品）。
@@ -199,10 +198,7 @@ public class GunTemplate : ItemTemplate
             data.ModDir = modDir;
 
             // 若设置了 sound 档案名，加载对应的 GunSoundProfile
-            if (!string.IsNullOrEmpty(data.Sound))
-            {
-                data.SoundProfile = GunSoundProfile.Load(modDir, data.Sound);
-            }
+            if (!string.IsNullOrEmpty(data.Sound)) data.SoundProfile = GunSoundProfile.Load(modDir, data.Sound);
 
             Registry[itemId] = data;
         }
@@ -255,7 +251,10 @@ public class GunTemplate : ItemTemplate
     // ==================== Query API ====================
 
     // 返回所有已注册枪械的物品 ID
-    public static IEnumerable<string> GetAllGunIds() => Registry.Keys;
+    public static IEnumerable<string> GetAllGunIds()
+    {
+        return Registry.Keys;
+    }
 
     public static bool IsGun(string itemId)
     {
@@ -348,5 +347,4 @@ public class GunTemplate : ItemTemplate
             ? d.Capacity
             : 0;
     }
-
 }

@@ -194,9 +194,9 @@ UpdateUtil.Check("你的GitHub用户名/仓库名", "模组名", "当前版本",
 
 ## 加载 JSON 内容
 
-除了写代码注册，你的 C# 模组也能像脚本模组一样，把物品、物块、配方、状态等内容定义在 JSON 文件里，
-由 Bark 解析并注册到对应的 CUCoreLib 注册表。这样你可以用纯数据描述内容，复用 Bark 的物品模板系统
-（gun / mag / ammo / casing / clothing / food），无需手写注册代码。
+除了写代码注册，你的 C# 模组也能像脚本模组一样，把物品、物块、配方、状态等内容定义在 JSON 文件里， 由 Bark 解析并注册到对应的
+CUCoreLib 注册表。这样你可以用纯数据描述内容，复用 Bark 的物品模板系统 （gun / mag / ammo / casing / clothing /
+food），无需手写注册代码。
 
 - 配置项请用 [BetterCCL 的 BetterOptions](script-api/options.md) 直接注册，不走 JSON。
 - 命令请用 CCL 的 `ConsoleCommandRegistry` 直接注册，不走 JSON。
@@ -233,9 +233,8 @@ BepInEx/
 
 ### mod.json
 
-在模组根目录（DLL 所在目录）放一个 `mod.json`，至少包含 `id` 字段——它就是物品 ID 的命名空间前缀，
-也用于追踪该模组注册的所有内容（热重载时清除）。`id` 用 snake_case（如 `your_mod`）。
-其余字段（`name`、`version` 等）为可选元数据，C# 端只读取 `id`。
+在模组根目录（DLL 所在目录）放一个 `mod.json`，至少包含 `id` 字段——它就是物品 ID 的命名空间前缀， 也用于追踪该模组注册的所有内容（热重载时清除）。
+`id` 用 snake_case（如 `your_mod`）。 其余字段（`name`、`version` 等）为可选元数据，C# 端只读取 `id`。
 
 ```json
 {
@@ -286,9 +285,9 @@ ModContentApi.LoadFromPluginDirectory(GetType().Assembly.Location);
 
 ### 注意事项
 
-- 各类 JSON 的格式、模板用法与脚本模组**完全一致**，可参考对应文档：
+- 各类 JSON 的格式、模板用法与脚本模组 **完全一致**，可参考对应文档：
   [物品](script-mod/item.md) / [物品模板](script-mod/item-template/index.md) / [物块](script-mod/tile.md) /
   [配方](script-mod/recipe.md) / [状态](script-mod/moodle.md)。
-- C# 模组的 JSON 中**不要包含 `script` 字段**——C# 模组没有脚本引擎，物品/物块/状态的脚本绑定会被忽略并输出警告。
+- C# 模组的 JSON 中 **不要包含 `script` 字段**——C# 模组没有脚本引擎，物品/物块/状态的脚本绑定会被忽略并输出警告。
   若需要行为逻辑，请用 C# 的 `[EventBusSubscriber]` + `[HarmonyPatch]` 实现。
 - 贴图资产从 `Assets/{Item|Tile|Moodle}/` 加载，缺失时回退到 `origin_prefab` 引用的原版精灵。

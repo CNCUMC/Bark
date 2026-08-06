@@ -8,20 +8,20 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 
 ## 开发指南
 
-| 文档                                  | 内容                                            |
-|---------------------------------------|-------------------------------------------------|
-| [快速上手](getting-started.md)        | 安装、环境、路径选择                            |
-| [脚本开发](script-mod.md)             | JS/Lua 脚本模组，生命周期、全局变量、控制台指令 |
-| [C# 模组开发](csharp-mod.md)          | C# 写模组，事件订阅、Harmony Patch、API 注册    |
-| [配置与本地化](configuration.md)      | 选项注册、多语言，C# 和脚本两套体系             |
-| [脚本事件钩子](script-events.md)      | 脚本侧可监听的所有事件钩子一览                  |
-| [C# 事件系统](csharp-events.md)       | C# 侧事件订阅/触发/自定义                       |
-| [自定义物品](script-mod/item.md)      | JSON 定义自定义物品与液体，自动注册             |
-| [物品模板](script-mod/item-template/index.md)    | 预设物品属性，简化 JSON，支持枪械/弹匣/弹药/弹壳 |
-| [自定义音效](script-mod/audio.md)     | 音效文件加载、缓存、模板中引用                 |
-| [自定义 Moodle](script-mod/moodle.md) | JSON 定义自定义状态效果，自动注册               |
-| [自定义合成表](script-mod/recipe.md)  | JSON 定义合成表配方，与物品系统联动             |
-| [脚本命令](script-mod/command.md)     | JSON 注册控制台命令，输入后触发脚本 onCommand   |
+| 文档                                          | 内容                                             |
+|-----------------------------------------------|--------------------------------------------------|
+| [快速上手](getting-started.md)                | 安装、环境、路径选择                             |
+| [脚本开发](script-mod.md)                     | JS/Lua 脚本模组，生命周期、全局变量、控制台指令  |
+| [C# 模组开发](csharp-mod.md)                  | C# 写模组，事件订阅、Harmony Patch、API 注册     |
+| [配置与本地化](configuration.md)              | 选项注册、多语言，C# 和脚本两套体系              |
+| [脚本事件钩子](script-events.md)              | 脚本侧可监听的所有事件钩子一览                   |
+| [C# 事件系统](csharp-events.md)               | C# 侧事件订阅/触发/自定义                        |
+| [自定义物品](script-mod/item.md)              | JSON 定义自定义物品与液体，自动注册              |
+| [物品模板](script-mod/item-template/index.md) | 预设物品属性，简化 JSON，支持枪械/弹匣/弹药/弹壳 |
+| [自定义音效](script-mod/audio.md)             | 音效文件加载、缓存、模板中引用                   |
+| [自定义 Moodle](script-mod/moodle.md)         | JSON 定义自定义状态效果，自动注册                |
+| [自定义合成表](script-mod/recipe.md)          | JSON 定义合成表配方，与物品系统联动              |
+| [脚本命令](script-mod/command.md)             | JSON 注册控制台命令，输入后触发脚本 onCommand    |
 
 ## 脚本 API
 

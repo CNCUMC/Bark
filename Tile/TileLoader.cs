@@ -59,7 +59,7 @@ public static class TileLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        RegisterFromDirectory(manifest.Id, manifest.Directory, allowPendingScripts: true);
+        RegisterFromDirectory(manifest.Id, manifest.Directory);
     }
 
     // 从任意模组目录加载所有自定义物块，供脚本模组与 C# 模组共用。
@@ -126,7 +126,9 @@ public static class TileLoader
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
         {
             if (allowPendingScripts)
+            {
                 LogUtil.Info("tiles.scripts_pending", modId, existing.Count);
+            }
             else
             {
                 LogUtil.Warning("tiles.csharp.scripts_ignored", modId, existing.Count);

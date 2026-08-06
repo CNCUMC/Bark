@@ -293,9 +293,10 @@ ModContentApi.LoadFromPluginDirectory(GetType().Assembly.Location);
 
 ### Notes
 
-- The JSON format and template usage for each content type are **identical** to script mods — see the corresponding docs:
+- The JSON format and template usage for each content type are **identical** to script mods — see the corresponding
+  docs:
   [items](script-mod/item.md) / [item templates](script-mod/item-template/index.md) / [tiles](script-mod/tile.md) /
   [recipes](script-mod/recipe.md) / [moodles](script-mod/moodle.md).
-- Do **not** include a `script` field in your JSON — C# mods have no script engine, so item/tile/moodle script bindings are
-  ignored with a warning. Implement item behavior in C# via `[EventBusSubscriber]` + `[HarmonyPatch]` instead.
+- Do **not** include a `script` field in your JSON — C# mods have no script engine, so item/tile/moodle script bindings
+  are ignored with a warning. Implement item behavior in C# via `[EventBusSubscriber]` + `[HarmonyPatch]` instead.
 - Sprites are loaded from `Assets/Item/`, falling back to the `origin_prefab`'s vanilla sprite when missing.

@@ -373,7 +373,7 @@ public static class OptionsUtil
             if (!kv.Key.StartsWith(prefix, StringComparison.Ordinal))
                 continue;
 
-            var key = kv.Key.Substring(prefix.Length);
+            var key = kv.Key[prefix.Length..];
             data[key] = kv.Value;
         }
 

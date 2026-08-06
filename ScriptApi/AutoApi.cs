@@ -128,7 +128,7 @@ public static class AutoApi
         var type = param.ParameterType;
         var defaultValue = param.DefaultValue;
 
-        if (defaultValue == null || defaultValue is DBNull)
+        if (defaultValue is null or DBNull)
         {
             EmitTypeDefault(il, type);
             return;
@@ -148,9 +148,7 @@ public static class AutoApi
         else if (type == typeof(long))
             il.Emit(OpCodes.Ldc_I8, (long)defaultValue);
         else if (type == typeof(byte) || type == typeof(sbyte) ||
-                 type == typeof(short) || type == typeof(ushort))
-            il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(defaultValue));
-        else if (type.IsEnum)
+                 type == typeof(short) || type == typeof(ushort) || type.IsEnum)
             il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(defaultValue));
         else
             EmitTypeDefault(il, type);
