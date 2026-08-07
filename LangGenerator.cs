@@ -391,6 +391,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "没有发现脚本模组",
             "沒有發現腳本模組",
             "Скриптовые моды не найдены");
+        Log("script_mod_loader.disabled_mod",
+            "Skipped disabled mod '{0}' (.dis suffix)",
+            "已跳过禁用模组 '{0}'（.dis 后缀）",
+            "已跳過禁用模組 '{0}'（.dis 後綴）",
+            "Пропущен отключённый мод '{0}' (суффикс .dis)");
         Log("script_mod_loader.zip_extracted",
             "Extracted zip mod '{0}' to cache",
             "已将 zip 模组 '{0}' 解压到缓存",
@@ -1179,5 +1184,50 @@ internal class LangGenerator : ModLangGenMultiBase
             "正在重载脚本模组...",
             "正在重載腳本模組...",
             "Перезагрузка скриптовых модов после загрузки...");
+        Log("network_sync.github_failed",
+            "GitHub download failed for '{0}': {1}, falling back to host",
+            "模组 '{0}' 从 GitHub 下载失败：{1}，回退到主机拉取",
+            "模組 '{0}' 從 GitHub 下載失敗：{1}，回退到主機拉取",
+            "Загрузка с GitHub для '{0}' не удалась: {1}, откат к хосту");
+        Log("network_sync.host_fetching",
+            "Fetching mod '{0}' v{1} from host...",
+            "正在从主机拉取模组 '{0}' v{1}...",
+            "正在從主機拉取模組 '{0}' v{1}...",
+            "Получение мода '{0}' v{1} с хоста...");
+        Log("network_sync.host_fetched",
+            "Fetched '{0}' from host, saved to ScriptMod/Mods/",
+            "已从主机拉取 '{0}'，保存到 ScriptMod/Mods/",
+            "已從主機拉取 '{0}'，儲存至 ScriptMod/Mods/",
+            "Мод '{0}' получен с хоста и сохранён в ScriptMod/Mods/");
+        Log("network_sync.host_fetch_failed",
+            "Failed to fetch mod '{0}' from host: {1}",
+            "从主机拉取模组 '{0}' 失败：{1}",
+            "從主機拉取模組 '{0}' 失敗：{1}",
+            "Не удалось получить мод '{0}' с хоста: {1}");
+        Log("network_sync.host_pack_failed",
+            "Failed to pack mod '{0}' on host: {1}",
+            "主机打包模组 '{0}' 失败：{1}",
+            "主機打包模組 '{0}' 失敗：{1}",
+            "Не удалось упаковать мод '{0}' на хосте: {1}");
+        Log("network_sync.version_mismatch",
+            "Mod '{0}' version mismatch (local v{1}, host v{2}); not required, keeping local",
+            "模组 '{0}' 版本不一致（本地 v{1}，主机 v{2}）；非必需，保留本地版本",
+            "模組 '{0}' 版本不一致（本地 v{1}，主機 v{2}）；非必要，保留本地版本",
+            "Мод '{0}' версии не совпадают (локально v{1}, хост v{2}); не обязателен, оставляем локальный");
+        Log("network_sync.version_mismatch_required",
+            "Mod '{0}' version mismatch (local v{1}, host v{2}); required, will re-download from host",
+            "模组 '{0}' 版本不一致（本地 v{1}，主机 v{2}）；为必需模组，将从主机重新下载",
+            "模組 '{0}' 版本不一致（本地 v{1}，主機 v{2}）；為必要模組，將從主機重新下載",
+            "Мод '{0}' версии не совпадают (локально v{1}, хост v{2}); обязателен, перезагрузка с хоста");
+        Log("network_sync.required_failed",
+            "Required mod '{0}' v{1} could not be synced (no repository and host fetch failed)",
+            "必需模组 '{0}' v{1} 同步失败（无仓库地址且主机拉取失败）",
+            "必要模組 '{0}' v{1} 同步失敗（無倉庫地址且主機拉取失敗）",
+            "Обязательный мод '{0}' v{1} не удалось синхронизировать (нет репозитория и получение с хоста не удалось)");
+        Log("network_sync.required_block_enter",
+            "Required script mods failed to sync. The game may behave inconsistently. Disconnect and install the required mods, or ask the host to enable GitHub repository sync.",
+            "必需的脚本模组同步失败，游戏行为可能出现不一致。请断开连接并安装所需模组，或让主机启用 GitHub 仓库同步。",
+            "必要的腳本模組同步失敗，遊戲行為可能出現不一致。請斷開連線並安裝所需模組，或讓主機啟用 GitHub 倉庫同步。",
+            "Не удалось синхронизировать обязательные моды. Поведение игры может быть некорректным. Отключитесь и установите нужные моды или попросите хост включить синхронизацию через GitHub.");
     }
 }

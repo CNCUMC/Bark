@@ -32,6 +32,21 @@ public class ScriptModLoader(string modsPath) : IDisposable
     // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
     private static readonly Regex SnakeCaseRegex = new("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
 
+    // 禁用后缀：文件夹/压缩包名称（不含扩展名）以此结尾则视为禁用，跳过加载
+    private const string DisabledSuffix = ".dis";
+
+    // 判断名称是否带禁用标记（不区分大小写）
+    private static bool IsDisabledName(string? name)
+    {
+        return name != null && name.EndsWith(DisabledSuffix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // 判断目录是否被禁用（取目录名做后缀匹配）
+    private static bool IsEnabledDirectory(string dir)
+    {
+        return !IsDisabledName(Path.GetFileName(dir));
+    }
+
     private static readonly Dictionary<string, ScriptManifest> _loadedMods = new();
 
     // 所有已加载的模组（只读）
@@ -104,11 +119,11 @@ public class ScriptModLoader(string modsPath) : IDisposable
         // 1. 解压 zip 模组到 BepInEx 缓存目录
         ExtractZipMods(modsDir);
 
-        // 2. 收集所有模组目录：Mods/*/ + 缓存中的 zip 解压目录
-        var modDirectories = Directory.GetDirectories(modsDir).ToList();
+        // 2. 收集所有模组目录：Mods/*/ + 缓存中的 zip 解压目录（跳过带 .dis 禁用标记的目录）
+        var modDirectories = Directory.GetDirectories(modsDir).Where(IsEnabledDirectory).ToList();
 
         if (Directory.Exists(ZipCacheDir))
-            modDirectories.AddRange(Directory.GetDirectories(ZipCacheDir));
+            modDirectories.AddRange(Directory.GetDirectories(ZipCacheDir).Where(IsEnabledDirectory));
 
         if (modDirectories.Count == 0)
         {
@@ -190,6 +205,14 @@ public class ScriptModLoader(string modsPath) : IDisposable
         foreach (var zipPath in zipFiles)
         {
             var modName = Path.GetFileNameWithoutExtension(zipPath);
+
+            // .dis 后缀：视为禁用，跳过解压（其残留缓存会在孤儿清理中被删除）
+            if (IsDisabledName(modName))
+            {
+                LogUtil.Info("script_mod_loader.disabled_mod", modName);
+                continue;
+            }
+
             var targetDir = Path.Combine(ZipCacheDir, modName);
             validCachePaths.Add(targetDir);
 
@@ -452,6 +475,13 @@ public class ScriptModLoader(string modsPath) : IDisposable
     {
         UnloadAll();
         LoadAll();
+    }
+
+    // 禁用本地所有脚本模组：卸载引擎并清空加载记录。
+    // 用于客户端加入主机时，改用主机同步（GitHub / 主机 fetch）得到的模组。
+    public static void DisableAllScripts()
+    {
+        UnloadAll();
     }
 
     private static void UnloadAll()
