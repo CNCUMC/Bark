@@ -159,7 +159,7 @@ public static class ModCommand
 
     private static void ExportLocaleDebugFile()
     {
-        var path = Path.Combine(Paths.CachePath, "catfcabl.txt");
+        var path = Path.Combine(Plugin.BarkCachePath, "catfcabl.txt");
         var lines = new List<string> { $"Register ({BetterLocale.LocaleKeys.Count}):" };
 
         lines.AddRange(BetterLocale.LocaleKeys
@@ -330,6 +330,9 @@ public static class ModCommand
         Plugin._scriptModLoader?.ReloadAll();
         RefreshSpawnAutofill();
         MessageCommand("reload.completed");
+
+        // 主机重载后，触发增量文件同步：把修改过的模组文件推给所有已连接客户端
+        ScriptFileSync.TriggerSync();
     }
 
     // 生成 Bark 添加的内容：转发为 CCL 的 cuspawn 命令字符串，

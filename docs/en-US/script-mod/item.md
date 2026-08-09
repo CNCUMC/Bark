@@ -12,6 +12,10 @@
 Define custom items, liquid containers, and pure liquids via JSON. Place the JSON files in your mod's `Item/`
 directory and sprite images in `Assets/Item/`.
 
+The `Item/` directory supports **arbitrary subdirectory nesting** — the loader recursively scans all subdirectories.
+Item IDs are always `{modId}.{fileName}` and **do not include the subdirectory path**; sprite images are also read
+flat from `Assets/Item/`, not from the JSON's subdirectory.
+
 ## Directory Layout
 
 ```
@@ -24,11 +28,16 @@ ScriptMod/Mods/
       arrow.json            ← custom item with scripts
       potion.json           ← liquid container
       water.json            ← pure liquid
+      Gun/                   ← any subdirectory nesting is supported
+        ak47.json            ← item in a subdirectory (ID is still my_mod.ak47)
+        ammo/
+          rifle_556.json
     Assets/Item/
       bandage123.png           ← item sprite (itemId.png)
       arrow.png
       potion.png
       potion_fill.png       ← liquid fill mask (itemId_fill.png)
+      ak47.png              ← sprites for nested items also live here, not in the JSON's subdir
 ```
 
 ## Item JSON Format
@@ -90,7 +99,8 @@ Item type is auto-detected from the JSON fields:
 | `tool`                     | object   | null         | Tool/melee config (see below)                      |
 
 > 📝 Item ID = `{modId}.{filename}` (namespaced format), e.g. mod `my_mod` with `bandage123.json` → ID
-> `"my_mod.bandage123"`. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
+> `"my_mod.bandage123"`. A JSON in a subdirectory keeps the same ID (`Item/Gun/ak47.json` → `my_mod.ak47`);
+> subdirectories are only for organizing files. Vanilla items (e.g. `bandage`) have no prefix. It is NOT a JSON field.
 
 ### Wearable Fields
 

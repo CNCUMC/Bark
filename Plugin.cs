@@ -26,13 +26,14 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.3.1";
+    public const string Version = "2.3.2";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
 
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
     private readonly Harmony _harmony = new(Guid);
+    internal static readonly string BarkCachePath = Paths.CachePath + "Bark/";
 
     public void Awake()
     {
@@ -101,6 +102,9 @@ public class Plugin : BaseUnityPlugin
 
         // 多人游戏脚本模组同步（KrokMP 未安装时零开销）
         NetworkModSync.Initialize(ScriptModsPath);
+
+        // 主机 sr 重载触发的增量文件同步（客户端上报 hash -> 主机对比 -> 推送差异文件）
+        ScriptFileSync.Initialize();
 
         // 脚本模组加载完后，将 Lang 本地化刷新到 CCL 的 locale 文件，确保选项标签/描述在游戏 UI 中可见
         BetterLocale.Flush();

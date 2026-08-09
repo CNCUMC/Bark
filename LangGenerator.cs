@@ -697,6 +697,26 @@ internal class LangGenerator : ModLangGenMultiBase
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}",
             "load_mag_incompatible_ammo_type ammoId={0} ammo.ammo_type={1} gun.ammo_type={2}");
+        Log("sound_profile.file_not_found",
+            "Sound profile file not found: {0}",
+            "音效档案文件不存在: {0}",
+            "音效檔案檔案不存在: {0}",
+            "Файл звукового профиля не найден: {0}");
+        Log("sound_profile.loaded",
+            "Sound profile '{0}' loaded: {1}",
+            "音效档案 '{0}' 已加载: {1}",
+            "音效檔案 '{0}' 已載入: {1}",
+            "Звуковой профиль '{0}' загружен: {1}");
+        Log("sound_profile.load_failed",
+            "Sound profile '{0}' failed to load: {1}",
+            "音效档案 '{0}' 加载失败: {1}",
+            "音效檔案 '{0}' 載入失敗: {1}",
+            "Не удалось загрузить звуковой профиль '{0}': {1}");
+        Log("sound_profile.clip_load_failed",
+            "Sound profile '{0}' clip failed to load: {1}",
+            "音效档案 '{0}' 的音频片段加载失败: {1}",
+            "音效檔案 '{0}' 的音訊片段載入失敗: {1}",
+            "Не удалось загрузить аудио '{1}' профиля '{0}'");
         // Log - Script Engine
         Log("script_engine.lua_load_failed",
             "Lua mod '{0}' failed to load: {1}",
@@ -1134,6 +1154,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "正在向主机请求模组列表...",
             "正在向主機請求模組列表...",
             "Запрос списка модов у хоста...");
+        Log("network_sync.retry",
+            "No response from host (attempt {0}/{1}), retrying...",
+            "主机无响应（第 {0}/{1} 次尝试），重试中...",
+            "主機無回應（第 {0}/{1} 次嘗試），重試中...",
+            "Нет ответа от хоста (попытка {0}/{1}), повтор...");
+        Log("network_sync.retry_done",
+            "Received host mod list on attempt {0}",
+            "第 {0} 次尝试收到主机模组列表",
+            "第 {0} 次嘗試收到主機模組列表",
+            "Получен список модов хоста на попытке {0}");
         Log("network_sync.no_host_mods",
             "No script mods on host, sync skipped",
             "主机上没有脚本模组，跳过同步",
@@ -1209,6 +1239,21 @@ internal class LangGenerator : ModLangGenMultiBase
             "主机打包模组 '{0}' 失败：{1}",
             "主機打包模組 '{0}' 失敗：{1}",
             "Не удалось упаковать мод '{0}' на хосте: {1}");
+        Log("network_sync.zip_cache_hit",
+            "Mod '{0}' zip already cached, skipping re-download",
+            "模组 '{0}' 的 zip 已在本地缓存，跳过重复下载",
+            "模組 '{0}' 的 zip 已在本地快取，跳過重複下載",
+            "Мод '{0}' уже кэширован, пропускаю повторную загрузку");
+        Log("network_sync.hash_cache_read_failed",
+            "Failed to read script sync hash cache: {0}",
+            "读取脚本同步 hash 缓存失败：{0}",
+            "讀取腳本同步 hash 快取失敗：{0}",
+            "Не удалось прочитать кэш хешей синхронизации модов: {0}");
+        Log("network_sync.hash_cache_write_failed",
+            "Failed to write script sync hash cache: {0}",
+            "写入脚本同步 hash 缓存失败：{0}",
+            "寫入腳本同步 hash 快取失敗：{0}",
+            "Не удалось записать кэш хешей синхронизации модов: {0}");
         Log("network_sync.version_mismatch",
             "Mod '{0}' version mismatch (local v{1}, host v{2}); not required, keeping local",
             "模组 '{0}' 版本不一致（本地 v{1}，主机 v{2}）；非必需，保留本地版本",
@@ -1229,5 +1274,32 @@ internal class LangGenerator : ModLangGenMultiBase
             "必需的脚本模组同步失败，游戏行为可能出现不一致。请断开连接并安装所需模组，或让主机启用 GitHub 仓库同步。",
             "必要的腳本模組同步失敗，遊戲行為可能出現不一致。請斷開連線並安裝所需模組，或讓主機啟用 GitHub 倉庫同步。",
             "Не удалось синхронизировать обязательные моды. Поведение игры может быть некорректным. Отключитесь и установите нужные моды или попросите хост включить синхронизацию через GitHub.");
+
+        // Log - Script File Incremental Sync
+        Log("script_file_sync.broadcasting",
+            "Broadcasting file sync to {0} mod(s) to all clients...",
+            "正在向所有客户端广播 {0} 个模组的文件同步...",
+            "正在向所有客戶端廣播 {0} 個模組的檔案同步...",
+            "Широковещательная синхронизация файлов {0} мод(ов) всем клиентам...");
+        Log("script_file_sync.file_updated",
+            "Updated file '{1}' of mod '{0}'",
+            "已更新模组 '{0}' 的文件 '{1}'",
+            "已更新模組 '{0}' 的檔案 '{1}'",
+            "Обновлён файл '{1}' мода '{0}'");
+        Log("script_file_sync.fetch_failed",
+            "Failed to fetch file '{1}' of mod '{0}': {2}",
+            "拉取模组 '{0}' 的文件 '{1}' 失败：{2}",
+            "拉取模組 '{0}' 的檔案 '{1}' 失敗：{2}",
+            "Не удалось получить файл '{1}' мода '{0}': {2}");
+        Log("script_file_sync.write_failed",
+            "Failed to write file '{1}' of mod '{0}': {2}",
+            "写入模组 '{0}' 的文件 '{1}' 失败：{2}",
+            "寫入模組 '{0}' 的檔案 '{1}' 失敗：{2}",
+            "Не удалось записать файл '{1}' мода '{0}': {2}");
+        Log("script_file_sync.completed",
+            "Incremental file sync completed, reloading script mods...",
+            "增量文件同步完成，正在重载脚本模组...",
+            "增量檔案同步完成，正在重載腳本模組...",
+            "Инкрементальная синхронизация файлов завершена, перезагрузка модов...");
     }
 }

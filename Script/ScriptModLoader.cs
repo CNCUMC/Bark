@@ -19,7 +19,7 @@ namespace Bark.Script;
 public class ScriptModLoader(string modsPath) : IDisposable
 {
     // zip 模组解压到 BepInEx 缓存目录下的子目录
-    private static readonly string ZipCacheDir = Path.Combine(Paths.CachePath, "Bark", "ScriptMods");
+    private static readonly string ZipCacheDir = Path.Combine(Plugin.BarkCachePath, "ScriptMods");
 
     // 支持的入口文件扩展名 → 语言映射
     private static readonly Dictionary<string, ScriptLanguage> ExtensionMap = new(StringComparer.OrdinalIgnoreCase)

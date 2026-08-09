@@ -23,8 +23,9 @@ public class ItemEntry(string id)
     public string Id = id;
 }
 
-// 自定义物品加载器：扫描 ModDir/Item/*.json 注册物品，
-// 图片等资产从 ModDir/Assets/Item/ 读取。
+// 自定义物品加载器：递归扫描 ModDir/Item/**/*.json 注册物品，
+// 图片等资产从 ModDir/Assets/Item/ 读取（平铺，不跟随 JSON 子目录）。
+// 物品 ID 始终为 {modId}.{文件名}，不拼接子目录路径。
 // 脚本映射分两阶段：RegisterFromMod 先注册物品与暂存脚本定义，
 // RegisterScripts 在引擎就绪后写入 ItemScriptRegistry。
 public static class ItemLoader
@@ -62,8 +63,8 @@ public static class ItemLoader
     }
 
     // 从任意模组目录加载所有自定义物品，供脚本模组与 C# 模组共用。
-    // modId    - 物品命名空间前缀，物品 ID = {modId}.{文件名}
-    // modDir   - 模组根目录，扫描 {modDir}/Item/*.json，资产目录为 {modDir}/Assets/Item/
+    // modId    - 物品命名空间前缀，物品 ID = {modId}.{文件名}（递归扫描子目录，ID 不含子目录路径）
+    // modDir   - 模组根目录，递归扫描 {modDir}/Item/**/*.json，资产目录为 {modDir}/Assets/Item/
     // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。
     //                      脚本模组传 true（后续由 RegisterScripts 绑定引擎）；
     //                      C# 模组传 false（无脚本引擎，JSON 不应含 script 字段，若有则警告并跳过）。
@@ -83,7 +84,7 @@ public static class ItemLoader
         if (!Directory.Exists(itemsDir))
             return 0;
 
-        var jsonFiles = Directory.GetFiles(itemsDir, "*.json", SearchOption.TopDirectoryOnly);
+        var jsonFiles = Directory.GetFiles(itemsDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return 0;
 
@@ -100,7 +101,7 @@ public static class ItemLoader
             foreach (var jsonFile in jsonFiles)
                 try
                 {
-                    var entry = LoadAndRegister(jsonFile, assetsItemDir, modId);
+                    var entry = LoadAndRegister(jsonFile, assetsItemDir, modId, modDir);
                     if (entry == null) continue;
                     loadedCount++;
                     loadedList.Add(entry);
@@ -166,7 +167,7 @@ public static class ItemLoader
     // 加载单个 JSON 文件，自动检测类型并注册。物品 ID = {modId}.{文件名} 命名空间格式。
     // assetsDir: ModDir/Assets/Item/，用于加载图片等资产。
     // 成功时返回记录项并暂存脚本映射（如有），失败返回 null。
-    private static ItemEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId)
+    private static ItemEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId, string modDir)
     {
         var itemId = $"{modId}.{Path.GetFileNameWithoutExtension(jsonFile)}";
 
@@ -193,7 +194,6 @@ public static class ItemLoader
         }
 
         // 模板解析：合并 template 引用的预设模板后再进行类型检测
-        var modDir = Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty;
         var templateNode = obj["template"];
         if (templateNode is JObject templateObj)
         {

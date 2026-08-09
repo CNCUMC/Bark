@@ -11,6 +11,8 @@
 
 通过 JSON 定义自定义物品、液体容器和纯液体。JSON 文件放在脚本模组的 `Item/` 目录下，精灵图片放在 `Assets/Item/` 下。
 
+`Item/` 目录支持**任意层级的子目录嵌套**——加载器会递归扫描所有子目录。物品 ID 始终为 `{模组ID}.{文件名}`，**不包含子目录路径**；精灵图片也统一从 `Assets/Item/` 平铺读取，不跟随 JSON 的子目录。
+
 ## 目录结构
 
 ```
@@ -23,11 +25,16 @@ ScriptMod/Mods/
       arrow.json            ← 带脚本的自定义物品
       potion.json           ← 液体容器
       water.json            ← 纯液体
+      Gun/                   ← 支持任意子目录嵌套
+        ak47.json            ← 子目录中的物品 (ID 仍是 my_mod.ak47)
+        ammo/
+          rifle_556.json
     Assets/Item/
       bandage123.png           ← 物品精灵图 (itemId.png)
       arrow.png
       potion.png
       potion_fill.png       ← 液体填充遮罩 (itemId_fill.png)
+      ak47.png              ← 子目录物品的贴图也放在这里，不跟随 JSON 子目录
 ```
 
 ## 物品 JSON 格式
@@ -88,7 +95,8 @@ ScriptMod/Mods/
 | `syringe`                  | object   | null         | 注射器配置（见下文）             |
 | `tool`                     | object   | null         | 工具/近战配置（见下文）          |
 
-> 📝 物品 ID = `{模组ID}.{文件名}`（命名空间格式），如模组 `my_mod` 的 `bandage123.json` → ID `"my_mod.bandage123"`。原版物品（如
+> 📝 物品 ID = `{模组ID}.{文件名}`（命名空间格式），如模组 `my_mod` 的 `bandage123.json` → ID `"my_mod.bandage123"`。
+> JSON 放在子目录时 ID 也不变（`Item/Gun/ak47.json` → `my_mod.ak47`），子目录仅用于组织文件。原版物品（如
 > `bandage`）无前缀，直接使用物品名。 **不是** JSON 里的字段。
 
 ### 可穿戴字段

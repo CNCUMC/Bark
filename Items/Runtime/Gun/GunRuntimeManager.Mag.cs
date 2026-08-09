@@ -115,6 +115,8 @@ public static partial class GunRuntimeManager
 
                 // 设置 GunScript 原生状态
                 __instance.hasMag = true;
+                // magCapacity 始终等于当前所插弹匣的容量，换弹匣时随之刷新
+                __instance.magCapacity = capacity;
                 __instance.roundsInMag = rounds;
 
                 // 追踪模板状态

@@ -19,8 +19,9 @@ public class RecipeEntry(string id, string fileName)
     public string Id = id;
 }
 
-// 自定义合成表加载器：扫描 ModDir/Recipe/*.json，
+// 自定义合成表加载器：递归扫描 ModDir/Recipe/**/*.json，
 // 转为 CUCoreLib Recipe 对象并注册到 RecipeRegistry。
+// 配方 ID 来自 JSON 内的 id 字段，不依赖文件路径。
 public static class RecipeLoader
 {
     // 模组已加载的配方列表（modId → 配方记录）
@@ -52,7 +53,7 @@ public static class RecipeLoader
 
     // 从任意模组目录加载所有自定义配方，供脚本模组与 C# 模组共用。
     // modId  - 配方所有权标记（通常取 mod.json 的 id）
-    // modDir - 模组根目录，扫描 {modDir}/Recipe/*.json
+    // modDir - 模组根目录，递归扫描 {modDir}/Recipe/**/*.json
     public static void RegisterFromDirectory(string modId, string modDir)
     {
         if (modId is null)
@@ -67,7 +68,7 @@ public static class RecipeLoader
         if (!Directory.Exists(recipeDir))
             return;
 
-        var jsonFiles = Directory.GetFiles(recipeDir, "*.json", SearchOption.TopDirectoryOnly);
+        var jsonFiles = Directory.GetFiles(recipeDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return;
 

@@ -19,11 +19,12 @@ public class MoodleEntry(string key, string fileName)
     public string Key = key;
 }
 
-// 自定义 Moodle 加载器：扫描 ModDir/Moodle/*.json，加载精灵图并缓存定义。
+// 自定义 Moodle 加载器：递归扫描 ModDir/Moodle/**/*.json，加载精灵图并缓存定义。
 // 注册阶段不调用 MoodleRegistry.AddMoodle（那会直接应用状态到玩家），
 // 仅在 MoodleUtil.ApplyMoodle 被脚本显式调用时才真正应用状态。
 // 脚本映射分两阶段：RegisterFromMod 先注册 Moodle 与暂存脚本定义，
 // RegisterScripts 在引擎就绪后写入 MoodleScriptRegistry。
+// Moodle key 优先用 JSON 内 key 字段，否则由文件名生成；精灵图从 Assets/Moodle/ 平铺读取。
 public static class MoodleLoader
 {
     // 模组已加载的 Moodle 列表（modId → moodle 记录）
@@ -53,7 +54,7 @@ public static class MoodleLoader
 
     // 从任意模组目录加载所有自定义 Moodle，供脚本模组与 C# 模组共用。
     // modId    - Moodle 所有权标记（通常取 mod.json 的 id）
-    // modDir   - 模组根目录，扫描 {modDir}/Moodle/*.json，资产目录为 {modDir}/Assets/Moodle/
+    // modDir   - 模组根目录，递归扫描 {modDir}/Moodle/**/*.json，资产目录为 {modDir}/Assets/Moodle/
     // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。脚本模组传 true；C# 模组传 false。
     public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
     {
@@ -70,7 +71,7 @@ public static class MoodleLoader
         if (!Directory.Exists(moodleDir))
             return 0;
 
-        var jsonFiles = Directory.GetFiles(moodleDir, "*.json", SearchOption.TopDirectoryOnly);
+        var jsonFiles = Directory.GetFiles(moodleDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return 0;
 

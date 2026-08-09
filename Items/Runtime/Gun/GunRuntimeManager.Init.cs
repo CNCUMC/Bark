@@ -179,35 +179,51 @@ public static partial class GunRuntimeManager
     {
         if (!gunData.Direct && gunData.FeedType != "revolver")
         {
-            // 弹匣供弹枪：出厂预装满弹匣
-            var cap = gunData.Capacity > 0 ? gunData.Capacity : DefaultDirectCapacity;
-            if (gunData.Capacity <= 0)
-                LogUtil.Warning("gun_runtime.gun_init_capacity_zero", item.id, gunData.FeedType, DefaultDirectCapacity);
-
-            gun.magCapacity = cap;
-            gun.hasMag = true;
-            gun.roundsInMag = cap;
-
+            // 弹匣供弹枪：出厂空枪，无预装弹匣。
+            // 容量归所配弹匣（mag_type 匹配的弹匣），装入弹匣时由 OnLoadMagPrefix
+            // 用弹匣容量刷新 magCapacity。此处仅记录默认弹匣 ID 供卸弹回退使用，
+            // 枪械本身不预装、不预满。
             var state = GunMagTracker.GetOrCreate(item);
-            state.RoundsInMag = cap;
+            state.RoundsInMag = 0;
+
             // 记录对应的弹匣物品 ID，确保卸弹时能正确生成弹匣物品。
             // 按 mag_type → ammo_type 顺序查找已注册的弹匣模板。
             var defaultMagIds = MagTemplate.FindMagsByType(gunData.MagType);
             if (defaultMagIds.Count == 0)
             {
-                LogUtil.Warning("gun_runtime.gun_init_no_mag_by_type", item.id, gunData.MagType, gunData.AmmoType);
+                // 仅当 mag_type 非空时才警告"找不到弹匣"；空 mag_type 视为漏配，
+                // 走 ammo_type 兜底，避免误报。
+                if (!string.IsNullOrEmpty(gunData.MagType))
+                    LogUtil.Warning("gun_runtime.gun_init_no_mag_by_type", item.id, gunData.MagType, gunData.AmmoType);
                 defaultMagIds = MagTemplate.FindMagsByAmmoType(gunData.AmmoType);
             }
 
-            if (defaultMagIds.Count > 0)
+            if (defaultMagIds.Count == 0)
             {
-                var foundMagData = MagTemplate.GetMagData(defaultMagIds[0]);
-                if (foundMagData != null && foundMagData.MagType != gunData.MagType)
-                    LogUtil.Warning("gun_runtime.gun_init_mag_type_mismatch", item.id, gunData.MagType,
-                        defaultMagIds[0], foundMagData.MagType, gunData.MagType);
+                // 既无 mag_type 又无同口径弹匣：降级为直装枪，用 Capacity 当管容量，
+                // 避免作者漏配 mag_type/ammo_type 时枪械变成无法装弹的废枪。
+                var cap = gunData.Capacity > 0 ? gunData.Capacity : DefaultDirectCapacity;
+                gun.magCapacity = cap;
+                gun.hasMag = false;
+                gun.roundsInMag = 0;
+                state.MagItemId = null;
+                return;
             }
 
-            state.MagItemId = defaultMagIds.Count > 0 ? defaultMagIds[0] : null;
+            // 正常弹匣供弹枪：出厂空枪，无预装弹匣。
+            // 容量归所配弹匣（mag_type 匹配的弹匣），装入弹匣时由 OnLoadMagPrefix
+            // 用弹匣容量刷新 magCapacity。此处仅记录默认弹匣 ID 供卸弹回退使用，
+            // 枪械本身不预装、不预满。
+            gun.magCapacity = 0;
+            gun.hasMag = false;
+            gun.roundsInMag = 0;
+
+            var foundMagData = MagTemplate.GetMagData(defaultMagIds[0]);
+            if (foundMagData != null && foundMagData.MagType != gunData.MagType)
+                LogUtil.Warning("gun_runtime.gun_init_mag_type_mismatch", item.id, gunData.MagType,
+                    defaultMagIds[0], foundMagData.MagType, gunData.MagType);
+
+            state.MagItemId = defaultMagIds[0];
         }
         else if (gunData.FeedType == "revolver")
         {

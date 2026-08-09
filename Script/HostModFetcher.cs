@@ -5,21 +5,22 @@ using System.IO;
 using System.IO.Compression;
 using Bark.Tool;
 using CUCoreLib.Helpers;
-using CUCoreLib.Networking;
 using Newtonsoft.Json.Linq;
 
 namespace Bark.Script;
 
 // 主机直推模组回退通道：当模组无 GitHub repository 或 GitHub 下载失败时，
 // 客户端通过该通道向主机请求整个模组目录的 zip 打包数据（分片传输），落地后由 ScriptModLoader 重载。
-// 复用 CUCoreLib.Networking.MultiplayerApi 软兼容层，KrokMP 未安装时零开销。
+// 网络底层走 Bark 自建 BarkKrokBridge（直接反射 KrokMP 4.0.1），KrokMP 未安装时零开销。
 public static class HostModFetcher
 {
     // 专用 channel：客户端发送 { id, offset }，服务端返回单个分片
     public const string FetchChannel = "bark.modsync.fetch";
 
-    // 单分片原始字节上限（base64 编码后约 1.33 倍，控制在常见通道单包上限内）
-    private const int ChunkSize = 24 * 1024;
+    // 单分片原始字节上限。
+    // CUCoreLib 对响应还会再走一层 JSON + GZip + base64 封装，最终单条网络消息体积约为原始字节数的 1.7~2 倍。
+    // 取较小值以确保单包不超过 LiteNetLib 等底层传输的单条消息上限，避免大分片响应无法回传导致下载挂死。
+    private const int ChunkSize = 8 * 1024;
 
     // 服务端缓存：modId -> 整目录 zip 字节。首次请求时懒打包，避免每次请求重复压缩。
     private static readonly Dictionary<string, byte[]> ServerCache = new(StringComparer.OrdinalIgnoreCase);
@@ -27,13 +28,13 @@ public static class HostModFetcher
     // 初始化：仅服务端需要注册 fetch handler
     public static void Initialize()
     {
-        if (!MultiplayerBridge.IsAvailable)
+        if (!BarkKrokBridge.IsAvailable)
             return;
 
-        if (!MultiplayerApi.IsServer && !MultiplayerApi.IsHost)
+        if (!BarkKrokBridge.IsServer && !BarkKrokBridge.IsHost)
             return;
 
-        MultiplayerApi.RegisterServerHandler(FetchChannel, OnFetchRequested);
+        BarkKrokBridge.RegisterServerHandler(FetchChannel, OnFetchRequested);
     }
 
     // 客户端入口：从主机拉取整目录 zip 并写入 {modsPath}/Mods/{modId}.zip
@@ -44,7 +45,7 @@ public static class HostModFetcher
         if (modsPath is null) throw new ArgumentNullException(nameof(modsPath));
         if (onComplete is null) throw new ArgumentNullException(nameof(onComplete));
 
-        if (!MultiplayerApi.IsAvailable || !MultiplayerApi.IsClient)
+        if (!BarkKrokBridge.IsAvailable || !BarkKrokBridge.IsClient)
         {
             onComplete(false, "Multiplayer is not available on client");
             return;
@@ -60,26 +61,27 @@ public static class HostModFetcher
         var complete = false;
         var success = false;
         var errorMsg = string.Empty;
-        var offset = 0;
+        var isDone = false;
 
-        while (true)
+        // 以服务端返回的 done 标志作为终止条件；offset 始终等于已累积字节数，
+        // 避免中间分片时 offset == buffer.Count 被误判为"最后一分片"而提前终止，
+        // 导致只下载了第一个分片、zip 不完整。
+        while (!isDone)
         {
             var request = new JObject
             {
                 ["id"] = modId,
-                ["offset"] = offset
+                ["offset"] = buffer.Count
             };
 
             complete = false;
             success = false;
             errorMsg = string.Empty;
 
-            var sent = MultiplayerApi.RequestServer(FetchChannel, request, response =>
+            var sent = BarkKrokBridge.RequestServer(FetchChannel, request, response =>
             {
                 complete = true;
-                ParseFetchResponse(response, buffer, out success, out errorMsg, out var nextOffset);
-                if (success && nextOffset > offset)
-                    offset = nextOffset;
+                ParseFetchResponse(response, buffer, out success, out errorMsg, out isDone);
             });
 
             if (!sent)
@@ -92,15 +94,9 @@ public static class HostModFetcher
             while (!complete)
                 yield return null;
 
-            if (!success)
-            {
-                onComplete(false, errorMsg);
-                yield break;
-            }
-
-            // offset 不再推进说明已是最后一分片
-            if (offset >= buffer.Count)
-                break;
+            if (success) continue;
+            onComplete(false, errorMsg);
+            yield break;
         }
 
         // 写入 Mods/{modId}.zip，交由 ScriptModLoader.ReloadAll 解压加载
@@ -118,13 +114,13 @@ public static class HostModFetcher
         }
     }
 
-    // 解析单个分片响应，追加到 buffer；返回是否成功、错误信息与下一分片偏移
+    // 解析单个分片响应，追加到 buffer；返回是否成功、错误信息与服务端 done 标志
     private static void ParseFetchResponse(
-        JToken response, List<byte> buffer, out bool success, out string errorMsg, out int nextOffset)
+        JToken response, List<byte> buffer, out bool success, out string errorMsg, out bool isDone)
     {
         success = false;
         errorMsg = string.Empty;
-        nextOffset = buffer.Count;
+        isDone = false;
 
         if (response is not JObject obj)
         {
@@ -155,11 +151,7 @@ public static class HostModFetcher
 
         buffer.AddRange(chunk);
 
-        var done = obj["done"]?.Value<bool>() ?? false;
-        nextOffset = done
-            ? int.MaxValue
-            : buffer.Count;
-
+        isDone = obj["done"]?.Value<bool>() ?? false;
         success = true;
     }
 

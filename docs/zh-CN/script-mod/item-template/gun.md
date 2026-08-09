@@ -47,7 +47,7 @@
 | `rack_sound`            | string | `""`                   | 拉膛音效路径，为空用游戏默认 `"gunrack"`                                                                                                      |
 | `unrack_sound`          | string | `""`                   | 回膛音效路径。为空但 `rack_sound` 不为空时，复用上膛音效                                                                                      |
 | `mag_type`              | string | `"rifle_mag"`          | 匹配的弹匣类型标签                                                                                                                            |
-| `capacity`              | int    | `15`                   | 直装枪械的管容量（霰弹枪等无弹匣枪械）。有弹匣时此值被弹匣容量覆盖                                                                            |
+| `capacity`              | int    | `15`                   | 仅无弹匣枪械使用：直装枪的管容量（霰弹枪等）、转轮枪的转轮容量。**弹匣供弹枪不使用此字段**，容量归所配弹匣（`mag_type` 匹配弹匣的 `capacity`）      |
 | `is_direct_loading`     | bool   | `false`                | `true` = 直接装填（泵动霰弹枪等无弹匣枪械）                                                                                                   |
 | `full_auto`             | bool   | `true`                 | `true` = 按住连发，`false` = 单发                                                                                                             |
 | `fire_interval`         | float  | `0.08`                 | 连发间隔（秒），越小射速越快                                                                                                                  |

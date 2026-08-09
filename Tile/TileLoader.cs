@@ -25,9 +25,10 @@ public class TileEntry(int tileIndex, string tileId, string fileName)
     public int TileIndex = tileIndex;
 }
 
-// 自定义物块加载器：扫描 ModDir/Tile/*.json，
+// 自定义物块加载器：递归扫描 ModDir/Tile/**/*.json，
 // 构建 CustomTileDefinition 并调用 TileRegistry.Register。
 // 物块索引自动分配（>= 36），模组无需在 mod.json 中声明 tiles 映射。
+// 物块 ID 为文件名（不含扩展名），不拼接子目录路径；精灵图从 Assets/Tile/ 平铺读取。
 public static class TileLoader
 {
     // 模组已加载的物块列表（modId → 物块记录）
@@ -64,7 +65,7 @@ public static class TileLoader
 
     // 从任意模组目录加载所有自定义物块，供脚本模组与 C# 模组共用。
     // modId    - 物块所有权标记（通常取 mod.json 的 id）
-    // modDir   - 模组根目录，扫描 {modDir}/Tile/*.json，资产目录为 {modDir}/Assets/Tile/
+    // modDir   - 模组根目录，递归扫描 {modDir}/Tile/**/*.json，资产目录为 {modDir}/Assets/Tile/
     // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。脚本模组传 true；C# 模组传 false。
     public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
     {
@@ -77,7 +78,7 @@ public static class TileLoader
         if (!Directory.Exists(tilesDir))
             return 0;
 
-        var jsonFiles = Directory.GetFiles(tilesDir, "*.json", SearchOption.TopDirectoryOnly);
+        var jsonFiles = Directory.GetFiles(tilesDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return 0;
 
@@ -110,7 +111,7 @@ public static class TileLoader
                 else
                     tileIndex = _nextTileIndex++;
 
-                var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, tileId, tileIndex);
+                var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, modDir, tileId, tileIndex);
                 if (entry == null) continue;
                 loadedCount++;
                 loadedList.Add(entry);
@@ -171,7 +172,7 @@ public static class TileLoader
 
     // 加载并注册单个物块 JSON，成功时返回记录项，失败返回 null
     private static TileEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId,
-        string tileId, ushort tileIndex)
+        string modDir, string tileId, ushort tileIndex)
     {
         TileDef? def;
         try
@@ -199,7 +200,7 @@ public static class TileLoader
         LogUtil.Info("tiles.registered", tileId, tileIndex, modId);
 
         // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
-        StashScript(tileId, def.Script, modId, Path.GetDirectoryName(Path.GetDirectoryName(jsonFile)) ?? string.Empty);
+        StashScript(tileId, def.Script, modId, modDir);
 
         var fileName = Path.GetFileName(jsonFile);
         return new TileEntry(tileIndex, tileId, fileName);

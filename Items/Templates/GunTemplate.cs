@@ -24,9 +24,11 @@ public class GunData
     public float BarrelOffsetX = 0.5f;
     public float BarrelOffsetY;
 
-    // 直装枪械（Direct=true）的内部管/仓容量，
-    // 如霰弹枪 6 发、杠杆步枪 5 发。
-    // 弹匣供弹枪（Direct=false）忽略此字段。
+    // 内部管/仓容量，只用于无弹匣的枪械类型：
+    //   - 直装枪（Direct=true / feed_type="direct"）：管容量，如霰弹枪 6 发、杠杆步枪 5 发。
+    //   - 转轮枪（feed_type="revolver"）：转轮容量，默认 6 发。
+    // 弹匣供弹枪（feed_type="mag"）**不使用此字段**——容量归所配弹匣（mag_type 匹配的弹匣
+    // 的 MagData.Capacity），装弹匣时由 GunRuntimeManager 用弹匣容量刷新 magCapacity。
     // 为 0 时使用 GunRuntimeManager 内置默认值（6）。
     public int Capacity;
 

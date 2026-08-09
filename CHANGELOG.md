@@ -7,29 +7,18 @@ to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## v2.3.1
+## v2.3.2
 
 ### Added
-
-- Data-only mods: a mod without an entry script (`main.js` / `main.mjs` / `main.lua`) is now loaded as a data-only mod,
-  providing JSON content (items, tiles, recipes, moodles, commands) without starting a script engine.
-- Console commands to spawn/place Bark-registered content: `script spawn` / `basp` (item),
-  `script tile` / `bast` (tile), `script moodle` / `basm` (moodle). Accepts Bark-registered string IDs (e.g.
-  `modid.entryname`) with Tab auto-completion; the list refreshes after `script reload`.
-- `script detail` / `scd` command to inspect a loaded mod's `mod.json` metadata (author, description, required Bark/game
-  version, repository, dependencies) and its registered-content counts (items / tiles / recipes / moodles).
-- Tab auto-completion now switches candidates by subcommand type (`script spawn` → items,
-  `script tile` → tiles, `script moodle` → moodle keys, `script detail` / `scd` → mod IDs) instead of mixing every ID
-  into one list.
-- Script API guard: before executing any script (entry / item / tile, JS and Lua), Bark now statically scans the source
-  and warns if it overrides a reserved Bark global API name (e.g. `playerUtil`, `Log`,
-  `CS`). Helps catch accidental shadowing that would silently break script functionality. Logs only, never blocks
-  loading.
+- **Subdirectory nesting for content folders**: The `Item/`, `Tile/`, `Recipe/`, `Moodle/`, and `Command/`
+  directories now support arbitrary subdirectory nesting. The loaders recursively scan all subdirectories instead of
+  only the top level.
+  - Item IDs, tile IDs, moodle keys, and command names are **unchanged** — they never include the subdirectory path
+    (e.g. `Item/Gun/ak47.json` → item ID `modid.ak47`). Subdirectories are purely for organizing files.
+  - Sprite assets are still read flat from `Assets/Item/`, `Assets/Tile/`, `Assets/Moodle/` (not from the JSON's
+    subdirectory), matching the existing item behavior.
 
 ### Fixed
-
-- Fixed the issue of `script reload` not running
-
-### Changed
-
-- Optimize the code slightly
+- **Tile script binding on nested paths**: `TileLoader` previously derived the mod root directory by walking two levels
+  up from the JSON path. This broke when a tile JSON lived in a subdirectory. It now receives `modDir` explicitly, so
+  script binding and asset paths resolve correctly regardless of nesting depth.

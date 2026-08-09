@@ -48,7 +48,7 @@ public static class WorldUtil
         }
         catch (Exception ex)
         {
-            LogUtil.Error("world.place_block", ex);
+            LogUtil.Error("world.place_block", pos, block, ex.Message);
         }
     }
 
@@ -96,7 +96,7 @@ public static class WorldUtil
         }
         catch (Exception ex)
         {
-            LogUtil.Error("world.place_item", ex);
+            LogUtil.Error("world.place_item", pos, item, ex.Message);
         }
     }
 }

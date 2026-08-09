@@ -10,8 +10,9 @@ using Newtonsoft.Json;
 
 namespace Bark.Commands;
 
-// 脚本命令加载器：扫描 ModDir/Command/*.json，注册到 ConsoleCommandRegistry，
+// 脚本命令加载器：递归扫描 ModDir/Command/**/*.json，注册到 ConsoleCommandRegistry，
 // 输入命令时通过 EventUtil.Trigger 分发到事件总线，所有脚本引擎均可接收 onCommand。
+// 命令名由文件名决定（不拼接子目录路径）。
 public static class CommandLoader
 {
     // 所有已注册的命令追踪（供调试/重载用）
@@ -31,7 +32,7 @@ public static class CommandLoader
         if (!Directory.Exists(commandsDir))
             return;
 
-        var jsonFiles = Directory.GetFiles(commandsDir, "*.json", SearchOption.TopDirectoryOnly);
+        var jsonFiles = Directory.GetFiles(commandsDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return;
 
