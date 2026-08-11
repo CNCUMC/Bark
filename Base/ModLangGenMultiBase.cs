@@ -9,8 +9,8 @@ public abstract class ModLangGenMultiBase
 {
     private bool _isInitialized;
     private ManualLogSource _log = null!;
-    protected abstract string NameSpace { get; }
     protected abstract IEnumerable<string> LanguageCodes { get; }
+    protected abstract string NameSpace { get; }
 
     public int Count { get; private set; }
 
@@ -20,7 +20,7 @@ public abstract class ModLangGenMultiBase
         _log = logger;
         BuildLocaleData();
         _isInitialized = true;
-        _log.LogInfo($"[Multi] Registered {Count} defaults");
+        _log.LogInfo($"[ModLangGenMultiBase] Registered {Count} defaults");
     }
 
     protected abstract void BuildLocaleData();

@@ -227,8 +227,8 @@ internal class LangGenerator : ModLangGenMultiBase
             "ConsoleScript не инициализирован");
 
         // Log - World
-        Log("world.place_block",
-            "At {0} place block {1} failed: {2}",
+        Log("world.place_tile",
+            "At {0} place tile {1} failed: {2}",
             "在 {0} 生成物块 {1} 失败: {2}",
             "在 {0} 生成物塊 {1} 失敗: {2}",
             "В {0} не удалось разместить блок {1}: {2}");
@@ -237,6 +237,16 @@ internal class LangGenerator : ModLangGenMultiBase
             "在 {0} 生成物品 {1} 失败: {2}",
             "在 {0} 生成物品 {1} 失敗: {2}",
             "В {0} не удалось разместить предмет {1}: {2}");
+        Log("world.item_not_found",
+            "Item resource '{0}' does not exist",
+            "物品 '{0}' 的资源不存在",
+            "物品 '{0}' 的資源不存在",
+            "Ресурс предмета '{0}' не существует");
+        Log("world.place_item_failed",
+            "Place item '{0}' returned null",
+            "生成物品 '{0}' 返回了空对象",
+            "生成物品 '{0}' 回傳了空物件",
+            "Размещение предмета '{0}' вернуло null");
 
         // Log - Player
         Log("player.body_null",

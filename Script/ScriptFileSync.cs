@@ -25,14 +25,16 @@ public static class ScriptFileSync
     private const int ChunkSize = 8 * 1024;
 
     private static bool _initialized;
+    private static string _modsPath = string.Empty;
 
     // 注册网络 handler（客户端上报 + 主机对比 + 主机文件分片）。网络不可用时注册无害。
-    public static void Initialize()
+    public static void Initialize(string modsPath)
     {
         if (_initialized)
             return;
 
         _initialized = true;
+        _modsPath = modsPath;
 
         BarkKrokBridge.RegisterClientHandler(SyncChannel, OnSyncRequested);
         BarkKrokBridge.RegisterServerHandler(ReportChannel, OnFilesReported);
@@ -76,22 +78,27 @@ public static class ScriptFileSync
             if (string.IsNullOrWhiteSpace(modId))
                 continue;
 
-            // 只对客户端已加载的模组上报（增量更新已存在文件）
-            if (!ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) ||
-                string.IsNullOrEmpty(manifest.Directory) || !Directory.Exists(manifest.Directory))
-                continue;
-
-            var fileHashes = new JObject();
-            foreach (var filePath in EnumerateFiles(manifest.Directory))
+            // 已加载模组：上报文件 hash（增量对比）
+            if (ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) &&
+                !string.IsNullOrEmpty(manifest.Directory) && Directory.Exists(manifest.Directory))
             {
-                var rel = GetRelativePath(manifest.Directory, filePath);
-                var hash = ComputeFileHash(filePath);
-                if (hash != null)
-                    fileHashes[rel] = hash;
-            }
+                var fileHashes = new JObject();
+                foreach (var filePath in EnumerateFiles(manifest.Directory))
+                {
+                    var rel = GetRelativePath(manifest.Directory, filePath);
+                    var hash = ComputeFileHash(filePath);
+                    if (hash != null)
+                        fileHashes[rel] = hash;
+                }
 
-            if (fileHashes.Count > 0)
-                report[modId] = fileHashes;
+                if (fileHashes.Count > 0)
+                    report[modId] = fileHashes;
+            }
+            else
+            {
+                // 未加载模组：报 null，主机视为整个模组缺失，返回全部文件全量推送
+                report[modId] = null;
+            }
         }
 
         if (report.Count == 0)
@@ -111,9 +118,6 @@ public static class ScriptFileSync
 
         foreach (var (modId, value) in reported)
         {
-            if (value is not JObject clientFiles)
-                continue;
-
             if (!ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest)
                 || string.IsNullOrEmpty(manifest.Directory)
                 || !Directory.Exists(manifest.Directory))
@@ -130,12 +134,22 @@ public static class ScriptFileSync
             }
 
             var diff = new JArray();
-            foreach (var kv in from kv in hostHashes
-                     let clientHash = clientFiles[kv.Key]?.Value<string>()
-                     where !string.Equals(clientHash, kv.Value, StringComparison.OrdinalIgnoreCase)
-                     select kv)
+            if (value is JObject clientFiles)
             {
-                diff.Add(kv.Key);
+                // 客户端已加载：只推送 hash 不同（修改过）的文件
+                foreach (var kv in from kv in hostHashes
+                         let clientHash = clientFiles[kv.Key]?.Value<string>()
+                         where !string.Equals(clientHash, kv.Value, StringComparison.OrdinalIgnoreCase)
+                         select kv)
+                {
+                    diff.Add(kv.Key);
+                }
+            }
+            else
+            {
+                // 客户端未加载该模组（上报 null）：推送全部文件（全量）
+                foreach (var rel in hostHashes.Keys)
+                    diff.Add(rel);
             }
 
             if (diff.Count > 0)
@@ -217,20 +231,18 @@ public static class ScriptFileSync
             yield break;
         }
 
-        // 落地：写入客户端已加载模组目录（覆盖同名文件）
-        if (!ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) ||
-            string.IsNullOrEmpty(manifest.Directory))
-        {
-            LogUtil.Warning("script_file_sync.write_failed", modId, rel, "mod not loaded on client");
-            yield break;
-        }
+        // 落地目录：已加载模组写回其目录；未加载模组写到 {modsPath}/Mods/{modId}（全量下载的新模组）
+        var modDir = ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) &&
+                     !string.IsNullOrEmpty(manifest.Directory)
+            ? manifest.Directory
+            : Path.Combine(_modsPath, "Mods", modId);
 
         try
         {
-            var targetDir = Path.GetDirectoryName(Path.Combine(manifest.Directory, rel));
+            var targetDir = Path.GetDirectoryName(Path.Combine(modDir, rel));
             if (!string.IsNullOrEmpty(targetDir))
                 Directory.CreateDirectory(targetDir);
-            File.WriteAllBytes(Path.Combine(manifest.Directory, rel), [.. buffer]);
+            File.WriteAllBytes(Path.Combine(modDir, rel), [.. buffer]);
             LogUtil.Info("script_file_sync.file_updated", modId, rel);
         }
         catch (Exception ex)
@@ -259,9 +271,18 @@ public static class ScriptFileSync
             return;
         }
 
+        var done = obj["done"]?.Value<bool>() ?? false;
         var chunkBase64 = obj["chunk"]?.Value<string>();
+
+        // 空 chunk 且 done=true：表示 offset 已到文件末尾（最后一个分片边界），属正常结束，不视为错误
         if (string.IsNullOrEmpty(chunkBase64))
         {
+            if (done)
+            {
+                isDone = true;
+                return;
+            }
+
             errorMsg = "Empty chunk";
             return;
         }
@@ -276,14 +297,14 @@ public static class ScriptFileSync
             return;
         }
 
-        isDone = obj["done"]?.Value<bool>() ?? false;
+        isDone = done;
     }
 
     // 主机：返回单个文件指定偏移的分片
     private static JToken OnFileFetchRequested(JToken request)
     {
         var modId = request["modId"]?.Value<string>();
-        var rel = request?["path"]?.Value<string>();
+        var rel = request["path"]?.Value<string>();
         var offset = request?["offset"]?.Value<int>() ?? 0;
 
         if (string.IsNullOrWhiteSpace(modId) || string.IsNullOrWhiteSpace(rel))
@@ -308,7 +329,15 @@ public static class ScriptFileSync
             using (var fs = File.OpenRead(fullPath))
             {
                 fs.Seek(offset, SeekOrigin.Begin);
-                fs.Read(chunk, 0, (int)length);
+                // 循环读满 chunk，确保不因单次 Read 返回值被忽略而漏读
+                var read = 0;
+                while (read < (int)length)
+                {
+                    var n = fs.Read(chunk, read, (int)length - read);
+                    if (n <= 0)
+                        return ErrorResponse("Incomplete read");
+                    read += n;
+                }
             }
 
             var done = offset + length >= total;

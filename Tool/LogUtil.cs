@@ -32,25 +32,25 @@ public static class LogUtil
 
     public static void Error(string text, ManualLogSource? logger)
     {
-        LogToConsole($"[ERROR] {text}");
+        LogToConsole(TextUtil.Red($"[ERROR] {text}"));
         logger?.LogError(text);
     }
 
     public static void Warning(string text, ManualLogSource? logger)
     {
-        LogToConsole($"[WARNING] {text}");
+        LogToConsole(TextUtil.Yellow($"[WARNING] {text}"));
         logger?.LogWarning(text);
     }
 
     public static void Debug(string text, ManualLogSource? logger)
     {
-        LogToConsole($"[DEBUG] {text}");
+        LogToConsole(TextUtil.Purple($"[DEBUG] {text}"));
         logger?.LogDebug(text);
     }
 
     public static void Message(string text, ManualLogSource? logger)
     {
-        LogToConsole(text);
+        LogToConsole(TextUtil.Blue(text));
         logger?.LogMessage(text);
     }
 

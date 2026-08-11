@@ -41,6 +41,89 @@ function onPlayerDeath(event) {
 }
 ```
 
+### 身体（Body）事件
+
+玩家生命体征、意识、行为动作、睡眠与特殊状态的变化事件。所有身体事件均携带 `event.Body`（C# Body 实例）与 `event.Camera`（PlayerCamera）。
+
+#### 生命体征临界
+
+| 钩子函数                  | 触发时机                            | 附加字段                       |
+|---------------------------|-------------------------------------|--------------------------------|
+| `onBodyCardiacArrest`     | 心脏骤停 / 恢复心跳（heartRate<20） | `event.IsCardiacArrest` (bool) |
+| `onBodyFibrillationStart` | 心室颤动开始                        | —                              |
+| `onBodyFibrillationEnd`   | 心室颤动结束                        | —                              |
+| `onBodyBreathChange`      | 呼吸停止 / 恢复                     | `event.IsBreathing` (bool)     |
+
+```js
+function onBodyCardiacArrest(event) {
+    if (event.IsCardiacArrest) {
+        Log.Warning('心脏骤停！快进行心肺复苏！');
+    } else {
+        Log.Info('心跳恢复了');
+    }
+}
+```
+
+#### 意识状态
+
+| 钩子函数                    | 触发时机            | 附加字段                    |
+|-----------------------------|---------------------|-----------------------------|
+| `onBodyConsciousnessChange` | 昏迷 / 苏醒         | `event.IsConscious` (bool)  |
+| `onBodyBrainDying`          | 进入 / 离开濒死状态 | `event.IsBrainDying` (bool) |
+
+```js
+function onBodyConsciousnessChange(event) {
+    if (event.IsConscious) {
+        Log.Info('玩家醒来了');
+    } else {
+        Log.Warning('玩家昏迷了');
+    }
+}
+```
+
+#### 行为动作
+
+| 钩子函数              | 触发时机         | 附加字段                     |
+|-----------------------|------------------|------------------------------|
+| `onBodyClimbStart`    | 开始攀爬         | —                            |
+| `onBodyClimbEnd`      | 停止攀爬         | —                            |
+| `onBodyExerciseStart` | 开始锻炼         | —                            |
+| `onBodyExerciseEnd`   | 停止锻炼         | —                            |
+| `onBodySwitchHands`   | 交换左右手物品   | —                            |
+| `onBodySwitchDir`     | 切换朝向（转身） | `event.IsRight` (bool)       |
+| `onBodyCrouchChange`  | 开始 / 停止下蹲  | `event.IsCrouching` (bool)   |
+| `onBodyPickUp`        | 拾起物品         | `event.ItemId`、`event.Slot` |
+| `onBodyDrop`          | 丢弃物品         | `event.ItemId`               |
+
+```js
+function onBodyPickUp(event) {
+    Log.Info('捡起了 ' + event.ItemId + '（槽位 ' + event.Slot + '）');
+}
+
+function onBodySwitchHands(event) {
+    Log.Info('切换了手持物品');
+}
+```
+
+#### 睡眠 / 特殊状态
+
+| 钩子函数            | 触发时机           | 附加字段                    |
+|---------------------|--------------------|-----------------------------|
+| `onBodySleepChange` | 入睡 / 醒来        | `event.IsSleeping` (bool)   |
+| `onBodyLastStand`   | 成功触发"最后坚持" | —                           |
+| `onBodyDisfigure`   | 玩家被毁容         | —                           |
+| `onBodyRemoveEye`   | 玩家失去眼睛       | `event.BothEyesGone` (bool) |
+
+```js
+function onBodySleepChange(event) {
+    if (event.IsSleeping) {
+        Log.Info('玩家睡着了');
+    } else {
+        Log.Info('玩家醒了');
+    }
+}
+```
+
 ### 肢体事件
 
 所有肢体相关事件，6 个钩子覆盖骨折、脱臼、感染、截肢等状态变化。
@@ -234,6 +317,194 @@ function onMainMenuLoaded(event) {
 
 > ⚠️ `onWorldGenerated` 是第一个可以安全访问 World 的时机。在此之前（包括 `onLoad`）世界还没生成，调用 World
 > 会报错。
+
+### 小游戏事件
+
+玩家进行除颤 / 包扎小游戏时触发。
+
+| 钩子函数                       | 触发时机                  | event 字段                            |
+|--------------------------------|---------------------------|---------------------------------------|
+| `onAEDMinigameStart`           | AED 除颤小游戏开始        | `event.Limb`、`event.LimbIndex`       |
+| `onAEDMinigameDefibrillate`    | AED 除颤成功（放电）      | `event.Limb`、`event.WasFibrillating` |
+| `onAEDMinigameFail`            | AED 分析失败              | `event.Limb`                          |
+| `onBandageMinigameStart`       | 包扎小游戏开始            | `event.Limb`、`event.BandageAngle`    |
+| `onBandageMinigameWrap`        | 包扎完成一圈缠绕          | `event.Limb`                          |
+| `onDislocationMinigameStart`   | 脱臼复位小游戏开始        | `event.Limb`、`event.HasWrench`       |
+| `onDislocationMinigameSuccess` | 肢体复位成功              | `event.Limb`                          |
+| `onHandCrankMinigameStart`     | 手摇曲柄小游戏开始        | —                                     |
+| `onHandCrankMinigameCharge`    | 转动曲柄给设备充电        | `event.Angle`                         |
+| `onHandCrankMinigameEnd`       | 耐力耗尽小游戏结束        | —                                     |
+| `onKeypadMinigameStart`        | 键盘密码小游戏开始        | `event.ToDestroy`                     |
+| `onKeypadMinigameSuccess`      | 密码正确、目标建筑摧毁    | `event.ToDestroy`                     |
+| `onLockpingMinigameStart`      | 撬锁小游戏开始            | `event.ToDestroy`、`event.HasPick`    |
+| `onLockpingMinigameSuccess`    | 撬锁成功                  | `event.ToDestroy`                     |
+| `onLockpingMinigameStuck`      | 撬锁卡住（损坏工具/手指） | `event.ToDestroy`                     |
+| `onManualDefibMinigameStart`   | 手动除颤小游戏开始        | `event.Limb`、`event.OnTorso`         |
+| `onManualDefibMinigameShock`   | 手动除颤放电              | `event.Limb`、`event.Charge`          |
+| `onManualDefibMinigameEnd`     | 电池耗尽小游戏结束        | `event.Limb`                          |
+| `onShrapnelMinigameStart`      | 取弹片小游戏开始          | `event.Limb`、`event.HasTweezers`     |
+| `onShrapnelMinigameSuccess`    | 所有弹片取出              | `event.Limb`                          |
+| `onShrapnelMinigameFail`       | 夹碎弹片伤口加深          | `event.Limb`                          |
+| `onSyringeMinigameStart`       | 注射小游戏开始            | `event.Limb`                          |
+| `onSyringeMinigameInject`      | 注射器推入药液            | `event.Limb`                          |
+| `onSyringeMinigameFail`        | 注射扎偏（扎碎弹片）      | `event.Limb`                          |
+| `onAmputationMinigameStart`    | 截肢小游戏开始            | `event.Limb`                          |
+| `onAmputationMinigameSuccess`  | 肢体被切断                | `event.Limb`                          |
+
+```js
+function onAEDMinigameDefibrillate(event) {
+    if (event.WasFibrillating) {
+        Log.Info('除颤成功，心室颤动已停止！');
+    }
+}
+```
+
+### 世界物品与实体事件
+
+玩家操作或世界中的物品/实体状态变化时触发。
+
+| 钩子函数               | 触发时机               | event 字段                                           |
+|------------------------|------------------------|------------------------------------------------------|
+| `onBatteryLoad`        | 给设备装入电池         | `event.Device`、`event.Battery`、`event.BatteryType` |
+| `onBatteryUnload`      | 从设备卸下电池         | `event.Device`、`event.BatteryType`                  |
+| `onAutoPumpActive`     | 自动泵开始运作（补压） | `event.Item`                                         |
+| `onAutoPumpInactive`   | 自动泵停止运作         | `event.Item`                                         |
+| `onBatteryRecharge`    | 电池放入充电器         | `event.Charger`                                      |
+| `onBearTrapTrigger`    | 捕兽夹夹住肢体         | `event.Trap`、`event.Limb`                           |
+| `onBearTrapRelease`    | 捕兽夹松开             | `event.Trap`                                         |
+| `onBioTerminalUse`     | 使用生物终端           | `event.Terminal`、`event.Success`                    |
+| `onGroundBlood`        | 流血粒子落地形成血迹   | `event.Position`、`event.Vomit`                      |
+| `onBlockDamaged`       | 方块受损 / 被破坏      | `event.Pos`、`event.Damage`、`event.Destroyed`       |
+| `onBlueprintCreate`    | 蓝图生成并分配配方     | `event.Blueprint`、`event.RecipeIndex`               |
+| `onBoughtItemExpire`   | 已购物品到期被移除     | `event.Item`                                         |
+| `onBounceShroomBounce` | 踩到弹跳蘑菇被弹起     | `event.Mushroom`                                     |
+| `onBuildingDestroy`    | 建筑实体被完全破坏     | `event.Building`、`event.BuildingId`                 |
+
+```js
+function onBearTrapTrigger(event) {
+    Log.Warning('捕兽夹夹住了肢体！');
+    Player.Alert('疼！', true);
+}
+```
+
+### 水晶事件
+
+水晶效果被触碰 / 攻击，以及水晶敌人的攻击 / 死亡。
+
+| 钩子函数               | 触发时机                  | event 字段                          |
+|------------------------|---------------------------|-------------------------------------|
+| `onCrystalTouch`       | 玩家 / 物品触碰到水晶效果 | `event.EffectType`、`event.Crystal` |
+| `onCrystalHit`         | 玩家攻击水晶效果          | `event.EffectType`、`event.Crystal` |
+| `onCrystalEnemyAttack` | 水晶敌人对玩家突刺攻击    | `event.Enemy`                       |
+| `onCrystalEnemyDeath`  | 水晶敌人被击杀            | `event.Enemy`                       |
+
+```js
+function onCrystalTouch(event) {
+    Log.Info('触碰到水晶效果: ' + event.EffectType);
+}
+```
+
+### 环境事件
+
+洞穴蜘蛛、可攀爬物、电线圈、尸体等环境对象的状态变化。
+
+| 钩子函数              | 触发时机           | event 字段                             |
+|-----------------------|--------------------|----------------------------------------|
+| `onCaveTickSpawn`     | 洞穴蜘蛛生成器触发 | `event.Position`                       |
+| `onClimbableRegister` | 可攀爬物被注册     | `event.Climbable`、`event.TotalLength` |
+| `onCoilShock`         | 电线圈对肢体放电   | `event.Coil`、`event.Limb`             |
+| `onCorpseSeen`        | 玩家首次看到尸体   | `event.Corpse`、`event.AnimalCorpse`   |
+| `onCorpseDestroy`     | 玩家破坏尸体       | `event.Corpse`                         |
+
+```js
+function onCoilShock(event) {
+    Log.Warning('被电线圈电到了！');
+}
+```
+
+### 世界对象事件
+
+可损坏物、伤害板条箱、钻探舱、脊背兽长老、PDA、间歇泉、全局暗幕、捕抓植物、抓钩等对象的状态变化。
+
+| 钩子函数                  | 触发时机                     | event 字段                         |
+|---------------------------|------------------------------|------------------------------------|
+| `onDamageableDamaged`     | 可损坏物受击                 | `event.Damageable`、`event.Damage` |
+| `onDamagingCrateHit`      | 伤害板条箱发生碰撞           | `event.Crate`、`event.Type`        |
+| `onDrillPodRepair`        | 钻探舱被维修包修复           | `event.Pod`                        |
+| `onDrillPodUse`           | 钻探舱激活重建世界（传送）   | `event.Pod`                        |
+| `onThornbackNear`         | 脊背兽长老靠近玩家           | `event.Thornback`                  |
+| `onThornbackStage`        | 长老进入下一阶段（狂暴）     | `event.Thornback`、`event.Stage`   |
+| `onThornbackDeath`        | 长老被击杀                   | `event.Thornback`                  |
+| `onPdaUse`                | 使用 PDA 阅读笔记            | `event.Pda`、`event.FirstRead`     |
+| `onGeyserRumble`          | 间歇泉开始轰鸣               | `event.Geyser`                     |
+| `onGeyserActivate`        | 间歇泉喷发                   | `event.Geyser`                     |
+| `onGlobalDark`            | 全局暗幕开始变暗             | `event.Darkening`                  |
+| `onGrabberPlantGrab`      | 捕抓植物抓住玩家肢体         | `event.Plant`                      |
+| `onGrapplingHookFire`     | 抓钩发射                     | `event.Hook`                       |
+| `onGrapplingHookHit`      | 抓钩勾住表面                 | `event.Hook`                       |
+| `onGrapplingHookReturn`   | 抓钩收回                     | `event.Hook`                       |
+| `onItemDestroy`           | 物品耐久归零被销毁           | `event.ItemId`、`event.Item`       |
+| `onJumpPadBounce`         | 踩上跳跃平台被弹起           | `event.Pad`                        |
+| `onLifepodButtonPress`    | 按下救生舱按钮               | `event.Type`                       |
+| `onLifepodShowerActivate` | 救生舱淋浴激活               | `event.Shower`                     |
+| `onMedStationHeal`        | 进入医疗站开始治疗           | `event.Station`                    |
+| `onMineTrigger`           | 地雷被触发                   | `event.Mine`                       |
+| `onObserverLastStand`     | 成功"最后坚持"（观察者拉近） | `event.Observer`                   |
+| `onObserverGunSuicide`    | 用枪自杀（观察者拉近）       | `event.Observer`                   |
+| `onOpenableUse`           | 打开可开启物（门/箱）        | `event.Openable`、`event.Mode`     |
+| `onPlushSqueak`           | 毛绒玩具被挤压吱吱叫         | `event.Plush`                      |
+| `onPreRunStart`           | 开始新游戏                   | —                                  |
+| `onPreRunLoad`            | 读取存档继续游戏             | —                                  |
+| `onPreRunTutorial`        | 开始教程                     | —                                  |
+| `onOpiateOverdose`        | 阿片类水平过高（中毒）       | —                                  |
+| `onSelfDestruct`          | 触发自毁序列                 | —                                  |
+| `onWoundViewToggle`       | 打开/关闭伤口面板            | `event.Open`                       |
+| `onCraftPanelToggle`      | 打开/关闭制作面板            | `event.Open`                       |
+| `onAmmoUnload`            | 从弹匣卸下一发子弹           | `event.Magazine`                   |
+| `onAmmoLoad`              | 向弹匣装入一发子弹           | `event.Magazine`                   |
+| `onAltHoverToggle`        | 按住/切换 Alt 显示物品标签   | `event.Active`                     |
+
+```js
+function onThornbackStage(event) {
+    Log.Warning('脊背兽长老进入了第 ' + event.Stage + ' 阶段！');
+}
+
+function onPdaUse(event) {
+    if (event.FirstRead) {
+        Log.Info('首次阅读 PDA 笔记，获得经验');
+    }
+}
+```
+
+### 系统事件
+
+精神抹除、辐射线、存档、技能升级、商人、炮塔、世界重生、电锯、声波炮等系统级事件。
+
+| 钩子函数             | 触发时机               | event 字段                                            |
+|----------------------|------------------------|-------------------------------------------------------|
+| `onMindwipe`         | 触发精神抹除           | —                                                     |
+| `onRadiationStart`   | 辐射线开始逼近         | —                                                     |
+| `onGameSave`         | 保存游戏               | —                                                     |
+| `onSkillLevelUp`     | 属性升级               | `event.Stat`、`event.OldLevel`、`event.NewLevel`      |
+| `onTraderMeet`       | 与商人开始对话         | `event.Trader`、`event.Character`、`event.Reputation` |
+| `onTraderHaggle`     | 与商人讲价             | `event.Trader`、`event.Reputation`                    |
+| `onTraderDeath`      | 商人被击杀             | `event.Trader`                                        |
+| `onTurretShoot`      | 炮塔开火               | `event.Turret`                                        |
+| `onTurretExplode`    | 炮塔被摧毁爆炸         | `event.Turret`                                        |
+| `onWorldRegenerate`  | 世界重生（进入下一层） | `event.Twice`                                         |
+| `onSawbladeHit`      | 电锯锯到肢体           | `event.Sawblade`                                      |
+| `onSoundCannonShoot` | 声波炮发射             | `event.Cannon`                                        |
+
+```js
+function onSkillLevelUp(event) {
+    var statName = ['力量', '耐力', '智力'][event.Stat];
+    Log.Info(statName + ' 升级到 ' + event.NewLevel);
+}
+
+function onWorldRegenerate(event) {
+    Log.Info(event.Twice ? '连续跨越两层！' : '进入下一层');
+}
+```
 
 ### 命令事件
 

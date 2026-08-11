@@ -45,10 +45,12 @@ public static class PlayerUtil
         var resolved = ScriptCallContext.ResolveItemId(item);
         var pos = BodyUtil.Body.transform.position;
         var go = Utils.Create(resolved, pos, 0f)
-                 ?? (resolved != item ? Utils.Create(item, pos, 0f) : null)
+                 ?? (resolved != item
+                     ? Utils.Create(item, pos, 0f)
+                     : null)
                  ?? throw new InvalidOperationException(LocaleLog("player.load_item.fail", item));
-        var cmp = go.GetComponent<Item>() ??
-                  throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
+        var cmp = go.GetComponent<Item>()
+                  ?? throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
         BodyUtil.Body.PickUpItem(cmp, slot, force);
     }
 

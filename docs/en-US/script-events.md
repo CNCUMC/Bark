@@ -42,6 +42,90 @@ function onPlayerDeath(event) {
 }
 ```
 
+### Body Events
+
+Changes to the player's vitals, consciousness, actions, sleep, and special states. Every body event carries
+`event.Body` (C# Body instance) and `event.Camera` (PlayerCamera).
+
+#### Vitals / Critical
+
+| Hook Function             | Trigger                                            | Extra Fields                   |
+|---------------------------|----------------------------------------------------|--------------------------------|
+| `onBodyCardiacArrest`     | Cardiac arrest / heartbeat restored (heartRate<20) | `event.IsCardiacArrest` (bool) |
+| `onBodyFibrillationStart` | Fibrillation started                               | —                              |
+| `onBodyFibrillationEnd`   | Fibrillation stopped                               | —                              |
+| `onBodyBreathChange`      | Breathing stopped / restored                       | `event.IsBreathing` (bool)     |
+
+```js
+function onBodyCardiacArrest(event) {
+    if (event.IsCardiacArrest) {
+        Log.Warning('Cardiac arrest! Start CPR!');
+    } else {
+        Log.Info('Heartbeat restored');
+    }
+}
+```
+
+#### Consciousness
+
+| Hook Function               | Trigger                        | Extra Fields                |
+|-----------------------------|--------------------------------|-----------------------------|
+| `onBodyConsciousnessChange` | Unconscious / awake            | `event.IsConscious` (bool)  |
+| `onBodyBrainDying`          | Entering / leaving brain-death | `event.IsBrainDying` (bool) |
+
+```js
+function onBodyConsciousnessChange(event) {
+    if (event.IsConscious) {
+        Log.Info('Player woke up');
+    } else {
+        Log.Warning('Player passed out');
+    }
+}
+```
+
+#### Actions
+
+| Hook Function         | Trigger                     | Extra Fields                 |
+|-----------------------|-----------------------------|------------------------------|
+| `onBodyClimbStart`    | Started climbing            | —                            |
+| `onBodyClimbEnd`      | Stopped climbing            | —                            |
+| `onBodyExerciseStart` | Started exercising          | —                            |
+| `onBodyExerciseEnd`   | Stopped exercising          | —                            |
+| `onBodySwitchHands`   | Swapped hand items          | —                            |
+| `onBodySwitchDir`     | Switched facing             | `event.IsRight` (bool)       |
+| `onBodyCrouchChange`  | Started / stopped crouching | `event.IsCrouching` (bool)   |
+| `onBodyPickUp`        | Picked up an item           | `event.ItemId`, `event.Slot` |
+| `onBodyDrop`          | Dropped an item             | `event.ItemId`               |
+
+```js
+function onBodyPickUp(event) {
+    Log.Info('Picked up ' + event.ItemId + ' (slot ' + event.Slot + ')');
+}
+
+function onBodySwitchHands(event) {
+    Log.Info('Swapped hand items');
+}
+```
+
+#### Sleep / Special States
+
+| Hook Function       | Trigger               | Extra Fields                |
+|---------------------|-----------------------|-----------------------------|
+| `onBodySleepChange` | Fell asleep / woke up | `event.IsSleeping` (bool)   |
+| `onBodyLastStand`   | Last Stand succeeded  | —                           |
+| `onBodyDisfigure`   | Player was disfigured | —                           |
+| `onBodyRemoveEye`   | Player lost an eye    | `event.BothEyesGone` (bool) |
+
+```js
+function onBodySleepChange(event) {
+    if (event.IsSleeping) {
+        Log.Info('Player fell asleep');
+    } else {
+        Log.Info('Player woke up');
+    }
+}
+```
+
 ### Limb Events
 
 Six hooks cover all limb status changes: fracture, dislocation, infection, dismemberment.
@@ -237,6 +321,196 @@ function onMainMenuLoaded(event) {
 
 > ⚠️ `onWorldGenerated` is the first moment you can safely call `World`. Before this (including `onLoad`), the world
 > doesn't exist and calling World will error.
+
+### Minigame Events
+
+Fired when the player performs defibrillator / bandage minigames.
+
+| Hook Function                  | Trigger                                 | event fields                          |
+|--------------------------------|-----------------------------------------|---------------------------------------|
+| `onAEDMinigameStart`           | AED minigame started                    | `event.Limb`, `event.LimbIndex`       |
+| `onAEDMinigameDefibrillate`    | AED defibrillation succeeded (shock)    | `event.Limb`, `event.WasFibrillating` |
+| `onAEDMinigameFail`            | AED analysis failed                     | `event.Limb`                          |
+| `onBandageMinigameStart`       | Bandage minigame started                | `event.Limb`, `event.BandageAngle`    |
+| `onBandageMinigameWrap`        | One full bandage wrap completed         | `event.Limb`                          |
+| `onDislocationMinigameStart`   | Dislocation reset minigame started      | `event.Limb`, `event.HasWrench`       |
+| `onDislocationMinigameSuccess` | Limb dislocated reset successfully      | `event.Limb`                          |
+| `onHandCrankMinigameStart`     | Hand crank minigame started             | —                                     |
+| `onHandCrankMinigameCharge`    | Crank rotated, charging the device      | `event.Angle`                         |
+| `onHandCrankMinigameEnd`       | Minigame ended (stamina exhausted)      | —                                     |
+| `onKeypadMinigameStart`        | Keypad minigame started                 | `event.ToDestroy`                     |
+| `onKeypadMinigameSuccess`      | Correct code, target building destroyed | `event.ToDestroy`                     |
+| `onLockpingMinigameStart`      | Lockpick minigame started               | `event.ToDestroy`, `event.HasPick`    |
+| `onLockpingMinigameSuccess`    | Lock picked successfully                | `event.ToDestroy`                     |
+| `onLockpingMinigameStuck`      | Lockpick stuck (tool/fingers damaged)   | `event.ToDestroy`                     |
+| `onManualDefibMinigameStart`   | Manual defib minigame started           | `event.Limb`, `event.OnTorso`         |
+| `onManualDefibMinigameShock`   | Manual defib discharged                 | `event.Limb`, `event.Charge`          |
+| `onManualDefibMinigameEnd`     | Minigame ended (battery exhausted)      | `event.Limb`                          |
+| `onShrapnelMinigameStart`      | Shrapnel removal minigame started       | `event.Limb`, `event.HasTweezers`     |
+| `onShrapnelMinigameSuccess`    | All shrapnel removed                    | `event.Limb`                          |
+| `onShrapnelMinigameFail`       | Crushed shrapnel, wound deepened        | `event.Limb`                          |
+| `onSyringeMinigameStart`       | Syringe minigame started                | `event.Limb`                          |
+| `onSyringeMinigameInject`      | Syringe pushed in medicine              | `event.Limb`                          |
+| `onSyringeMinigameFail`        | Injection off-target (crushed shrapnel) | `event.Limb`                          |
+| `onAmputationMinigameStart`    | Amputation minigame started             | `event.Limb`                          |
+| `onAmputationMinigameSuccess`  | Limb severed                            | `event.Limb`                          |
+
+```js
+function onAEDMinigameDefibrillate(event) {
+    if (event.WasFibrillating) {
+        Log.Info('Defibrillated, fibrillation stopped!');
+    }
+}
+```
+
+### World Item & Entity Events
+
+Fired when the player interacts with items/entities or their state changes in the world.
+
+| Hook Function          | Trigger                                  | event fields                                         |
+|------------------------|------------------------------------------|------------------------------------------------------|
+| `onBatteryLoad`        | Battery inserted into a device           | `event.Device`, `event.Battery`, `event.BatteryType` |
+| `onBatteryUnload`      | Battery removed from a device            | `event.Device`, `event.BatteryType`                  |
+| `onAutoPumpActive`     | AutoPump started boosting blood pressure | `event.Item`                                         |
+| `onAutoPumpInactive`   | AutoPump stopped                         | `event.Item`                                         |
+| `onBatteryRecharge`    | Battery placed in a recharger            | `event.Charger`                                      |
+| `onBearTrapTrigger`    | Bear trap caught a limb                  | `event.Trap`, `event.Limb`                           |
+| `onBearTrapRelease`    | Bear trap released                       | `event.Trap`                                         |
+| `onBioTerminalUse`     | Bio terminal used                        | `event.Terminal`, `event.Success`                    |
+| `onGroundBlood`        | Blood particle formed a ground stain     | `event.Position`, `event.Vomit`                      |
+| `onBlockDamaged`       | Block damaged / destroyed                | `event.Pos`, `event.Damage`, `event.Destroyed`       |
+| `onBlueprintCreate`    | Blueprint spawned with a recipe          | `event.Blueprint`, `event.RecipeIndex`               |
+| `onBoughtItemExpire`   | Bought item expired and removed          | `event.Item`                                         |
+| `onBounceShroomBounce` | Player bounced off a BounceShroom        | `event.Mushroom`                                     |
+| `onBuildingDestroy`    | Building entity fully destroyed          | `event.Building`, `event.BuildingId`                 |
+
+```js
+function onBearTrapTrigger(event) {
+    Log.Warning('A bear trap caught your limb!');
+    Player.Alert('Ouch!', true);
+}
+```
+
+### Crystal Events
+
+Crystal effects touched / hit, plus crystal enemy attack / death.
+
+| Hook Function          | Trigger                                | event fields                        |
+|------------------------|----------------------------------------|-------------------------------------|
+| `onCrystalTouch`       | Player / item touched a crystal effect | `event.EffectType`, `event.Crystal` |
+| `onCrystalHit`         | Player attacked a crystal effect       | `event.EffectType`, `event.Crystal` |
+| `onCrystalEnemyAttack` | Crystal enemy lunged at the player     | `event.Enemy`                       |
+| `onCrystalEnemyDeath`  | Crystal enemy was killed               | `event.Enemy`                       |
+
+```js
+function onCrystalTouch(event) {
+    Log.Info('Touched crystal effect: ' + event.EffectType);
+}
+```
+
+### Environment Events
+
+State changes of cave tick spawners, climbables, coils, corpses, etc.
+
+| Hook Function         | Trigger                     | event fields                           |
+|-----------------------|-----------------------------|----------------------------------------|
+| `onCaveTickSpawn`     | Cave tick spawner triggered | `event.Position`                       |
+| `onClimbableRegister` | Climbable registered        | `event.Climbable`, `event.TotalLength` |
+| `onCoilShock`         | Coil shocked a limb         | `event.Coil`, `event.Limb`             |
+| `onCorpseSeen`        | Player first saw a corpse   | `event.Corpse`, `event.AnimalCorpse`   |
+| `onCorpseDestroy`     | Player destroyed a corpse   | `event.Corpse`                         |
+
+```js
+function onCoilShock(event) {
+    Log.Warning('Electrocuted by a coil!');
+}
+```
+
+### World Object Events
+
+State changes of damageables, damaging crates, drill pods, the Elder Thornback, PDAs, geysers, the global dark,
+grabber plants, and grappling hooks.
+
+| Hook Function             | Trigger                                      | event fields                       |
+|---------------------------|----------------------------------------------|------------------------------------|
+| `onDamageableDamaged`     | Damageable object took damage                | `event.Damageable`, `event.Damage` |
+| `onDamagingCrateHit`      | Damaging crate collided                      | `event.Crate`, `event.Type`        |
+| `onDrillPodRepair`        | Drill pod repaired with a kit                | `event.Pod`                        |
+| `onDrillPodUse`           | Drill pod activated (world rebuild/teleport) | `event.Pod`                        |
+| `onThornbackNear`         | Elder Thornback approached the player        | `event.Thornback`                  |
+| `onThornbackStage`        | Elder Thornback entered the next stage       | `event.Thornback`, `event.Stage`   |
+| `onThornbackDeath`        | Elder Thornback was killed                   | `event.Thornback`                  |
+| `onPdaUse`                | PDA used to read a note                      | `event.Pda`, `event.FirstRead`     |
+| `onGeyserRumble`          | Geyser started rumbling                      | `event.Geyser`                     |
+| `onGeyserActivate`        | Geyser erupted                               | `event.Geyser`                     |
+| `onGlobalDark`            | Global dark started darkening the screen     | `event.Darkening`                  |
+| `onGrabberPlantGrab`      | Grabber plant grabbed the player's limb      | `event.Plant`                      |
+| `onGrapplingHookFire`     | Grappling hook fired                         | `event.Hook`                       |
+| `onGrapplingHookHit`      | Grappling hook latched onto a surface        | `event.Hook`                       |
+| `onGrapplingHookReturn`   | Grappling hook retracted                     | `event.Hook`                       |
+| `onItemDestroy`           | Item destroyed (condition reached zero)      | `event.ItemId`, `event.Item`       |
+| `onJumpPadBounce`         | Player bounced off a jump pad                | `event.Pad`                        |
+| `onLifepodButtonPress`    | Lifepod button pressed                       | `event.Type`                       |
+| `onLifepodShowerActivate` | Lifepod shower activated                     | `event.Shower`                     |
+| `onMedStationHeal`        | Entered a med station, healing started       | `event.Station`                    |
+| `onMineTrigger`           | Mine triggered                               | `event.Mine`                       |
+| `onObserverLastStand`     | Last Stand succeeded (Observer approached)   | `event.Observer`                   |
+| `onObserverGunSuicide`    | Gun suicide (Observer approached)            | `event.Observer`                   |
+| `onOpenableUse`           | Opened an openable (door/crate)              | `event.Openable`, `event.Mode`     |
+| `onPlushSqueak`           | Plush toy squeaked when squeezed             | `event.Plush`                      |
+| `onPreRunStart`           | Started a new run                            | —                                  |
+| `onPreRunLoad`            | Loaded a save to continue                    | —                                  |
+| `onPreRunTutorial`        | Started the tutorial                         | —                                  |
+| `onOpiateOverdose`        | Opiate level too high (overdose)             | —                                  |
+| `onSelfDestruct`          | Self-destruct sequence triggered             | —                                  |
+| `onWoundViewToggle`       | Wound panel opened/closed                    | `event.Open`                       |
+| `onCraftPanelToggle`      | Craft panel opened/closed                    | `event.Open`                       |
+| `onAmmoUnload`            | A round unloaded from a magazine             | `event.Magazine`                   |
+| `onAmmoLoad`              | A round loaded into a magazine               | `event.Magazine`                   |
+| `onAltHoverToggle`        | Alt item labels toggled on/off               | `event.Active`                     |
+
+```js
+function onThornbackStage(event) {
+    Log.Warning('Elder Thornback entered stage ' + event.Stage + '!');
+}
+
+function onPdaUse(event) {
+    if (event.FirstRead) {
+        Log.Info('First read of PDA note, gained XP');
+    }
+}
+```
+
+### System Events
+
+System-level events: mindwipe, radiation line, saving, skill level-ups, traders, turrets, world regeneration,
+sawblades, and the sound cannon.
+
+| Hook Function        | Trigger                            | event fields                                          |
+|----------------------|------------------------------------|-------------------------------------------------------|
+| `onMindwipe`         | Mindwipe triggered                 | —                                                     |
+| `onRadiationStart`   | Radiation line began advancing     | —                                                     |
+| `onGameSave`         | Game saved                         | —                                                     |
+| `onSkillLevelUp`     | A stat leveled up                  | `event.Stat`, `event.OldLevel`, `event.NewLevel`      |
+| `onTraderMeet`       | Conversation with a trader started | `event.Trader`, `event.Character`, `event.Reputation` |
+| `onTraderHaggle`     | Haggle with a trader               | `event.Trader`, `event.Reputation`                    |
+| `onTraderDeath`      | Trader killed                      | `event.Trader`                                        |
+| `onTurretShoot`      | Turret fired                       | `event.Turret`                                        |
+| `onTurretExplode`    | Turret destroyed and exploded      | `event.Turret`                                        |
+| `onWorldRegenerate`  | World regenerated (next layer)     | `event.Twice`                                         |
+| `onSawbladeHit`      | Sawblade cut a limb                | `event.Sawblade`                                      |
+| `onSoundCannonShoot` | Sound cannon fired                 | `event.Cannon`                                        |
+
+```js
+function onSkillLevelUp(event) {
+    var statName = ['Strength', 'Resilience', 'Intelligence'][event.Stat];
+    Log.Info(statName + ' leveled up to ' + event.NewLevel);
+}
+
+function onWorldRegenerate(event) {
+    Log.Info(event.Twice ? 'Skipped two layers!' : 'Descended to the next layer');
+}
+```
 
 ### Command Event
 

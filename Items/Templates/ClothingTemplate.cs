@@ -64,14 +64,6 @@ public class ClothingTemplate : ItemTemplate
             ["recognition"] = 0,
             ["tags"] = "",
 
-            // ---- DecayDef 嵌套字段 ----
-            // 衣服通常不腐烂
-            ["decay"] = new JObject
-            {
-                ["info"] = 0,
-                ["minutes"] = 0.0
-            },
-
             // ---- SpriteDef 嵌套字段 ----
             ["sprite"] = new JObject
             {

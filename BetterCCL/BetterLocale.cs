@@ -162,10 +162,8 @@ public static class BetterLocale
             langDict[category] = catDict = new Dictionary<string, string>();
         catDict[localeKey] = value;
         var localeKeys = $"{category}.{localeKey}";
-        if (LocaleKeys.ContainsKey(localeKeys))
+        if (!LocaleKeys.TryAdd(localeKeys, 1))
             LocaleKeys[localeKeys]++;
-        else
-            LocaleKeys.Add(localeKeys, 1);
     }
 
     private static string? GetDefault(string language, string key)
@@ -181,17 +179,12 @@ public static class BetterLocale
     {
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
 
-        foreach (var langKvp in Defaults)
+        foreach (var (language, dictionary) in Defaults)
         {
-            var language = langKvp.Key;
-            foreach (var catKvp in langKvp.Value)
+            foreach (var (category, dictionary1) in dictionary)
             {
-                var category = catKvp.Key;
-                foreach (var keyKvp in catKvp.Value)
+                foreach (var (key, value) in dictionary1)
                 {
-                    var key = keyKvp.Key;
-                    var value = keyKvp.Value;
-
                     try
                     {
                         var filePath = Path.Combine(outputDirectory, $"{language}.json");
@@ -215,12 +208,10 @@ public static class BetterLocale
                             root[category] = catObj;
                         }
 
-                        if (catObj[key] == null)
-                        {
-                            catObj[key] = value;
-                            File.WriteAllText(filePath,
-                                JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
-                        }
+                        if (catObj[key] != null) continue;
+                        catObj[key] = value;
+                        File.WriteAllText(filePath,
+                            JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
                     }
                     catch (Exception ex)
                     {

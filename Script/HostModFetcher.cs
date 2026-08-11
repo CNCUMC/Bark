@@ -25,13 +25,13 @@ public static class HostModFetcher
     // 服务端缓存：modId -> 整目录 zip 字节。首次请求时懒打包，避免每次请求重复压缩。
     private static readonly Dictionary<string, byte[]> ServerCache = new(StringComparer.OrdinalIgnoreCase);
 
-    // 初始化：仅服务端需要注册 fetch handler
+    // 初始化：注册 fetch handler。
+    // 注意：无条件注册（RegisterServerHandler 仅写字典，客户端/未建房间时也无害）。
+    // 之前误加了 IsServer/IsHost 检查——它在 Plugin.Awake（建房间前）时为 false，导致主机建房间后
+    // fetch handler 未注册、客户端拉取模组时收到 "(no handler)"。
     public static void Initialize()
     {
         if (!BarkKrokBridge.IsAvailable)
-            return;
-
-        if (!BarkKrokBridge.IsServer && !BarkKrokBridge.IsHost)
             return;
 
         BarkKrokBridge.RegisterServerHandler(FetchChannel, OnFetchRequested);

@@ -18,7 +18,7 @@ public abstract class ModLangGenBase
         _log = logger;
         BuildLocaleData();
         _isInitialized = true;
-        _log.LogInfo($"[{LanguageCode}] Registered {Count} defaults");
+        _log.LogInfo($"[ModLangGenBase] [{LanguageCode}] Registered {Count} defaults");
     }
 
     protected abstract void BuildLocaleData();

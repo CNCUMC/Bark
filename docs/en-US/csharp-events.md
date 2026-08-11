@@ -85,6 +85,39 @@ automatic, good for static handlers.
 | `PlayerJumpOverEvent`  | `Body body`, `Camera camera` | Landed after jump   |
 | `PlayerDeathEvent`     | `Body body`, `Camera camera` | Player died         |
 
+### Body Events
+
+Every body event carries `Body body` and `Camera camera`.
+
+#### Vitals / Consciousness
+
+| C# Type                        | Extra Properties       | Trigger Description            |
+|--------------------------------|------------------------|--------------------------------|
+| `BodyCardiacArrestEvent`       | `bool IsCardiacArrest` | Cardiac arrest / restored      |
+| `BodyFibrillationStartEvent`   | —                      | Fibrillation started           |
+| `BodyFibrillationEndEvent`     | —                      | Fibrillation stopped           |
+| `BodyBreathChangeEvent`        | `bool IsBreathing`     | Breathing stopped / restored   |
+| `BodyConsciousnessChangeEvent` | `bool IsConscious`     | Unconscious / awake            |
+| `BodyBrainDyingEvent`          | `bool IsBrainDying`    | Entering / leaving brain-death |
+
+#### Actions / Sleep / Special States
+
+| C# Type                  | Extra Properties            | Trigger Description         |
+|--------------------------|-----------------------------|-----------------------------|
+| `BodyClimbStartEvent`    | —                           | Started climbing            |
+| `BodyClimbEndEvent`      | —                           | Stopped climbing            |
+| `BodyExerciseStartEvent` | —                           | Started exercising          |
+| `BodyExerciseEndEvent`   | —                           | Stopped exercising          |
+| `BodySwitchHandsEvent`   | —                           | Swapped hand items          |
+| `BodySwitchDirEvent`     | `bool IsRight`              | Switched facing             |
+| `BodyCrouchChangeEvent`  | `bool IsCrouching`          | Started / stopped crouching |
+| `BodyPickUpEvent`        | `string ItemId`, `int Slot` | Picked up an item           |
+| `BodyDropEvent`          | `string ItemId`             | Dropped an item             |
+| `BodySleepChangeEvent`   | `bool IsSleeping`           | Fell asleep / woke up       |
+| `BodyLastStandEvent`     | —                           | Last Stand succeeded        |
+| `BodyDisfigureEvent`     | —                           | Player disfigured           |
+| `BodyRemoveEyeEvent`     | `bool BothEyesGone`         | Player lost an eye          |
+
 ### Limb Events
 
 | C# Type                 | Properties                         | Trigger Description |

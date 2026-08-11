@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Bark.Audio;
 using Bark.Items.Templates;
 using Bark.Tool;
@@ -59,19 +60,21 @@ public static partial class GunRuntimeManager
         };
     }
 
-    // 弹药类型枚举：从模板 string 标签映射到游戏枚举。
-    // 尝试 string → enum 直接映射（如 "Rifle" "Shotgun" "Pistol"），
-    // 失败时按口径前缀映射（7_62*/5_56* → Rifle, 12gauge → Shotgun）。
+    // 枪型映射：把模板显式指定的 gun_type（pistol / rifle / shotgun）映射到 GunScript.AmmoType 枚举，
+    // 供默认音效 / 精灵 / 枪口粒子等按枪型分支使用。
+    // 不再根据弹药口径前缀推断枪型——口径 ≠ 枪型，由作者在 JSON 用 gun_type 显式指定。
+    // 未知值或缺失时回退为 Rifle（与 GunData.GunType 默认值一致）。
     private static void MapAmmoType(GunScript gun, GunData gunData)
     {
-        if (Enum.TryParse<GunScript.AmmoType>(gunData.AmmoType, true, out var parsedAmmoType))
-            gun.ammoType = parsedAmmoType;
-        else if (gunData.AmmoType.StartsWith("12"))
-            gun.ammoType = GunScript.AmmoType.Shotgun;
-        else if (gunData.AmmoType.StartsWith("7_") || gunData.AmmoType.StartsWith("5_"))
-            gun.ammoType = GunScript.AmmoType.Rifle;
-        else
-            gun.ammoType = GunScript.AmmoType.Pistol;
+        gun.ammoType = ParseGunType(gunData.GunType);
+    }
+
+    private static GunScript.AmmoType ParseGunType(string gunType)
+    {
+        // "pistol" / "rifle" / "shotgun" 与枚举名 Pistol / Rifle / Shotgun 忽略大小写匹配
+        return Enum.TryParse<GunScript.AmmoType>(gunType, true, out var parsed)
+            ? parsed
+            : GunScript.AmmoType.Rifle;
     }
 
     // 弹道 / 伤害 / 音效数值 + 管容量（直装枪）
@@ -143,6 +146,7 @@ public static partial class GunRuntimeManager
 
     // 音效字段：fireSound / customRack / customUnrack
     // 枪声：音效档案优先 → 模板路径 → ammoType 默认回退
+    [SuppressMessage("ReSharper", "Unity.UnknownResource")]
     private static void ApplySoundFields(GunScript gun, GunData gunData)
     {
         // fireSound

@@ -14,11 +14,21 @@ public static class LimbUtil
     // OrdinalIgnoreCase 避免大小写不一致导致的匹配问题
     public static readonly HashSet<string> LimbNames = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Head", "UpTorso", "DownTorso",
-        "UpArmF", "DownArmF", "HandF",
-        "UpArmB", "DownArmB", "HandB",
-        "ThighF", "CrusF", "FootF",
-        "ThighB", "CrusB", "FootB"
+        "Head",
+        "UpTorso",
+        "DownTorso",
+        "UpArmF",
+        "DownArmF",
+        "HandF",
+        "UpArmB",
+        "DownArmB",
+        "HandB",
+        "ThighF",
+        "CrusF",
+        "FootF",
+        "ThighB",
+        "CrusB",
+        "FootB"
     };
 
     [ScriptMethod]

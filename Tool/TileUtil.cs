@@ -52,9 +52,9 @@ public static class TileUtil
     {
         var dict = new Dictionary<string, ushort>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var field in typeof(Blocks).GetFields(BindingFlags.Public | BindingFlags.Static))
+        foreach (var field in typeof(Tiles).GetFields(BindingFlags.Public | BindingFlags.Static))
         {
-            if (field.FieldType != typeof(Blocks) || field.GetValue(null) is not Blocks block)
+            if (field.FieldType != typeof(Tiles) || field.GetValue(null) is not Tiles block)
                 continue;
             if (!string.IsNullOrEmpty(block.LocaleKey))
                 dict[block.LocaleKey] = block.Id;

@@ -15,9 +15,10 @@ overrides its behavior via Harmony patches.
     "type": "gun",
     "gun": true,
     "ammo_type": "7_62x51mm",
+    "gun_type": "rifle",
     "damage": 42,
-    "fire_sound": "Assets/Audio/ak47_shot.wav",
-    "rack_sound": "Audio/ak47_rack.wav",
+    "fire_sound": "ak47_shot.wav",
+    "rack_sound": "ak47_rack.wav",
     "unrack_sound": "",
     "mag_type": "ar15_mag",
     "capacity": 15,
@@ -40,8 +41,9 @@ overrides its behavior via Harmony patches.
 |-------------------------|--------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `gun`                   | bool   | `true`                 | Internal marker, **do not remove**                                                                                                                                        |
 | `ammo_type`             | string | `"7_62x51mm"`          | Accepted ammo caliber, e.g. `"9mm"` `"12_gauge"`                                                                                                                          |
+| `gun_type`              | string | `"rifle"`              | Gun category, selects default SFX/sprite/muzzle-particle branch: `"pistol"` / `"rifle"` / `"shotgun"`. Set explicitly by the author — **do not infer from ammo caliber** (caliber ≠ gun type) |
 | `damage`                | float  | `42`                   | Damage per shot                                                                                                                                                           |
-| `fire_sound`            | string | `""`                   | Fire SFX path, relative to mod root directory, e.g. `"Assets/Audio/ak47_shot.wav"`. Bare filename auto-prepends `Assets/Audio/`. Empty = auto-select based on `ammo_type` |
+| `fire_sound`            | string | `""`                   | Fire SFX path, relative to mod root directory, e.g. `"Assets/Audio/ak47_shot.wav"`. Bare filename auto-prepends `Assets/Audio/`. Empty = auto-select based on `gun_type` |
 | `rack_sound`            | string | `""`                   | Rack SFX path. Empty = game default `"gunrack"`                                                                                                                           |
 | `unrack_sound`          | string | `""`                   | Unrack SFX path. Empty but `rack_sound` set = falls back to rack sound                                                                                                    |
 | `mag_type`              | string | `"rifle_mag"`          | Matching magazine type tag                                                                                                                                                |

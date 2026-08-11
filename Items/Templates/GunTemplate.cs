@@ -13,6 +13,12 @@ public class GunData
     // 枪械只接受 ammo_type 标签匹配的弹匣或弹药。
     public string AmmoType = "7_62x51mm";
 
+    // 枪型类别：决定默认音效 / 精灵 / 枪口粒子按哪种枪械分支。
+    // 取值：pistol（手枪）/ rifle（步枪）/ shotgun（霰弹枪）。
+    // 由作者在 JSON 显式指定（gun_type），不要依赖弹药口径推断——口径 ≠ 枪型。
+    // 默认 "rifle"（保持与默认口径 7_62x51mm 一致）。
+    public string GunType = "rifle";
+
     // 对生物的伤害倍率
     public float AnimalDamage = 25f;
 
@@ -194,16 +200,14 @@ public class GunTemplate : ItemTemplate
     public static void CacheGunItem(string itemId, JObject? template, string modDir)
     {
         if (template is null) return;
-        if (template.TryGetValue("gun", out var flag) && flag.Value<bool>())
-        {
-            var data = GunDataFromJObject(template);
-            data.ModDir = modDir;
+        if (!template.TryGetValue("gun", out var flag) || !flag.Value<bool>()) return;
+        var data = GunDataFromJObject(template);
+        data.ModDir = modDir;
 
-            // 若设置了 sound 档案名，加载对应的 GunSoundProfile
-            if (!string.IsNullOrEmpty(data.Sound)) data.SoundProfile = GunSoundProfile.Load(modDir, data.Sound);
+        // 若设置了 sound 档案名，加载对应的 GunSoundProfile
+        if (!string.IsNullOrEmpty(data.Sound)) data.SoundProfile = GunSoundProfile.Load(modDir, data.Sound);
 
-            Registry[itemId] = data;
-        }
+        Registry[itemId] = data;
     }
 
     // ItemLoader 回调：模组热重载时清除枪械条目
@@ -217,6 +221,7 @@ public class GunTemplate : ItemTemplate
         return new GunData
         {
             AmmoType = (string?)t["ammo_type"] ?? "7_62x51mm",
+            GunType = (string?)t["gun_type"] ?? "rifle",
             FiringMode = (string?)t["firing_mode"] ?? "semi_auto",
             MagType = (string?)t["mag_type"] ?? "rifle_mag",
             Direct = t.TryGetValue("direct", out var dv) && dv.Value<bool>(),

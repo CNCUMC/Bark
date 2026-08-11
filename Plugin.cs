@@ -26,7 +26,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
     public const string Name = "Bark";
-    public const string Version = "2.3.2";
+    public const string Version = "2.4.0";
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
@@ -48,6 +48,7 @@ public class Plugin : BaseUnityPlugin
     public void OnDestroy()
     {
         PlayerEventListener.Stop();
+        BodyEventListener.Stop();
         LimbEventListener.Stop();
         MoodleEventListener.Stop();
         ItemEventListener.Stop();
@@ -56,6 +57,12 @@ public class Plugin : BaseUnityPlugin
         TileEventListener.Stop();
         TileScriptRunner.Stop();
         GunEventListener.Stop();
+        MinigameEventListener.Stop();
+        WorldEntityEventListener.Stop();
+        CrystalEventListener.Stop();
+        EnvironmentEventListener.Stop();
+        WorldObjectEventListener.Stop();
+        SystemEventListener.Stop();
         GunRuntimeManager.Unapply();
         GunMagTracker.ClearAll();
         AudioManager.Shutdown();
@@ -104,7 +111,7 @@ public class Plugin : BaseUnityPlugin
         NetworkModSync.Initialize(ScriptModsPath);
 
         // 主机 sr 重载触发的增量文件同步（客户端上报 hash -> 主机对比 -> 推送差异文件）
-        ScriptFileSync.Initialize();
+        ScriptFileSync.Initialize(ScriptModsPath);
 
         // 脚本模组加载完后，将 Lang 本地化刷新到 CCL 的 locale 文件，确保选项标签/描述在游戏 UI 中可见
         BetterLocale.Flush();
@@ -116,6 +123,7 @@ public class Plugin : BaseUnityPlugin
         // 监听世界生成完成后触发事件
         WorldEventListener.Listen(this);
         PlayerEventListener.Listen(this);
+        BodyEventListener.Listen(this);
         LimbEventListener.Listen(this);
         // 监听 Moodle 获取/遍历/消失，触发 Moodle 脚本事件
         MoodleEventListener.Listen(this);
@@ -131,6 +139,18 @@ public class Plugin : BaseUnityPlugin
         TileScriptRunner.Listen();
         // 监听枪械操作（开火/拉栓/保险/装弹/卸弹/卡壳），触发枪械事件
         GunEventListener.Listen(this);
+        // 监听小游戏（AED 除颤/包扎），触发小游戏事件
+        MinigameEventListener.Listen();
+        // 监听世界物品/实体（电池/自动泵/捕兽夹/建筑等），触发对应事件
+        WorldEntityEventListener.Listen();
+        // 监听水晶效果/水晶敌人，触发水晶事件
+        CrystalEventListener.Listen();
+        // 监听环境（洞穴蜘蛛/可攀爬物/电线圈/尸体），触发环境事件
+        EnvironmentEventListener.Listen();
+        // 监听世界对象（可损坏物/板条箱/钻探舱/长老/PDA/间歇泉/暗幕/捕抓植物/抓钩），触发对应事件
+        WorldObjectEventListener.Listen();
+        // 监听系统（精神抹除/辐射线/存档/技能/商人/炮塔/世界重生/电锯/声波炮），触发对应事件
+        SystemEventListener.Listen();
     }
 
     private static void DeployPuertsNativeFiles()

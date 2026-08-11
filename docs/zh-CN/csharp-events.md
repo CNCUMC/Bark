@@ -81,6 +81,39 @@ EventUtil.UnregisterAll(Plugin.Guid);
 | `PlayerJumpOverEvent`  | `Body body`, `Camera camera` | 起跳后落地 |
 | `PlayerDeathEvent`     | `Body body`, `Camera camera` | 玩家死亡   |
 
+### 身体（Body）事件
+
+所有身体事件均携带 `Body body` 与 `Camera camera`。
+
+#### 生命体征临界 / 意识
+
+| C# 类型                        | 附加属性               | 触发描述            |
+|--------------------------------|------------------------|---------------------|
+| `BodyCardiacArrestEvent`       | `bool IsCardiacArrest` | 心脏骤停 / 恢复心跳 |
+| `BodyFibrillationStartEvent`   | —                      | 心室颤动开始        |
+| `BodyFibrillationEndEvent`     | —                      | 心室颤动结束        |
+| `BodyBreathChangeEvent`        | `bool IsBreathing`     | 呼吸停止 / 恢复     |
+| `BodyConsciousnessChangeEvent` | `bool IsConscious`     | 昏迷 / 苏醒         |
+| `BodyBrainDyingEvent`          | `bool IsBrainDying`    | 进入 / 离开濒死     |
+
+#### 行为动作 / 睡眠 / 特殊状态
+
+| C# 类型                  | 附加属性                    | 触发描述        |
+|--------------------------|-----------------------------|-----------------|
+| `BodyClimbStartEvent`    | —                           | 开始攀爬        |
+| `BodyClimbEndEvent`      | —                           | 停止攀爬        |
+| `BodyExerciseStartEvent` | —                           | 开始锻炼        |
+| `BodyExerciseEndEvent`   | —                           | 停止锻炼        |
+| `BodySwitchHandsEvent`   | —                           | 交换左右手物品  |
+| `BodySwitchDirEvent`     | `bool IsRight`              | 切换朝向        |
+| `BodyCrouchChangeEvent`  | `bool IsCrouching`          | 开始 / 停止下蹲 |
+| `BodyPickUpEvent`        | `string ItemId`, `int Slot` | 拾起物品        |
+| `BodyDropEvent`          | `string ItemId`             | 丢弃物品        |
+| `BodySleepChangeEvent`   | `bool IsSleeping`           | 入睡 / 醒来     |
+| `BodyLastStandEvent`     | —                           | 最后坚持成功    |
+| `BodyDisfigureEvent`     | —                           | 玩家被毁容      |
+| `BodyRemoveEyeEvent`     | `bool BothEyesGone`         | 玩家失去眼睛    |
+
 ### 肢体事件
 
 | C# 类型                 | 属性                               | 触发描述 |

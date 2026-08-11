@@ -86,8 +86,11 @@ public static class TextUtil
 
     public static string Color(string text, string color)
     {
-        return string.IsNullOrEmpty(text) ? text :
-            string.IsNullOrEmpty(color) ? text : $"<color={color}>{text}</color>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : string.IsNullOrEmpty(color)
+                ? text
+                : $"<color={color}>{text}</color>";
     }
 
     public static string Color(string text, Color color)

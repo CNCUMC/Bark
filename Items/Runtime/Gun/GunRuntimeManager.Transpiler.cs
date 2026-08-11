@@ -226,6 +226,7 @@ public static partial class GunRuntimeManager
         }
 
         // 兜底：原版 "casing" 预制体
+        // ReSharper disable once Unity.UnknownResource
         var prefab = Resources.Load("casing");
         return prefab != null
             ? Object.Instantiate(prefab, gun.transform.position, gun.transform.rotation)

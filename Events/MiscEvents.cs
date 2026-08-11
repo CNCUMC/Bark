@@ -14,3 +14,14 @@ public class CommandEvent : BarkEvent
     // 用户输入的参数列表（args[0] 为命令名，args[1..] 为用户参数）
     public List<string> Args { get; set; } = [];
 }
+
+// 主菜单加载完成事件：主菜单场景加载完成后触发
+[ScriptEvent("onMainMenuLoaded")]
+public class MainMenuLoadedEvent : BarkEvent;
+
+// 世界就绪事件：世界生成完成、玩家进入世界时触发
+[ScriptEvent("onWorldGenerated")]
+public class WorldReadyEvent : BarkEvent
+{
+    public WorldGeneration World { get; set; } = WorldGeneration.world;
+}

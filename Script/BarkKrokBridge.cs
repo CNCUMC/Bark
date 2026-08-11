@@ -207,14 +207,12 @@ public static class BarkKrokBridge
         EnsureReceiversRegistered();
 
         var delivery = reliable ? _reliableOrdered : _reliableUnordered;
-        var channelLog = envelope[ChannelField]?.Value<string>() ?? "?";
         try
         {
             if (targets is not null)
             {
                 // 多播：传 IEnumerable<knetid>
                 _serverSendToClientsMethod!.Invoke(null, [delivery, writer!, targets]);
-                Plugin.Logger.LogInfo($"BarkBridge send: server->clients multicast channel={channelLog} msgid={messageId}");
                 return true;
             }
 
@@ -223,14 +221,11 @@ public static class BarkKrokBridge
                 // 单播：构造单元素 List<knetid>，走多播重载，规避 Server_SendTo 的 knetid 转换难题
                 var single = BuildClientIdList([clientId]);
                 _serverSendToClientsMethod!.Invoke(null, [delivery, writer!, single]);
-                Plugin.Logger.LogInfo($"BarkBridge send: server->client unicast channel={channelLog} to={clientId} msgid={messageId}");
                 return true;
             }
 
             // 客户端 -> 服务器
             _clientSendMethod!.Invoke(null, [delivery, writer!]);
-            Plugin.Logger.LogInfo($"BarkBridge send: client->server channel={channelLog} msgid={messageId}");
-            LogClientConnectionDiagnostics(channelLog);
             return true;
         }
         catch (Exception ex)
@@ -238,35 +233,6 @@ public static class BarkKrokBridge
             Plugin.Logger.LogWarning(
                 $"BarkKrokBridge failed to send message ({ChannelField}='{(envelope[ChannelField]?.Value<string>() ?? "?")}'): {ex}");
             return false;
-        }
-    }
-
-    // 诊断（临时）：反射检查客机连接栈状态，定位 Client_Send 消息为何到不了主机
-    private static void LogClientConnectionDiagnostics(string channel)
-    {
-        try
-        {
-            var transport = _netType?.GetProperty("TRANSPORT", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
-            if (transport is null)
-            {
-                Plugin.Logger.LogInfo($"BarkDiag: client TRANSPORT null for {channel}");
-                return;
-            }
-
-            var cmField = transport.GetType().GetField("connectionMapping", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (cmField?.GetValue(transport) is IDictionary cm)
-            {
-                var keys = (from object? k in cm.Keys select k?.ToString() ?? "?").ToList();
-                Plugin.Logger.LogInfo($"BarkDiag: client connectionMapping keys=[{string.Join(",", keys)}] is_client={IsClient} running={IsRunning} hasLocal={HasLocalPlayer} for {channel}");
-            }
-            else
-            {
-                Plugin.Logger.LogInfo($"BarkDiag: connectionMapping not found for {channel}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Plugin.Logger.LogWarning($"BarkDiag error: {ex.Message}");
         }
     }
 
@@ -416,34 +382,23 @@ public static class BarkKrokBridge
             // 客户端收到响应：按 requestId 取回调
             if (string.IsNullOrWhiteSpace(requestId) ||
                 !PendingResponses.Remove(requestId, out var callback))
-            {
-                Plugin.Logger.LogInfo($"BarkBridge recv: client got response channel={channel} req={requestId} (no pending callback)");
                 return;
-            }
 
-            Plugin.Logger.LogInfo($"BarkBridge recv: client got response channel={channel} req={requestId}");
             callback(payload!);
         }
         else if (serverSide)
         {
             // 服务端收到请求：调用 handler 并回包
             if (!ServerHandlers.TryGetValue(channel, out var handler))
-            {
-                Plugin.Logger.LogInfo($"BarkBridge recv: server got request channel={channel} from={senderClientId} (no handler)");
                 return;
-            }
 
-            Plugin.Logger.LogInfo($"BarkBridge recv: server got request channel={channel} from={senderClientId}");
             try
             {
                 var result = handler(payload!);
                 if (result is null || string.IsNullOrWhiteSpace(requestId))
-                {
-                    Plugin.Logger.LogInfo($"BarkBridge recv: server handler channel={channel} returned null/empty req");
                     return;
-                }
 
-                SendEnvelopeToClient(senderClientId, channel, "response", result, requestId);
+                _ = SendEnvelopeToClient(senderClientId, channel, "response", result, requestId);
             }
             catch (Exception ex)
             {
@@ -489,7 +444,8 @@ public static class BarkKrokBridge
                 BindingFlags.Public | BindingFlags.Static);
             if (_netType is null || _knetidType is null)
             {
-                Plugin.Logger.LogWarning("BarkKrokBridge: critical types missing (Net/knetid), script mod sync disabled.");
+                Plugin.Logger.LogWarning(
+                    "BarkKrokBridge: critical types missing (Net/knetid), script mod sync disabled.");
                 return false;
             }
 
@@ -507,7 +463,8 @@ public static class BarkKrokBridge
             _netDataWriterType = liteNetAsm.GetType("LiteNetLib.Utils.NetDataWriter");
             if (_netDataReaderType is null || _netDataWriterType is null)
             {
-                Plugin.Logger.LogWarning("BarkKrokBridge: LiteNetLib reader/writer types missing, script mod sync disabled.");
+                Plugin.Logger.LogWarning(
+                    "BarkKrokBridge: LiteNetLib reader/writer types missing, script mod sync disabled.");
                 return false;
             }
 
@@ -518,7 +475,8 @@ public static class BarkKrokBridge
             _clientSendMethod = FindStaticMethodByArity(_netType, "Client_Send", 2);
             if (_createWriterMethod is null || _clientSendMethod is null)
             {
-                Plugin.Logger.LogWarning("BarkKrokBridge: CreateWriter/Client_Send not found, script mod sync disabled.");
+                Plugin.Logger.LogWarning(
+                    "BarkKrokBridge: CreateWriter/Client_Send not found, script mod sync disabled.");
                 return false;
             }
 
@@ -546,7 +504,8 @@ public static class BarkKrokBridge
             _serverSendToClientsMethod = FindServerSendToClientsEnumerable(_netType, _knetidType);
             if (_serverSendToClientsMethod is null)
             {
-                Plugin.Logger.LogWarning("BarkKrokBridge: Server_SendToClients(IEnumerable) not found, script mod sync disabled.");
+                Plugin.Logger.LogWarning(
+                    "BarkKrokBridge: Server_SendToClients(IEnumerable) not found, script mod sync disabled.");
                 return false;
             }
 
@@ -583,23 +542,25 @@ public static class BarkKrokBridge
             _reliableOrdered = Enum.Parse(_deliveryMethodType, "ReliableOrdered");
             _reliableUnordered = Enum.Parse(_deliveryMethodType, "ReliableUnordered");
 
-            // 生成并缓存匹配 (knetid, ref NetDataReader) 的接收委托，供幂等注册复用
+            // 生成并缓存匹配 (knetid, ref NetDataReader) 的接收委托，供幂等注册复用。
+            // GetMethod 查找的是本类已有的私有静态方法，必非空，用 ! 断言。
             var handlerType = _registerServerReceiverMethod.GetParameters()[1].ParameterType;
             _serverReceiverDelegate = BuildReceiverDelegate(handlerType, typeof(BarkKrokBridge)
-                .GetMethod(nameof(HandleServerMessageObject), BindingFlags.NonPublic | BindingFlags.Static));
+                .GetMethod(nameof(HandleServerMessageObject), BindingFlags.NonPublic | BindingFlags.Static)!);
             _clientReceiverDelegate = BuildReceiverDelegate(handlerType, typeof(BarkKrokBridge)
-                .GetMethod(nameof(HandleClientMessageObject), BindingFlags.NonPublic | BindingFlags.Static));
+                .GetMethod(nameof(HandleClientMessageObject), BindingFlags.NonPublic | BindingFlags.Static)!);
             if (_serverReceiverDelegate is null || _clientReceiverDelegate is null)
             {
-                Plugin.Logger.LogWarning("BarkKrokBridge: could not build receiver delegates, script mod sync disabled.");
+                Plugin.Logger.LogWarning(
+                    "BarkKrokBridge: could not build receiver delegates, script mod sync disabled.");
                 return false;
             }
 
             EnsureReceiversRegistered();
-            LogReceiverStatus("init");
 
             IsAvailable = true;
-            Plugin.Logger.LogInfo("BarkKrokBridge: KrokoshaCasualtiesMP detected, script mod sync network layer ready.");
+            Plugin.Logger.LogInfo(
+                "BarkKrokBridge: KrokoshaCasualtiesMP detected, script mod sync network layer ready.");
             return true;
         }
         catch (Exception ex)
@@ -641,34 +602,6 @@ public static class BarkKrokBridge
         {
             Plugin.Logger.LogWarning($"BarkKrokBridge: EnsureReceiversRegistered failed: {ex.Message}");
         }
-    }
-
-    // 诊断（临时）：输出 SERVER/CLIENT_MESSAGE_HANDLERS 是否含 56420/56421
-    private static void LogReceiverStatus(string context)
-    {
-        try
-        {
-            var serverHandlers = _netType?.GetField("SERVER_MESSAGE_HANDLERS",
-                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as IDictionary;
-            var clientHandlers = _netType?.GetField("CLIENT_MESSAGE_HANDLERS",
-                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as IDictionary;
-            Plugin.Logger.LogInfo(
-                $"BarkDiag[{context}]: serverHas56420={(serverHandlers?.Contains(RequestMessageId) ?? false)} " +
-                $"clientHas56421={(clientHandlers?.Contains(ResponseMessageId) ?? false)} " +
-                $"serverKeys=[{JoinKeys(serverHandlers)}] clientKeys=[{JoinKeys(clientHandlers)}]");
-        }
-        catch (Exception ex)
-        {
-            Plugin.Logger.LogWarning($"BarkDiag[{context}] error: {ex.Message}");
-        }
-    }
-
-    private static string JoinKeys(IDictionary? dict)
-    {
-        if (dict is null)
-            return "null";
-        var parts = (from object? k in dict.Keys select k?.ToString() ?? "?").ToList();
-        return string.Join(",", parts);
     }
 
     // 生成匹配 KrokoshaHandleNamedMessageDelegate(knetid, ref NetDataReader) 的委托：
@@ -793,7 +726,12 @@ public static class BarkKrokBridge
     // 找 KrokMP MyLiteNetLibExtensions.Get(reader, out string, bool)
     private static MethodInfo? FindGetString(Type extType, Type readerType)
     {
-        return (from m in extType.GetMethods(BindingFlags.Public | BindingFlags.Static) where m.Name == "Get" let ps = m.GetParameters() where ps.Length == 3 && ps[0].ParameterType == readerType && ps[1].IsOut && ps[1].ParameterType == typeof(string).MakeByRefType() && ps[2].ParameterType == typeof(bool) select m).FirstOrDefault();
+        return (from m in extType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            where m.Name == "Get"
+            let ps = m.GetParameters()
+            where ps.Length == 3 && ps[0].ParameterType == readerType && ps[1].IsOut &&
+                  ps[1].ParameterType == typeof(string).MakeByRefType() && ps[2].ParameterType == typeof(bool)
+            select m).FirstOrDefault();
     }
 
     // 原生 NetDataWriter.Put(string) 兜底
