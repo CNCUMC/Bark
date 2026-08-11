@@ -250,8 +250,7 @@ public class GunTemplate : ItemTemplate
     // 解析 barrel_offset.{x|y} 子字段，不存在时返回默认值。
     private static float ParseBarrelOffset(JObject t, string axis, float defaultValue)
     {
-        var offset = t["barrel_offset"] as JObject;
-        if (offset is null) return defaultValue;
+        if (t["barrel_offset"] is not JObject offset) return defaultValue;
         return (float?)offset[axis] ?? defaultValue;
     }
 

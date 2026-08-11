@@ -60,10 +60,10 @@ Specify the template type and parameters in the item JSON's `template` field:
 }
 ```
 
-| template field    | Description                                                                            |
-|-------------------|----------------------------------------------------------------------------------------|
-| `type`            | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` `"clothing"` |
-| `fire_sound` etc. | Type parameters, fill as needed; unset fields use template defaults                    |
+| template field    | Description                                                                                      |
+|-------------------|--------------------------------------------------------------------------------------------------|
+| `type`            | **Required**. Template type: `"gun"` `"mag"` `"ammo"` `"casing"` `"food"` `"clothing"` `"plush"` |
+| `fire_sound` etc. | Type parameters, fill as needed; unset fields use template defaults                              |
 
 > ⚠️ `type` is the only required field. Not sure what parameters are available? Read on for each template type.
 
@@ -79,6 +79,7 @@ Bark ships four built-in template types:
 | Casing   | Post-fire drops   | `"casing"`   | [Casing Template](casing.md)     |
 | Food     | Edible items      | `"food"`     | [Food Template](food.md)         |
 | Clothing | Wearable garments | `"clothing"` | [Clothing Template](clothing.md) |
+| Plush    | Squeaky toys      | `"plush"`    | [Plush Template](plush.md)       |
 
 ## Custom Templates
 
@@ -122,7 +123,7 @@ Registration methods:
 
 After `script reload` / `sr`:
 
-- All item JSONs are re-parsed, templates re-merged
+- All item JSONs are reparsed, templates re-merged
 - Existing gun instances in the game world auto-refresh **audio clips** and **barrel offsets** (hot-reloadable
   properties)
 - Magazine, ammo, and casing registries auto-update

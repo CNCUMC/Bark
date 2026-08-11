@@ -226,6 +226,9 @@ public class Plugin : BaseUnityPlugin
         new CasingTemplate().Register();
         new FoodTemplate().Register();
         new ClothingTemplate().Register();
+        new PlushTemplate().Register();
+        // 安装玩偶吱吱音效补丁：配置了 squeak_sound 的玩偶用 Bark Audio 播放自定义音效
+        PlushTemplate.ApplySqueakHook();
     }
 
     // 以 Bark 自身作为模组加载 JSON 内容：

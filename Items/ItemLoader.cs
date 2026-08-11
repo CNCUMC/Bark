@@ -208,6 +208,7 @@ public static class ItemLoader
                 CasingTemplate.CacheCasingItem(itemId, template);
                 FoodTemplate.CacheFoodItem(itemId, template);
                 ClothingTemplate.CacheClothingItem(itemId, template);
+                PlushTemplate.CachePlushItem(itemId, template, modDir);
 
                 json = merged.ToString();
                 obj = merged;
@@ -866,6 +867,7 @@ public static class ItemLoader
                 CasingTemplate.RemoveCasingItem(entry.Id);
                 FoodTemplate.RemoveFoodItem(entry.Id);
                 ClothingTemplate.RemoveClothingItem(entry.Id);
+                PlushTemplate.RemovePlushItem(entry.Id);
                 LightRotations.Remove(entry.Id);
             }
 

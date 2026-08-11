@@ -57,6 +57,9 @@ to [Semantic Versioning](https://semver.org/).
   `onSoundCannonShoot` added to `SystemEvents`.
 - **Amputation minigame events**: `onAmputationMinigameStart/Success` added to `MinigameEvents`.
 - **Ammo & AltHover events**: `onAmmoUnload/Load`, `onAltHoverToggle` added to `WorldObjectEvents`.
+- **Plush template (`PlushTemplate`)**: New `"plush"` item template preset from the game's `plushie`. Squeak sound
+  reuses Bark's Audio properties via `squeak_sound` (custom mod audio loaded by `AudioManager`), with automatic
+  interception of `PlushScript.Squeak()` to play the custom sound.
 
 ### Refactor
 - **Unified event file structure**: Merged scattered single-event files into topic-based files to remove the

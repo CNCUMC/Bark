@@ -53,6 +53,8 @@
   `onSoundCannonShoot` 并入 `SystemEvents`。
 - **截肢小游戏事件**：`onAmputationMinigameStart/Success` 并入 `MinigameEvents`。
 - **弹药与 Alt 标签事件**：`onAmmoUnload/Load`、`onAltHoverToggle` 并入 `WorldObjectEvents`。
+- **玩偶模板（`PlushTemplate`）**：新增 `"plush"` 物品模板，对标原版 `plushie`。吱吱声复用 Bark 的 Audio 属性，通过
+  `squeak_sound` 配置模组自定义音效（由 `AudioManager` 加载），并自动拦截 `PlushScript.Squeak()` 播放自定义音效。
 
 ### 重构
 - **统一事件文件结构**：将散落的事件类按主题合并到一个文件，消除"一事件一文件/多事件一文件"混用。Gun（6）、Limb（6）、
