@@ -241,9 +241,9 @@ public static class ModCommand
             return;
         }
 
-        MessageCommand("list.header", mods.Count);
+        InfoCommand("list.header", mods.Count);
         foreach (var mod in mods)
-            MessageCommand("list.item", mod.Name, mod.Version, GetLanguageLabel(mod.Language), mod.Id);
+            InfoCommand("list.item", mod.Name, mod.Version, GetLanguageLabel(mod.Language), mod.Id);
     }
 
     // 查询单个脚本模组注册的内容统计：物品 / 物块 / 配方 / 状态数量，以及脚本语言。
@@ -253,7 +253,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.detail.usage");
+            InfoCommand("detail.usage");
             return;
         }
 
@@ -261,7 +261,7 @@ public static class ModCommand
         var mod = ScriptModLoader.ListMods().FirstOrDefault(m => m.Id == modId);
         if (mod is null)
         {
-            LogUtil.Info("script.detail.not_found", modId);
+            InfoCommand("detail.not_found", modId);
             return;
         }
 
@@ -278,37 +278,37 @@ public static class ModCommand
             ? moodles.Count
             : 0;
 
-        MessageCommand("detail.header", mod.Name, mod.Version, GetLanguageLabel(mod.Language));
+        InfoCommand("detail.header", mod.Name, mod.Version, GetLanguageLabel(mod.Language));
 
         // 元数据（mod.json 字段）
         var authorText = mod.Author.Count == 0
             ? LocaleCommand("detail.none")
             : string.Join(", ", mod.Author.Select(kv => $"{kv.Key}: {kv.Value}"));
-        MessageCommand("detail.author", authorText);
-        MessageCommand("detail.description", string.IsNullOrEmpty(mod.Description)
+        InfoCommand("detail.author", authorText);
+        InfoCommand("detail.description", string.IsNullOrEmpty(mod.Description)
             ? LocaleCommand("detail.none")
             : mod.Description);
-        MessageCommand("detail.bark_version", string.IsNullOrEmpty(mod.BarkVersion)
+        InfoCommand("detail.bark_version", string.IsNullOrEmpty(mod.BarkVersion)
             ? LocaleCommand("detail.none")
             : mod.BarkVersion);
-        MessageCommand("detail.game_version", string.IsNullOrEmpty(mod.GameVersion)
+        InfoCommand("detail.game_version", string.IsNullOrEmpty(mod.GameVersion)
             ? LocaleCommand("detail.none")
             : mod.GameVersion);
-        MessageCommand("detail.repository", mod.Repository ?? LocaleCommand("detail.none"));
+        InfoCommand("detail.repository", mod.Repository ?? LocaleCommand("detail.none"));
 
         // 依赖列表
-        MessageCommand("detail.dependencies");
+        InfoCommand("detail.dependencies");
         if (mod.Dependencies.Count == 0)
-            MessageCommand("detail.none");
+            InfoCommand("detail.none");
         else
             foreach (var dep in mod.Dependencies)
-                MessageCommand("detail.dep_item", dep.Id, dep.Version);
+                InfoCommand("detail.dep_item", dep.Id, dep.Version);
 
         // 注册内容统计
-        MessageCommand("detail.items", itemCount);
-        MessageCommand("detail.tiles", tileCount);
-        MessageCommand("detail.recipes", recipeCount);
-        MessageCommand("detail.moodles", moodleCount);
+        InfoCommand("detail.items", itemCount);
+        InfoCommand("detail.tiles", tileCount);
+        InfoCommand("detail.recipes", recipeCount);
+        InfoCommand("detail.moodles", moodleCount);
     }
 
     // 把脚本语言枚举转为列表显示的本地化标签（None 显示为 Data）
@@ -328,7 +328,7 @@ public static class ModCommand
     {
         Plugin._scriptModLoader?.ReloadAll();
         RefreshSpawnAutofill();
-        MessageCommand("reload.completed");
+        InfoCommand("reload.completed");
 
         // 主机重载后，触发增量文件同步：把修改过的模组文件推给所有已连接客户端
         ScriptFileSync.TriggerSync();
@@ -342,7 +342,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.spawn.usage");
+            InfoCommand("spawn.usage");
             return;
         }
 
@@ -378,7 +378,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.tile.usage");
+            InfoCommand("tile.usage");
             return;
         }
 
@@ -417,7 +417,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.moodle.usage");
+            InfoCommand("moodle.usage");
             return;
         }
 
@@ -437,10 +437,10 @@ public static class ModCommand
     {
         BarkApplyMoodle(args, 1);
     }
-
-    private static void MessageCommand(string key, params object[] args)
+    
+    private static void InfoCommand(string key, params object[] args)
     {
-        LogUtil.Message($"script.{key}", args);
+        LogUtil.Info($"script.{key}", args);
     }
 
     private static string LocaleCommand(string key, params object[] args)
