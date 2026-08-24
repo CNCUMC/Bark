@@ -17,10 +17,6 @@ public static class EnvironmentEventListener
 
     internal static void Listen()
     {
-        PatchCaveTickSpawner();
-        PatchClimbable();
-        PatchCoil();
-        PatchCorpse();
     }
 
     internal static void Stop()
@@ -29,97 +25,10 @@ public static class EnvironmentEventListener
         CommentedCorpses.Clear();
     }
 
-    private static void PatchCaveTickSpawner()
-    {
-        var method = AccessTools.Method(typeof(CaveTickSpawner), "OnTriggerEnter2D");
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony("Bark.CaveTick.Spawn");
-            harmony.Patch(method,
-                postfix: new HarmonyMethod(typeof(EnvironmentEventListener), nameof(OnCaveTickSpawnPostfix)));
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    private static void PatchClimbable()
-    {
-        var method = AccessTools.Method(typeof(Climbable), "Start");
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony("Bark.Climbable.Register");
-            harmony.Patch(method,
-                postfix: new HarmonyMethod(typeof(EnvironmentEventListener), nameof(OnClimbableRegisterPostfix)));
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    private static void PatchCoil()
-    {
-        var method = AccessTools.Method(typeof(CoilScript), "Shock");
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony("Bark.Coil.Shock");
-            harmony.Patch(method,
-                postfix: new HarmonyMethod(typeof(EnvironmentEventListener), nameof(OnCoilShockPostfix)));
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    private static void PatchCorpse()
-    {
-        // OnWillRenderObject：首次看到尸体
-        var seen = AccessTools.Method(typeof(CorpseScript), "OnWillRenderObject");
-        if (seen != null)
-        {
-            try
-            {
-                var harmony = new Harmony("Bark.Corpse.Seen");
-                harmony.Patch(seen,
-                    postfix: new HarmonyMethod(typeof(EnvironmentEventListener), nameof(OnCorpseSeenPostfix)));
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        // OnDestroy：破坏尸体
-        var destroy = AccessTools.Method(typeof(CorpseScript), "OnDestroy");
-        if (destroy != null)
-        {
-            try
-            {
-                var harmony = new Harmony("Bark.Corpse.Destroy");
-                harmony.Patch(destroy,
-                    postfix: new HarmonyMethod(typeof(EnvironmentEventListener), nameof(OnCorpseDestroyPostfix)));
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-    }
-
-    // ============================================================
-    // 洞穴蜘蛛
-    // ============================================================
-
-    private static void OnCaveTickSpawnPostfix(CaveTickSpawner __instance)
+    // 洞穴蜱虫
+    [HarmonyPatch(typeof(CaveTickSpawner), "OnTriggerEnter2D")]
+    [HarmonyPostfix]
+    private static void CaveTickSpawnerOnTriggerEnter2DPostfix(CaveTickSpawner __instance)
     {
         if (__instance == null || !__instance) return;
 
@@ -132,11 +41,11 @@ public static class EnvironmentEventListener
         EventUtil.Trigger(new CaveTickSpawnEvent { Position = __instance.transform.position });
     }
 
-    // ============================================================
-    // 可攀爬物
-    // ============================================================
 
-    private static void OnClimbableRegisterPostfix(Climbable __instance)
+    // 可攀爬物
+    [HarmonyPatch(typeof(Climbable), "Start")]
+    [HarmonyPostfix]
+    private static void ClimbableStartPostfix(Climbable __instance)
     {
         if (__instance == null || !__instance) return;
 
@@ -147,22 +56,20 @@ public static class EnvironmentEventListener
         });
     }
 
-    // ============================================================
-    // 电线圈
-    // ============================================================
-
-    private static void OnCoilShockPostfix(CoilScript __instance, Limb limb)
+    // 线圈
+    [HarmonyPatch(typeof(CoilScript), "Shock")]
+    [HarmonyPostfix]
+    private static void CoilScriptShockPostfix(CoilScript __instance, Limb limb)
     {
         if (__instance == null || !__instance || limb == null) return;
 
         EventUtil.Trigger(new CoilShockEvent { Coil = __instance, Limb = limb });
     }
 
-    // ============================================================
     // 尸体
-    // ============================================================
-
-    private static void OnCorpseSeenPostfix(CorpseScript __instance)
+    [HarmonyPatch(typeof(CorpseScript), "OnWillRenderObject")]
+    [HarmonyPostfix]
+    private static void CorpseScriptOnWillRenderObjectPostfix(CorpseScript __instance)
     {
         if (__instance == null || !__instance) return;
         if (__instance.animalCorpse) return;
@@ -177,7 +84,8 @@ public static class EnvironmentEventListener
         EventUtil.Trigger(new CorpseSeenEvent { Corpse = __instance, AnimalCorpse = false });
     }
 
-    private static void OnCorpseDestroyPostfix(CorpseScript __instance)
+    [HarmonyPatch(typeof(CorpseScript), "OnDestroy")]
+    private static void CorpseScriptOnDestroyPostfix(CorpseScript __instance)
     {
         if (__instance == null || !__instance) return;
 

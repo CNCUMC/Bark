@@ -49,10 +49,6 @@ public static class ItemEventListener
     {
         _runner = runner;
 
-        TryPatchItemUse();
-        TryPatchItemUseInHand();
-        TryPatchItemAttack();
-
         _equipCoroutine ??= runner.StartCoroutine(PollEquipChange());
         _limbCoroutine ??= runner.StartCoroutine(PollLimbUse());
         _attackCoroutine ??= runner.StartCoroutine(PollItemAttack());
@@ -92,61 +88,53 @@ public static class ItemEventListener
         coroutine = null;
     }
 
-    // ============================================================
-    // Harmony 补丁
-    // ============================================================
-
-    private static void TryPatchItemUse()
+    [HarmonyPatch(typeof(Body))]
+    public static class BodyPatch
     {
-        PatchMethod(typeof(Body), "UseItem", nameof(OnItemUseFromInventory),
-            "Bark.ItemUseEventListener");
-    }
-
-    private static void TryPatchItemUseInHand()
-    {
-        PatchMethod(typeof(Body), "UseItemInHand", nameof(OnItemUseInHand),
-            "Bark.ItemHandUseEventListener");
-    }
-
-    private static void PatchMethod(Type type, string methodName, string callbackName, string harmonyId)
-    {
-        var method = AccessTools.Method(type, methodName);
-        if (method == null) return;
-
-        try
+        // 背包中使用物品（Body.UseItem(Item item)）
+        [HarmonyPatch("UseItem", typeof(Item))]
+        [HarmonyPatch([typeof(Item)])]
+        private static bool UseItemPrefix(Item item)
         {
-            var harmony = new Harmony(harmonyId);
-            harmony.Patch(method, new HarmonyMethod(typeof(ItemEventListener), callbackName));
-            LogUtil.Info("item_event.patch_use_ok", $"{type.Name}.{methodName}");
+            if (item == null || string.IsNullOrEmpty(item.id)) return true;
+            if (!IsPlayerItem(item)) return true;
+            if (!HasUseBackpackScript(item.id)) return true;
+
+            EventUtil.Trigger(new ItemUseEvent { ItemId = item.id, Item = item });
+            return false;
         }
-        catch
+
+        // 手持物品使用（Body.UseItemInHand()）
+        [HarmonyPatch("UseItemInHand")]
+        private static bool UseItemInHandPrefix(Body __instance)
         {
-            // ignored
+            if (__instance == null) return true;
+
+            var item = __instance.GetItem(__instance.handSlot);
+            if (item == null || string.IsNullOrEmpty(item.id)) return true;
+            if (!IsPlayerItem(item)) return true;
+            if (!HasUseHandScript(item.id)) return true;
+
+            EventUtil.Trigger(new ItemHandUseEvent { ItemId = item.id, Item = item });
+            return false;
         }
-    }
 
-    // 背包中使用物品（Body.UseItem(Item item)）
-    private static bool OnItemUseFromInventory(Item item)
-    {
-        if (item == null || string.IsNullOrEmpty(item.id)) return true;
-        if (!IsPlayerItem(item)) return true;
+        // 物品攻击（Body.Attack 签名为 (Item) 或 (Body)）
+        [HarmonyPatch("Attack")]
+        private static void AttackPostfix(object __instance)
+        {
+            var item = __instance switch
+            {
+                Item itm => itm,
+                Body body => body.GetItem(body.handSlot),
+                _ => null
+            };
 
-        if (!HasUseBackpackScript(item.id)) return true;
-        EventUtil.Trigger(new ItemUseEvent { ItemId = item.id, Item = item });
-        return false;
-    }
+            if (item == null || string.IsNullOrEmpty(item.id)) return;
+            if (!IsPlayerItem(item)) return;
 
-    // 手持物品使用（Body.UseItemInHand()）
-    private static bool OnItemUseInHand(Body __instance)
-    {
-        if (__instance == null) return true;
-        var item = __instance.GetItem(__instance.handSlot);
-        if (item == null || string.IsNullOrEmpty(item.id)) return true;
-        if (!IsPlayerItem(item)) return true;
-
-        if (!HasUseHandScript(item.id)) return true;
-        EventUtil.Trigger(new ItemHandUseEvent { ItemId = item.id, Item = item });
-        return false;
+            EventUtil.Trigger(new ItemAttackEvent { ItemId = item.id, Item = item });
+        }
     }
 
     // 检查物品是否有 use 背包脚本
@@ -183,26 +171,24 @@ public static class ItemEventListener
             var currentHandItemId = handItem && !string.IsNullOrEmpty(handItem.id) ? handItem.id : null;
 
             // in_hand / not_in_hand 状态变化
-            if (_lastHandItemId != currentHandItemId)
+            if (_lastHandItemId == currentHandItemId) continue;
+            // 旧物品：not_in_hand
+            if (!string.IsNullOrEmpty(_lastHandItemId))
             {
-                // 旧物品：not_in_hand
-                if (!string.IsNullOrEmpty(_lastHandItemId))
-                {
-                    var oldEntry = ItemScriptRegistry.GetEntry(_lastHandItemId);
-                    if (oldEntry?.NotInHand is { Count: > 0 })
-                        ExecutePassiveScripts(oldEntry, _lastHandItemId, "not_in_hand", oldEntry.NotInHand);
-                }
-
-                // 新物品：in_hand
-                if (!string.IsNullOrEmpty(currentHandItemId))
-                {
-                    var newEntry = ItemScriptRegistry.GetEntry(currentHandItemId);
-                    if (newEntry?.InHand is { Count: > 0 })
-                        ExecutePassiveScripts(newEntry, currentHandItemId, "in_hand", newEntry.InHand);
-                }
-
-                _lastHandItemId = currentHandItemId;
+                var oldEntry = ItemScriptRegistry.GetEntry(_lastHandItemId);
+                if (oldEntry?.NotInHand is { Count: > 0 })
+                    ExecutePassiveScripts(oldEntry, _lastHandItemId, "not_in_hand", oldEntry.NotInHand);
             }
+
+            // 新物品：in_hand
+            if (!string.IsNullOrEmpty(currentHandItemId))
+            {
+                var newEntry = ItemScriptRegistry.GetEntry(currentHandItemId);
+                if (newEntry?.InHand is { Count: > 0 })
+                    ExecutePassiveScripts(newEntry, currentHandItemId, "in_hand", newEntry.InHand);
+            }
+
+            _lastHandItemId = currentHandItemId;
         }
     }
 
@@ -371,27 +357,6 @@ public static class ItemEventListener
     // ============================================================
     // 攻击检测
     // ============================================================
-
-    private static void TryPatchItemAttack()
-    {
-        PatchMethod(typeof(Body), "Attack", nameof(OnItemAttackHarmony),
-            "Bark.ItemAttackEventListener");
-    }
-
-    private static void OnItemAttackHarmony(object __instance)
-    {
-        var item = __instance switch
-        {
-            Item itm => itm,
-            Body body => body.GetItem(body.handSlot),
-            _ => null
-        };
-
-        if (item == null || string.IsNullOrEmpty(item.id)) return;
-        if (!IsPlayerItem(item)) return;
-
-        EventUtil.Trigger(new ItemAttackEvent { ItemId = item.id, Item = item });
-    }
 
     private static IEnumerator PollItemAttack()
     {
@@ -610,8 +575,12 @@ public static class ItemEventListener
     }
 
     // 检查条件触发器并触发（边沿检测）
-    private static void CheckAndFireTriggers(string itemId, Item? item, List<ConditionTriggerDef> triggers,
-        float currentValue, Action<string, Item?, string, float, float> fireEvent,
+    private static void CheckAndFireTriggers(
+        string itemId,
+        Item? item,
+        List<ConditionTriggerDef> triggers,
+        float currentValue,
+        Action<string, Item?, string, float, float> fireEvent,
         string triggerType = "d")
     {
         for (var i = 0; i < triggers.Count; i++)
@@ -654,8 +623,9 @@ public static class ItemEventListener
 
     private static bool IsPlayerItem(Item item)
     {
-        return item != null && item.transform != null
-                            && BodyUtil.Body != null
-                            && item.transform.IsChildOf(BodyUtil.Body.transform);
+        return item != null
+               && item.transform != null
+               && BodyUtil.Body != null
+               && item.transform.IsChildOf(BodyUtil.Body.transform);
     }
 }

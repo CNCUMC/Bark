@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Bark.Events;
 using Bark.Tool;
@@ -33,17 +32,6 @@ public static class WorldEntityEventListener
 
     internal static void Listen()
     {
-        PatchBatteryItem();
-        PatchAutoPump();
-        PatchBatteryRecharger();
-        PatchBearTrap();
-        PatchBioTerminal();
-        PatchBleedParticle();
-        PatchBlockDamage();
-        PatchBlueprint();
-        PatchBoughtItem();
-        PatchBounceShroom();
-        PatchBuildingEntity();
     }
 
     internal static void Stop()
@@ -55,76 +43,87 @@ public static class WorldEntityEventListener
         BloodSpawnCounts.Clear();
     }
 
-    // 统一 patch：解析方法并挂 prefix/postfix
-    private static void Patch(Type type, string methodName, string harmonyId, string? prefix, string? postfix)
+    private static byte? GetSpawnedCount(BleedParticle instance)
     {
-        var method = AccessTools.Method(type, methodName);
-        if (method == null) return;
-
         try
         {
-            var harmony = new Harmony(harmonyId);
-            harmony.Patch(method,
-                prefix: prefix != null
-                    ? new HarmonyMethod(typeof(WorldEntityEventListener), prefix)
-                    : null,
-                postfix: postfix != null
-                    ? new HarmonyMethod(typeof(WorldEntityEventListener), postfix)
-                    : null);
+            s_spawnedField ??= AccessTools.Field(typeof(BleedParticle), "spawned");
+            var value = s_spawnedField?.GetValue(instance);
+            return value is byte b
+                ? b
+                : null;
         }
         catch
         {
-            // ignored
+            return null;
         }
     }
 
-    // ============================================================
+    private static float GetBlockHealth(Vector2Int pos)
+    {
+        var world = WorldGeneration.world;
+        if (world == null) return 0f;
+        try
+        {
+            var blockInfo = world.GetBlockInfo(world.GetBlock(pos));
+            return blockInfo?.health ?? 0f;
+        }
+        catch
+        {
+            return 0f;
+        }
+    }
+
+    // 辅助
+    private static bool IsPlayerRelated(Item item)
+    {
+        var body = BodyUtil.Body;
+        return item != null
+               && body != null
+               && item.transform != null
+               && item.transform.IsChildOf(body.transform);
+    }
+
     // 电池物品
-    // ============================================================
-
-    private static void PatchBatteryItem()
+    [HarmonyPatch(typeof(BatteryItem))]
+    public static class BatteryItemPatch
     {
-        Patch(typeof(BatteryItem), "LoadBattery", "Bark.Battery.Load", null, nameof(OnBatteryLoadPostfix));
-        Patch(typeof(BatteryItem), "UnloadBattery", "Bark.Battery.Unload", nameof(OnBatteryUnloadPrefix), null);
-    }
-
-    private static void OnBatteryLoadPostfix(BatteryItem __instance)
-    {
-        if (__instance == null || !__instance) return;
-        var device = __instance.GetComponent<Item>();
-        if (!device || !IsPlayerRelated(device)) return;
-
-        EventUtil.Trigger(new BatteryLoadEvent
+        [HarmonyPatch("LoadBattery")]
+        [HarmonyPostfix]
+        private static void LoadBatteryPostfix(BatteryItem __instance)
         {
-            Device = device,
-            Battery = null,
-            BatteryType = __instance.batteryType ?? string.Empty
-        });
-    }
+            if (__instance == null || !__instance) return;
+            var device = __instance.GetComponent<Item>();
+            if (!device || !IsPlayerRelated(device)) return;
 
-    private static void OnBatteryUnloadPrefix(BatteryItem __instance)
-    {
-        if (__instance == null || !__instance) return;
-        var device = __instance.GetComponent<Item>();
-        if (!device || !IsPlayerRelated(device)) return;
+            EventUtil.Trigger(new BatteryLoadEvent
+            {
+                Device = device,
+                Battery = null,
+                BatteryType = __instance.batteryType ?? string.Empty
+            });
+        }
 
-        EventUtil.Trigger(new BatteryUnloadEvent
+        [HarmonyPatch("UnloadBattery")]
+        [HarmonyPrefix]
+        private static void UnloadBatteryPrefix(BatteryItem __instance)
         {
-            Device = device,
-            BatteryType = __instance.batteryType ?? string.Empty
-        });
+            if (__instance == null || !__instance) return;
+            var device = __instance.GetComponent<Item>();
+            if (!device || !IsPlayerRelated(device)) return;
+
+            EventUtil.Trigger(new BatteryUnloadEvent
+            {
+                Device = device,
+                BatteryType = __instance.batteryType ?? string.Empty
+            });
+        }
     }
 
-    // ============================================================
     // 自动泵
-    // ============================================================
-
-    private static void PatchAutoPump()
-    {
-        Patch(typeof(AutoPump), "Update", "Bark.AutoPump.Active", null, nameof(OnAutoPumpUpdatePostfix));
-    }
-
-    private static void OnAutoPumpUpdatePostfix(AutoPump __instance)
+    [HarmonyPatch(typeof(AutoPump), "Update")]
+    [HarmonyPostfix]
+    private static void AutoPumpUpdatePostfix(AutoPump __instance)
     {
         if (__instance == null || !__instance) return;
         var item = __instance.GetComponent<Item>();
@@ -154,77 +153,58 @@ public static class WorldEntityEventListener
         }
     }
 
-    // ============================================================
-    // 电池充电器
-    // ============================================================
-
-    private static void PatchBatteryRecharger()
-    {
-        Patch(typeof(BatteryRecharger), "OnUse", "Bark.BatteryRecharger.Use", null, nameof(OnRechargerUsePostfix));
-    }
-
-    private static void OnRechargerUsePostfix(BatteryRecharger __instance)
+    // 手摇充电器
+    [HarmonyPatch(typeof(BatteryRecharger), "OnUse")]
+    [HarmonyPostfix]
+    private static void BatteryRechargerOnUsePostfix(BatteryRecharger __instance)
     {
         if (__instance == null || !__instance) return;
         var building = __instance.GetComponent<BuildingEntity>();
         EventUtil.Trigger(new BatteryRechargeEvent { Charger = building });
     }
 
-    // ============================================================
     // 捕兽夹
-    // ============================================================
-
-    private static void PatchBearTrap()
+    [HarmonyPatch(typeof(BearTrap))]
+    public static class BearTrapPatch
     {
-        Patch(typeof(BearTrap), "OnTriggerEnter2D", "Bark.BearTrap.Trigger", null, nameof(OnBearTrapTriggerPostfix));
-        Patch(typeof(BearTrap), "Update", "Bark.BearTrap.Release", null, nameof(OnBearTrapUpdatePostfix));
+        [HarmonyPatch("OnTriggerEnter2D")]
+        [HarmonyPostfix]
+        private static void OnTriggerEnter2DPostfix(BearTrap __instance)
+        {
+            if (__instance == null || !__instance) return;
+            if (__instance.caughtLimb == null) return;
+
+            var id = __instance.GetInstanceID();
+            if (!TriggeredTraps.Add(id)) return;
+
+            EventUtil.Trigger(new BearTrapTriggerEvent { Trap = __instance, Limb = __instance.caughtLimb });
+        }
+
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(BearTrap __instance)
+        {
+            if (__instance == null || !__instance) return;
+            var id = __instance.GetInstanceID();
+            if (__instance.caughtLimb == null && TriggeredTraps.Remove(id))
+                EventUtil.Trigger(new BearTrapReleaseEvent { Trap = __instance });
+        }
     }
 
-    private static void OnBearTrapTriggerPostfix(BearTrap __instance)
-    {
-        if (__instance == null || !__instance) return;
-        if (__instance.caughtLimb == null) return;
-
-        var id = __instance.GetInstanceID();
-        if (!TriggeredTraps.Add(id)) return;
-
-        EventUtil.Trigger(new BearTrapTriggerEvent { Trap = __instance, Limb = __instance.caughtLimb });
-    }
-
-    private static void OnBearTrapUpdatePostfix(BearTrap __instance)
-    {
-        if (__instance == null || !__instance) return;
-        var id = __instance.GetInstanceID();
-        if (__instance.caughtLimb == null && TriggeredTraps.Remove(id))
-            EventUtil.Trigger(new BearTrapReleaseEvent { Trap = __instance });
-    }
-
-    // ============================================================
     // 生物终端
-    // ============================================================
-
-    private static void PatchBioTerminal()
-    {
-        Patch(typeof(BioTerminalScript), "OnUse", "Bark.BioTerminal.Use", null, nameof(OnBioTerminalUsePostfix));
-    }
-
-    private static void OnBioTerminalUsePostfix(BioTerminalScript __instance)
+    [HarmonyPatch(typeof(BioTerminalScript), "OnUse")]
+    [HarmonyPostfix]
+    private static void BioTerminalScriptOnUsePostfix(BioTerminalScript __instance)
     {
         if (__instance == null || !__instance) return;
         var building = __instance.GetComponent<BuildingEntity>();
         EventUtil.Trigger(new BioTerminalUseEvent { Terminal = building, Success = building != null });
     }
 
-    // ============================================================
     // 流血粒子（地面血迹）
-    // ============================================================
-
-    private static void PatchBleedParticle()
-    {
-        Patch(typeof(BleedParticle), "Update", "Bark.BleedParticle.Ground", null, nameof(OnBleedParticleUpdatePostfix));
-    }
-
-    private static void OnBleedParticleUpdatePostfix(BleedParticle __instance)
+    [HarmonyPatch(typeof(BleedParticle), "Update")]
+    [HarmonyPostfix]
+    private static void BleedParticleUpdatePostfix(BleedParticle __instance)
     {
         if (__instance == null || !__instance) return;
 
@@ -247,32 +227,11 @@ public static class WorldEntityEventListener
             });
     }
 
-    private static byte? GetSpawnedCount(BleedParticle instance)
-    {
-        try
-        {
-            s_spawnedField ??= AccessTools.Field(typeof(BleedParticle), "spawned");
-            var value = s_spawnedField?.GetValue(instance);
-            return value is byte b
-                ? b
-                : null;
-        }
-        catch
-        {
-            return null;
-        }
-    }
 
-    // ============================================================
     // 方块伤害
-    // ============================================================
-
-    private static void PatchBlockDamage()
-    {
-        Patch(typeof(BlockDamage), "UpdateSprite", "Bark.BlockDamage.Changed", null, nameof(OnBlockDamagePostfix));
-    }
-
-    private static void OnBlockDamagePostfix(BlockDamage __instance)
+    [HarmonyPatch(typeof(BlockDamage), "UpdateSprite")]
+    [HarmonyPostfix]
+    private static void BlockDamageUpdateSpritePostfix(BlockDamage __instance)
     {
         var health = GetBlockHealth(__instance.pos);
         var destroyed = health > 0f && __instance.damage >= health;
@@ -285,31 +244,10 @@ public static class WorldEntityEventListener
         });
     }
 
-    private static float GetBlockHealth(Vector2Int pos)
-    {
-        var world = WorldGeneration.world;
-        if (world == null) return 0f;
-        try
-        {
-            var blockInfo = world.GetBlockInfo(world.GetBlock(pos));
-            return blockInfo?.health ?? 0f;
-        }
-        catch
-        {
-            return 0f;
-        }
-    }
 
-    // ============================================================
     // 蓝图
-    // ============================================================
-
-    private static void PatchBlueprint()
-    {
-        Patch(typeof(BlueprintScript), "Awake", "Bark.Blueprint.Create", null, nameof(OnBlueprintCreatePostfix));
-    }
-
-    private static void OnBlueprintCreatePostfix(BlueprintScript __instance)
+    [HarmonyPatch(typeof(BlueprintScript), "Awake")]
+    private static void BlueprintScriptAwakePostfix(BlueprintScript __instance)
     {
         if (__instance == null || !__instance) return;
         var item = __instance.GetComponent<Item>();
@@ -322,16 +260,10 @@ public static class WorldEntityEventListener
         });
     }
 
-    // ============================================================
     // 已购物品到期
-    // ============================================================
-
-    private static void PatchBoughtItem()
-    {
-        Patch(typeof(BoughtItem), "Update", "Bark.BoughtItem.Expire", null, nameof(OnBoughtItemUpdatePostfix));
-    }
-
-    private static void OnBoughtItemUpdatePostfix(BoughtItem __instance)
+    [HarmonyPatch(typeof(BoughtItem), "Update")]
+    [HarmonyPostfix]
+    private static void BoughtItemUpdatePostfix(BoughtItem __instance)
     {
         if (__instance == null || !__instance) return;
         if (__instance.time >= 0f) return;
@@ -344,31 +276,19 @@ public static class WorldEntityEventListener
             EventUtil.Trigger(new BoughtItemExpireEvent { Item = item });
     }
 
-    // ============================================================
     // 弹跳蘑菇
-    // ============================================================
-
-    private static void PatchBounceShroom()
-    {
-        Patch(typeof(BounceShroom), "OnTriggerEnter2D", "Bark.BounceShroom.Bounce", null, nameof(OnBounceShroomPostfix));
-    }
-
-    private static void OnBounceShroomPostfix(BounceShroom __instance)
+    [HarmonyPatch(typeof(BounceShroom), "OnTriggerEnter2D")]
+    [HarmonyPostfix]
+    private static void BounceShroomOnTriggerEnter2DPostfix(BounceShroom __instance)
     {
         if (__instance == null || !__instance) return;
         EventUtil.Trigger(new BounceShroomBounceEvent { Mushroom = __instance });
     }
 
-    // ============================================================
-    // 建筑破坏
-    // ============================================================
-
-    private static void PatchBuildingEntity()
-    {
-        Patch(typeof(BuildingEntity), "Update", "Bark.Building.Destroy", null, nameof(OnBuildingUpdatePostfix));
-    }
-
-    private static void OnBuildingUpdatePostfix(BuildingEntity __instance)
+    // 建筑实体破坏
+    [HarmonyPatch(typeof(BuildingEntity), "Update")]
+    [HarmonyPostfix]
+    private static void BuildingEntityUpdatePostfix(BuildingEntity __instance)
     {
         if (__instance == null || !__instance) return;
         // health < 0.5 时方法内执行破坏逻辑
@@ -382,18 +302,5 @@ public static class WorldEntityEventListener
             Building = __instance,
             BuildingId = __instance.id ?? string.Empty
         });
-    }
-
-    // ============================================================
-    // 辅助
-    // ============================================================
-
-    private static bool IsPlayerRelated(Item item)
-    {
-        var body = BodyUtil.Body;
-        return item != null
-               && body != null
-               && item.transform != null
-               && item.transform.IsChildOf(body.transform);
     }
 }

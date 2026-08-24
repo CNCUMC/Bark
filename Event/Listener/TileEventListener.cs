@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Bark.Events;
 using Bark.Tile;
@@ -21,7 +22,7 @@ public static class TileEventListener
     private const int ScanRadius = 10;
 
     // 已知自定义物块索引集合（用于快速判断）
-    private static readonly HashSet<int> KnownCustomIndices = new();
+    private static readonly HashSet<int> KnownCustomIndices = [];
 
     // 物块破坏兜底追踪：posHash → tileIndex。当 Harmony SetBlock 漏掉时兜底检测
     private static readonly Dictionary<long, int> DestroyTracker = new();
@@ -42,10 +43,7 @@ public static class TileEventListener
         // 快照当前已知的自定义物块索引
         RefreshKnownIndices();
 
-        // Harmony 补丁 SetBlock
-        TryPatchSetBlock();
-
-        // 尝试 Harmony 补丁 DamageBlock
+        // 尝试 Harmony 补丁 DamageBlock（SetBlock 已用 [HarmonyPatch] 注解声明）
         TryPatchDamageBlock();
 
         // 启动检测协程
@@ -85,39 +83,14 @@ public static class TileEventListener
     private static void RefreshKnownIndices()
     {
         KnownCustomIndices.Clear();
-        foreach (var list in TileLoader.LoadedTiles.Values)
-        foreach (var entry in list)
+        foreach (var entry in TileLoader.LoadedTiles.Values.SelectMany(list => list))
             KnownCustomIndices.Add(entry.TileIndex);
     }
 
-    // ============================================================
     // Harmony：SetBlock 补丁（放置 + 破坏检测）
-    // ============================================================
-
-    private static void TryPatchSetBlock()
-    {
-        // 游戏方法签名为 SetBlock(Vector2Int, ushort)
-        var method = AccessTools.Method(typeof(WorldGeneration), "SetBlock",
-            [typeof(Vector2Int), typeof(ushort)]);
-        if (method == null)
-            // 回退：尝试无类型参数匹配
-            method = AccessTools.Method(typeof(WorldGeneration), "SetBlock");
-
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony("Bark.TileSetBlockListener");
-            harmony.Patch(method, new HarmonyMethod(typeof(TileEventListener), nameof(OnSetBlockPrefix)));
-            LogUtil.Info("item_event.patch_use_ok", "WorldGeneration.SetBlock");
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    private static void OnSetBlockPrefix(WorldGeneration __instance, Vector2Int pos, ushort block)
+    [HarmonyPatch(typeof(WorldGeneration), "SetBlock", typeof(Vector2Int), typeof(ushort))]
+    [HarmonyPrefix]
+    private static void WorldGenerationSetBlockPrefix(WorldGeneration __instance, ref Vector2Int pos, ushort block)
     {
         if (__instance == null || !WorldReady()) return;
 
@@ -148,30 +121,25 @@ public static class TileEventListener
         }
 
         // 检测放置：新物块是自定义的
-        if (index >= 36 && IsCustomIndex(index))
+        if (index < 36 || !IsCustomIndex(index)) return;
         {
             var tileId = FindTileIdByIndex(index);
-            if (tileId != null)
+            if (tileId == null) return;
+            EventUtil.Trigger(new TilePlaceEvent
             {
-                EventUtil.Trigger(new TilePlaceEvent
-                {
-                    TileId = tileId,
-                    TileIndex = index,
-                    PosX = pos.x,
-                    PosY = pos.y
-                });
+                TileId = tileId,
+                TileIndex = index,
+                PosX = pos.x,
+                PosY = pos.y
+            });
 
-                // 记录到破坏兜底追踪
-                var hash = PackPos(pos.x, pos.y);
-                DestroyTracker[hash] = index;
-            }
+            // 记录到破坏兜底追踪
+            var hash = PackPos(pos.x, pos.y);
+            DestroyTracker[hash] = index;
         }
     }
 
-    // ============================================================
     // Harmony：DamageBlock 补丁（受击检测）
-    // ============================================================
-
     private static void TryPatchDamageBlock()
     {
         // 尝试常见的伤害方法名。
@@ -182,10 +150,8 @@ public static class TileEventListener
             if (candidates == null) continue;
 
             var patched = false;
-            foreach (var method in candidates)
+            foreach (var method in candidates.Where(method => method.Name == methodName))
             {
-                if (method.Name != methodName) continue;
-
                 try
                 {
                     var postfix = new HarmonyMethod(typeof(TileEventListener), nameof(OnDamageBlockPostfix));
@@ -217,6 +183,7 @@ public static class TileEventListener
             if (parameters == null) return;
 
             var world = WorldGeneration.world;
+            // ReSharper disable once RedundantJumpStatement
             if (world == null) return;
 
             // 在 parameters 中查找 Vector2Int 类型参数作为位置
@@ -229,10 +196,7 @@ public static class TileEventListener
         }
     }
 
-    // ============================================================
     // 轮询：存在检测
-    // ============================================================
-
     private static IEnumerator PollExist()
     {
         yield return new WaitForSeconds(1f);
@@ -247,7 +211,7 @@ public static class TileEventListener
             if (!body) continue;
 
             var world = WorldGeneration.world;
-            if (world == null) continue;
+            if (!world) continue;
 
             // 玩家位置 → 格子坐标
             var playerPos = world.WorldToBlockPos(body.transform.position);
@@ -275,10 +239,7 @@ public static class TileEventListener
         }
     }
 
-    // ============================================================
     // 轮询：破坏兜底检测
-    // ============================================================
-
     private static IEnumerator PollDamage()
     {
         yield return new WaitForSeconds(1f);
@@ -313,21 +274,19 @@ public static class TileEventListener
                 }
 
                 var currentIndex = GetBlockAt(world, new Vector2Int(x, y));
-                if (currentIndex != tileIndex)
-                {
-                    // 物块已消失/被替换
-                    var tileId = FindTileIdByIndex(tileIndex);
-                    if (tileId != null)
-                        EventUtil.Trigger(new TileDestroyedEvent
-                        {
-                            TileId = tileId,
-                            TileIndex = tileIndex,
-                            PosX = x,
-                            PosY = y
-                        });
+                if (currentIndex == tileIndex) continue;
+                // 物块已消失/被替换
+                var tileId = FindTileIdByIndex(tileIndex);
+                if (tileId != null)
+                    EventUtil.Trigger(new TileDestroyedEvent
+                    {
+                        TileId = tileId,
+                        TileIndex = tileIndex,
+                        PosX = x,
+                        PosY = y
+                    });
 
-                    destroyed.Add(hash);
-                }
+                destroyed.Add(hash);
             }
 
             foreach (var hash in destroyed)
@@ -335,14 +294,11 @@ public static class TileEventListener
         }
     }
 
-    // ============================================================
     // 辅助
-    // ============================================================
-
     private static bool WorldReady()
     {
         var world = WorldGeneration.world;
-        return world != null && world.width > 0f && world.height > 0f;
+        return world && world.width > 0f && world.height > 0f;
     }
 
     // 获取指定位置的物块索引
@@ -398,11 +354,10 @@ public static class TileEventListener
     // 根据索引查找物块 ID（取当前已注册的）
     private static string? FindTileIdByIndex(int tileIndex)
     {
-        foreach (var list in TileLoader.LoadedTiles.Values)
-        foreach (var entry in list)
-            if (entry.TileIndex == tileIndex)
-                return entry.TileId;
-        return null;
+        return (from list in TileLoader.LoadedTiles.Values
+            from entry in list
+            where entry.TileIndex == tileIndex
+            select entry.TileId).FirstOrDefault();
     }
 
     // 坐标打包为 long

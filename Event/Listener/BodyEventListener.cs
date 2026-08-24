@@ -10,6 +10,7 @@ namespace Bark.Event.Listener;
 // Body 状态/行为事件监听：
 // - 行为动作（攀爬/锻炼/切换手持/切换朝向/拾取/丢弃/毁容/失去眼睛/最后坚持）用 Harmony patch 触发
 // - 生命体征临界（心脏骤停/心室颤动/呼吸/意识/濒死）与睡眠、下蹲用协程轮询检测状态翻转触发
+[HarmonyPatch(typeof(Body))]
 public static class BodyEventListener
 {
     private const float PollInterval = 0.3f;
@@ -30,20 +31,6 @@ public static class BodyEventListener
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
-
-        var harmony = new Harmony("Bark.BodyEventListener");
-        // 行为动作（前缀，方法调用即触发）
-        harmony.Patch(typeof(Body).GetMethod("StartClimbing"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnClimbStart)));
-        harmony.Patch(typeof(Body).GetMethod("StopClimbing"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnClimbEnd)));
-        harmony.Patch(typeof(Body).GetMethod("SwitchHands"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnSwitchHands)));
-        harmony.Patch(typeof(Body).GetMethod("PickUpItem"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnPickUp)));
-        harmony.Patch(typeof(Body).GetMethod("DropItem", [typeof(int)]), new HarmonyMethod(typeof(BodyEventListener), nameof(OnDrop)));
-        // 特殊状态（后缀，方法成功后状态已就绪再判断）
-        harmony.Patch(typeof(Body).GetMethod("SwitchDir"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnSwitchDirPostfix)));
-        harmony.Patch(typeof(Body).GetMethod("Disfigure"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnDisfigurePostfix)));
-        harmony.Patch(typeof(Body).GetMethod("RemoveEye"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnRemoveEyePostfix)));
-        harmony.Patch(typeof(Body).GetMethod("TryLastStand"), new HarmonyMethod(typeof(BodyEventListener), nameof(OnLastStandPostfix)));
-
         _monitorCoroutine = runner.StartCoroutine(MonitorBody());
     }
 
@@ -58,29 +45,34 @@ public static class BodyEventListener
         _runner = null;
     }
 
-    // ============================================================
     // Harmony 前缀：行为动作
-    // ============================================================
-
-    private static void OnClimbStart(Body __instance)
+    [HarmonyPatch("StartClimbing")]
+    [HarmonyPrefix]
+    private static void StartClimbingPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
         EventUtil.Trigger(new BodyClimbStartEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    private static void OnClimbEnd(Body __instance)
+    [HarmonyPatch("StopClimbing")]
+    [HarmonyPrefix]
+    private static void StopClimbingPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
         EventUtil.Trigger(new BodyClimbEndEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    private static void OnSwitchHands(Body __instance)
+    [HarmonyPatch("SwitchHands")]
+    [HarmonyPrefix]
+    private static void SwitchHandsPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
         EventUtil.Trigger(new BodySwitchHandsEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    private static void OnPickUp(Body __instance, Item item, int slot)
+    [HarmonyPatch("PickUpItem")]
+    [HarmonyPrefix]
+    private static void PickUpItemPrefix(Body __instance, Item item, int slot)
     {
         if (!IsPlayerBody(__instance)) return;
         EventUtil.Trigger(new BodyPickUpEvent
@@ -92,7 +84,9 @@ public static class BodyEventListener
         });
     }
 
-    private static void OnDrop(Body __instance, int slot)
+    [HarmonyPatch("DropItem", typeof(int))]
+    [HarmonyPrefix]
+    private static void DropItemPrefix(Body __instance, int slot)
     {
         if (!IsPlayerBody(__instance)) return;
         var item = __instance.GetItem(slot);
@@ -104,11 +98,11 @@ public static class BodyEventListener
         });
     }
 
-    // ============================================================
-    // Harmony 后缀：特殊状态
-    // ============================================================
 
-    private static void OnSwitchDirPostfix(Body __instance)
+    // Harmony 后缀：特殊状态
+    [HarmonyPatch("SwitchDir")]
+    [HarmonyPostfix]
+    private static void SwitchDirPostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
         EventUtil.Trigger(new BodySwitchDirEvent
@@ -119,13 +113,17 @@ public static class BodyEventListener
         });
     }
 
-    private static void OnDisfigurePostfix(Body __instance)
+    [HarmonyPatch("Disfigure")]
+    [HarmonyPostfix]
+    private static void DisfigurePostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance) || !__instance.disfigured) return;
         EventUtil.Trigger(new BodyDisfigureEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    private static void OnRemoveEyePostfix(Body __instance)
+    [HarmonyPatch("RemoveEye")]
+    [HarmonyPostfix]
+    private static void RemoveEyePostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance) || __instance is { eyeGone: false, bothEyesGone: false }) return;
         EventUtil.Trigger(new BodyRemoveEyeEvent
@@ -136,16 +134,15 @@ public static class BodyEventListener
         });
     }
 
-    private static void OnLastStandPostfix(Body __instance)
+    [HarmonyPatch("TryLastStand")]
+    [HarmonyPostfix]
+    private static void TryLastStandPostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance) || !__instance.succesfullyRolledLastStand) return;
         EventUtil.Trigger(new BodyLastStandEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    // ============================================================
     // 状态轮询：生命体征临界 / 意识 / 睡眠 / 下蹲 / 锻炼
-    // ============================================================
-
     private static IEnumerator MonitorBody()
     {
         yield return CUCoreUtils.AwaitWorldGeneration();
@@ -170,13 +167,14 @@ public static class BodyEventListener
         if (!body) return;
 
         var cam = PlayerCamera.main;
-        if (cam == null || cam.body != body) return;
+        if (!cam || cam.body != body) return;
 
         // 心脏骤停
         var cardiacArrest = body.inCardiacArrest;
         if (cardiacArrest != _wasCardiacArrest)
         {
-            EventUtil.Trigger(new BodyCardiacArrestEvent { Body = body, Camera = cam, IsCardiacArrest = cardiacArrest });
+            EventUtil.Trigger(new BodyCardiacArrestEvent
+                { Body = body, Camera = cam, IsCardiacArrest = cardiacArrest });
             _wasCardiacArrest = cardiacArrest;
         }
 
@@ -191,6 +189,7 @@ public static class BodyEventListener
                 EventUtil.Trigger(new BodyFibrillationEndEvent { Body = body, Camera = cam });
                 break;
         }
+
         _wasFibrillating = fibrillating;
 
         // 呼吸

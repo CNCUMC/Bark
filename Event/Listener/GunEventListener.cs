@@ -9,6 +9,7 @@ namespace Bark.Event.Listener;
 
 // 枪械事件监听器：通过 Harmony 补丁拦截 GunScript 方法，
 // 触发 GunFireEvent / GunRackEvent / GunSafetyToggleEvent / GunLoadAmmoEvent / GunUnloadEvent / GunJamEvent。
+[HarmonyPatch(typeof(GunScript))]
 public static class GunEventListener
 {
     // 轮询间隔（秒）
@@ -23,13 +24,6 @@ public static class GunEventListener
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
-
-        TryPatchMethod("Fire", nameof(OnFire));
-        TryPatchMethod("TryRack", nameof(OnTryRack));
-        TryPatchMethod("ToggleSafety", nameof(OnToggleSafety));
-        TryPatchMethod("LoadMag", nameof(OnLoadMagPrefix), nameof(OnLoadMagPostfix));
-        TryPatchMethod("UnloadMag", nameof(OnUnloadMag));
-
         _jamCoroutine = runner.StartCoroutine(PollGunJam());
     }
 
@@ -47,37 +41,10 @@ public static class GunEventListener
         _runner = null;
     }
 
-    // ============================================================
-    // Harmony 补丁
-    // ============================================================
-
-    private static void TryPatchMethod(string methodName, string prefix, string? postfix = null)
-    {
-        var method = AccessTools.Method(typeof(GunScript), methodName);
-        if (method == null) return;
-
-        try
-        {
-            var harmony = new Harmony($"Bark.GunEventListener.{methodName}");
-            var prefixMethod = new HarmonyMethod(typeof(GunEventListener), prefix);
-            var postfixMethod = postfix != null
-                ? new HarmonyMethod(typeof(GunEventListener), postfix)
-                : null;
-
-            harmony.Patch(method, prefixMethod, postfixMethod);
-            LogUtil.Info("gun_event.patch_ok", $"GunScript.{methodName}");
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
-    // ============================================================
     // 开火
-    // ============================================================
-
-    private static void OnFire(GunScript __instance, bool suicide)
+    [HarmonyPatch("Fire")]
+    [HarmonyPostfix]
+    private static void FirePostfix(GunScript __instance, bool suicide)
     {
         var item = __instance.GetComponent<Item>();
         if (item == null) return;
@@ -89,11 +56,10 @@ public static class GunEventListener
         });
     }
 
-    // ============================================================
     // 拉栓
-    // ============================================================
-
-    private static void OnTryRack(GunScript __instance)
+    [HarmonyPatch("TryRack")]
+    [HarmonyPostfix]
+    private static void TryRackPostfix(GunScript __instance)
     {
         if (__instance == null) return;
         var item = __instance.GetComponent<Item>();
@@ -107,11 +73,9 @@ public static class GunEventListener
         });
     }
 
-    // ============================================================
     // 保险
-    // ============================================================
-
-    private static void OnToggleSafety(GunScript __instance)
+    [HarmonyPatch("ToggleSafety")]
+    private static void ToggleSafetyPostfix(GunScript __instance)
     {
         if (__instance == null) return;
         var item = __instance.GetComponent<Item>();
@@ -124,11 +88,10 @@ public static class GunEventListener
         });
     }
 
-    // ============================================================
     // 装弹（prefix 捕获 ammo 信息，postfix 判断是否成功）
-    // ============================================================
-
-    private static void OnLoadMagPrefix(GunScript __instance, out GunLoadState __state)
+    [HarmonyPatch("LoadMag")]
+    [HarmonyPrefix]
+    private static void LoadMagPrefix(GunScript __instance, out GunLoadState __state)
     {
         __state = new GunLoadState
         {
@@ -138,7 +101,10 @@ public static class GunEventListener
         };
     }
 
-    private static void OnLoadMagPostfix(GunScript __instance, AmmoScript ammo, GunLoadState __state)
+
+    [HarmonyPatch("LoadMag")]
+    [HarmonyPostfix]
+    private static void LoadMagPostfix(GunScript __instance, AmmoScript ammo, GunLoadState __state)
     {
         if (ammo == null) return;
 
@@ -165,11 +131,10 @@ public static class GunEventListener
         });
     }
 
-    // ============================================================
     // 卸弹
-    // ============================================================
-
-    private static void OnUnloadMag(GunScript __instance)
+    [HarmonyPatch("UnloadMag")]
+    [HarmonyPostfix]
+    private static void UnloadMagPostfix(GunScript __instance)
     {
         if (__instance == null) return;
         var item = __instance.GetComponent<Item>();
@@ -188,10 +153,7 @@ public static class GunEventListener
         });
     }
 
-    // ============================================================
     // 卡壳轮询：检测 racked / roundInChamber 是否按预期变化
-    // ============================================================
-
     private static IEnumerator PollGunJam()
     {
         yield return new WaitForSeconds(1f);
