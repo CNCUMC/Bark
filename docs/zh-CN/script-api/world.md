@@ -10,16 +10,16 @@ World 提供方块放置、区域填充和物品生成。只有 5 个方法，�
 
 ```js
 // 放置单个方块
-World.PlaceBlock(50, 30, 18);   // 18 号是 Marble 方块
+World.PlaceTile(50, 30, 18);   // 18 号是 Marble 方块
 
 // 区域填充
-World.FillBlocks(0, 0, 10, 5, 3);  // 从 (0,0) 到 (10,5) 填满 3 号方块
+World.FillTiles(0, 0, 10, 5, 3);  // 从 (0,0) 到 (10,5) 填满 3 号方块
 ```
 
 | 方法                                              | 说明                                          |
 |---------------------------------------------------|-----------------------------------------------|
-| `PlaceBlock(x, y, blockId)`                       | 在指定坐标放一个方块                          |
-| `FillBlocks(startX, startY, endX, endY, blockId)` | 矩形区域批量填充，坐标会自动 clamp 到世界边界 |
+| `PlaceTile(x, y, blockId)`                       | 在指定坐标放一个方块                          |
+| `FillTiles(startX, startY, endX, endY, blockId)` | 矩形区域批量填充，坐标会自动 clamp 到世界边界 |
 
 ## 物品生成
 
@@ -48,10 +48,10 @@ function onWorldGenerated() {
     var r = 5;
 
     // 画四条边
-    World.FillBlocks(cx - r, cy - r, cx + r, cy - r, 18);  // 下边
-    World.FillBlocks(cx - r, cy + r, cx + r, cy + r, 18);  // 上边
-    World.FillBlocks(cx - r, cy - r, cx - r, cy + r, 18);  // 左边
-    World.FillBlocks(cx + r, cy - r, cx + r, cy + r, 18);  // 右边
+    World.FillTiles(cx - r, cy - r, cx + r, cy - r, 18);  // 下边
+    World.FillTiles(cx - r, cy + r, cx + r, cy + r, 18);  // 上边
+    World.FillTiles(cx - r, cy - r, cx - r, cy + r, 18);  // 左边
+    World.FillTiles(cx + r, cy - r, cx + r, cy + r, 18);  // 右边
 
     // 门口放个医疗包
     World.PlaceItem(cx, cy - r + 1, 'medkit');

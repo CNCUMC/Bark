@@ -8,8 +8,6 @@ namespace Bark.Event.Listener;
 
 public static class WorldEventListener
 {
-    private static bool _triggered;
-
     internal static void Listen(MonoBehaviour runner)
     {
         runner.StartCoroutine(WaitForWorldGeneration());
@@ -23,8 +21,7 @@ public static class WorldEventListener
 
     private static void Trigger()
     {
-        if (_triggered) return;
+        if (CUCoreUtils.IsInWorld()) return;
         EventUtil.Trigger(new WorldReadyEvent());
-        _triggered = true;
     }
 }

@@ -39,6 +39,9 @@ Bark 是 Casualties Unknown 的 BepInEx 模组工具库，提供事件系统、�
 | [日志](script-api/log.md)             | `Log`                | 日志输出                                 |
 | [多语言](script-api/locale.md)        | `Locale`             | 本地化文本、占位符                       |
 | [配置项](script-api/options.md)       | `OptionsApi`         | 读写脚本模组配置                         |
+| [输入](script-api/input.md)           | `Input`              | 鼠标位置、按键友好名称                   |
+| [存储](script-api/storage.md)         | `Storage`            | 基于 PlayerPrefs 的持久化数据            |
+| [压缩](script-api/compress.md)        | `Compress`           | GZip / Deflate 数据压缩                  |
 
 ## C# API
 

@@ -78,7 +78,7 @@ public class Plugin : BaseUnityPlugin
 
         new LangGenerator().Initialize(Logger);
 
-        BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
+        // BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
         _harmony.PatchAll();
 
@@ -230,12 +230,4 @@ public class Plugin : BaseUnityPlugin
         // 安装玩偶吱吱音效补丁：配置了 squeak_sound 的玩偶用 Bark Audio 播放自定义音效
         PlushTemplate.ApplySqueakHook();
     }
-
-    // 以 Bark 自身作为模组加载 JSON 内容：
-    // 读取与本程序集同目录的 mod.json 拿到 id，再扫描同目录 Item/Tile/Recipe/Moodle 子目录注册。
-    // private static void LoadOwnItems()
-    // {
-    //     var assemblyLocation = typeof(Plugin).Assembly.Location;
-    //     ModContentApi.LoadFromPluginDirectory(assemblyLocation);
-    // }
 }

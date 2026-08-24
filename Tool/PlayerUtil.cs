@@ -98,6 +98,31 @@ public static class PlayerUtil
         }
     }
 
+    // 让玩家说出对话文本（头顶冒泡）。dialogue 为空或身体未就绪时无操作。
+    [ScriptMethod]
+    public static void Talk(string dialogue)
+    {
+        if (string.IsNullOrWhiteSpace(dialogue)) return;
+        CUCoreUtils.Talk(dialogue);
+    }
+
+    // 通过电子设备（如手表）说出对话文本。itemId 为空时使用通用电子代理。
+    [ScriptMethod]
+    public static void TalkElectronic(string dialogue, string itemId = "")
+    {
+        if (string.IsNullOrWhiteSpace(dialogue)) return;
+        if (string.IsNullOrWhiteSpace(itemId))
+        {
+            CUCoreUtils.TalkElectronic(dialogue);
+            return;
+        }
+
+        var resolved = ScriptCallContext.ResolveItemId(itemId);
+        var go = Utils.Create(resolved, Vector2.zero, 0f);
+        var item = go?.GetComponent<Item>();
+        if (item != null) CUCoreUtils.TalkElectronic(dialogue, item);
+    }
+
     private static string LocaleLog(string key, params object[] args)
     {
         return BetterLocale.GetLog(key, args);

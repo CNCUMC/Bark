@@ -44,6 +44,29 @@ Player.Alert('3 秒后显示', false, 3);
 
 `delay` 默认为 `0`（立即显示），可省略。
 
+## 说话
+
+让玩家说出对话气泡（或通过电子设备如手表）。
+
+```js
+// 玩家说一句台词
+Player.Talk('我得找点吃的。');
+
+// 通过通用电子设备说话
+Player.TalkElectronic('正在搜索信号...');
+
+// 通过指定电子物品说话
+Player.TalkElectronic('正在分析样本...', 'watch');
+```
+
+| 方法                                  | 说明                                     |
+|---------------------------------------|------------------------------------------|
+| `Talk(dialogue)`                      | 玩家说出对话气泡                         |
+| `TalkElectronic(dialogue)`            | 通过通用电子发声代理说话                 |
+| `TalkElectronic(dialogue, itemId)`    | 通过指定电子物品说话                     |
+
+> `TalkElectronic` 的 `itemId` 参数可省略，遵循与其他物品 ID 相同的模组 id 前缀补全规则。
+
 ## 完整示例
 
 一键回家 + 装备满配：

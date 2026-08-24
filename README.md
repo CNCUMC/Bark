@@ -47,6 +47,8 @@ game utility tools.
 | [`InventoryUtil`](Tool/InventoryUtil.cs)      | Inventory operations                                                     |
 | [`ItemUtil`](Tool/ItemUtil.cs)                | Item utilities: FindNearby, Repair, SetCondition                         |
 | [`InputUtil`](Tool/InputUtil.cs)              | Input handling: mouse position, click waiting                            |
+| [`StorageUtil`](Tool/StorageUtil.cs)          | Persisted values via PlayerPrefs                                         |
+| [`CompressUtil`](Tool/CompressUtil.cs)        | GZip / Deflate data compression                                          |
 | [`LogUtil`](Tool/LogUtil.cs)                  | Console logging + validation helpers                                     |
 | [`TextUtil`](Tool/TextUtil.cs)                | Rich text formatting: color, alpha, bold, italic, size                   |
 | [`ToolsUtil`](Tool/ToolsUtil.cs)              | Argument validation, float/int parsing                                   |
@@ -271,7 +273,9 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 | `SkillUtil`     | Skill level/XP                       | [Skills](docs/en-US/script-api/skills.md)               |
 | `InventoryUtil` | Inventory queries                    | [Inventory & Items](docs/en-US/script-api/inventory.md) |
 | `ItemUtil`      | Item search, repair, durability      | [Inventory & Items](docs/en-US/script-api/inventory.md) |
-| `InputUtil`     | Input handling                       | —                                                       |
+| `InputUtil`     | Input handling                       | [Input](docs/en-US/script-api/input.md)                 |
+| `StorageUtil`   | Persisted values via PlayerPrefs     | [Storage](docs/en-US/script-api/storage.md)             |
+| `CompressUtil`  | GZip / Deflate data compression      | [Compress](docs/en-US/script-api/compress.md)           |
 | `TextUtil`      | Rich text formatting                 | —                                                       |
 | `ToolsUtil`     | Argument validation, float/int parse | —                                                       |
 | `EventUtil`     | Event trigger / manual registration  | [EventUtil](docs/en-US/csharp-api/event-util.md)        |

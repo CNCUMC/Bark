@@ -45,6 +45,30 @@ Player.Alert('Shown in 3 seconds', false, 3);
 
 `delay` defaults to `0` (immediate) and can be omitted.
 
+## Talking
+
+Make the player speak dialogue bubbles (or via an electronic device like the watch).
+
+```js
+// Player says a line
+Player.Talk('I should find some food.');
+
+// Speak through an electronic device (generic proxy)
+Player.TalkElectronic('Searching for signal...');
+
+// Speak through a specific electronic item
+Player.TalkElectronic('Analyzing sample...', 'watch');
+```
+
+| Method                              | Description                                   |
+|-------------------------------------|-----------------------------------------------|
+| `Talk(dialogue)`                    | Player speaks a dialogue bubble               |
+| `TalkElectronic(dialogue)`          | Speak via the generic electronic talker proxy |
+| `TalkElectronic(dialogue, itemId)`  | Speak via a specific electronic item          |
+
+> The `itemId` parameter of `TalkElectronic` is optional and resolves through the same mod-id prefixing rules as item
+> IDs elsewhere.
+
 ## Full Example
 
 Teleport home + full loadout:

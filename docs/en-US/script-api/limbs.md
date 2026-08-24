@@ -121,6 +121,21 @@ Limb.SetDisinfect(0, 60);      // disinfect for 60 sec
 Limb.HealLimb(0);              // skin + muscle max, stop bleed, mend bone, relocate, clear infection
 ```
 
+## Amputation
+
+Sever a limb using the player's currently held item as the cutting tool. No-op if the player holds no usable item.
+
+```js
+// Sever limb #0 using the held item
+Limb.DoAmputate(0);
+```
+
+| Method               | Description                                      |
+|----------------------|--------------------------------------------------|
+| `DoAmputate(index)`  | Sever the limb using the currently held item     |
+
+> The player must hold an item that supports amputation (e.g. a saw or scalpel). Doing nothing otherwise.
+
 ## Global Aggregate Queries
 
 No index — check the whole body.

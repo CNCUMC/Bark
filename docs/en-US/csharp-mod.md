@@ -57,6 +57,9 @@ docs for details:
 | `SkillUtil`                  | [Skills](script-api/skills.md)               |
 | `WorldUtil`                  | [World Editing](script-api/world.md)         |
 | `LogUtil`                    | [Logging](script-api/log.md)                 |
+| `InputUtil`                  | [Input](script-api/input.md)                 |
+| `StorageUtil`                | [Storage](script-api/storage.md)             |
+| `CompressUtil`               | [Compress](script-api/compress.md)           |
 | `OptionsApi`                 | [Options](script-api/options.md)             |
 | `Locale`                     | [Localization](script-api/locale.md)         |
 
@@ -72,7 +75,7 @@ LimbUtil.Break(0);          // break limb #0
 LimbUtil.Mend(0);           // heal limb #0
 
 // Manipulate the world
-WorldUtil.PlaceBlock("marble", 10, 5);
+WorldUtil.PlaceTile("marble", 10, 5);
 
 // Player actions
 PlayerUtil.Teleport(100, 200);

@@ -10,16 +10,16 @@ World provides block placement, area fill, and item spawning. Only 5 methods, bu
 
 ```js
 // Place a single block
-World.PlaceBlock(50, 30, 18);   // 18 = Marble block
+World.PlaceTile(50, 30, 18);   // 18 = Marble block
 
 // Area fill
-World.FillBlocks(0, 0, 10, 5, 3);  // fill (0,0) to (10,5) with block #3
+World.FillTiles(0, 0, 10, 5, 3);  // fill (0,0) to (10,5) with block #3
 ```
 
 | Method                                            | Description                                           |
 |---------------------------------------------------|-------------------------------------------------------|
-| `PlaceBlock(x, y, blockId)`                       | Place one block at coordinates                        |
-| `FillBlocks(startX, startY, endX, endY, blockId)` | Batch-fill a rectangle, coords auto-clamped to bounds |
+| `PlaceTile(x, y, blockId)`                       | Place one block at coordinates                        |
+| `FillTiles(startX, startY, endX, endY, blockId)` | Batch-fill a rectangle, coords auto-clamped to bounds |
 
 ## Item Spawning
 
@@ -48,10 +48,10 @@ function onWorldGenerated() {
     var r = 5;
 
     // Draw four sides
-    World.FillBlocks(cx - r, cy - r, cx + r, cy - r, 18);  // bottom
-    World.FillBlocks(cx - r, cy + r, cx + r, cy + r, 18);  // top
-    World.FillBlocks(cx - r, cy - r, cx - r, cy + r, 18);  // left
-    World.FillBlocks(cx + r, cy - r, cx + r, cy + r, 18);  // right
+    World.FillTiles(cx - r, cy - r, cx + r, cy - r, 18);  // bottom
+    World.FillTiles(cx - r, cy + r, cx + r, cy + r, 18);  // top
+    World.FillTiles(cx - r, cy - r, cx - r, cy + r, 18);  // left
+    World.FillTiles(cx + r, cy - r, cx + r, cy + r, 18);  // right
 
     // Drop a medkit at the entrance
     World.PlaceItem(cx, cy - r + 1, 'medkit');

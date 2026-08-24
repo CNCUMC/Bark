@@ -116,6 +116,9 @@ Bark 把工具类注入为全局变量，名字为 C# 类名去掉 `Util` 后缀
 | `OptionsApi` | 读写脚本模组配置项                                                           | [配置项](script-api/options.md)       |
 | `Log`        | 日志输出，`Log.info()` / `Log.warning()` / `Log.error()`                     | [日志](script-api/log.md)             |
 | `Locale`     | 多语言文本，`Locale.Get("key")`                                              | [多语言](script-api/locale.md)        |
+| `Input`      | 鼠标位置、按键友好名称                                                       | [输入](script-api/input.md)           |
+| `Storage`    | 基于 PlayerPrefs 的持久化数据                                                | [存储](script-api/storage.md)         |
+| `Compress`   | GZip / Deflate 数据压缩                                                      | [压缩](script-api/compress.md)        |
 | `ScriptInfo` | 当前脚本的元信息：`ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                     |
 
 ## 命名规则
@@ -131,8 +134,8 @@ Bark 把工具类注入为全局变量，名字为 C# 类名去掉 `Util` 后缀
 | `Can*`                                             | 问「能不能」   | `Body.CanTakeNap()`                        |
 | `Add*`                                             | 增减           | `Skill.AddXP(100)`                         |
 | `Remove*`                                          | 移除           | `Body.RemovePainkillers()`                 |
-| `Place*`                                           | 放置           | `World.PlaceBlock("marble", 10, 5)`        |
-| `Fill*`                                            | 填充区域       | `World.FillBlocks(0, 0, 10, 10, "marble")` |
+| `Place*`                                           | 放置           | `World.PlaceTile("marble", 10, 5)`        |
+| `Fill*`                                            | 填充区域       | `World.FillTiles(0, 0, 10, 10, "marble")` |
 | `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | 一眼就懂的动词 | `Limb.Break(0)`                            |
 
 **Get/Set 对应**：能 Get 的基本都能 Set，名字一模一样，只是 Set 多一个参数。

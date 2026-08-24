@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bark.BetterCCL;
 using Bark.ScriptApi;
+using CUCoreLib.Helpers;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -759,6 +760,17 @@ public static class LimbUtil
     public static float GetBloodPressure()
     {
         return BodyUtil.Body.bloodPressure;
+    }
+
+    // 截断肢体。使用玩家当前手持物品作为截肢工具；未手持有效物品时无操作。
+    [ScriptMethod]
+    public static void DoAmputate(int limbIndex)
+    {
+        var body = BodyUtil.Body;
+        if (body == null) return;
+        var item = body.GetItem(body.handSlot);
+        if (item == null) return;
+        CUCoreUtils.DoAmputate(item, GetLimb(limbIndex));
     }
 
     // 本地化辅助

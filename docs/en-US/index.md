@@ -40,6 +40,9 @@ Script-side (JS / Lua) tool APIs:
 | [Logging](script-api/log.md)                 | `Log`                | Log output                                                        |
 | [Localization](script-api/locale.md)         | `Locale`             | Localized text, placeholders                                      |
 | [Options](script-api/options.md)             | `OptionsApi`         | Reading mod configuration                                         |
+| [Input](script-api/input.md)                 | `Input`              | Mouse position, friendly key names                                |
+| [Storage](script-api/storage.md)             | `Storage`            | Persisted values via PlayerPrefs                                  |
+| [Compress](script-api/compress.md)           | `Compress`           | GZip / Deflate data compression                                   |
 
 ## C# API
 

@@ -46,10 +46,12 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 | [`InventoryUtil`](Tool/InventoryUtil.cs)      | 物品栏操作                                          |
 | [`ItemUtil`](Tool/ItemUtil.cs)                | 物品工具：附近搜索、修复、耐久度                    |
 | [`InputUtil`](Tool/InputUtil.cs)              | 输入处理：鼠标位置、点击等待                        |
+| [`StorageUtil`](Tool/StorageUtil.cs)          | 基于 PlayerPrefs 的持久化数据                       |
+| [`CompressUtil`](Tool/CompressUtil.cs)        | GZip / Deflate 数据压缩                             |
 | [`LogUtil`](Tool/LogUtil.cs)                  | 控制台日志 + 校验辅助                               |
 | [`TextUtil`](Tool/TextUtil.cs)                | 富文本格式化：颜色、透明度、粗体、斜体、字号        |
 | [`ToolsUtil`](Tool/ToolsUtil.cs)              | 参数验证、浮点/整数解析                             |
-| [`Blocks`](Constant/Blocks.cs)                | 强类型方块定义                                      |
+| [`Tiles`](Constant/Tiles.cs)                  | 强类型物块定义                                      |
 | [`Items`](Constant/Items.cs)                  | 强类型物品定义                                      |
 | [`Backgrounds`](Constant/Backgrounds.cs)      | 背景 ID 字符串常量                                  |
 | [`Keys`](Constant/Keys.cs)                    | 按键动作常量                                        |
@@ -264,7 +266,9 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 | `SkillUtil`     | 技能经验/等级           | [技能](docs/zh-CN/script-api/skills.md)          |
 | `InventoryUtil` | 背包查询                | [背包与物品](docs/zh-CN/script-api/inventory.md) |
 | `ItemUtil`      | 物品搜索、耐久、修理    | [背包与物品](docs/zh-CN/script-api/inventory.md) |
-| `InputUtil`     | 输入处理                | —                                                |
+| `InputUtil`     | 输入处理                | [输入](docs/zh-CN/script-api/input.md)           |
+| `StorageUtil`   | 基于 PlayerPrefs 持久化 | [存储](docs/zh-CN/script-api/storage.md)         |
+| `CompressUtil`  | GZip / Deflate 压缩     | [压缩](docs/zh-CN/script-api/compress.md)        |
 | `TextUtil`      | 富文本格式化            | —                                                |
 | `ToolsUtil`     | 参数验证、浮点/整数解析 | —                                                |
 | `EventUtil`     | 事件触发/手动注册       | [EventUtil](docs/zh-CN/csharp-api/event-util.md) |

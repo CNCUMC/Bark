@@ -54,6 +54,9 @@ public static class MyEventHandlers
 | `SkillUtil`                  | [技能](script-api/skills.md)          |
 | `WorldUtil`                  | [世界编辑](script-api/world.md)       |
 | `LogUtil`                    | [日志](script-api/log.md)             |
+| `InputUtil`                  | [输入](script-api/input.md)           |
+| `StorageUtil`                | [存储](script-api/storage.md)         |
+| `CompressUtil`               | [压缩](script-api/compress.md)        |
 | `OptionsApi`                 | [配置项](script-api/options.md)       |
 | `Locale`                     | [多语言](script-api/locale.md)        |
 
@@ -69,7 +72,7 @@ LimbUtil.Break(0);          // 折断第 0 号肢体
 LimbUtil.Mend(0);           // 治疗第 0 号肢体
 
 // 操作世界
-WorldUtil.PlaceBlock("marble", 10, 5);
+WorldUtil.PlaceTile("marble", 10, 5);
 
 // 操作玩家
 PlayerUtil.Teleport(100, 200);
