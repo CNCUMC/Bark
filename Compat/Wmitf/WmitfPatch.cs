@@ -11,10 +11,7 @@ internal static class WmitfPatch
 {
     // WMITF 是否已加载
     public static bool IsLoaded => Chainloader.PluginInfos.ContainsKey("com.jimmyking.whatmodisthisfrom");
-
-    // Bark 自身 GUID
-    private const string BarkGuid = "org.cncumc.bark";
-
+    
     // 物块 tileIndex → 脚本模组 ID 的覆盖映射（用于修正 CCL TileRegistry.TryGetOwnerModGuid 返回 Bark GUID 的问题）
     private static readonly Dictionary<ushort, string> TileOwnerOverrides = new();
 
@@ -165,7 +162,7 @@ internal static class WmitfPatch
         ref string modGuid,
         ref bool __result)
     {
-        if (!__result || string.IsNullOrEmpty(modGuid) || modGuid != BarkGuid)
+        if (!__result || string.IsNullOrEmpty(modGuid) || modGuid != Plugin.Guid)
             return;
 
         // CCL 返回了 Bark GUID，检查 TileOwnerOverrides 是否有覆盖

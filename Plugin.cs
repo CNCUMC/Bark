@@ -16,7 +16,6 @@ using Bark.Tool;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 
 namespace Bark;
 
