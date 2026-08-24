@@ -6,10 +6,7 @@ namespace Bark.Items.Runtime.Gun;
 // Partial：开火、弹壳解析、音效回调、保险、耳鸣自定义
 public static partial class GunRuntimeManager
 {
-    // ============================================================
     // Fire Prefix：保存开火前的 hearingLoss，供 Postfix 做耳鸣倍率校准
-    // ============================================================
-
     private static void OnFirePrefix(GunScript __instance)
     {
         var (gunItem, _) = TryGetTemplateGun(__instance);
@@ -19,10 +16,7 @@ public static partial class GunRuntimeManager
             _preFireHearingLoss = -1f;
     }
 
-    // ============================================================
     // Fire Postfix：消耗弹药、记录弹壳类型、应用耐久损耗
-    // ============================================================
-
     private static void OnFirePostfix(GunScript __instance)
     {
         var (gunItem, gunData) = TryGetTemplateGun(__instance);

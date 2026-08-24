@@ -41,11 +41,7 @@ public class MagData
 // MagTemplate.GetMagData(itemId)    → MagData / null
 public class MagTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, MagData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "mag";
 
     public override JObject BuildDefaults()
@@ -95,9 +91,7 @@ public class MagTemplate : ItemTemplate
             MaxWeight = (float?)t["max_weight"] ?? (int?)t["capacity"] * 0.03f ?? 0.5f
         };
     }
-
-    // ==================== Query API ====================
-
+    
     // 返回所有已注册弹匣的物品 ID
     public static IEnumerable<string> GetAllMagIds()
     {

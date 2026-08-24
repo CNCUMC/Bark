@@ -43,11 +43,7 @@ public class ClothingData
 // ClothingTemplate.GetClothingData(itemId)   → ClothingData / null
 public class ClothingTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, ClothingData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "clothing";
 
     public override JObject BuildDefaults()
@@ -131,9 +127,7 @@ public class ClothingTemplate : ItemTemplate
     {
         Registry.Remove(itemId);
     }
-
-    // ==================== Query API ====================
-
+    
     // 查询某物品是否为衣服模板注册的物品（脚本端使用）
     public static bool IsClothing(string itemId)
     {

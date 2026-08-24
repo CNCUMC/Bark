@@ -61,10 +61,7 @@ public static partial class GunRuntimeManager
         return (gunItem, gunData);
     }
 
-    // ============================================================
     // 生命周期
-    // ============================================================
-
     // 获取指定枪械的耳鸣倍率（运行时覆盖优先，否则取模板默认值）
     internal static float GetEffectiveTinnitusMultiplier(string gunItemId)
     {
@@ -98,11 +95,8 @@ public static partial class GunRuntimeManager
 
         try
         {
-            // ============================================================
             // barrel/精灵字段的初始化在 OnTemplateCreatedPostfix 中完成（模板创建时
             // 直接创建 barrel 子对象）。不再尝试 patch Awake（Unity 魔法方法不可 patch）。
-            // ============================================================
-
             // Start Postfix：将模板 GunData 写入 GunScript 组件 + 补全运行时关键字段。
             var start = AccessTools.Method(gunScriptType, "Start");
             if (start != null)

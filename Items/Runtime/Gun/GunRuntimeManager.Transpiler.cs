@@ -13,9 +13,7 @@ namespace Bark.Items.Runtime.Gun;
 // Partial：IL Transpiler — GunScript.Update/Fire 的 IL 织入
 public static partial class GunRuntimeManager
 {
-    // ============================================================
     // Update Transpiler：替换抛壳逻辑，用 Utils.Create 直接创建自定义弹壳
-    // ============================================================
     //
     // GunScript.Update() 中 rack 事件原始抛壳 IL（基于当前游戏版本 MVID AB887C07）：
     //   三元运算 roundInChamber == Casing ? "casing" : AmmoTypeToItem(ammoType)

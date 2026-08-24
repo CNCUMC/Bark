@@ -59,11 +59,7 @@ public class FoodData
 // FoodTemplate.GetFoodData(itemId)   → FoodData / null
 public class FoodTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, FoodData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "food";
 
     public override JObject BuildDefaults()
@@ -142,9 +138,7 @@ public class FoodTemplate : ItemTemplate
             EatGoodVoice = (bool?)t["eat_good_voice"] ?? true
         };
     }
-
-    // ==================== Query API ====================
-
+    
     public static bool IsFood(string itemId)
     {
         return Registry.ContainsKey(itemId);

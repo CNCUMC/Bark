@@ -118,10 +118,7 @@ public static class GunRuntimeApi
         GunRuntimeManager.SetTinnitusMultiplierOverride(gunItemId, multiplier);
     }
 
-    // ============================================================
     // 内部辅助
-    // ============================================================
-
     // 在场景中查找持有指定物品 ID 的枪械 Item 实例
     private static Item? FindGunByItemId(string itemId)
     {

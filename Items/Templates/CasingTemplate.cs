@@ -27,11 +27,7 @@ public class CasingData
 // CasingTemplate.GetCasingData(itemId)  → CasingData / null
 public class CasingTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, CasingData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "casing";
 
     public override JObject BuildDefaults()
@@ -74,9 +70,7 @@ public class CasingTemplate : ItemTemplate
             CasingType = (string?)t["casing_type"] ?? "7_62x51mm_casing"
         };
     }
-
-    // ==================== Query API ====================
-
+    
     public static bool IsCasing(string itemId)
     {
         return Registry.ContainsKey(itemId);

@@ -18,9 +18,7 @@ public static class TemplateLoader
 
     // 返回所有已注册的模板名称
     internal static IEnumerable<string> RegisteredNames => _templates.Keys;
-
-    // ---- 注册 ----
-
+    
     // 注册一个模板（JObject 形式，适用于脚本 / JSON 注册）。
     // 同名模板会被后注册的覆盖。
     public static void Register(string name, JObject template)
@@ -39,9 +37,7 @@ public static class TemplateLoader
         var obj = JObject.Parse(json);
         Register(name, obj);
     }
-
-    // ---- 解析与合并 ----
-
+    
     // 解析 template 引用并与用户物品 JSON 合并。
     // userObj      - 用户物品 JObject（会被原地修改：template 字段被移除）
     // templateObj  - JSON 中的 template 对象，含 type 和模板参数

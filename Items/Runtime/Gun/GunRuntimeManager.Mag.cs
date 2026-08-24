@@ -10,9 +10,7 @@ namespace Bark.Items.Runtime.Gun;
 // Partial：弹匣装卸 + 弹药脚本补丁
 public static partial class GunRuntimeManager
 {
-    // ============================================================
     // AmmoScript.UnloadRound Prefix：自定义弹匣退弹
-    // ============================================================
     // 将硬编码的原版弹药映射替换为模板弹药物品（通过 AmmunitionTemplate 查找匹配的 ammo_type）。
     private static bool OnUnloadRoundPrefix(AmmoScript __instance)
     {
@@ -72,9 +70,7 @@ public static partial class GunRuntimeManager
         return false; // 阻止原版 LoadRound
     }
 
-    // ============================================================
     // LoadMag Prefix：拦截并覆盖原生的装弹逻辑
-    // ============================================================
     // 模板枪械的装弹/卸弹走模板标签匹配，跳过原版枚举类型比较；
     // 非模板枪械走原版流程（前缀返回 true）。
 
@@ -90,9 +86,7 @@ public static partial class GunRuntimeManager
 
         switch (ammo.itemType)
         {
-            // ============================================================
             // 弹匣装填
-            // ============================================================
             case AmmoScript.AmmoItemType.Magazine when string.IsNullOrEmpty(ammoItemId):
             // 验证模板
             case AmmoScript.AmmoItemType.Magazine when !MagTemplate.IsMag(ammoItemId):
@@ -144,9 +138,7 @@ public static partial class GunRuntimeManager
 
                 return false;
             }
-            // ============================================================
             // 散装弹药装填（仅 Direct=true 枪械）
-            // ============================================================
             case AmmoScript.AmmoItemType.Round when !gunData.Direct:
                 // 弹匣供弹枪不能直接装散装子弹
                 return false;
@@ -203,10 +195,7 @@ public static partial class GunRuntimeManager
         }
     }
 
-    // ============================================================
     // UnloadMag Prefix：拦截并覆盖原生的卸弹逻辑
-    // ============================================================
-
     private static bool OnUnloadMagPrefix(GunScript __instance)
     {
         var (gunItem, gunData) = TryGetTemplateGun(__instance);
@@ -216,9 +205,7 @@ public static partial class GunRuntimeManager
 
         if (gunData.Direct)
         {
-            // ============================================================
             // 直装枪械：逐发卸出
-            // ============================================================
             var roundsToUnload = state?.RoundsInMag ?? __instance.roundsInMag;
             var ammoItemId = state?.AmmoItemId;
 
@@ -252,9 +239,7 @@ public static partial class GunRuntimeManager
             return false;
         }
 
-        // ============================================================
         // 弹匣供弹枪械：卸下弹匣
-        // ============================================================
         var magItemId = state?.MagItemId;
         var magRounds = state?.RoundsInMag ?? __instance.roundsInMag;
 

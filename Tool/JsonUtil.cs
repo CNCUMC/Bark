@@ -17,7 +17,9 @@ public static class JsonUtil
     // 将对象序列化为 JSON 字符串
     public static string Serialize(object? value, bool indented = true)
     {
-        var formatting = indented ? Formatting.Indented : Formatting.None;
+        var formatting = indented 
+            ? Formatting.Indented
+            : Formatting.None;
         return JsonConvert.SerializeObject(value, formatting);
     }
 

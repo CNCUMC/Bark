@@ -16,10 +16,6 @@ public static class LimbEventListener
     private static MonoBehaviour? _runner;
     private static readonly Dictionary<int, bool> WasInfected = new();
 
-    // ============================================================
-    // 启动 / 停止
-    // ============================================================
-
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;

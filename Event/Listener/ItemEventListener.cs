@@ -151,10 +151,7 @@ public static class ItemEventListener
         return entry != null && entry.GetUseScriptsForHand().Count > 0;
     }
 
-    // ============================================================
     // 轮询：被动状态检测（in_hand / not_in_hand）
-    // ============================================================
-
     private static IEnumerator PollPassiveStates()
     {
         yield return new WaitForSeconds(1f);
@@ -199,10 +196,7 @@ public static class ItemEventListener
             ScriptUtil.Execute(entry.ModId, relativePath, itemId, null, action);
     }
 
-    // ============================================================
     // 轮询：装备变化检测
-    // ============================================================
-
     private static IEnumerator PollEquipChange()
     {
         yield return new WaitForSeconds(1f);
@@ -282,10 +276,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 轮询：肢体使用物品检测
-    // ============================================================
-
     private static IEnumerator PollLimbUse()
     {
         yield return new WaitForSeconds(1f);
@@ -354,10 +345,7 @@ public static class ItemEventListener
                + limb.dislocationTimer;
     }
 
-    // ============================================================
     // 攻击检测
-    // ============================================================
-
     private static IEnumerator PollItemAttack()
     {
         yield return new WaitForSeconds(1f);
@@ -388,10 +376,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 轮询：耐久条件触发器
-    // ============================================================
-
     private static IEnumerator PollDurability()
     {
         yield return new WaitForSeconds(2f);
@@ -420,9 +405,8 @@ public static class ItemEventListener
             }
         }
     }
-    // 轮询：容器容量条件触发器
-    // ============================================================
 
+    // 轮询：容器容量条件触发器
     private static IEnumerator PollCapacity()
     {
         yield return new WaitForSeconds(2f);
@@ -460,10 +444,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 轮询：电池电量条件触发器
-    // ============================================================
-
     private static IEnumerator PollCharge()
     {
         yield return new WaitForSeconds(2f);
@@ -500,10 +481,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 持有状态轮询（has）：检测背包中物品，每周期触发 ItemHasEvent
-    // ============================================================
-
     private static IEnumerator PollHasItems()
     {
         yield return new WaitForSeconds(1f);
@@ -522,10 +500,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 穿戴被动轮询（wearing）：检测已穿戴且有 wearing 脚本的物品
-    // ============================================================
-
     private static IEnumerator PollWearPassive()
     {
         yield return new WaitForSeconds(1f);
@@ -550,10 +525,7 @@ public static class ItemEventListener
         }
     }
 
-    // ============================================================
     // 条件触发器通用检测逻辑
-    // ============================================================
-
     // 获取已注册且有指定类型触发器的物品条目
     private static IEnumerable<KeyValuePair<string, ItemScriptEntry>> GetTrackedEntriesWithTrigger(
         Func<ItemScriptEntry, bool> hasTrigger)
@@ -617,10 +589,7 @@ public static class ItemEventListener
         };
     }
 
-    // ============================================================
     // 辅助
-    // ============================================================
-
     private static bool IsPlayerItem(Item item)
     {
         return item != null

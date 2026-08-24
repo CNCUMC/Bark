@@ -9,10 +9,7 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class InventoryUtil
 {
-    // ============================================================
     // 手部物品查询
-    // ============================================================
-
     [ScriptMethod]
     public static int GetHandSlot()
     {
@@ -70,10 +67,7 @@ public static class InventoryUtil
         return info != null && info.category == category;
     }
 
-    // ============================================================
     // 背包槽位查询
-    // ============================================================
-
     [ScriptMethod]
     public static int GetSlotCount()
     {
@@ -114,10 +108,7 @@ public static class InventoryUtil
         return BodyUtil.Body.FirstEmptySlot() ?? -1;
     }
 
-    // ============================================================
     // 物品查询 - By id / tag / category
-    // ============================================================
-
     [ScriptMethod]
     public static bool HasItem(string id)
     {
@@ -181,10 +172,7 @@ public static class InventoryUtil
         return c;
     }
 
-    // ============================================================
     // 全部物品收集
-    // ============================================================
-
     public static List<Item> GetAllItems()
     {
         return BodyUtil.Body.GetAllItems() ?? [];
@@ -257,10 +245,7 @@ public static class InventoryUtil
                || (resolved != id && body.FindByIdSurface(id, out item));
     }
 
-    // ============================================================
     // 穿戴装备查询
-    // ============================================================
-
     public static List<Item> GetWearables()
     {
         return BodyUtil.Body.GetAllWearables() ?? [];
@@ -339,10 +324,7 @@ public static class InventoryUtil
             : [.. GetWearableInfos().Where(i => i.category == category)];
     }
 
-    // ============================================================
     // Thorough 查询（深度搜索，包括容器内物品）
-    // ============================================================
-
     [ScriptMethod]
     public static bool HasItemThorough(string id)
     {
@@ -411,10 +393,7 @@ public static class InventoryUtil
                || (resolved != id && body.FindByIdThorough(id, out item));
     }
 
-    // ============================================================
     // 聚合查询（手部 + 背包 + 装备 + 容器内，去重）
-    // ============================================================
-
     public static List<Item> GetAllItemsAll()
     {
         if (BodyUtil.Body is not { } body) return [];
@@ -444,13 +423,5 @@ public static class InventoryUtil
         return ids.Length > 0
             ? string.Join(", ", ids)
             : "";
-    }
-}
-
-internal static class BodyExt
-{
-    public static TResult Let<TResult>(this Body b, Func<Body, TResult> f)
-    {
-        return f(b);
     }
 }

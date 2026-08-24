@@ -2,10 +2,7 @@ using Bark.Event;
 
 namespace Bark.Events;
 
-// ============================================================
 // 可损坏物体事件
-// ============================================================
-
 // 可损坏物受击事件：可损坏物体（建筑/物品）受到伤害时触发
 [ScriptEvent("onDamageableDamaged")]
 public class DamageableDamagedEvent : BarkEvent
@@ -17,10 +14,7 @@ public class DamageableDamagedEvent : BarkEvent
     public float Damage { get; set; }
 }
 
-// ============================================================
 // 伤害板条箱事件
-// ============================================================
-
 // 伤害板条箱撞击事件：高速坠落的板条箱发生碰撞时触发。
 // Type：0=砸晕身体，1=砸伤肢体，2=砸断肢体。
 [ScriptEvent("onDamagingCrateHit")]
@@ -33,10 +27,7 @@ public class DamagingCrateHitEvent : BarkEvent
     public int Type { get; set; }
 }
 
-// ============================================================
 // 钻探舱事件
-// ============================================================
-
 // 钻探舱修复事件：用维修包修复钻探舱时触发
 [ScriptEvent("onDrillPodRepair")]
 public class DrillPodRepairEvent : BarkEvent
@@ -53,10 +44,7 @@ public class DrillPodUseEvent : BarkEvent
     public DrillPod Pod { get; set; } = null!;
 }
 
-// ============================================================
 // 脊背兽长老事件
-// ============================================================
-
 // 长老靠近事件：长老进入玩家感知范围时触发
 [ScriptEvent("onThornbackNear")]
 public class ThornbackNearEvent : BarkEvent
@@ -84,10 +72,7 @@ public class ThornbackDeathEvent : BarkEvent
     public ElderThornbackBehaviour Thornback { get; set; } = null!;
 }
 
-// ============================================================
 // PDA 事件
-// ============================================================
-
 // PDA 使用事件：玩家使用 PDA（阅读笔记）时触发
 [ScriptEvent("onPdaUse")]
 public class PdaUseEvent : BarkEvent
@@ -99,10 +84,7 @@ public class PdaUseEvent : BarkEvent
     public bool FirstRead { get; set; }
 }
 
-// ============================================================
 // 间歇泉事件
-// ============================================================
-
 // 间歇泉轰鸣事件：间歇泉开始轰鸣（即将喷发）时触发
 [ScriptEvent("onGeyserRumble")]
 public class GeyserRumbleEvent : BarkEvent
@@ -119,10 +101,7 @@ public class GeyserActivateEvent : BarkEvent
     public GeyserScript Geyser { get; set; } = null!;
 }
 
-// ============================================================
 // 全局暗幕事件
-// ============================================================
-
 // 屏幕变暗事件：全局暗幕开始变暗时触发
 [ScriptEvent("onGlobalDark")]
 public class GlobalDarkEvent : BarkEvent
@@ -131,10 +110,7 @@ public class GlobalDarkEvent : BarkEvent
     public bool Darkening { get; set; }
 }
 
-// ============================================================
 // 捕抓植物事件
-// ============================================================
-
 // 捕抓植物抓住事件：捕抓植物抓住玩家肢体时触发
 [ScriptEvent("onGrabberPlantGrab")]
 public class GrabberPlantGrabEvent : BarkEvent
@@ -143,10 +119,7 @@ public class GrabberPlantGrabEvent : BarkEvent
     public GrabberPlant Plant { get; set; } = null!;
 }
 
-// ============================================================
 // 抓钩事件
-// ============================================================
-
 // 抓钩发射事件：抓钩被发射时触发
 [ScriptEvent("onGrapplingHookFire")]
 public class GrapplingHookFireEvent : BarkEvent
@@ -171,10 +144,7 @@ public class GrapplingHookReturnEvent : BarkEvent
     public GrapplingHook Hook { get; set; } = null!;
 }
 
-// ============================================================
 // 物品销毁事件
-// ============================================================
-
 // 物品销毁事件：物品耐久归零（destroyAtZeroCondition）被销毁时触发
 [ScriptEvent("onItemDestroy")]
 public class ItemDestroyEvent : BarkEvent
@@ -186,10 +156,7 @@ public class ItemDestroyEvent : BarkEvent
     public Item? Item { get; set; }
 }
 
-// ============================================================
 // 跳跃平台事件
-// ============================================================
-
 // 跳跃平台弹跳事件：玩家踩上跳跃平台被弹起时触发
 [ScriptEvent("onJumpPadBounce")]
 public class JumpPadBounceEvent : BarkEvent
@@ -198,10 +165,7 @@ public class JumpPadBounceEvent : BarkEvent
     public JumpPadScript Pad { get; set; } = null!;
 }
 
-// ============================================================
 // 救生舱事件
-// ============================================================
-
 // 救生舱按钮事件：玩家按下救生舱按钮（切换温度/激活淋浴）时触发
 [ScriptEvent("onLifepodButtonPress")]
 public class LifepodButtonPressEvent : BarkEvent
@@ -218,10 +182,7 @@ public class LifepodShowerActivateEvent : BarkEvent
     public LifepodShower Shower { get; set; } = null!;
 }
 
-// ============================================================
 // 医疗站事件
-// ============================================================
-
 // 医疗站治疗事件：玩家进入医疗站、开始接受治疗时触发
 [ScriptEvent("onMedStationHeal")]
 public class MedStationHealEvent : BarkEvent
@@ -230,10 +191,7 @@ public class MedStationHealEvent : BarkEvent
     public MedStationScript Station { get; set; } = null!;
 }
 
-// ============================================================
 // 地雷事件
-// ============================================================
-
 // 地雷触发事件：地雷被触发（开始倒计时爆炸）时触发
 [ScriptEvent("onMineTrigger")]
 public class MineTriggerEvent : BarkEvent
@@ -242,10 +200,7 @@ public class MineTriggerEvent : BarkEvent
     public MineScript Mine { get; set; } = null!;
 }
 
-// ============================================================
 // 观察者（邪神）事件
-// ============================================================
-
 // 观察者靠近事件：玩家成功触发"最后坚持"（观察者拉近）时触发
 [ScriptEvent("onObserverLastStand")]
 public class ObserverLastStandEvent : BarkEvent
@@ -262,10 +217,7 @@ public class ObserverGunSuicideEvent : BarkEvent
     public Observer Observer { get; set; } = null!;
 }
 
-// ============================================================
 // 可开启物事件
-// ============================================================
-
 // 可开启物使用事件：玩家打开可开启物（门/箱）时触发。
 // Mode：instant=直接打开，keypad=密码，lockpick=撬锁
 [ScriptEvent("onOpenableUse")]
@@ -278,10 +230,7 @@ public class OpenableUseEvent : BarkEvent
     public string Mode { get; set; } = string.Empty;
 }
 
-// ============================================================
 // 毛绒玩具事件
-// ============================================================
-
 // 毛绒玩具吱吱事件：毛绒玩具被挤压发出声音时触发
 [ScriptEvent("onPlushSqueak")]
 public class PlushSqueakEvent : BarkEvent
@@ -290,10 +239,7 @@ public class PlushSqueakEvent : BarkEvent
     public PlushScript Plush { get; set; } = null!;
 }
 
-// ============================================================
 // 开局前事件
-// ============================================================
-
 // 开局开始事件：玩家开始新游戏时触发
 [ScriptEvent("onPreRunStart")]
 public class PreRunStartEvent : BarkEvent
@@ -312,20 +258,14 @@ public class PreRunTutorialEvent : BarkEvent
 {
 }
 
-// ============================================================
 // 阿片类药物事件
-// ============================================================
-
 // 阿片过量事件：体内阿片受体水平过高（中毒）时触发
 [ScriptEvent("onOpiateOverdose")]
 public class OpiateOverdoseEvent : BarkEvent
 {
 }
 
-// ============================================================
 // 玩家相机事件
-// ============================================================
-
 // 自毁序列事件：玩家触发自毁（最终结局）时触发
 [ScriptEvent("onSelfDestruct")]
 public class SelfDestructEvent : BarkEvent
@@ -348,10 +288,7 @@ public class CraftPanelToggleEvent : BarkEvent
     public bool Open { get; set; }
 }
 
-// ============================================================
 // 弹药事件
-// ============================================================
-
 // 卸弹事件：从弹匣卸下一发子弹时触发
 [ScriptEvent("onAmmoUnload")]
 public class AmmoUnloadEvent : BarkEvent
@@ -368,10 +305,7 @@ public class AmmoLoadEvent : BarkEvent
     public Item Magazine { get; set; } = null!;
 }
 
-// ============================================================
 // Alt 物品标签事件
-// ============================================================
-
 // Alt 物品标签开关事件：玩家按住/切换 Alt 显示物品标签时触发
 [ScriptEvent("onAltHoverToggle")]
 public class AltHoverToggleEvent : BarkEvent

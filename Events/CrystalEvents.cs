@@ -2,10 +2,7 @@ using Bark.Event;
 
 namespace Bark.Events;
 
-// ============================================================
 // 水晶效果事件（所有水晶效果的通用事件）
-// ============================================================
-
 // 水晶被触碰事件：玩家/物品触碰到水晶效果时触发。
 // EffectType 表示具体效果类型（如 "CrystalHealing"、"CrystalElectric"）。
 [ScriptEvent("onCrystalTouch")]

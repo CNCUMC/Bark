@@ -70,10 +70,7 @@ public static class TileEventListener
         _runner = null;
     }
 
-    // ============================================================
     // 索引快照
-    // ============================================================
-
     // 刷新已知自定义物块索引集合
     private static void RefreshKnownIndices()
     {

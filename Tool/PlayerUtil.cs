@@ -83,11 +83,15 @@ public static class PlayerUtil
         // 从脚本调用时自动补全为 {modId}.{itemId}；原版物品或无上下文时原样使用
         var resolved = ScriptCallContext.ResolveItemId(itemId);
         var pos = t.position;
-        var actual = count > 0 ? count : 1;
+        var actual = count > 0
+            ? count
+            : 1;
         for (var i = 0; i < actual; i++)
         {
             var go = Utils.Create(resolved, pos, 0f)
-                     ?? (resolved != itemId ? Utils.Create(itemId, pos, 0f) : null);
+                     ?? (resolved != itemId 
+                         ? Utils.Create(itemId, pos, 0f)
+                         : null);
             if (go == null) continue;
             var cmp = go.GetComponent<Item>();
             if (cmp != null) body.AutoPickUpItem(cmp);

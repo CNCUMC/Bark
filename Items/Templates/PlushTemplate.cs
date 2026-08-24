@@ -48,12 +48,7 @@ public class PlushData
 // PlushTemplate.GetPlushData(itemId)   → PlushData / null
 public class PlushTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, PlushData> Registry = new();
-
-    // ==================== Template ====================
-
     public override string Name => "plush";
 
     public override JObject BuildDefaults()
@@ -118,9 +113,7 @@ public class PlushTemplate : ItemTemplate
             SqueakSound = (string?)t["squeak_sound"] ?? ""
         };
     }
-
-    // ==================== Query API ====================
-
+    
     public static bool IsPlush(string itemId)
     {
         return Registry.ContainsKey(itemId);
@@ -130,9 +123,7 @@ public class PlushTemplate : ItemTemplate
     {
         return Registry.GetValueOrDefault(itemId);
     }
-
-    // ==================== 音效 ====================
-
+    
     // 播放玩偶吱吱声：
     //   配置了自定义 squeak_sound → 用 Bark Audio 播放自定义音效
     //   否则 → 调用 PlushScript.Squeak() 播放游戏默认音效

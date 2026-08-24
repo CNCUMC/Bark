@@ -2,10 +2,7 @@ using Bark.Event;
 
 namespace Bark.Events;
 
-// ============================================================
 // AED 除颤小游戏事件
-// ============================================================
-
 // AED 小游戏开始事件：玩家对肢体使用 AED，小游戏启动时触发
 [ScriptEvent("onAEDMinigameStart")]
 public class AEDMinigameStartEvent : BarkEvent
@@ -36,10 +33,7 @@ public class AEDMinigameFailEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 包扎小游戏事件
-// ============================================================
-
 // 包扎小游戏开始事件：玩家对肢体使用绷带，小游戏启动时触发
 [ScriptEvent("onBandageMinigameStart")]
 public class BandageMinigameStartEvent : BarkEvent
@@ -59,10 +53,7 @@ public class BandageMinigameWrapEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 脱臼复位小游戏事件
-// ============================================================
-
 // 脱臼复位小游戏开始事件：玩家对脱臼肢体进行复位时触发
 [ScriptEvent("onDislocationMinigameStart")]
 public class DislocationMinigameStartEvent : BarkEvent
@@ -90,10 +81,7 @@ public class DislocationMinigameBreakEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 手摇曲柄小游戏事件
-// ============================================================
-
 // 手摇曲柄小游戏开始事件：玩家摇动曲柄给设备充电时触发
 [ScriptEvent("onHandCrankMinigameStart")]
 public class HandCrankMinigameStartEvent : BarkEvent
@@ -114,10 +102,7 @@ public class HandCrankMinigameEndEvent : BarkEvent
 {
 }
 
-// ============================================================
 // 键盘密码小游戏事件
-// ============================================================
-
 // 键盘密码小游戏开始事件：玩家开始输入密码时触发
 [ScriptEvent("onKeypadMinigameStart")]
 public class KeypadMinigameStartEvent : BarkEvent
@@ -134,10 +119,7 @@ public class KeypadMinigameSuccessEvent : BarkEvent
     public BuildingEntity ToDestroy { get; set; } = null!;
 }
 
-// ============================================================
 // 撬锁小游戏事件
-// ============================================================
-
 // 撬锁小游戏开始事件：玩家开始撬锁时触发
 [ScriptEvent("onLockpingMinigameStart")]
 public class LockpingMinigameStartEvent : BarkEvent
@@ -165,10 +147,7 @@ public class LockpingMinigameStuckEvent : BarkEvent
     public BuildingEntity ToDestroy { get; set; } = null!;
 }
 
-// ============================================================
 // 手动除颤小游戏事件
-// ============================================================
-
 // 手动除颤小游戏开始事件：玩家开始手动除颤时触发
 [ScriptEvent("onManualDefibMinigameStart")]
 public class ManualDefibMinigameStartEvent : BarkEvent
@@ -199,10 +178,7 @@ public class ManualDefibMinigameEndEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 取弹片小游戏事件
-// ============================================================
-
 // 取弹片小游戏开始事件：玩家开始取出肢体弹片时触发
 [ScriptEvent("onShrapnelMinigameStart")]
 public class ShrapnelMinigameStartEvent : BarkEvent
@@ -230,10 +206,7 @@ public class ShrapnelMinigameFailEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 注射小游戏事件
-// ============================================================
-
 // 注射小游戏开始事件：玩家开始注射时触发
 [ScriptEvent("onSyringeMinigameStart")]
 public class SyringeMinigameStartEvent : BarkEvent
@@ -258,10 +231,7 @@ public class SyringeMinigameFailEvent : BarkEvent
     public Limb Limb { get; set; } = null!;
 }
 
-// ============================================================
 // 截肢小游戏事件
-// ============================================================
-
 // 截肢小游戏开始事件：玩家开始切除肢体时触发
 [ScriptEvent("onAmputationMinigameStart")]
 public class AmputationMinigameStartEvent : BarkEvent

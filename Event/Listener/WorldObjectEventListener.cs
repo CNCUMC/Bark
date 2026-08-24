@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Bark.Events;
 using Bark.Tool;
 using HarmonyLib;
-using UnityEngine;
 
 namespace Bark.Event.Listener;
 
@@ -158,7 +156,6 @@ public static class WorldObjectEventListener
     }
 
     // PDA
-    // 用 prefix：方法内会修改 hasBeenRead，prefix 时还是旧值
     [HarmonyPatch(typeof(EPdaScript), "Use")]
     [HarmonyPrefix]
     private static void EPdaScriptUsePrefix(EPdaScript __instance)

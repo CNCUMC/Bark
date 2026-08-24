@@ -12,9 +12,7 @@ namespace Bark.Items.Runtime.Gun;
 // Partial：枪械实例初始化、UI 守卫、模板创建、枪管偏移
 public static partial class GunRuntimeManager
 {
-    // ============================================================
     // OnGunStartPostfix：模板 GunData 写入 GunScript 的主编排方法
-    // ============================================================
     // 职责在 GunScript.Start 之后，将模板中的弹道 / 音效 / 供弹 / 精灵等数据写入
     // GunScript 实例，确保每把模板枪械的行为完全由 JSON 模板数据控制。
     //
@@ -323,9 +321,7 @@ public static partial class GunRuntimeManager
         return prefab?.GetComponent<SpriteRenderer>()?.sprite;
     }
 
-    // ============================================================
     // HandleGunMenu Prefix：守卫自定义枪械的所有潜在 null 字段
-    // ============================================================
     //
     // HandleGunMenu 在 PlayerCamera.LateUpdate 中每帧调用，直接读取：
     //   a) PlayerCamera 的 UI 精灵字段（gunNormalSprite / gunRackedSprite 等）
@@ -466,9 +462,7 @@ public static partial class GunRuntimeManager
         }
     }
 
-    // ============================================================
     // OnTemplateCreatedPostfix：模板创建时补加组件
-    // ============================================================
     // CCL 创建模板物品后，按 Bark 模板类型动态补加 GunScript / AmmoScript。
     // CCL 的 CreateTemplate 已为 Wearable/BatteryItem 做了同样的 AddComponent 模式。
     // 模板对象 SetActive(false) 缓存，后续 InstantiateReturn 克隆自动继承这些组件。

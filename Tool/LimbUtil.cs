@@ -43,10 +43,7 @@ public static class LimbUtil
         return [.. LimbNames];
     }
 
-    // ============================================================
     // 底层逻辑 - Limb 对象级操作（内部实现，不暴露给脚本）
-    // ============================================================
-
     private static Body GetBody()
     {
         var body = BodyUtil.Body;
@@ -88,10 +85,7 @@ public static class LimbUtil
         return [.. body.limbs];
     }
 
-    // ============================================================
     // 内部辅助 - Limb 对象版（无 [ScriptMethod]，供 int-index 版复用）
-    // ============================================================
-
     // -- 基础状态查询 --
 
     private static bool IsBroken(Limb limb)
@@ -342,10 +336,7 @@ public static class LimbUtil
         chilled.maxTime = Mathf.Max(chillMaxTime, chillTime);
     }
 
-    // ============================================================
     // 外部接口 [ScriptMethod] - 肢体状态查询（按 int index）
-    // ============================================================
-
     [ScriptMethod]
     public static bool IsBroken(int index)
     {
@@ -508,10 +499,7 @@ public static class LimbUtil
         return limb.skinHealAmount;
     }
 
-    // ============================================================
     // 外部接口 [ScriptMethod] - 肢体修改操作（按 int index）
-    // ============================================================
-
     [ScriptMethod]
     public static void HealLimb(int index)
     {
@@ -636,10 +624,7 @@ public static class LimbUtil
         MendBone(GetLimb(index));
     }
 
-    // ============================================================
     // 外部接口 [ScriptMethod] - 全局聚合查询（不含参数）
-    // ============================================================
-
     [ScriptMethod]
     public static int GetLimbCount()
     {
@@ -776,10 +761,7 @@ public static class LimbUtil
         return BodyUtil.Body.bloodPressure;
     }
 
-    // ============================================================
     // 本地化辅助
-    // ============================================================
-
     private static string LimbLog(string key, params object[] args)
     {
         return BetterLocale.GetLog($"limb.{key}", args);

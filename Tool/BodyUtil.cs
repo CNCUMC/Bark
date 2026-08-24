@@ -12,19 +12,13 @@ public static class BodyUtil
     // 保留公开属性以兼容外部调用；PlayerCamera.main 在未进入场景时为 null
     public static Body Body => PlayerCamera.main?.body!;
 
-    // ============================================================
     // 内部辅助 - 统一 Body 获取入口
-    // ============================================================
-
     private static Body? GetBody()
     {
         return PlayerCamera.main?.body;
     }
 
-    // ============================================================
     // 状态检测 - bool 查询（Body 为 null 时统一返回 false）
-    // ============================================================
-
     [ScriptMethod]
     public static bool IsAlive()
     {
@@ -187,10 +181,7 @@ public static class BodyUtil
         return GetBody() is { succesfullyRolledLastStand: true };
     }
 
-    // ============================================================
     // 生理数值查询 - float getter（Body 为 null 时返回 0f）
-    // ============================================================
-
     [ScriptMethod]
     public static float GetFocusedLevel()
     {
@@ -479,10 +470,7 @@ public static class BodyUtil
         return GetBody()?.clawRegrowTime ?? 0f;
     }
 
-    // ============================================================
     // 基础生理数值设置 - 核心字段 Setter
-    // ============================================================
-
     [ScriptMethod]
     public static void SetHunger(float value)
     {
@@ -567,10 +555,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.internalBleeding = Mathf.Clamp(value, 0f, 100f);
     }
 
-    // ============================================================
     // 扩展数值设置 - 补全字段 Setter
-    // ============================================================
-
     [ScriptMethod]
     public static void SetFocusedLevel(float value)
     {
@@ -703,10 +688,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.antibioticImmunityTime = Mathf.Clamp(value, 0f, float.MaxValue);
     }
 
-    // ============================================================
     // 卫生/环境数值设置
-    // ============================================================
-
     [ScriptMethod]
     public static void SetDirtyness(float value)
     {
@@ -737,10 +719,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.happiness = Mathf.Clamp(value, -100f, 100f);
     }
 
-    // ============================================================
     // 药物效果 - 查询、修改、移除
-    // ============================================================
-
     [ScriptMethod]
     public static bool HasPainkillers()
     {
@@ -813,10 +792,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.caffeinated = Mathf.Clamp(value, 0f, 100f);
     }
 
-    // ============================================================
     // 心理状态
-    // ============================================================
-
     [ScriptMethod]
     public static int GetCorpsesSeen()
     {
@@ -829,10 +805,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.corpsesSeen = Mathf.Max(0, count);
     }
 
-    // ============================================================
     // 补全 bodyNature 缺失的字段 setter
-    // ============================================================
-
     [ScriptMethod]
     public static void SetBrainGrowSickness(float value)
     {
@@ -901,10 +874,7 @@ public static class BodyUtil
         if (GetBody() is { } b) b.fibrillationForced = value;
     }
 
-    // ============================================================
     // 复合操作 - 修改/恢复/治疗
-    // ============================================================
-
     [ScriptMethod]
     public static void Feed(float amount)
     {

@@ -32,11 +32,7 @@ public class AmmoData
 // AmmunitionTemplate.GetAmmoData(itemId)   → AmmoData / null
 public class AmmunitionTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, AmmoData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "ammo";
 
     public override JObject BuildDefaults()
@@ -84,9 +80,7 @@ public class AmmunitionTemplate : ItemTemplate
             CasingType = (string?)t["casing_type"]
         };
     }
-
-    // ==================== Query API ====================
-
+    
     public static bool IsAmmo(string itemId)
     {
         return Registry.ContainsKey(itemId);

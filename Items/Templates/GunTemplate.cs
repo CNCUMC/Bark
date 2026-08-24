@@ -144,11 +144,7 @@ public class GunData
 // GunTemplate.GetGunData(itemId)      → GunData / null
 public class GunTemplate : ItemTemplate
 {
-    // ==================== Registry ====================
-
     private static readonly Dictionary<string, GunData> Registry = new();
-    // ==================== Template ====================
-
     public override string Name => "gun";
 
     public override JObject BuildDefaults()
@@ -253,9 +249,7 @@ public class GunTemplate : ItemTemplate
         if (t["barrel_offset"] is not JObject offset) return defaultValue;
         return (float?)offset[axis] ?? defaultValue;
     }
-
-    // ==================== Query API ====================
-
+    
     // 返回所有已注册枪械的物品 ID
     public static IEnumerable<string> GetAllGunIds()
     {
