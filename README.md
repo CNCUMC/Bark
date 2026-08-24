@@ -87,6 +87,10 @@ Full documentation at [`docs/en-US/`](docs/en-US) (and [简体中文](docs/zh-CN
 3. Install [Bark](https://www.nexusmods.com/scavprototype/mods/362) Extract it and place it in the `BepInEx/plugins/`
    folder.
 
+> **Optional:** This mod supports [WMITF (What Mod Is This From)](https://www.nexusmods.com/scavprototype/mods/552).
+> When installed, script mod items, tiles, and recipes will display their authoring script mod's name in the item
+> inspection UI.
+
 > **For mod developers:** Reference `Bark.dll` in your project, and add `[BepInDependency("org.cucnmc.bark")]` to your
 > plugin class.
 
