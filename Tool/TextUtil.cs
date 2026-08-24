@@ -189,30 +189,40 @@ public static class TextUtil
 
     public static string Bold(string text)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<b>{text}</b>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<b>{text}</b>";
     }
 
     public static string Italic(string text)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<i>{text}</i>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<i>{text}</i>";
     }
 
     public static string Unline(string text)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<u>{text}</u>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<u>{text}</u>";
     }
 
     public static string Delete(string text)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<s>{text}</s>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<s>{text}</s>";
     }
 
     public static string Size(string text, int size)
     {
-        return string.IsNullOrEmpty(text) ? text : $"<size={size}>{text}</size>";
+        return string.IsNullOrEmpty(text)
+            ? text
+            : $"<size={size}>{text}</size>";
     }
 
-    public static string SimpleMarkDown(string text)
+    public static string SimpleMarkdown(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
 
