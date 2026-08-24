@@ -13,8 +13,8 @@ Define custom items, liquid containers, and pure liquids via JSON. Place the JSO
 directory and sprite images in `Assets/Item/`.
 
 The `Item/` directory supports **arbitrary subdirectory nesting** — the loader recursively scans all subdirectories.
-Item IDs are always `{modId}.{fileName}` and **do not include the subdirectory path**; sprite images are also read
-flat from `Assets/Item/`, not from the JSON's subdirectory.
+Item IDs are always `{modId}.{fileName}` and **do not include the subdirectory path**; sprite images are also read flat
+from `Assets/Item/`, not from the JSON's subdirectory.
 
 ## Directory Layout
 

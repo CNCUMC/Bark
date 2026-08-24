@@ -10,7 +10,6 @@ using Bark.Recipe;
 using Bark.Script;
 using Bark.Tile;
 using Bark.Tool;
-using BepInEx;
 using CUCoreLib.Helpers;
 using CUCoreLib.Registries;
 using HarmonyLib;

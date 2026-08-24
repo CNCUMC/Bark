@@ -168,7 +168,7 @@ public class GunSoundProfile
 
         PlayEntryWithSource(entries[^1], position);
     }
-    
+
     // 预加载 profile 中所有引用的音频文件
     private void PreloadClips(string modDir, string profileName)
     {

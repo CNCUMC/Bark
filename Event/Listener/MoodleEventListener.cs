@@ -92,7 +92,7 @@ public static class MoodleEventListener
         bool critical,
         bool chippedOnly,
         bool important,
-        string key, 
+        string key,
         float holdSeconds)
     {
         TrackMoodle(intensity, name, critical, key, holdSeconds);
@@ -101,13 +101,13 @@ public static class MoodleEventListener
     [HarmonyPatch("AddAnimatedMoodle")]
     [HarmonyPrefix]
     private static void AddAnimatedMoodlePrefix(
-        int intensity, 
+        int intensity,
         string animationId,
         string name,
         string description,
         bool critical,
         bool chippedOnly,
-        bool important, 
+        bool important,
         string key,
         float holdSeconds)
     {

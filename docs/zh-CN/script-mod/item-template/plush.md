@@ -4,8 +4,8 @@
 
 # 玩偶模板
 
-`"type": "plush"` — 会吱吱叫的玩具玩偶。模板预设 `plushie` 预制体及其全部默认属性（重量、价值、识别、标签等），
-使用时会发出吱吱声。**声音属性复用 Bark 的 Audio 属性**：可通过 `squeak_sound` 配置模组自定义吱吱音效，否则用游戏默认音效。
+`"type": "plush"` — 会吱吱叫的玩具玩偶。模板预设 `plushie` 预制体及其全部默认属性（重量、价值、识别、标签等）， 使用时会发出吱吱声。
+**声音属性复用 Bark 的 Audio 属性**：可通过 `squeak_sound` 配置模组自定义吱吱音效，否则用游戏默认音效。
 
 ## 参数速览
 
@@ -57,15 +57,15 @@
 }
 ```
 
-| 字段                          | 类型   | 默认值     | 说明                  |
-|-------------------------------|--------|------------|-----------------------|
-| `category`                    | string | `utility`  | 分类                  |
-| `weight`                      | float  | `0.15`     | 物品重量              |
-| `value`                       | int    | `5`        | 物品价值              |
-| `recognition`                 | int    | `6`        | 识别等级              |
-| `tags`                        | string | `belttool` | 标签，逗号分隔        |
-| `destroy_at_zero_condition`   | bool   | `true`     | 耐久归零时销毁        |
-| `sprite.slot_rotation`        | float  | `0`        | 物品栏旋转角度（度）  |
+| 字段                        | 类型   | 默认值     | 说明                 |
+|-----------------------------|--------|------------|----------------------|
+| `category`                  | string | `utility`  | 分类                 |
+| `weight`                    | float  | `0.15`     | 物品重量             |
+| `value`                     | int    | `5`        | 物品价值             |
+| `recognition`               | int    | `6`        | 识别等级             |
+| `tags`                      | string | `belttool` | 标签，逗号分隔       |
+| `destroy_at_zero_condition` | bool   | `true`     | 耐久归零时销毁       |
+| `sprite.slot_rotation`      | float  | `0`        | 物品栏旋转角度（度） |
 
 ## 使用示例
 

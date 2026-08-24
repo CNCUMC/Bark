@@ -13,12 +13,6 @@ public class GunData
     // 枪械只接受 ammo_type 标签匹配的弹匣或弹药。
     public string AmmoType = "7_62x51mm";
 
-    // 枪型类别：决定默认音效 / 精灵 / 枪口粒子按哪种枪械分支。
-    // 取值：pistol（手枪）/ rifle（步枪）/ shotgun（霰弹枪）。
-    // 由作者在 JSON 显式指定（gun_type），不要依赖弹药口径推断——口径 ≠ 枪型。
-    // 默认 "rifle"（保持与默认口径 7_62x51mm 一致）。
-    public string GunType = "rifle";
-
     // 对生物的伤害倍率
     public float AnimalDamage = 25f;
 
@@ -63,6 +57,12 @@ public class GunData
 
     // 射击模式: semi_auto / auto / pump
     public string FiringMode = "semi_auto";
+
+    // 枪型类别：决定默认音效 / 精灵 / 枪口粒子按哪种枪械分支。
+    // 取值：pistol（手枪）/ rifle（步枪）/ shotgun（霰弹枪）。
+    // 由作者在 JSON 显式指定（gun_type），不要依赖弹药口径推断——口径 ≠ 枪型。
+    // 默认 "rifle"（保持与默认口径 7_62x51mm 一致）。
+    public string GunType = "rifle";
 
     // 后坐力
     public float Knockback = 0.5f;
@@ -249,7 +249,7 @@ public class GunTemplate : ItemTemplate
         if (t["barrel_offset"] is not JObject offset) return defaultValue;
         return (float?)offset[axis] ?? defaultValue;
     }
-    
+
     // 返回所有已注册枪械的物品 ID
     public static IEnumerable<string> GetAllGunIds()
     {

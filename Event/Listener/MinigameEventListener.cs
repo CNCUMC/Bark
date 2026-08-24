@@ -56,17 +56,17 @@ public static class MinigameEventListener
     {
         return Traverse.Create(instance).Field("limb").GetValue<Limb>();
     }
-    
+
     private static Limb? GetShrapnelLimb(ShrapnelMinigame instance)
     {
         return Traverse.Create(instance).Field("limb").GetValue<Limb>();
     }
-    
+
     private static Limb? GetSyringeLimb(SyringeMinigame instance)
     {
         return Traverse.Create(instance).Field("limb").GetValue<Limb>();
     }
-    
+
     // 获取肢体在 body.limbs 中的索引
     private static int GetLimbIndex(Limb limb)
     {

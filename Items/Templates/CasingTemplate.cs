@@ -70,7 +70,7 @@ public class CasingTemplate : ItemTemplate
             CasingType = (string?)t["casing_type"] ?? "7_62x51mm_casing"
         };
     }
-    
+
     public static bool IsCasing(string itemId)
     {
         return Registry.ContainsKey(itemId);

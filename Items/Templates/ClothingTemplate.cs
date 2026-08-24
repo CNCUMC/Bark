@@ -127,7 +127,7 @@ public class ClothingTemplate : ItemTemplate
     {
         Registry.Remove(itemId);
     }
-    
+
     // 查询某物品是否为衣服模板注册的物品（脚本端使用）
     public static bool IsClothing(string itemId)
     {

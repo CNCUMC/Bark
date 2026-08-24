@@ -88,55 +88,6 @@ public static class ItemEventListener
         coroutine = null;
     }
 
-    [HarmonyPatch(typeof(Body))]
-    public static class BodyPatch
-    {
-        // 背包中使用物品（Body.UseItem(Item item)）
-        [HarmonyPatch("UseItem", typeof(Item))]
-        [HarmonyPatch([typeof(Item)])]
-        private static bool UseItemPrefix(Item item)
-        {
-            if (item == null || string.IsNullOrEmpty(item.id)) return true;
-            if (!IsPlayerItem(item)) return true;
-            if (!HasUseBackpackScript(item.id)) return true;
-
-            EventUtil.Trigger(new ItemUseEvent { ItemId = item.id, Item = item });
-            return false;
-        }
-
-        // 手持物品使用（Body.UseItemInHand()）
-        [HarmonyPatch("UseItemInHand")]
-        private static bool UseItemInHandPrefix(Body __instance)
-        {
-            if (__instance == null) return true;
-
-            var item = __instance.GetItem(__instance.handSlot);
-            if (item == null || string.IsNullOrEmpty(item.id)) return true;
-            if (!IsPlayerItem(item)) return true;
-            if (!HasUseHandScript(item.id)) return true;
-
-            EventUtil.Trigger(new ItemHandUseEvent { ItemId = item.id, Item = item });
-            return false;
-        }
-
-        // 物品攻击（Body.Attack 签名为 (Item) 或 (Body)）
-        [HarmonyPatch("Attack")]
-        private static void AttackPostfix(object __instance)
-        {
-            var item = __instance switch
-            {
-                Item itm => itm,
-                Body body => body.GetItem(body.handSlot),
-                _ => null
-            };
-
-            if (item == null || string.IsNullOrEmpty(item.id)) return;
-            if (!IsPlayerItem(item)) return;
-
-            EventUtil.Trigger(new ItemAttackEvent { ItemId = item.id, Item = item });
-        }
-    }
-
     // 检查物品是否有 use 背包脚本
     private static bool HasUseBackpackScript(string itemId)
     {
@@ -596,5 +547,50 @@ public static class ItemEventListener
                && item.transform != null
                && BodyUtil.Body != null
                && item.transform.IsChildOf(BodyUtil.Body.transform);
+    }
+
+    [HarmonyPatch(typeof(Body))]
+    public static class BodyPatch
+    {
+        [HarmonyPatch("UseItem", typeof(Item))]
+        private static bool UseItemPrefix(Item item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.id)) return true;
+            if (!IsPlayerItem(item)) return true;
+            if (!HasUseBackpackScript(item.id)) return true;
+
+            EventUtil.Trigger(new ItemUseEvent { ItemId = item.id, Item = item });
+            return false;
+        }
+
+        [HarmonyPatch("UseItemInHand")]
+        private static bool UseItemInHandPrefix(Body __instance)
+        {
+            if (__instance == null) return true;
+
+            var item = __instance.GetItem(__instance.handSlot);
+            if (item == null || string.IsNullOrEmpty(item.id)) return true;
+            if (!IsPlayerItem(item)) return true;
+            if (!HasUseHandScript(item.id)) return true;
+
+            EventUtil.Trigger(new ItemHandUseEvent { ItemId = item.id, Item = item });
+            return false;
+        }
+
+        [HarmonyPatch("Attack")]
+        private static void AttackPostfix(object __instance)
+        {
+            var item = __instance switch
+            {
+                Item itm => itm,
+                Body body => body.GetItem(body.handSlot),
+                _ => null
+            };
+
+            if (item == null || string.IsNullOrEmpty(item.id)) return;
+            if (!IsPlayerItem(item)) return;
+
+            EventUtil.Trigger(new ItemAttackEvent { ItemId = item.id, Item = item });
+        }
     }
 }

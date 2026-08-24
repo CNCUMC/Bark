@@ -39,6 +39,8 @@ public static class NetworkModSync
     private static readonly Dictionary<string, string> SyncHashCache = new(StringComparer.OrdinalIgnoreCase);
     private static bool _syncHashCacheLoaded;
 
+    private static string SyncHashCachePath => Path.Combine(Plugin.BarkCachePath, SyncHashCacheFile);
+
     // 初始化：注册服务端处理器 + 调度客户端首次同步
     // 必须在 ScriptModLoader.LoadAll() 之后调用（需要访问 LoadedScriptMods）
     public static void Initialize(string modsPath)
@@ -111,8 +113,8 @@ public static class NetworkModSync
     private static IEnumerator RetrySyncCoroutine()
     {
         const int maxAttempts = 5;
-        const float sendDelay = 2f;   // 每次请求前延迟，给 KrokMP 连接栈就绪时间
-        const float timeout = 6f;     // 等待响应的超时秒数
+        const float sendDelay = 2f; // 每次请求前延迟，给 KrokMP 连接栈就绪时间
+        const float timeout = 6f; // 等待响应的超时秒数
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
@@ -432,9 +434,10 @@ public static class NetworkModSync
         }
     }
 
-    private static string SyncHashCachePath => Path.Combine(Plugin.BarkCachePath, SyncHashCacheFile);
-
-    private static string ZipPathFor(string modId) => Path.Combine(_modsPath, "Mods", $"{modId}.zip");
+    private static string ZipPathFor(string modId)
+    {
+        return Path.Combine(_modsPath, "Mods", $"{modId}.zip");
+    }
 
     // 计算文件 SHA256（hex 小写）；netstandard2.1 无 Convert.ToHexString，用 BitConverter 兼容
     private static string? ComputeFileHash(string path)

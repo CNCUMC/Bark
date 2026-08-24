@@ -58,33 +58,6 @@ public static class SystemEventListener
         EventUtil.Trigger(new GameSaveEvent());
     }
 
-    // 技能升级
-    [HarmonyPatch(typeof(Skills))]
-    public static class SkillPatch
-    {
-        [HarmonyPatch("AddExp", typeof(int), typeof(float))]
-        [HarmonyPrefix]
-        private static void AddExpPrefix(Skills __instance, int stat)
-        {
-            _skillOldLevel = ReadSkillLevel(__instance, stat);
-        }
-
-        [HarmonyPatch("AddExp", typeof(int), typeof(float))]
-        [HarmonyPostfix]
-        private static void AddExpPostfix(Skills __instance, int stat)
-        {
-            var newLevel = ReadSkillLevel(__instance, stat);
-            if (newLevel <= _skillOldLevel) return;
-
-            EventUtil.Trigger(new SkillLevelUpEvent
-            {
-                Stat = stat,
-                OldLevel = _skillOldLevel,
-                NewLevel = newLevel
-            });
-        }
-    }
-
     private static int ReadSkillLevel(Skills skills, int stat)
     {
         return stat switch
@@ -93,44 +66,6 @@ public static class SystemEventListener
             1 => Traverse.Create(skills).Field("RES").GetValue<int>(),
             _ => Traverse.Create(skills).Field("INT").GetValue<int>()
         };
-    }
-
-    // 商人
-    [HarmonyPatch(typeof(TraderScript))]
-    public static class TraderScriptPatch
-    {
-        [HarmonyPatch("MeetPlayer")]
-        [HarmonyPostfix]
-        private static void MeetPlayerPostfix(TraderScript __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new TraderMeetEvent
-            {
-                Trader = __instance,
-                Character = __instance.character,
-                Reputation = __instance.reputation
-            });
-        }
-
-        [HarmonyPatch("TryHaggle")]
-        [HarmonyPostfix]
-        private static void TryHagglePostfix(TraderScript __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new TraderHaggleEvent
-            {
-                Trader = __instance,
-                Reputation = __instance.reputation
-            });
-        }
-
-        [HarmonyPatch("AnimalDeath")]
-        [HarmonyPostfix]
-        private static void AnimalDeathPostfix(TraderScript __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new TraderDeathEvent { Trader = __instance });
-        }
     }
 
     // 炮塔
@@ -184,5 +119,70 @@ public static class SystemEventListener
         var id = __instance.GetInstanceID();
         if (spent && SpentCannons.Add(id))
             EventUtil.Trigger(new SoundCannonShootEvent { Cannon = __instance });
+    }
+
+    // 技能升级
+    [HarmonyPatch(typeof(Skills))]
+    public static class SkillPatch
+    {
+        [HarmonyPatch("AddExp", typeof(int), typeof(float))]
+        [HarmonyPrefix]
+        private static void AddExpPrefix(Skills __instance, int stat)
+        {
+            _skillOldLevel = ReadSkillLevel(__instance, stat);
+        }
+
+        [HarmonyPatch("AddExp", typeof(int), typeof(float))]
+        [HarmonyPostfix]
+        private static void AddExpPostfix(Skills __instance, int stat)
+        {
+            var newLevel = ReadSkillLevel(__instance, stat);
+            if (newLevel <= _skillOldLevel) return;
+
+            EventUtil.Trigger(new SkillLevelUpEvent
+            {
+                Stat = stat,
+                OldLevel = _skillOldLevel,
+                NewLevel = newLevel
+            });
+        }
+    }
+
+    // 商人
+    [HarmonyPatch(typeof(TraderScript))]
+    public static class TraderScriptPatch
+    {
+        [HarmonyPatch("MeetPlayer")]
+        [HarmonyPostfix]
+        private static void MeetPlayerPostfix(TraderScript __instance)
+        {
+            if (__instance == null || !__instance) return;
+            EventUtil.Trigger(new TraderMeetEvent
+            {
+                Trader = __instance,
+                Character = __instance.character,
+                Reputation = __instance.reputation
+            });
+        }
+
+        [HarmonyPatch("TryHaggle")]
+        [HarmonyPostfix]
+        private static void TryHagglePostfix(TraderScript __instance)
+        {
+            if (__instance == null || !__instance) return;
+            EventUtil.Trigger(new TraderHaggleEvent
+            {
+                Trader = __instance,
+                Reputation = __instance.reputation
+            });
+        }
+
+        [HarmonyPatch("AnimalDeath")]
+        [HarmonyPostfix]
+        private static void AnimalDeathPostfix(TraderScript __instance)
+        {
+            if (__instance == null || !__instance) return;
+            EventUtil.Trigger(new TraderDeathEvent { Trader = __instance });
+        }
     }
 }

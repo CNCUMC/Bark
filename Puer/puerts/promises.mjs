@@ -5,7 +5,9 @@
  * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
  */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 
 const kPromiseRejectWithNoHandler = 0;
 const kPromiseHandlerAddedAfterReject = 1;
@@ -13,7 +15,7 @@ const kPromiseRejectAfterResolved = 2;
 const kPromiseResolveAfterResolved = 3;
 
 global.__tgjsSetPromiseRejectCallback(promiseRejectHandler)
-global.__tgjsSetPromiseRejectCallback = undefined;;
+global.__tgjsSetPromiseRejectCallback = undefined;
 
 const maybeUnhandledRejection = new WeakMap();
 
@@ -55,7 +57,8 @@ function unhandledRejectionWarning(reason) {
         } else {
             console.warn('unhandledRejection', reason);
         }
-    } catch {}
+    } catch {
+    }
 }
 
 function handlerAddedAfterReject(promise) {

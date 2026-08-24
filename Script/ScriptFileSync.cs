@@ -79,8 +79,9 @@ public static class ScriptFileSync
                 continue;
 
             // 已加载模组：上报文件 hash（增量对比）
-            if (ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) &&
-                !string.IsNullOrEmpty(manifest.Directory) && Directory.Exists(manifest.Directory))
+            if (ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest)
+                && !string.IsNullOrEmpty(manifest.Directory)
+                && Directory.Exists(manifest.Directory))
             {
                 var fileHashes = new JObject();
                 foreach (var filePath in EnumerateFiles(manifest.Directory))
@@ -135,22 +136,16 @@ public static class ScriptFileSync
 
             var diff = new JArray();
             if (value is JObject clientFiles)
-            {
                 // 客户端已加载：只推送 hash 不同（修改过）的文件
                 foreach (var kv in from kv in hostHashes
                          let clientHash = clientFiles[kv.Key]?.Value<string>()
                          where !string.Equals(clientHash, kv.Value, StringComparison.OrdinalIgnoreCase)
                          select kv)
-                {
                     diff.Add(kv.Key);
-                }
-            }
             else
-            {
                 // 客户端未加载该模组（上报 null）：推送全部文件（全量）
                 foreach (var rel in hostHashes.Keys)
                     diff.Add(rel);
-            }
 
             if (diff.Count > 0)
                 resultMods[modId] = diff;
@@ -305,13 +300,14 @@ public static class ScriptFileSync
     {
         var modId = request["modId"]?.Value<string>();
         var rel = request["path"]?.Value<string>();
-        var offset = request?["offset"]?.Value<int>() ?? 0;
+        var offset = request["offset"]?.Value<int>() ?? 0;
 
         if (string.IsNullOrWhiteSpace(modId) || string.IsNullOrWhiteSpace(rel))
             return ErrorResponse("Missing modId/path");
 
-        if (!ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) ||
-            string.IsNullOrEmpty(manifest.Directory) || !Directory.Exists(manifest.Directory))
+        if (!ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest)
+            || string.IsNullOrEmpty(manifest.Directory)
+            || !Directory.Exists(manifest.Directory))
             return ErrorResponse($"Mod '{modId}' not found on host");
 
         var fullPath = Path.Combine(manifest.Directory, rel);
@@ -357,7 +353,10 @@ public static class ScriptFileSync
         }
     }
 
-    private static JObject ErrorResponse(string message) => new() { ["error"] = message };
+    private static JObject ErrorResponse(string message)
+    {
+        return new JObject { ["error"] = message };
+    }
 
     // 递归枚举目录下所有文件
     private static IEnumerable<string> EnumerateFiles(string directory)

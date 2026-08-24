@@ -3,83 +3,83 @@ const CHAR_FORWARD_SLASH = 47
 const CHAR_BACKWARD_SLASH = 92
 
 function isPathSeparator(code) {
-  return code === CHAR_FORWARD_SLASH || code === CHAR_BACKWARD_SLASH;
+    return code === CHAR_FORWARD_SLASH || code === CHAR_BACKWARD_SLASH;
 }
 
 function normalizeString(path, allowAboveRoot, separator, isPathSeparator) {
-  let res = '';
-  let lastSegmentLength = 0;
-  let lastSlash = -1;
-  let dots = 0;
-  let code = 0;
-  for (let i = 0; i <= path.length; ++i) {
-    if (i < path.length)
-      code = path.charCodeAt(i);
-    else if (isPathSeparator(code))
-      break;
-    else
-      code = CHAR_FORWARD_SLASH;
+    let res = '';
+    let lastSegmentLength = 0;
+    let lastSlash = -1;
+    let dots = 0;
+    let code = 0;
+    for (let i = 0; i <= path.length; ++i) {
+        if (i < path.length)
+            code = path.charCodeAt(i);
+        else if (isPathSeparator(code))
+            break;
+        else
+            code = CHAR_FORWARD_SLASH;
 
-    if (isPathSeparator(code)) {
-      if (lastSlash === i - 1 || dots === 1) {
-        // NOOP
-      } else if (dots === 2) {
-        if (res.length < 2 || lastSegmentLength !== 2 ||
-            res.charCodeAt(res.length - 1) !== CHAR_DOT ||
-            res.charCodeAt(res.length - 2) !== CHAR_DOT) {
-          if (res.length > 2) {
-            const lastSlashIndex = res.lastIndexOf(separator);
-            if (lastSlashIndex === -1) {
-              res = '';
-              lastSegmentLength = 0;
+        if (isPathSeparator(code)) {
+            if (lastSlash === i - 1 || dots === 1) {
+                // NOOP
+            } else if (dots === 2) {
+                if (res.length < 2 || lastSegmentLength !== 2 ||
+                    res.charCodeAt(res.length - 1) !== CHAR_DOT ||
+                    res.charCodeAt(res.length - 2) !== CHAR_DOT) {
+                    if (res.length > 2) {
+                        const lastSlashIndex = res.lastIndexOf(separator);
+                        if (lastSlashIndex === -1) {
+                            res = '';
+                            lastSegmentLength = 0;
+                        } else {
+                            res = res.slice(0, lastSlashIndex);
+                            lastSegmentLength =
+                                res.length - 1 - res.lastIndexOf(separator);
+                        }
+                        lastSlash = i;
+                        dots = 0;
+                        continue;
+                    } else if (res.length !== 0) {
+                        res = '';
+                        lastSegmentLength = 0;
+                        lastSlash = i;
+                        dots = 0;
+                        continue;
+                    }
+                }
+                if (allowAboveRoot) {
+                    res += res.length > 0 ? `${separator}..` : '..';
+                    lastSegmentLength = 2;
+                }
             } else {
-              res = res.slice(0, lastSlashIndex);
-              lastSegmentLength =
-                res.length - 1 - res.lastIndexOf(separator);
+                if (res.length > 0)
+                    res += `${separator}${path.slice(lastSlash + 1, i)}`;
+                else
+                    res = path.slice(lastSlash + 1, i);
+                lastSegmentLength = i - lastSlash - 1;
             }
             lastSlash = i;
             dots = 0;
-            continue;
-          } else if (res.length !== 0) {
-            res = '';
-            lastSegmentLength = 0;
-            lastSlash = i;
-            dots = 0;
-            continue;
-          }
+        } else if (code === CHAR_DOT && dots !== -1) {
+            ++dots;
+        } else {
+            dots = -1;
         }
-        if (allowAboveRoot) {
-          res += res.length > 0 ? `${separator}..` : '..';
-          lastSegmentLength = 2;
-        }
-      } else {
-        if (res.length > 0)
-          res += `${separator}${path.slice(lastSlash + 1, i)}`;
-        else
-          res = path.slice(lastSlash + 1, i);
-        lastSegmentLength = i - lastSlash - 1;
-      }
-      lastSlash = i;
-      dots = 0;
-    } else if (code === CHAR_DOT && dots !== -1) {
-      ++dots;
-    } else {
-      dots = -1;
     }
-  }
-  return res;
+    return res;
 }
 
 function normalizeAsPosix(path) {
     if (path.length === 0)
         return '.';
-    
+
     const isAbsolute = isPathSeparator(path.charCodeAt(0));
     const trailingSeparator = isPathSeparator(path.charCodeAt(path.length - 1));
-    
+
     // Normalize the path
     path = normalizeString(path, !isAbsolute, '/', isPathSeparator);
-    
+
     if (path.length === 0) {
         if (isAbsolute)
             return '/';
@@ -87,7 +87,7 @@ function normalizeAsPosix(path) {
     }
     if (trailingSeparator)
         path += '/';
-    
+
     return isAbsolute ? `/${path}` : path;
 }
 
@@ -123,7 +123,7 @@ class ModuleCache extends Map {
             return ref;
         }
     }
-    
+
     set(key, value, isWeak) {
         //console.log(`set ${key} ${value} ${isWeak}`);
         super.delete(key);
@@ -134,24 +134,24 @@ class ModuleCache extends Map {
             return super.set(key, [value, false]);
         }
     }
-    
+
     get(key) {
         const pair = super.get(key);
         return pair && this.#get(key, pair);
     }
-    
+
     has(key) {
         return !!this.get(key);
     }
-    
+
     stat() {
         let res = 'key\tweak?\tvalid?\n';
         for (const [key, [ref, isWeak]] of super[iterator]()) {
-            res += `${key}\t${isWeak}\t${ !isWeak || !!ref.deref() }\n`;
+            res += `${key}\t${isWeak}\t${!isWeak || !!ref.deref()}\n`;
         }
         return res;
     }
-    
+
     gc() {
         for (const [key, [ref, isWeak]] of super[iterator]()) {
             if (isWeak && !ref.deref()) {
@@ -172,9 +172,9 @@ const builtinModules = new Map([["csharp", CS], ["puer", puer], ["puerts", puer]
 
 function fileURLToPath(url) {
     if (url.startsWith('file:') || url.startsWith('puer:')) {
-          return url.substr(5);
+        return url.substr(5);
     } else {
-          return url;
+        return url;
     }
 }
 
@@ -210,7 +210,7 @@ function executeModule(fullPath, script, debugPath) {
     let wrapped = puer.evalScript(
         // Wrap the script in the same way NodeJS does it. It is important since IDEs (VSCode) will use this wrapper pattern
         // to enable stepping through original source in-place.
-        "(function (exports, require, module, __filename, __dirname) { " + script + "\n});", 
+        "(function (exports, require, module, __filename, __dirname) { " + script + "\n});",
         debugPath
     )
     wrapped(exports, createLazyRequire(fullPath), module, debugPath, dirname(debugPath))
@@ -223,12 +223,13 @@ function createLazyRequire(referer) {
     const filename = normalizeAsPosix(fileURLToPath(referer));
     //console.log(`createLazyRequire(${referer}): ${filename}`);
     let requiringDir = dirname(filename);
+
     //console.log(`requiringDir:${requiringDir}`)
-    
+
     function require(specifier) {
         //console.log(`require(${specifier}) by ${referer}`);
         let fullPath = joinAsPosix(requiringDir, specifier);
-        
+
         let key = fullPath;
         let res = exportsCache.get(key);
         if (res) {
@@ -238,23 +239,23 @@ function createLazyRequire(referer) {
         if (tmpModule) {
             return tmpModule.exports;
         }
-        
-        let {content , debugPath} = puer.loadFile(fullPath);
+
+        let {content, debugPath} = puer.loadFile(fullPath);
         if (content === null) {
             throw new Error(`load ${fullPath} fail!`);
         }
-        
-        let module = {"exports":{}};
+
+        let module = {"exports": {}};
         tmpModuleStorage.set(fullPath, module);
         try {
             if (fullPath.endsWith(".json")) {
                 let packageConfigure = JSON.parse(content);
-                
+
                 if (fullPath.endsWith("package.json")) {
                     let url = packageConfigure.main || "index.js";
                     let tmpRequire = createLazyRequire(fullPath);
                     let r = tmpRequire(url);
-                    
+
                     module.exports = r;
                 } else {
                     module.exports = packageConfigure;
@@ -263,8 +264,8 @@ function createLazyRequire(referer) {
                 //console.warn(`executeModule(${fullPath})`)
                 executeModule(fullPath, content, debugPath);
             }
-            exportsCache.set(key, module.exports, typeof module.exports.__auto_release !== 'boolean' ? __default_is_weak : module.exports.__auto_release );
-        } catch(e) {
+            exportsCache.set(key, module.exports, typeof module.exports.__auto_release !== 'boolean' ? __default_is_weak : module.exports.__auto_release);
+        } catch (e) {
             exportsCache.delete(key);
             throw e;
         } finally {
@@ -272,7 +273,7 @@ function createLazyRequire(referer) {
         }
         return module.exports;
     }
-    
+
     // 理论上比new Proxy会快些
     function proxyTo(obj, target) {
         const descriptors = Object.getOwnPropertyDescriptors(target);
@@ -286,20 +287,20 @@ function createLazyRequire(referer) {
                     obj[key] = descriptor.value.bind(target);
                 } else {
                     Object.defineProperty(obj, key, {
-                        get: function() {
+                        get: function () {
                             return target[key];
                         },
-                        set: function(value) {
+                        set: function (value) {
                             target[key] = value;
                         },
-                        enumerable: descriptor.enumerable, 
+                        enumerable: descriptor.enumerable,
                         configurable: descriptor.configurable
                     });
                 }
             }
         }
     }
-    
+
     function doRequire(target) {
         let m = require(target.__specifier);
         target.__specifier = undefined;
@@ -320,13 +321,13 @@ function createLazyRequire(referer) {
         //console.log(`lazy require(${specifier}) by ${referer}`);
         const res = {__specifier: specifier}
         const proxy = new Proxy(res, {
-            get: function(target, name, receiver) {
+            get: function (target, name, receiver) {
                 if (name === '__esModule') return true;
                 //console.log(`proxy for ${name} get`);
                 let m = doRequire(target);
                 return Reflect.get(m, name, receiver);
             },
-            set: function(target, name, value, receiver) {
+            set: function (target, name, value, receiver) {
                 //console.log(`proxy for ${name} set`);
                 throw new Error(`readonly property ${name}`);
                 //let m = doRequire(target);
@@ -336,26 +337,27 @@ function createLazyRequire(referer) {
         Object.setPrototypeOf(res, proxy);
         return res;
     }
+
     return lazyRequire;
 }
 
-function clearModuleCache () {
+function clearModuleCache() {
     exportsCache.clear();
 }
 
-function statModuleCache () {
+function statModuleCache() {
     return exportsCache.stat();
 }
 
-function gcModuleCache () {
+function gcModuleCache() {
     return exportsCache.gc();
 }
 
-function deleteModuleCache (specifier) {
+function deleteModuleCache(specifier) {
     return exportsCache.delete(specifier);
 }
 
-function hasModuleCache (specifier) {
+function hasModuleCache(specifier) {
     return exportsCache.has(specifier);
 }
 
@@ -368,4 +370,11 @@ puer.module = {
     hasModuleCache: hasModuleCache
 }
 
-export { createLazyRequire as createRequire, clearModuleCache, statModuleCache, gcModuleCache, deleteModuleCache, hasModuleCache};
+export {
+    createLazyRequire as createRequire,
+    clearModuleCache,
+    statModuleCache,
+    gcModuleCache,
+    deleteModuleCache,
+    hasModuleCache
+};

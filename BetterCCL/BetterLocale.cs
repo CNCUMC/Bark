@@ -180,46 +180,40 @@ public static class BetterLocale
         var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
 
         foreach (var (language, dictionary) in Defaults)
-        {
-            foreach (var (category, dictionary1) in dictionary)
+        foreach (var (category, dictionary1) in dictionary)
+        foreach (var (key, value) in dictionary1)
+            try
             {
-                foreach (var (key, value) in dictionary1)
-                {
+                var filePath = Path.Combine(outputDirectory, $"{language}.json");
+                Directory.CreateDirectory(outputDirectory);
+
+                JObject root;
+                if (File.Exists(filePath))
                     try
                     {
-                        var filePath = Path.Combine(outputDirectory, $"{language}.json");
-                        Directory.CreateDirectory(outputDirectory);
-
-                        JObject root;
-                        if (File.Exists(filePath))
-                            try
-                            {
-                                root = JObject.Parse(File.ReadAllText(filePath));
-                            }
-                            catch
-                            {
-                                root = new JObject();
-                            }
-                        else root = new JObject();
-
-                        if (root[category] is not JObject catObj)
-                        {
-                            catObj = new JObject();
-                            root[category] = catObj;
-                        }
-
-                        if (catObj[key] != null) continue;
-                        catObj[key] = value;
-                        File.WriteAllText(filePath,
-                            JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
+                        root = JObject.Parse(File.ReadAllText(filePath));
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        LogUtil.Warning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}",
-                            Plugin.Logger);
+                        root = new JObject();
                     }
+                else root = new JObject();
+
+                if (root[category] is not JObject catObj)
+                {
+                    catObj = new JObject();
+                    root[category] = catObj;
                 }
+
+                if (catObj[key] != null) continue;
+                catObj[key] = value;
+                File.WriteAllText(filePath,
+                    JsonConvert.SerializeObject(root, Formatting.Indented) + Environment.NewLine);
             }
-        }
+            catch (Exception ex)
+            {
+                LogUtil.Warning($"[BetterLocale] Failed to write '{language}.json': {ex.Message}",
+                    Plugin.Logger);
+            }
     }
 }

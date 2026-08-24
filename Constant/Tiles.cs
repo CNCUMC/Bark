@@ -12,7 +12,10 @@ public sealed class Tiles
     public static readonly Tiles Glass = new(7, "glass", 30f, "glass", "Glass", "Mediocre", noVariation: true);
     public static readonly Tiles Rubber = new(8, "rubber", 60f, "rubber", "Rubber", "Good");
     public static readonly Tiles Plastic = new(9, "plastic", 150f, "rubber", "Plastic");
-    public static readonly Tiles HeatResistantAlloy = new(10, "heatresistantalloy", 15000f, "steel", "Steel", "Mediocre", true);
+
+    public static readonly Tiles HeatResistantAlloy =
+        new(10, "heatresistantalloy", 15000f, "steel", "Steel", "Mediocre", true);
+
     public static readonly Tiles Wood = new(11, "wood", 150f, "wood", "Wood", noVariation: true);
     public static readonly Tiles Sand = new(12, "sand", 15f, "sand", "Sand", "Good");
     public static readonly Tiles Sandstone = new(13, "sandstone", 90f, "rock", "Rock", "Bad");

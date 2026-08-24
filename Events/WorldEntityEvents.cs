@@ -1,4 +1,5 @@
 using Bark.Event;
+using UnityEngine;
 
 namespace Bark.Events;
 
@@ -92,7 +93,7 @@ public class BioTerminalUseEvent : BarkEvent
 public class GroundBloodEvent : BarkEvent
 {
     // 地面血迹生成的世界坐标
-    public UnityEngine.Vector2 Position { get; set; }
+    public Vector2 Position { get; set; }
 
     // 是否呕吐物（vomit=true）
     public bool Vomit { get; set; }
@@ -104,7 +105,7 @@ public class GroundBloodEvent : BarkEvent
 public class BlockDamagedEvent : BarkEvent
 {
     // 受损方块的世界格子坐标
-    public UnityEngine.Vector2Int Pos { get; set; }
+    public Vector2Int Pos { get; set; }
 
     // 当前伤害量
     public float Damage { get; set; }

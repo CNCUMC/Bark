@@ -80,7 +80,7 @@ public class AmmunitionTemplate : ItemTemplate
             CasingType = (string?)t["casing_type"]
         };
     }
-    
+
     public static bool IsAmmo(string itemId)
     {
         return Registry.ContainsKey(itemId);

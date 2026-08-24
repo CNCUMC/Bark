@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Bark.Events;
 using Bark.Tool;
 using HarmonyLib;
@@ -28,7 +29,7 @@ public static class WorldEntityEventListener
     private static readonly Dictionary<int, byte> BloodSpawnCounts = new();
 
     // BleedParticle.spawned 私有字段反射缓存（避免每次 Traverse 反射开销）
-    private static System.Reflection.FieldInfo? s_spawnedField;
+    private static FieldInfo? s_spawnedField;
 
     internal static void Listen()
     {
@@ -84,42 +85,6 @@ public static class WorldEntityEventListener
                && item.transform.IsChildOf(body.transform);
     }
 
-    // 电池物品
-    [HarmonyPatch(typeof(BatteryItem))]
-    public static class BatteryItemPatch
-    {
-        [HarmonyPatch("LoadBattery")]
-        [HarmonyPostfix]
-        private static void LoadBatteryPostfix(BatteryItem __instance)
-        {
-            if (__instance == null || !__instance) return;
-            var device = __instance.GetComponent<Item>();
-            if (!device || !IsPlayerRelated(device)) return;
-
-            EventUtil.Trigger(new BatteryLoadEvent
-            {
-                Device = device,
-                Battery = null,
-                BatteryType = __instance.batteryType ?? string.Empty
-            });
-        }
-
-        [HarmonyPatch("UnloadBattery")]
-        [HarmonyPrefix]
-        private static void UnloadBatteryPrefix(BatteryItem __instance)
-        {
-            if (__instance == null || !__instance) return;
-            var device = __instance.GetComponent<Item>();
-            if (!device || !IsPlayerRelated(device)) return;
-
-            EventUtil.Trigger(new BatteryUnloadEvent
-            {
-                Device = device,
-                BatteryType = __instance.batteryType ?? string.Empty
-            });
-        }
-    }
-
     // 自动泵
     [HarmonyPatch(typeof(AutoPump), "Update")]
     [HarmonyPostfix]
@@ -161,34 +126,6 @@ public static class WorldEntityEventListener
         if (__instance == null || !__instance) return;
         var building = __instance.GetComponent<BuildingEntity>();
         EventUtil.Trigger(new BatteryRechargeEvent { Charger = building });
-    }
-
-    // 捕兽夹
-    [HarmonyPatch(typeof(BearTrap))]
-    public static class BearTrapPatch
-    {
-        [HarmonyPatch("OnTriggerEnter2D")]
-        [HarmonyPostfix]
-        private static void OnTriggerEnter2DPostfix(BearTrap __instance)
-        {
-            if (__instance == null || !__instance) return;
-            if (__instance.caughtLimb == null) return;
-
-            var id = __instance.GetInstanceID();
-            if (!TriggeredTraps.Add(id)) return;
-
-            EventUtil.Trigger(new BearTrapTriggerEvent { Trap = __instance, Limb = __instance.caughtLimb });
-        }
-
-        [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        private static void UpdatePostfix(BearTrap __instance)
-        {
-            if (__instance == null || !__instance) return;
-            var id = __instance.GetInstanceID();
-            if (__instance.caughtLimb == null && TriggeredTraps.Remove(id))
-                EventUtil.Trigger(new BearTrapReleaseEvent { Trap = __instance });
-        }
     }
 
     // 生物终端
@@ -302,5 +239,69 @@ public static class WorldEntityEventListener
             Building = __instance,
             BuildingId = __instance.id ?? string.Empty
         });
+    }
+
+    // 电池物品
+    [HarmonyPatch(typeof(BatteryItem))]
+    public static class BatteryItemPatch
+    {
+        [HarmonyPatch("LoadBattery")]
+        [HarmonyPostfix]
+        private static void LoadBatteryPostfix(BatteryItem __instance)
+        {
+            if (__instance == null || !__instance) return;
+            var device = __instance.GetComponent<Item>();
+            if (!device || !IsPlayerRelated(device)) return;
+
+            EventUtil.Trigger(new BatteryLoadEvent
+            {
+                Device = device,
+                Battery = null,
+                BatteryType = __instance.batteryType ?? string.Empty
+            });
+        }
+
+        [HarmonyPatch("UnloadBattery")]
+        [HarmonyPrefix]
+        private static void UnloadBatteryPrefix(BatteryItem __instance)
+        {
+            if (__instance == null || !__instance) return;
+            var device = __instance.GetComponent<Item>();
+            if (!device || !IsPlayerRelated(device)) return;
+
+            EventUtil.Trigger(new BatteryUnloadEvent
+            {
+                Device = device,
+                BatteryType = __instance.batteryType ?? string.Empty
+            });
+        }
+    }
+
+    // 捕兽夹
+    [HarmonyPatch(typeof(BearTrap))]
+    public static class BearTrapPatch
+    {
+        [HarmonyPatch("OnTriggerEnter2D")]
+        [HarmonyPostfix]
+        private static void OnTriggerEnter2DPostfix(BearTrap __instance)
+        {
+            if (__instance == null || !__instance) return;
+            if (__instance.caughtLimb == null) return;
+
+            var id = __instance.GetInstanceID();
+            if (!TriggeredTraps.Add(id)) return;
+
+            EventUtil.Trigger(new BearTrapTriggerEvent { Trap = __instance, Limb = __instance.caughtLimb });
+        }
+
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(BearTrap __instance)
+        {
+            if (__instance == null || !__instance) return;
+            var id = __instance.GetInstanceID();
+            if (__instance.caughtLimb == null && TriggeredTraps.Remove(id))
+                EventUtil.Trigger(new BearTrapReleaseEvent { Trap = __instance });
+        }
     }
 }

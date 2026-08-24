@@ -37,8 +37,8 @@ That single line gives you a full `plushie` equivalent.
 | `plush`        | bool   | `true`  | Internal marker, **do not remove**                                                                                                                |
 | `squeak_sound` | string | `""`    | Custom squeak sound (**Bark Audio property**). Relative to the mod root; bare filenames auto-prepend `Assets/Audio/`. Empty uses the game default |
 
-When `squeak_sound` is set, Bark loads and plays the custom sound via `AudioManager` (`.wav`/`.mp3`/`.aif`, same as other
-sound conventions), replacing the game default `PlushScript` squeak.
+When `squeak_sound` is set, Bark loads and plays the custom sound via `AudioManager` (`.wav`/`.mp3`/`.aif`, same as
+other sound conventions), replacing the game default `PlushScript` squeak.
 
 ## Overridable Top-Level Fields
 

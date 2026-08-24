@@ -5,7 +5,9 @@
 * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
 */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 
 let events = Object.create(null);
 let eventsCount = 0;
@@ -18,7 +20,7 @@ function checkListener(listener) {
 
 function on(type, listener, prepend) {
     checkListener(listener);
-    
+
     let existing = events[type];
     if (existing === undefined) {
         events[type] = listener;
@@ -36,7 +38,7 @@ function on(type, listener, prepend) {
 
 function off(type, listener) {
     checkListener(listener);
-    
+
     const list = events[type];
     if (list === undefined)
         return;
@@ -54,7 +56,7 @@ function off(type, listener) {
                 else {
                     spliceOne(list, i);
                 }
-                
+
                 if (list.length === 1)
                     events[type] = list[0];
                 break;

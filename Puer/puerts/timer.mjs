@@ -5,7 +5,9 @@
 * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
 */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 
 class PriorityQueue {
     constructor(data = [], compare = (a, b) => a - b) {
@@ -95,12 +97,12 @@ function timerUpdate() {
         if (!time) {
             break;
         }
-        if (!now){
+        if (!now) {
             now = Date.now();
         }
         if (time.next_time <= now) {
             timers.pop();
-            if(removing_timers.has(time.id)){
+            if (removing_timers.has(time.id)) {
                 removing_timers.delete(time.id);
             } else {
                 if (time.timeout) {
@@ -123,7 +125,7 @@ global.setTimeout = (fn, time, ...arg) => {
     if (time > 0)
         t = time;
     timers.push({
-        id:++next,
+        id: ++next,
         next_time: t + Date.now(),
         args: arg,
         handler: fn,
@@ -139,7 +141,7 @@ global.setInterval = (fn, time, ...arg) => {
     if (time != null && time > 10)
         t = time;
     timers.push({
-        id:++next,
+        id: ++next,
         next_time: t + Date.now(),
         handler: fn,
         args: arg,

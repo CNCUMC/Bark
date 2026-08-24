@@ -5,12 +5,14 @@
  * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
  */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 
 
 function csTypeToClass(csType) {
     let cls = puer.loadType(csType);
-    
+
     if (cls) {
         let currentCls = cls, parentPrototype = Object.getPrototypeOf(currentCls.prototype);
 
@@ -33,17 +35,17 @@ function csTypeToClass(csType) {
                     let getter = desc.get;
                     let value;
                     let valueGetted = false;
-    
+
                     if (desc.configurable) {
                         Object.defineProperty(
-                            cls, key, 
+                            cls, key,
                             Object.assign(desc, {
                                 get() {
                                     if (!valueGetted) {
                                         value = getter();
                                         valueGetted = true;
                                     }
-                                    
+
                                     return value;
                                 },
                                 configurable: false
@@ -62,7 +64,7 @@ function csTypeToClass(csType) {
 
         let nestedTypes = puer.getNestedTypes(csType);
         if (nestedTypes) {
-            for(var i = 0; i < nestedTypes.Length; i++) {
+            for (var i = 0; i < nestedTypes.Length; i++) {
                 let ntype = nestedTypes.get_Item(i);
                 if (ntype.IsGenericType) {
                     let name = ntype.Name.split('`')[0] + '$' + ntype.GetGenericArguments().Length;
@@ -82,12 +84,14 @@ function csTypeToClass(csType) {
     return cls;
 }
 
-function Namespace() {}
+function Namespace() {
+}
+
 puer.__$NamespaceType = Namespace;
 
 function createTypeProxy(namespace) {
     return new Proxy(new Namespace, {
-        get: function(cache, name) {
+        get: function (cache, name) {
             if (name == '__p_innerType') return void 0;
             if (!(name in cache)) {
                 let fullName = namespace ? (namespace + '.' + name) : name;
@@ -149,12 +153,12 @@ function taskToPromise(task) {
         });
     });
 }
+
 function genIterator(obj) {
     let it = obj.GetEnumerator();
     return {
         next() {
-            if (it.MoveNext())
-            {
+            if (it.MoveNext()) {
                 return {value: it.Current, done: false}
             }
             it.Dispose();
@@ -176,16 +180,16 @@ function makeGeneric(genericTypeInfo, ...genericArgs) {
 
         let typName = genericTypeInfo.get('$name')
         let typ = puer.loadType(typName, ...genericArgs)
-        let csType =  getType(typ)
+        let csType = getType(typ)
         if (getType(csharpModule.System.Collections.IEnumerable).IsAssignableFrom(csType)) {
             typ.prototype[Symbol.iterator] = function () {
                 return genIterator(this);
             }
         }
-        
+
         let nestedTypes = puer.getNestedTypes(csType);
         if (nestedTypes) {
-            for(var i = 0; i < nestedTypes.Length; i++) {
+            for (var i = 0; i < nestedTypes.Length; i++) {
                 let ntype = nestedTypes.get_Item(i);
                 if (ntype.IsGenericTypeDefinition) {
                     genericArgs = genericArgs.map(g => puer.$typeof(g) || g);
@@ -206,7 +210,7 @@ function makeGeneric(genericTypeInfo, ...genericArgs) {
 function makeGenericMethod(cls, methodName, ...genericArgs) {
     if (cls && typeof methodName == 'string' && genericArgs && genericArgs.length > 0) {
         return puer.getGenericMethod(puer.$typeof(cls), methodName, ...genericArgs);
-        
+
     } else {
         throw new Error("invalid arguments for makeGenericMethod");
     }
@@ -223,10 +227,10 @@ function bindThisToFirstArgument(func, parentFunc) {
                 return func.apply(null, [this, ...args]);
             } catch {
                 return parentFunc.call(this, ...args);
-            };
+            }
         }
     }
-    return function(...args) {
+    return function (...args) {
         return func.apply(null, [this, ...args]);
     }
 }
@@ -235,10 +239,10 @@ function doExtension(cls, extension) {
     // if you already generate static wrap for cls and extension, then you are no need to invoke this function
     // 如果你已经为extension和cls生成静态wrap，则不需要调用这个函数。
     var parentPrototype = Object.getPrototypeOf(cls.prototype);
-    Object.keys(extension).forEach(key=> {
+    Object.keys(extension).forEach(key => {
         var func = extension[key];
         if (typeof func == 'function' && key != 'constructor' && !(key in cls.prototype)) {
-    var parentFunc = parentPrototype ? parentPrototype[key] : undefined;
+            var parentFunc = parentPrototype ? parentPrototype[key] : undefined;
             parentFunc = typeof parentFunc === "function" ? parentFunc : undefined;
             Object.defineProperty(cls.prototype, key, {
                 value: bindThisToFirstArgument(func, parentFunc),
@@ -256,7 +260,7 @@ puer.$promise = taskToPromise;
 puer.$generic = makeGeneric;
 puer.$genericMethod = makeGenericMethod;
 puer.$typeof = getType;
-puer.$extension = (cls, extension) => { 
-    typeof console != 'undefined' && console.warn(`deprecated! if you already generate static wrap for ${cls} and ${extension}, you are no need to invoke $extension`); 
+puer.$extension = (cls, extension) => {
+    typeof console != 'undefined' && console.warn(`deprecated! if you already generate static wrap for ${cls} and ${extension}, you are no need to invoke $extension`);
     return doExtension(cls, extension)
 };

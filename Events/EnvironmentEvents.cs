@@ -1,4 +1,5 @@
 using Bark.Event;
+using UnityEngine;
 
 namespace Bark.Events;
 
@@ -8,7 +9,7 @@ namespace Bark.Events;
 public class CaveTickSpawnEvent : BarkEvent
 {
     // 生成器位置
-    public UnityEngine.Vector2 Position { get; set; }
+    public Vector2 Position { get; set; }
 }
 
 // 可攀爬物事件

@@ -10,18 +10,18 @@ namespace Bark.Items.Templates;
 // 玩偶属性数据容器，由 PlushTemplate 从 ItemDef.CustomData 填充，存入内部注册表。
 public class PlushData
 {
-    // 自定义吱吱音效路径（相对模组目录，如 "Assets/Audio/plush_squeak.wav"）。
-    // 纯文件名（不含 / 或 \）自动补全为 "Assets/Audio/filename"。
-    // 通过 AudioManager 加载（Bark Audio 属性），支持 .wav/.mp3/.aif 等格式。
-    // 空字符串表示使用游戏默认音效（PlushScript.selectedSound）。
-    public string SqueakSound = "";
-
     // 所属模组的根目录（绝对路径），用于解析 Assets/Audio/ 下的音效文件。
     // 由 ItemLoader 在 CachePlushItem 时注入。
     public string ModDir = "";
 
     // 预加载的吱吱音效 AudioClip（若 SqueakSound 非空且加载成功）。
     [JsonIgnore] public AudioClip? SqueakClip;
+
+    // 自定义吱吱音效路径（相对模组目录，如 "Assets/Audio/plush_squeak.wav"）。
+    // 纯文件名（不含 / 或 \）自动补全为 "Assets/Audio/filename"。
+    // 通过 AudioManager 加载（Bark Audio 属性），支持 .wav/.mp3/.aif 等格式。
+    // 空字符串表示使用游戏默认音效（PlushScript.selectedSound）。
+    public string SqueakSound = "";
 }
 
 // 玩偶物品模板：预设玩具玩偶的通用默认值 + 运行时玩偶注册表 + 查询 API。
@@ -113,7 +113,7 @@ public class PlushTemplate : ItemTemplate
             SqueakSound = (string?)t["squeak_sound"] ?? ""
         };
     }
-    
+
     public static bool IsPlush(string itemId)
     {
         return Registry.ContainsKey(itemId);
@@ -123,7 +123,7 @@ public class PlushTemplate : ItemTemplate
     {
         return Registry.GetValueOrDefault(itemId);
     }
-    
+
     // 播放玩偶吱吱声：
     //   配置了自定义 squeak_sound → 用 Bark Audio 播放自定义音效
     //   否则 → 调用 PlushScript.Squeak() 播放游戏默认音效
@@ -153,7 +153,7 @@ public class PlushTemplate : ItemTemplate
         {
             var harmony = new Harmony("Bark.PlushTemplate.Squeak");
             harmony.Patch(method,
-                prefix: new HarmonyMethod(typeof(PlushTemplate), nameof(OnSqueakPrefix)));
+                new HarmonyMethod(typeof(PlushTemplate), nameof(OnSqueakPrefix)));
         }
         catch
         {

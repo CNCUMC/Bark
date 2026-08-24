@@ -11,13 +11,15 @@ using Bark.Recipe;
 using Bark.Save;
 using Bark.Tile;
 using Bark.Tool;
-using BepInEx;
 
 namespace Bark.Script;
 
 // 脚本模组加载器：扫描 ScriptMods 目录，读取 mod.json，路由到对应 PuerTS 引擎
 public class ScriptModLoader(string modsPath) : IDisposable
 {
+    // 禁用后缀：文件夹/压缩包名称（不含扩展名）以此结尾则视为禁用，跳过加载
+    private const string DisabledSuffix = ".dis";
+
     // zip 模组解压到 BepInEx 缓存目录下的子目录
     private static readonly string ZipCacheDir = Path.Combine(Plugin.BarkCachePath, "ScriptMods");
 
@@ -31,21 +33,6 @@ public class ScriptModLoader(string modsPath) : IDisposable
 
     // 验证 ID 是否为 snake_case：小写字母开头，字母数字组成，下划线分隔
     private static readonly Regex SnakeCaseRegex = new("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", RegexOptions.Compiled);
-
-    // 禁用后缀：文件夹/压缩包名称（不含扩展名）以此结尾则视为禁用，跳过加载
-    private const string DisabledSuffix = ".dis";
-
-    // 判断名称是否带禁用标记（不区分大小写）
-    private static bool IsDisabledName(string? name)
-    {
-        return name != null && name.EndsWith(DisabledSuffix, StringComparison.OrdinalIgnoreCase);
-    }
-
-    // 判断目录是否被禁用（取目录名做后缀匹配）
-    private static bool IsEnabledDirectory(string dir)
-    {
-        return !IsDisabledName(Path.GetFileName(dir));
-    }
 
     private static readonly Dictionary<string, ScriptManifest> _loadedMods = new();
 
@@ -84,6 +71,18 @@ public class ScriptModLoader(string modsPath) : IDisposable
     public void Dispose()
     {
         UnloadAll();
+    }
+
+    // 判断名称是否带禁用标记（不区分大小写）
+    private static bool IsDisabledName(string? name)
+    {
+        return name != null && name.EndsWith(DisabledSuffix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // 判断目录是否被禁用（取目录名做后缀匹配）
+    private static bool IsEnabledDirectory(string dir)
+    {
+        return !IsDisabledName(Path.GetFileName(dir));
     }
 
     // 汇总所有通过 Bark 注册的内容 ID（物品/物块/配方/Moodle），去重。

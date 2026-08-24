@@ -6,8 +6,10 @@
 */
 
 //begin move from ExecuteModuleJSCode.h
-(function() {
-    var global = global || globalThis || (function () { return this; }());
+(function () {
+    var global = global || globalThis || (function () {
+        return this;
+    }());
     /* eslint-disable max-depth, max-statements, complexity, max-lines-per-function */
     const SLASH = 47
     const DOT = 46
@@ -160,7 +162,7 @@
                         end = i;
                         break;
                     }
-                    } else {
+                } else {
                     // We saw the first non-path separator
                     matchedSlash = false;
                 }
@@ -180,7 +182,7 @@
         return __loader;
     }
 
-    global.__puer_resolve_module_url__ = function(specifier, referer) {
+    global.__puer_resolve_module_url__ = function (specifier, referer) {
         const originSp = specifier;
         const loader = getLoader();
         if (!loader.Resolve) {
@@ -201,7 +203,7 @@
         }
     }
 
-    global.__puer_resolve_module_content__ = function(specifier, debugpathRef = []) {
+    global.__puer_resolve_module_content__ = function (specifier, debugpathRef = []) {
         const originSp = specifier;
         const loader = getLoader();
         let isESM = true;

@@ -231,7 +231,7 @@ public static class BarkKrokBridge
         catch (Exception ex)
         {
             Plugin.Logger.LogWarning(
-                $"BarkKrokBridge failed to send message ({ChannelField}='{(envelope[ChannelField]?.Value<string>() ?? "?")}'): {ex}");
+                $"BarkKrokBridge failed to send message ({ChannelField}='{envelope[ChannelField]?.Value<string>() ?? "?"}'): {ex}");
             return false;
         }
     }
@@ -353,14 +353,14 @@ public static class BarkKrokBridge
     private static void HandleServerMessageObject(object senderBox, object reader)
     {
         var senderId = UnboxId(senderBox);
-        HandleEnvelope(senderId, reader, serverSide: true);
+        HandleEnvelope(senderId, reader, true);
     }
 
     // 客户端收到服务端 response/event
     private static void HandleClientMessageObject(object senderBox, object reader)
     {
         var senderId = UnboxId(senderBox);
-        HandleEnvelope(senderId, reader, serverSide: false);
+        HandleEnvelope(senderId, reader, false);
     }
 
     private static void HandleEnvelope(uint senderClientId, object reader, bool serverSide)
@@ -380,8 +380,8 @@ public static class BarkKrokBridge
         if (string.Equals(kind, "response", StringComparison.Ordinal))
         {
             // 客户端收到响应：按 requestId 取回调
-            if (string.IsNullOrWhiteSpace(requestId) ||
-                !PendingResponses.Remove(requestId, out var callback))
+            if (string.IsNullOrWhiteSpace(requestId) 
+                || !PendingResponses.Remove(requestId, out var callback))
                 return;
 
             callback(payload!);
@@ -575,28 +575,27 @@ public static class BarkKrokBridge
     // 注意：不检查 IsAvailable——初始化时 IsAvailable 尚未置 true，但反射句柄已就绪，必须能注册。
     public static void EnsureReceiversRegistered()
     {
-        if (_registerServerReceiverMethod is null || _registerClientReceiverMethod is null ||
-            _netType is null)
+        if (_registerServerReceiverMethod is null
+            || _registerClientReceiverMethod is null
+            || _netType is null)
             return;
 
         try
         {
-            var serverHandlers = _netType?.GetField("SERVER_MESSAGE_HANDLERS",
-                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as System.Collections.IDictionary;
-            var clientHandlers = _netType?.GetField("CLIENT_MESSAGE_HANDLERS",
-                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as System.Collections.IDictionary;
+            var serverHandlers = _netType.GetField("SERVER_MESSAGE_HANDLERS",
+                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as IDictionary;
+            var clientHandlers = _netType.GetField("CLIENT_MESSAGE_HANDLERS",
+                BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as IDictionary;
 
-            if (serverHandlers is not null && !serverHandlers.Contains(RequestMessageId) &&
-                _serverReceiverDelegate is not null)
-            {
+            if (serverHandlers is not null
+                && !serverHandlers.Contains(RequestMessageId)
+                && _serverReceiverDelegate is not null) 
                 _registerServerReceiverMethod.Invoke(null, [RequestMessageId, _serverReceiverDelegate]);
-            }
 
-            if (clientHandlers is not null && !clientHandlers.Contains(ResponseMessageId) &&
-                _clientReceiverDelegate is not null)
-            {
+            if (clientHandlers is not null 
+                && !clientHandlers.Contains(ResponseMessageId) 
+                && _clientReceiverDelegate is not null) 
                 _registerClientReceiverMethod.Invoke(null, [ResponseMessageId, _clientReceiverDelegate]);
-            }
         }
         catch (Exception ex)
         {
@@ -718,8 +717,10 @@ public static class BarkKrokBridge
         return (from m in extType.GetMethods(BindingFlags.Public | BindingFlags.Static)
             where m.Name == "Put"
             let ps = m.GetParameters()
-            where ps.Length == 3 && ps[0].ParameterType == writerType && ps[1].ParameterType == typeof(string) &&
-                  ps[2].ParameterType == typeof(bool)
+            where ps.Length == 3
+                  && ps[0].ParameterType == writerType
+                  && ps[1].ParameterType == typeof(string) 
+                  && ps[2].ParameterType == typeof(bool)
             select m).FirstOrDefault();
     }
 
@@ -729,8 +730,11 @@ public static class BarkKrokBridge
         return (from m in extType.GetMethods(BindingFlags.Public | BindingFlags.Static)
             where m.Name == "Get"
             let ps = m.GetParameters()
-            where ps.Length == 3 && ps[0].ParameterType == readerType && ps[1].IsOut &&
-                  ps[1].ParameterType == typeof(string).MakeByRefType() && ps[2].ParameterType == typeof(bool)
+            where ps.Length == 3
+                  && ps[0].ParameterType == readerType
+                  && ps[1].IsOut
+                  && ps[1].ParameterType == typeof(string).MakeByRefType() 
+                  && ps[2].ParameterType == typeof(bool)
             select m).FirstOrDefault();
     }
 
@@ -756,8 +760,9 @@ public static class BarkKrokBridge
         try
         {
             var prop = _netType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Static);
-            return prop is not null && prop.PropertyType == typeof(bool) &&
-                   prop.GetValue(null, null) is true;
+            return prop is not null
+                   && prop.PropertyType == typeof(bool) 
+                   && prop.GetValue(null, null) is true;
         }
         catch
         {
@@ -782,7 +787,6 @@ public static class BarkKrokBridge
     {
         var t = value.GetType();
         if (t.IsPrimitive)
-        {
             try
             {
                 return Convert.ToUInt32(value);
@@ -791,7 +795,6 @@ public static class BarkKrokBridge
             {
                 return 0;
             }
-        }
 
         try
         {

@@ -34,6 +34,53 @@ public static class LimbEventListener
         _runner = null;
     }
 
+    // 感染轮询
+    private static IEnumerator MonitorInfection()
+    {
+        while (_infectionCoroutine != null)
+        {
+            yield return new WaitForSeconds(InfectionPollInterval);
+            PollInfection();
+        }
+    }
+
+    private static void PollInfection()
+    {
+        var body = BodyUtil.Body;
+        if (!body || body.limbs == null) return;
+
+        for (var i = 0; i < body.limbs.Length; i++)
+        {
+            var limb = body.limbs[i];
+            if (!limb || limb.dismembered) continue;
+
+            var id = limb.GetInstanceID();
+            var wasInfected = WasInfected.TryGetValue(id, out var prev) && prev;
+            WasInfected[id] = limb.infected;
+
+            if (!wasInfected && limb.infected)
+                EventUtil.Trigger(new LimbInfectedEvent
+                {
+                    LimbIndex = i,
+                    LimbName = limb.fullName ?? string.Empty
+                });
+        }
+    }
+
+
+    // 辅助
+    private static bool IsPlayerLimb(Limb limb)
+    {
+        return limb != null && limb.body == BodyUtil.Body;
+    }
+
+    private static int GetLimbIndex(Limb limb)
+    {
+        var limbs = BodyUtil.Body.limbs;
+        if (limbs == null) return -1;
+        return Array.IndexOf(limbs, limb);
+    }
+
     [HarmonyPatch(typeof(Limb))]
     public static class LimbPatch
     {
@@ -106,52 +153,5 @@ public static class LimbEventListener
                 LimbName = __instance.fullName ?? string.Empty
             });
         }
-    }
-
-    // 感染轮询
-    private static IEnumerator MonitorInfection()
-    {
-        while (_infectionCoroutine != null)
-        {
-            yield return new WaitForSeconds(InfectionPollInterval);
-            PollInfection();
-        }
-    }
-
-    private static void PollInfection()
-    {
-        var body = BodyUtil.Body;
-        if (!body || body.limbs == null) return;
-
-        for (var i = 0; i < body.limbs.Length; i++)
-        {
-            var limb = body.limbs[i];
-            if (!limb || limb.dismembered) continue;
-
-            var id = limb.GetInstanceID();
-            var wasInfected = WasInfected.TryGetValue(id, out var prev) && prev;
-            WasInfected[id] = limb.infected;
-
-            if (!wasInfected && limb.infected)
-                EventUtil.Trigger(new LimbInfectedEvent
-                {
-                    LimbIndex = i,
-                    LimbName = limb.fullName ?? string.Empty
-                });
-        }
-    }
-
-    
-    // 辅助
-    private static bool IsPlayerLimb(Limb limb)
-    {
-        return limb != null && limb.body == BodyUtil.Body;
-    }
-
-    private static int GetLimbIndex(Limb limb)
-    {
-        var limbs = BodyUtil.Body.limbs;
-        if (limbs == null) return -1;
-        return Array.IndexOf(limbs, limb);
     }
 }

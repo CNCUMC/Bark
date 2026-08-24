@@ -2,6 +2,7 @@ using System;
 using Bark.ScriptApi;
 using CUCoreLib.Registries;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
@@ -119,7 +120,7 @@ public static class WorldUtil
         try
         {
             // 直接用加载好的预制体实例化（与 Utils.Create 等价，但只 Resources.Load 一次）
-            var go = UnityEngine.Object.Instantiate(prefab, pos, Quaternion.Euler(0f, 0f, rot));
+            var go = Object.Instantiate(prefab, pos, Quaternion.Euler(0f, 0f, rot));
             if (go == null)
                 LogUtil.Warning("world.place_item_failed", item);
         }

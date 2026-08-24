@@ -43,7 +43,8 @@ function onPlayerDeath(event) {
 
 ### 身体（Body）事件
 
-玩家生命体征、意识、行为动作、睡眠与特殊状态的变化事件。所有身体事件均携带 `event.Body`（C# Body 实例）与 `event.Camera`（PlayerCamera）。
+玩家生命体征、意识、行为动作、睡眠与特殊状态的变化事件。所有身体事件均携带 `event.Body`（C# Body 实例）与 `event.Camera`
+（PlayerCamera）。
 
 #### 生命体征临界
 

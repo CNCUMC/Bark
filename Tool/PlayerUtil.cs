@@ -89,7 +89,7 @@ public static class PlayerUtil
         for (var i = 0; i < actual; i++)
         {
             var go = Utils.Create(resolved, pos, 0f)
-                     ?? (resolved != itemId 
+                     ?? (resolved != itemId
                          ? Utils.Create(itemId, pos, 0f)
                          : null);
             if (go == null) continue;

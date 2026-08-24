@@ -91,7 +91,7 @@ public class MagTemplate : ItemTemplate
             MaxWeight = (float?)t["max_weight"] ?? (int?)t["capacity"] * 0.03f ?? 0.5f
         };
     }
-    
+
     // 返回所有已注册弹匣的物品 ID
     public static IEnumerable<string> GetAllMagIds()
     {

@@ -30,10 +30,10 @@ public class Plugin : BaseUnityPlugin
     public const string NameSpace = "bark";
     internal new static ManualLogSource Logger = null!;
     internal static ScriptModLoader? _scriptModLoader;
+    internal static readonly string BarkCachePath = Paths.CachePath + "Bark/";
 
     public readonly string ScriptModsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptMod");
     private readonly Harmony _harmony = new(Guid);
-    internal static readonly string BarkCachePath = Paths.CachePath + "Bark/";
 
     public void Awake()
     {

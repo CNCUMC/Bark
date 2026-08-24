@@ -138,7 +138,7 @@ public class FoodTemplate : ItemTemplate
             EatGoodVoice = (bool?)t["eat_good_voice"] ?? true
         };
     }
-    
+
     public static bool IsFood(string itemId)
     {
         return Registry.ContainsKey(itemId);

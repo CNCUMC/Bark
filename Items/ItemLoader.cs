@@ -59,7 +59,7 @@ public static class ItemLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        RegisterFromDirectory(manifest.Id, manifest.Directory, true);
+        RegisterFromDirectory(manifest.Id, manifest.Directory);
     }
 
     // 从任意模组目录加载所有自定义物品，供脚本模组与 C# 模组共用。

@@ -428,8 +428,8 @@ function onCoilShock(event) {
 
 ### World Object Events
 
-State changes of damageables, damaging crates, drill pods, the Elder Thornback, PDAs, geysers, the global dark,
-grabber plants, and grappling hooks.
+State changes of damageables, damaging crates, drill pods, the Elder Thornback, PDAs, geysers, the global dark, grabber
+plants, and grappling hooks.
 
 | Hook Function             | Trigger                                      | event fields                       |
 |---------------------------|----------------------------------------------|------------------------------------|
@@ -483,8 +483,8 @@ function onPdaUse(event) {
 
 ### System Events
 
-System-level events: mindwipe, radiation line, saving, skill level-ups, traders, turrets, world regeneration,
-sawblades, and the sound cannon.
+System-level events: mindwipe, radiation line, saving, skill level-ups, traders, turrets, world regeneration, sawblades,
+and the sound cannon.
 
 | Hook Function        | Trigger                            | event fields                                          |
 |----------------------|------------------------------------|-------------------------------------------------------|

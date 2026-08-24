@@ -5,13 +5,15 @@
  * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
  */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 // polyfill old code after use esm module.
 global.global = global;
 
 let puer = global.puer = global.puerts = global.puer || global.puerts || {};
 
-puer.loadType = function(nameOrCSType, ...genericArgs) {
+puer.loadType = function (nameOrCSType, ...genericArgs) {
     let csType = nameOrCSType
     if (typeof nameOrCSType == "string") { // convert string to csType
         csType = scriptEnv.GetTypeByString(nameOrCSType)
@@ -27,10 +29,9 @@ puer.loadType = function(nameOrCSType, ...genericArgs) {
             return;
         }
         cls.__p_innerType = csType;
-        // todo
         cls.__puertsMetadata = cls.__puertsMetadata || new Map();
         let fields = csType.GetFields(26);
-        for (var i = 0; i < fields.Length; ++i ) {
+        for (var i = 0; i < fields.Length; ++i) {
             let field = fields.get_Item(i);
             if (field.IsInitOnly || field.IsLiteral) {
                 let readonlyStaticMembers = cls.__puertsMetadata.get('readonlyStaticMembers');
@@ -47,7 +48,7 @@ puer.loadType = function(nameOrCSType, ...genericArgs) {
 
 let BindingFlags = puer.loadType("System.Reflection.BindingFlags")
 let GET_MEMBER_FLAGS = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public;
-puer.getNestedTypes = function(nameOrCSType) {
+puer.getNestedTypes = function (nameOrCSType) {
     let csType = nameOrCSType
     if (typeof nameOrCSType == "string") {
         csType = scriptEnv.GetTypeByString(nameOrCSType)
@@ -60,7 +61,7 @@ puer.getNestedTypes = function(nameOrCSType) {
 puer.createFunction = global.createFunction;
 global.createFunction = undefined;
 
-puer.getGenericMethod = function(csType, methodName, ...genericArgs) {
+puer.getGenericMethod = function (csType, methodName, ...genericArgs) {
     if (!csType || (typeof csType.GetMember != 'function')) {
         throw new Error('the class must be a constructor');
     }
@@ -111,8 +112,9 @@ let loader = scriptEnv.GetLoader();
 function loadFile(path) {
     let debugPath = [];
     var content = loader.ReadFile(path, debugPath);
-    return { content: content, debugPath: debugPath[0] };
+    return {content: content, debugPath: debugPath[0]};
 }
+
 puer.loadFile = loadFile;
 
 puer.fileExists = loader.FileExists.bind(loader);
@@ -127,7 +129,7 @@ if (typeof global.findClassByName == 'function') {
     puer.findClassByName = findClassByName;
 }
 
-global.__tgjsRegisterTickHandler = function(fn) {
+global.__tgjsRegisterTickHandler = function (fn) {
     fn = new CS.System.Action(fn);
     scriptEnv.TickHandler = CS.System.Delegate.Combine(scriptEnv.TickHandler, fn)
 }

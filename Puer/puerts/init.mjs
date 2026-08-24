@@ -5,7 +5,9 @@
  * This file is subject to the terms and conditions defined in file 'LICENSE', which is part of this source code package.
  */
 
-var global = global || globalThis || (function () { return this; }());
+var global = global || globalThis || (function () {
+    return this;
+}());
 // polyfill old code after use esm module.
 global.global = global;
 
@@ -20,7 +22,7 @@ global.__tgjsGetGenericMethod = undefined;
 puer.createFunction = global.createFunction;
 global.createFunction = undefined;
 
-puer.getGenericMethod = function(csType, methodName, ...genericArgs) {
+puer.getGenericMethod = function (csType, methodName, ...genericArgs) {
     if (!csType || (typeof csType.GetMember != 'function')) {
         throw new Error('the class must be a constructor');
     }
@@ -61,8 +63,9 @@ global.__tgjsGetLoader = undefined;
 function loadFile(path) {
     let debugPath = [];
     var content = loader.ReadFile(path, debugPath);
-    return { content: content, debugPath: debugPath[0] };
+    return {content: content, debugPath: debugPath[0]};
 }
+
 puer.loadFile = loadFile;
 
 puer.fileExists = loader.FileExists.bind(loader);

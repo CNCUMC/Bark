@@ -232,7 +232,10 @@ public static class HostModFetcher
         }
     }
 
-    private static JObject ErrorResponse(string message) => new() { ["error"] = message };
+    private static JObject ErrorResponse(string message)
+    {
+        return new JObject { ["error"] = message };
+    }
 
     private static byte[]? TryFromBase64(string s)
     {
