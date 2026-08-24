@@ -20,7 +20,7 @@ using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib", "1.0.3")]
+[BepInDependency("net.cucorelib", "1.0.4")]
 [BepInDependency("KrokoshaCasualtiesMP", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
