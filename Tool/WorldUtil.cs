@@ -1,5 +1,6 @@
 using System;
 using Bark.ScriptApi;
+using CUCoreLib.Registries;
 using UnityEngine;
 
 namespace Bark.Tool;
@@ -44,7 +45,10 @@ public static class WorldUtil
         CheckUtil.CheckWorld(Plugin.Logger);
         try
         {
-            World.SetBlock(World.WorldToBlockPos(pos), block);
+            // 使用 TileRegistry.SetBlock 而非 WorldGeneration.SetBlock：
+            // 前者会先把已注册的自定义物块注入 world.tiles[index]，再落块；
+            // 直接调用后者对自定义物块（index >= 36）会因 tiles 未注入而失败。
+            TileRegistry.SetBlock(World, World.WorldToBlockPos(pos), block);
         }
         catch (Exception ex)
         {
@@ -62,7 +66,7 @@ public static class WorldUtil
         var cey = Mathf.Clamp(endY, 0, GetHeight() - 2);
         for (var x = csx; x <= cex; x++)
         for (var y = csy; y <= cey; y++)
-            World.SetBlockNoUpdate(new Vector2Int(x, y), block);
+            TileRegistry.SetBlockNoUpdate(World, new Vector2Int(x, y), block);
         for (var cx = csx / WorldGeneration.CHUNKSIZE; cx <= cex / WorldGeneration.CHUNKSIZE; cx++)
         for (var cy = csy / WorldGeneration.CHUNKSIZE; cy <= cey / WorldGeneration.CHUNKSIZE; cy++)
             World.UpdateChunk(new Vector2Int(cx, cy));

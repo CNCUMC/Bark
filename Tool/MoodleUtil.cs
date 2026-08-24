@@ -12,10 +12,7 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class MoodleUtil
 {
-    // ============================================================
     // 查询：当前活跃的 Moodle
-    // ============================================================
-
     // 检查指定 key 的 moodle 是否当前活跃在玩家身上
     [ScriptMethod]
     public static bool HasMoodle(string key)
@@ -39,10 +36,7 @@ public static class MoodleUtil
         return MoodleEventListener.GetMoodleCount();
     }
 
-    // ============================================================
     // 操作：应用 / 移除 Moodle
-    // ============================================================
-
     // 给玩家应用一个已定义的 Moodle（按 moodleKey 查找 JSON 定义）
     // holdSeconds：可选自定义持续时间，填 0 或负数则使用 JSON 中定义的默认值
     [ScriptMethod]
@@ -79,10 +73,7 @@ public static class MoodleUtil
         return MoodleEventListener.ClearMoodlesOnHeal();
     }
 
-    // ============================================================
     // 属性：获取已加载 Moodle 定义的属性
-    // ============================================================
-
     // 获取 Moodle 的强度
     [ScriptMethod]
     public static int GetIntensity(string moodleKey)
@@ -132,10 +123,7 @@ public static class MoodleUtil
         return TryGetDef(moodleKey, out var def) && def.Important;
     }
 
-    // ============================================================
     // 内部辅助
-    // ============================================================
-
     // 尝试获取已加载的 MoodleDef
     private static bool TryGetDef(string moodleKey, out MoodleDef def)
     {
