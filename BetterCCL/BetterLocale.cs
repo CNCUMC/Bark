@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Bark.Tool;
 using BepInEx;
@@ -13,12 +14,14 @@ namespace Bark.BetterCCL;
 
 public static class BetterLocale
 {
-    // language → category → key → value
-    private static readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Defaults = new();
+    // language → nameSpace → category → key → value
+    private static readonly Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, string>>>>
+        Defaults = new();
+
     public static readonly Dictionary<string, int> LocaleKeys = [];
     public static readonly Dictionary<string, int> LocaleGetKeys = [];
 
-    // 检查是否已有本地化文本（CCL 或 Bark Defaults 中有）
+    // 检查是否已有本地化文本
     public static bool HasKey(string category, string key)
     {
         var text = LocaleRegistry.Get(category, key, key);
@@ -154,14 +157,16 @@ public static class BetterLocale
 
     public static void SetDefault(string language, string nameSpace, string category, string key, string value)
     {
-        var localeKey = $"{nameSpace}.{key}";
-        if (string.IsNullOrEmpty(localeKey)) return;
+        if (string.IsNullOrEmpty(language) || string.IsNullOrEmpty(nameSpace) || string.IsNullOrEmpty(key)) return;
         if (!Defaults.TryGetValue(language, out var langDict))
-            Defaults[language] = langDict = new Dictionary<string, Dictionary<string, string>>();
-        if (!langDict.TryGetValue(category, out var catDict))
-            langDict[category] = catDict = new Dictionary<string, string>();
-        catDict[localeKey] = value;
-        var localeKeys = $"{category}.{localeKey}";
+            Defaults[language] = langDict = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
+        if (!langDict.TryGetValue(nameSpace, out var nsDict))
+            langDict[nameSpace] = nsDict = new Dictionary<string, Dictionary<string, string>>();
+        if (!nsDict.TryGetValue(category, out var catDict))
+            nsDict[category] = catDict = new Dictionary<string, string>();
+        // 存储时 key 必须带 nameSpace 前缀，因为运行时按 $"{nameSpace}.{key}" 查询（如 GetLog("bark.event.scanned")）
+        catDict[$"{nameSpace}.{key}"] = value;
+        var localeKeys = $"{category}.{nameSpace}.{key}";
         if (!LocaleKeys.TryAdd(localeKeys, 1))
             LocaleKeys[localeKeys]++;
     }
@@ -169,7 +174,7 @@ public static class BetterLocale
     private static string? GetDefault(string language, string key)
     {
         if (!Defaults.TryGetValue(language, out var langDict)) return null;
-        foreach (var catDict in langDict.Values)
+        foreach (var catDict in langDict.Values.SelectMany(nsDict => nsDict.Values))
             if (catDict.TryGetValue(key, out var value))
                 return value;
         return null;
@@ -177,13 +182,17 @@ public static class BetterLocale
 
     public static void Flush()
     {
-        var outputDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
+        // 按命名空间导出到子目录，方便各 mod 单独分享/整理本地化文件：
+        // CUCoreLib/Locales/{nameSpace}/{language}.json
+        var baseDirectory = Path.Combine(Paths.ConfigPath, "CUCoreLib", "Locales");
 
-        foreach (var (language, dictionary) in Defaults)
-        foreach (var (category, dictionary1) in dictionary)
-        foreach (var (key, value) in dictionary1)
+        foreach (var (language, langDict) in Defaults)
+        foreach (var (nameSpace, nsDict) in langDict)
+        foreach (var (category, catDict) in nsDict)
+        foreach (var (key, value) in catDict)
             try
             {
+                var outputDirectory = Path.Combine(baseDirectory, nameSpace);
                 var filePath = Path.Combine(outputDirectory, $"{language}.json");
                 Directory.CreateDirectory(outputDirectory);
 

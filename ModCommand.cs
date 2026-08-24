@@ -449,34 +449,31 @@ public static class ModCommand
     }
 
     // 让 script 命令的自动补全按子命令类型切换候选，而不是把全部 ID 混在一起。
-    [HarmonyPatch(typeof(ConsoleScript))]
-    [HarmonyPatch("Update")]
-    private static class ConsoleAutofillPatch
+
+    // 缓存私有字段访问，避免每帧重复反射
+    private static readonly FieldInfo? InputField = typeof(ConsoleScript)
+        .GetField("input", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    [HarmonyPatch(typeof(ConsoleScript), "Update")]
+    public static void ConsoleScriptUpdatePrefix(ConsoleScript __instance)
     {
-        // 缓存私有字段访问，避免每帧重复反射
-        private static readonly FieldInfo? InputField = typeof(ConsoleScript)
-            .GetField("input", BindingFlags.Instance | BindingFlags.NonPublic);
+        // input 是 ConsoleScript 的私有 TMP_InputField 字段，反射读取当前输入文本
+        var inputField = InputField?.GetValue(__instance);
+        if (inputField is null)
+            return;
 
-        public static void Prefix(ConsoleScript __instance)
+        var text = inputField switch
         {
-            // input 是 ConsoleScript 的私有 TMP_InputField 字段，反射读取当前输入文本
-            var inputField = InputField?.GetValue(__instance);
-            if (inputField is null)
-                return;
+            TMP_InputField tmp => tmp.text,
+            _ => inputField.GetType().GetProperty("text")?.GetValue(inputField) as string
+        };
+        if (string.IsNullOrEmpty(text))
+            return;
 
-            var text = inputField switch
-            {
-                TMP_InputField tmp => tmp.text,
-                _ => inputField.GetType().GetProperty("text")?.GetValue(inputField) as string
-            };
-            if (string.IsNullOrEmpty(text))
-                return;
+        var args = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (args.Length < 2 || !string.Equals(args[0], "script", StringComparison.OrdinalIgnoreCase))
+            return;
 
-            var args = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (args.Length < 2 || !string.Equals(args[0], "script", StringComparison.OrdinalIgnoreCase))
-                return;
-
-            SyncScriptAutofill(args[1]);
-        }
+        SyncScriptAutofill(args[1]);
     }
 }
