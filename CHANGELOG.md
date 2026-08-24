@@ -11,6 +11,20 @@ to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **WMITF (What Mod Is This From) integration (`WmitfPatch`)**: Script mod items, liquids, tiles, and recipes now display
+  the script mod's name in the WMITF UI instead of "Unknown Mod". Harmony patches bridge WMITF's `GetModName`,
+  `IsOwnerLoaded`, and `PatchesName` to resolve script mod GUIDs from `ScriptModLoader.LoadedScriptMods`. A
+  `TileRegistry.TryGetOwnerModGuid` postfix corrects the CCL tile ownership that always returns Bark's GUID.
+- **Script API — `StorageUtil`**: `GetBool/SetBool/GetFloat/SetFloat/GetInt/SetInt/GetString/SetString` wrapping
+  `PlayerPrefs` for script mods to persist settings and data.
+- **Script API — `CompressUtil`**: `CompressGZip/DecompressGZip/CompressDeflate/DecompressDeflate` with base64 string
+  interface for Lua/JS friendly data compression.
+- **Script API — `InputUtil`**: `GetMousePosition()` and `GetFriendlyKeyName(KeyCode)` for mouse input and key name
+  queries.
+- **Script API — `PlayerUtil.Talk/TalkElectronic`**: NPC dialogue and electronic talk lines from scripts.
+- **Script API — `LimbUtil.DoAmputate`**: Amputation using the player's held item, exposed to scripts.
+- **BetterLocale namespace-based locale export**: Locale files are now exported to `CUCoreLib/Locales/{nameSpace}/`
+  subdirectories instead of a single flat JSON, so each mod's localization is isolated and shareable.
 - **Custom KrokMP network layer (`BarkKrokBridge`)**: Bark now talks to the KrokoshaCasualtiesMP (KrokMP 4.0.1) network
   stack directly via reflection, bypassing CUCoreLib's `MultiplayerBridge` (which fails to resolve `Server_SendTo`'s
   `knetid` parameter type and is permanently unavailable). This fixes multiplayer script mod syncing between host and
@@ -65,6 +79,10 @@ to [Semantic Versioning](https://semver.org/).
 
 ### Refactor
 
+- **All event listeners migrated to `[HarmonyPatch]` annotations**: Every `Event/Listener/*.cs` listener now uses
+  annotation-style Harmony patches discovered by `PatchAll()`, replacing manual `AccessTools` + `harmony.Patch()` calls.
+  Single-target methods use `[HarmonyPatch(typeof(T), "Method")]` directly; multi-method target types are grouped into
+  nested classes with a class-level `[HarmonyPatch(typeof(T))]`.
 - **Unified event file structure**: Merged scattered single-event files into topic-based files to remove the
   "one event per file / many events per file" mix. Gun (6), Limb (6), Player (3), and misc
   (command/main-menu/world-ready,
@@ -73,6 +91,12 @@ to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **Custom tiles failed to place via `WorldUtil`**: `WorldUtil.PlaceTile` and `FillTiles` used vanilla
+  `WorldGeneration.SetBlock/SetBlockNoUpdate` which do not inject registered custom `TileBase` entries, causing
+  placement of custom tiles (index >= 36) to fail silently. Now uses `TileRegistry.SetBlock/SetBlockNoUpdate` which
+  calls `InjectRegisteredTiles` before placing.
+- **Documentation: `Blocks` → `Tiles`**: All README and docs references to the non-existent `Blocks` class were
+  corrected to `Tiles` (`Constant/Tiles.cs`).
 - **Client→host request never reached the host**: Several issues were resolved:
     - `Net.CreateWriter` has two one-argument overloads (`in Enum` and `ushort`); reflection now picks the `ushort` one.
     - `Client_Send`/`Server_SendToClients` use `in` (byref) parameters; the `DeliveryMethod` enum is now resolved after

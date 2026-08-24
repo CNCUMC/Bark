@@ -10,6 +10,19 @@
 
 ### 新增
 
+- **WMITF（What Mod Is This From）集成（`WmitfPatch`）**：脚本模组的物品、液体、物块和配方现在在 WMITF UI 中显示脚本模组的名称，
+  而非 "Unknown Mod"。Harmony 补丁桥接 WMITF 的 `GetModName`、`IsOwnerLoaded` 和 `PatchesName`，从
+  `ScriptModLoader.LoadedScriptMods` 解析脚本模组 GUID。`TileRegistry.TryGetOwnerModGuid` 后缀修正 CCL 物块
+  所有权始终返回 Bark GUID 的问题。
+- **脚本 API — `StorageUtil`**：`GetBool/SetBool/GetFloat/SetFloat/GetInt/SetInt/GetString/SetString`，封装
+  `PlayerPrefs`，供脚本模组持久化设置与数据。
+- **脚本 API — `CompressUtil`**：`CompressGZip/DecompressGZip/CompressDeflate/DecompressDeflate`，使用 base64
+  字符串接口，方便 Lua/JS 进行数据压缩。
+- **脚本 API — `InputUtil`**：`GetMousePosition()` 和 `GetFriendlyKeyName(KeyCode)`，用于鼠标输入和按键名称查询。
+- **脚本 API — `PlayerUtil.Talk/TalkElectronic`**：NPC 对话与电子语音线路。
+- **脚本 API — `LimbUtil.DoAmputate`**：使用玩家手持物品截肢，暴露给脚本调用。
+- **BetterLocale 按命名空间分子目录导出**：本地化文件现在导出到 `CUCoreLib/Locales/{nameSpace}/` 子目录，而非
+  单个平铺 JSON，各模组本地化互相隔离，便于分享。
 - **自建 KrokMP 网络层（`BarkKrokBridge`）**：Bark 现在通过反射直接对接 KrokoshaCasualtiesMP（KrokMP 4.0.1）网络栈， 绕开
   CUCoreLib 的 `MultiplayerBridge`（它因无法解析 `Server_SendTo` 的 `knetid` 参数类型而永久不可用）。
   这修复了主机与客户端之间的多人脚本模组同步。
@@ -58,12 +71,21 @@
 
 ### 重构
 
+- **所有事件监听器迁移至 `[HarmonyPatch]` 注解形式**：所有 `Event/Listener/*.cs` 监听器统一为注解形式，
+  由 `PatchAll()` 自动发现，替换原先的 `AccessTools` + `harmony.Patch()` 手动调用。单目标方法直接用
+  `[HarmonyPatch(typeof(T), "Method")]`；同一类型多个方法合并为嵌套类，使用类级 `[HarmonyPatch(typeof(T))]`。
 - **统一事件文件结构**：将散落的事件类按主题合并到一个文件，消除"一事件一文件/多事件一文件"混用。Gun（6）、Limb（6）、
   Player（3）、杂项（命令/主菜单/世界就绪，3）各合并到 `Events/GunEvents.cs`、`LimbEvents.cs`、`PlayerEvents.cs`、
   `MiscEvents.cs`。所有事件类仍位于 `Bark.Events` 命名空间，监听器与脚本钩子名不受影响。
 
 ### 修复
 
+- **自定义物块通过 `WorldUtil` 放置失败**：`WorldUtil.PlaceTile` 和 `FillTiles` 使用原版
+  `WorldGeneration.SetBlock/SetBlockNoUpdate`，该方法不会注入已注册的自定义 `TileBase`，导致
+  自定义物块（index >= 36）静默放置失败。现改用 `TileRegistry.SetBlock/SetBlockNoUpdate`，
+  会在放置前调用 `InjectRegisteredTiles`。
+- **文档修正：`Blocks` → `Tiles`**：所有 README 和文档中引用不存在的 `Blocks` 类的地方已修正为
+  `Tiles`（`Constant/Tiles.cs`）。
 - **客户端→主机请求始终无法送达**：解决了多个问题：
     - `Net.CreateWriter` 有两个单参数重载（`in Enum` 与 `ushort`）；反射现在选择 `ushort` 版本。
     - `Client_Send`/`Server_SendToClients` 使用 `in`（byref）参数；`DeliveryMethod` 枚举现先去引用再解析。
