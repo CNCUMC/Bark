@@ -1,4 +1,3 @@
-using System;
 using Bark.Event;
 
 namespace Bark.Events;
@@ -28,7 +27,7 @@ public class MoodleGetEvent : BarkEvent
 public class MoodleIterateEvent : BarkEvent
 {
     // 当前所有活跃 Moodle 的 key 列表
-    public string[] ActiveKeys { get; set; } = Array.Empty<string>();
+    public string[] ActiveKeys { get; set; } = [];
 }
 
 // Moodle 失去事件：Moodle 到期或玩家身上 Moodle 移除时触发（轮询检测）

@@ -12,6 +12,7 @@ namespace Bark.Event.Listener;
 
 // Moodle 事件监听器：通过 Harmony 补丁拦截 MoodleRegistry 的 AddMoodle / AddAnimatedMoodle，
 // 配合轮询检测到期消失，触发 MoodleGet / MoodleIterate / MoodleLose 事件。
+[HarmonyPatch(typeof(MoodleRegistry))]
 public static class MoodleEventListener
 {
     private const float PollInterval = 0.5f;
@@ -19,35 +20,15 @@ public static class MoodleEventListener
     private static readonly Dictionary<string, MoodleTracker> ActiveMoodles = new();
     private static Coroutine? _pollCoroutine;
     private static MonoBehaviour? _runner;
-    private static Harmony? _harmony;
 
-    // ============================================================
     // 启动 / 停止
-    // ============================================================
-
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
-        _harmony = new Harmony("Bark.MoodleEventListener");
 
-        // 两个 AddMoodle 重载（string iconId / Sprite sprite）参数结构一致，分别挂补丁
-        _harmony.Patch(
-            AccessTools.Method(typeof(MoodleRegistry), "AddMoodle",
-                [typeof(int), typeof(string), typeof(string), typeof(string),
-                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
-            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodleString)));
-        _harmony.Patch(
-            AccessTools.Method(typeof(MoodleRegistry), "AddMoodle",
-                [typeof(int), typeof(Sprite), typeof(string), typeof(string),
-                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
-            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodleSprite)));
-        _harmony.Patch(
-            AccessTools.Method(typeof(MoodleRegistry), "AddAnimatedMoodle",
-                [typeof(int), typeof(string), typeof(string), typeof(string),
-                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
-            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddAnimatedMoodle)));
-
-        _pollCoroutine = runner.StartCoroutine(PollMoodles());
+        // AddMoodle(string/Sprite) / AddAnimatedMoodle 补丁已由 [HarmonyPatch] 注解声明，
+        // 由 Plugin._harmony.PatchAll() 统一加载，这里只启动轮询协程。
+        _pollCoroutine ??= runner.StartCoroutine(PollMoodles());
     }
 
     internal static void Stop()
@@ -58,33 +39,81 @@ public static class MoodleEventListener
             _pollCoroutine = null;
         }
 
-        _harmony?.UnpatchSelf();
-        _harmony = null;
         ActiveMoodles.Clear();
         _runner = null;
     }
 
-    // ============================================================
-    // Harmony 前缀钩子
-    // ============================================================
+    // Harmony 前缀钩子（注解形式，由 Plugin._harmony.PatchAll() 自动加载）
+    // 三个重载参数结构一致（int, sprite|string|string, string, string, bool, bool, bool, string, float），
+    // 仅第 2 个参数类型不同。用 (Type, string, Type[]) 位置参数形式显式声明 argumentTypes，
+    // 让 Harmony 正确区分 AddMoodle 的两个重载（命名参数 argumentTypes: 会导致 args=undefined 的歧义异常）。
 
-    private static void OnAddMoodleString(int intensity, string iconId, string name, string description,
-        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
+    [HarmonyPatch("AddMoodle",
+        typeof(int),
+        typeof(string),
+        typeof(string),
+        typeof(string),
+        typeof(bool),
+        typeof(bool),
+        typeof(bool),
+        typeof(string),
+        typeof(float))]
+    [HarmonyPrefix]
+    private static void AddMoodleStringPrefix(
+        int intensity,
+        string iconId,
+        string name,
+        string description,
+        bool critical,
+        bool chippedOnly,
+        bool important,
+        string key,
+        float holdSeconds)
     {
         TrackMoodle(intensity, name, critical, key, holdSeconds);
     }
 
-    private static void OnAddMoodleSprite(int intensity, Sprite sprite, string name, string description,
-        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
+    [HarmonyPatch("AddMoodle",
+        typeof(int),
+        typeof(Sprite),
+        typeof(string),
+        typeof(string),
+        typeof(bool),
+        typeof(bool),
+        typeof(bool),
+        typeof(string),
+        typeof(float))]
+    [HarmonyPrefix]
+    private static void AddMoodleSpritePrefix(
+        int intensity,
+        Sprite icon,
+        string name,
+        string description,
+        bool critical,
+        bool chippedOnly,
+        bool important,
+        string key, 
+        float holdSeconds)
     {
         TrackMoodle(intensity, name, critical, key, holdSeconds);
     }
 
-    private static void OnAddAnimatedMoodle(int intensity, string animationId, string name, string description,
-        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
+    [HarmonyPatch("AddAnimatedMoodle")]
+    [HarmonyPrefix]
+    private static void AddAnimatedMoodlePrefix(
+        int intensity, 
+        string animationId,
+        string name,
+        string description,
+        bool critical,
+        bool chippedOnly,
+        bool important, 
+        string key,
+        float holdSeconds)
     {
         TrackMoodle(intensity, name, critical, key, holdSeconds);
     }
+
 
     private static void TrackMoodle(int intensity, string name, bool critical, string key, float holdSeconds)
     {
@@ -95,8 +124,9 @@ public static class MoodleEventListener
         var canHeal = MoodleLoader.LoadedMoodleDefs.TryGetValue(key, out var def) && def.CanHeal;
 
         // 记录或更新追踪信息（同 key 刷新会覆盖旧的过期时间）
+        // tracker 只保留轮询检测消失所需的字段；intensity/critical 在下方直接填入 MoodleGetEvent
         var expireTime = Time.time + holdSeconds;
-        ActiveMoodles[key] = new MoodleTracker(key, name, intensity, critical, expireTime, canHeal);
+        ActiveMoodles[key] = new MoodleTracker(key, name, expireTime, canHeal);
 
         EventUtil.Trigger(new MoodleGetEvent
         {
@@ -108,10 +138,7 @@ public static class MoodleEventListener
         });
     }
 
-    // ============================================================
     // 轮询：到期消失检测 + 遍历事件
-    // ============================================================
-
     private static IEnumerator PollMoodles()
     {
         while (_pollCoroutine != null)
@@ -148,10 +175,7 @@ public static class MoodleEventListener
         }
     }
 
-    // ============================================================
     // 公开查询接口（供 MoodleUtil 等工具使用）
-    // ============================================================
-
     // 检查指定 key 的 moodle 是否当前活跃
     internal static bool HasMoodle(string key)
     {
@@ -163,7 +187,7 @@ public static class MoodleEventListener
     // 获取当前所有活跃 moodle 的 key 列表
     internal static string[] GetActiveMoodleKeys()
     {
-        return ActiveMoodles.Keys.ToArray();
+        return [.. ActiveMoodles.Keys];
     }
 
     // 获取当前活跃 moodle 数量
@@ -202,21 +226,14 @@ public static class MoodleEventListener
         return keysToExpire.Count;
     }
 
-    // ============================================================
     // 内部类型
-    // ============================================================
-
     private sealed class MoodleTracker(
         string key,
         string name,
-        int intensity,
-        bool critical,
         float expireTime,
         bool canHeal)
     {
         public readonly bool CanHeal = canHeal;
-        public readonly bool Critical = critical;
-        public readonly int Intensity = intensity;
         public readonly string Key = key;
         public readonly string Name = name;
         public float ExpireTime = expireTime;
