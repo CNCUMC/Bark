@@ -10,7 +10,7 @@ public static class LogUtil
 {
     public static void LogToConsole(string text)
     {
-        if (ConsoleScript.instance == null) return;
+        if (!ConsoleScript.instance) return;
         CUCoreUtils.ConsoleLog(ConsoleScript.instance, text);
     }
 
