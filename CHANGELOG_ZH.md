@@ -21,6 +21,8 @@
 - **脚本 API — `InputUtil`**：`GetMousePosition()` 和 `GetFriendlyKeyName(KeyCode)`，用于鼠标输入和按键名称查询。
 - **脚本 API — `PlayerUtil.Talk/TalkElectronic`**：NPC 对话与电子语音线路。
 - **脚本 API — `LimbUtil.DoAmputate`**：使用玩家手持物品截肢，暴露给脚本调用。
+- **脚本 API — `ItemUtil.Repair` 可选修复量参数**：`Repair(itemId, amount?)` 现在接受第二个可选参数作为修复量。
+  正值修复（如 `0.3` = +30%），负值扣耐久（如 `-0.1` = -10%）。省略时默认为 `1`（完全修复）。
 - **BetterLocale 按命名空间分子目录导出**：本地化文件现在导出到 `CUCoreLib/Locales/{nameSpace}/` 子目录，而非
   单个平铺 JSON，各模组本地化互相隔离，便于分享。
 - **自建 KrokMP 网络层（`BarkKrokBridge`）**：Bark 现在通过反射直接对接 KrokoshaCasualtiesMP（KrokMP 4.0.1）网络栈， 绕开

@@ -113,10 +113,16 @@ if (Inventory.HasWearableItem()) {
 ## Item — Equipment Maintenance
 
 ```js
-// Repair item (durability to full)
+// Repair item to full durability
 Item.Repair('rifle');
 
-// Set durability (0-1)
+// Repair by a specific amount (add to current condition)
+Item.Repair('rifle', 0.3);    // repair 30%
+
+// Damage item (negative value reduces durability)
+Item.Repair('battery', -0.1); // discharge 10%
+
+// Set durability directly (0-1)
 Item.SetCondition('sword', 0.8);
 
 // Set/clear favorite
@@ -126,9 +132,9 @@ Item.SetFavourited('medkit', true);
 Item.Destroy('rotten_food');
 ```
 
-| Method                        | Description          |
-|-------------------------------|----------------------|
-| `Repair(itemId)`              | Full durability to 1 |
-| `SetCondition(itemId, float)` | Set durability 0-1   |
-| `SetFavourited(itemId, bool)` | Mark as favorite     |
-| `Destroy(itemId)`             | Destroy the item     |
+| Method                              | Description                                            |
+|-------------------------------------|--------------------------------------------------------|
+| `Repair(itemId, amount? = 1)`       | Repair by amount (default 1 = full). Negative damages  |
+| `SetCondition(itemId, float)`       | Set durability 0-1                                     |
+| `SetFavourited(itemId, bool)`       | Mark as favorite                                       |
+| `Destroy(itemId)`                   | Destroy the item                                       |

@@ -56,9 +56,11 @@ public static class ItemUtil
         item?.SetCondition(Mathf.Clamp01(condition));
     }
 
-    public static void Repair(Item? item)
+    // amount: 修复量（正值修复，负值扣耐久）。默认 1f 即完全修复。
+    public static void Repair(Item? item, float amount = 1f)
     {
-        SetCondition(item, 1f);
+        if (item is null) return;
+        SetCondition(item, Mathf.Clamp01(item.condition + amount));
     }
 
     public static void SetFavourited(Item? item, bool favourited)
@@ -81,10 +83,10 @@ public static class ItemUtil
     }
 
     [ScriptMethod]
-    public static void Repair(string itemId)
+    public static void Repair(string itemId, float amount = 1f)
     {
         if (InventoryUtil.FindById(itemId, out var item))
-            Repair(item);
+            Repair(item, amount);
     }
 
     [ScriptMethod]

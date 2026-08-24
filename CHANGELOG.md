@@ -23,6 +23,9 @@ to [Semantic Versioning](https://semver.org/).
   queries.
 - **Script API — `PlayerUtil.Talk/TalkElectronic`**: NPC dialogue and electronic talk lines from scripts.
 - **Script API — `LimbUtil.DoAmputate`**: Amputation using the player's held item, exposed to scripts.
+- **Script API — `ItemUtil.Repair` optional amount parameter**: `Repair(itemId, amount?)` now accepts an optional
+  second parameter as the repair delta. Positive values repair (e.g. `0.3` = +30%), negative values damage
+  (e.g. `-0.1` = -10%). Defaults to `1` (full repair) when omitted.
 - **BetterLocale namespace-based locale export**: Locale files are now exported to `CUCoreLib/Locales/{nameSpace}/`
   subdirectories instead of a single flat JSON, so each mod's localization is isolated and shareable.
 - **Custom KrokMP network layer (`BarkKrokBridge`)**: Bark now talks to the KrokoshaCasualtiesMP (KrokMP 4.0.1) network
