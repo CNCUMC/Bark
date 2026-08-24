@@ -23,6 +23,12 @@ Player.PickUpItem('backpack', 0);
 
 // Force into an occupied slot (third param: force)
 Player.PickUpItem('rifle', 1, true);
+
+// Auto pick up an item
+Player.AutoPickUpItem('rifle');
+
+// Auto pick up 2 items
+Player.AutoPickUpItem('rifle', 2);
 ```
 
 > ℹ️ The backpack has 8 slots (`Player.MaxInventorySlots`), indexed 0 to 7.

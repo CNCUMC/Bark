@@ -3,6 +3,7 @@
     <PropertyGroup>
         <GameDir>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo</GameDir>
         <ManagedDir>$(GameDir)/CasualtiesUnknown_Data/Managed</ManagedDir>
-        <CUCoreLibDll>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo/BepInEx/plugins/CUCoreLib.dll</CUCoreLibDll>
+        <CUCoreLibDll>$(GameDir)/BepInEx/plugins/CUCoreLib.dll</CUCoreLibDll>
+        <WhatModIsThisFromDll>$(GameDir)/BepInEx/plugins/WhatModIsThisFrom.dll</WhatModIsThisFromDll>
     </PropertyGroup>
 </Project>

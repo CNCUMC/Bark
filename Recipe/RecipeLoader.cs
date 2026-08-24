@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Bark.Compat.Wmitf;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Registries;
@@ -93,6 +94,9 @@ public static class RecipeLoader
         }
 
         LoadedRecipes[modId] = loadedList;
+
+        foreach (var entry in loadedList)
+            WmitfPatch.RegisterRecipe(entry.Id, modId);
 
         if (loadedCount > 0)
             LogUtil.Message("recipe.loaded_count", modId, loadedCount);

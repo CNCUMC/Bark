@@ -23,6 +23,12 @@ Player.PickUpItem('backpack', 0);
 
 // 强制放入已有物品的格子（第三个参数 force）
 Player.PickUpItem('rifle', 1, true);
+
+// 自动放入一个物品 不限位置
+Player.AutoPickUpItem('rifle');
+
+// 自动放入一个物品 给两个
+Player.AutoPickUpItem('rifle', 2);
 ```
 
 > ℹ️ 背包只有 8 个格子（`Player.MaxInventorySlots`），slot 从 0 到 7。

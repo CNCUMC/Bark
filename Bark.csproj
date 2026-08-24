@@ -27,6 +27,13 @@
         <PackageReference Include="Puerts.V8.Complete" Version="3.0.2"/>
     </ItemGroup>
 
+    <!-- WhatModIsThisFrom (WMITF) -->
+    <ItemGroup>
+        <Reference Include="What Mod Is This From">
+            <HintPath>$(WhatModIsThisFromDll)</HintPath>
+        </Reference>
+    </ItemGroup>
+
     <!-- CUCoreLib (CCL) -->
     <ItemGroup>
         <Reference Include="CUCoreLib">
@@ -103,6 +110,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Compat\" />
         <Folder Include="docs\en-US\"/>
         <Folder Include="docs\zh-CN\csharp-api\"/>
     </ItemGroup>

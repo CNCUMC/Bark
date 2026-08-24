@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Bark.Compat.Wmitf;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Data;
@@ -122,6 +123,9 @@ public static class TileLoader
             }
 
         LoadedTiles[modId] = loadedList;
+
+        foreach (var entry in loadedList)
+            WmitfPatch.RegisterTile((ushort)entry.TileIndex, modId);
 
         // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)

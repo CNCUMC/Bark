@@ -209,6 +209,10 @@ try
                 {
                     $color = "Blue"
                 }
+                elseif ($line -match "^\[Debug")
+                {
+                    $color = "Magenta"
+                }
                 Write-ColoredMessage $line $color
             }
             $lastReadPosition = $content.Count

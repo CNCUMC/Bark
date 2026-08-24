@@ -53,30 +53,11 @@ public static class PlayerUtil
                   ?? throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
         BodyUtil.Body.PickUpItem(cmp, slot, force);
     }
-
-    [ScriptMethod]
-    public static void Alert(string text, bool important, float delay = 0f)
-    {
-        if (string.IsNullOrWhiteSpace(text) || BodyUtil.Body == null) return;
-        if (delay <= 0f) CUCoreUtils.Alert(text, important);
-        else
-            CUCoreUtils.Alert(text, important, delay);
-    }
-
-    // 播放指定音效。默认在玩家位置播放。
-    [ScriptMethod]
-    public static void PlaySound(string soundName, float x = float.NaN, float y = float.NaN)
-    {
-        if (string.IsNullOrEmpty(soundName) || BodyUtil.Body is not { transform: var t }) return;
-        var pos = float.IsNaN(x) || float.IsNaN(y)
-            ? (Vector2)t.position
-            : new Vector2(x, y);
-        Sound.Play(soundName, pos);
-    }
-
+    
+    
     // 在玩家脚下生成物品，自动捡起。count 为 0 时不限。
     [ScriptMethod]
-    public static void CreateAndPickup(string itemId, int count = 1)
+    public static void AutoPickUpItem(string itemId, int count = 1)
     {
         if (string.IsNullOrEmpty(itemId) || BodyUtil.Body is not { transform: var t } body) return;
 
@@ -96,6 +77,26 @@ public static class PlayerUtil
             var cmp = go.GetComponent<Item>();
             if (cmp != null) body.AutoPickUpItem(cmp);
         }
+    }
+
+    [ScriptMethod]
+    public static void Alert(string text, bool important, float delay = 0f)
+    {
+        if (string.IsNullOrWhiteSpace(text) || BodyUtil.Body == null) return;
+        if (delay <= 0f) CUCoreUtils.Alert(text, important);
+        else
+            CUCoreUtils.Alert(text, important, delay);
+    }
+
+    // 播放指定音效。默认在玩家位置播放。
+    [ScriptMethod]
+    public static void PlaySound(string soundName, float x = float.NaN, float y = float.NaN)
+    {
+        if (string.IsNullOrEmpty(soundName) || BodyUtil.Body is not { transform: var t }) return;
+        var pos = float.IsNaN(x) || float.IsNaN(y)
+            ? (Vector2)t.position
+            : new Vector2(x, y);
+        Sound.Play(soundName, pos);
     }
 
     // 让玩家说出对话文本（头顶冒泡）。dialogue 为空或身体未就绪时无操作。

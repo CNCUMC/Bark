@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Bark.Items.Templates;
 using Bark.Liquid;
+using Bark.Compat.Wmitf;
 using Bark.Script;
 using Bark.Tool;
 using CUCoreLib.Data;
@@ -113,6 +114,9 @@ public static class ItemLoader
         }
 
         LoadedItems[modId] = loadedList;
+
+        foreach (var entry in loadedList)
+            WmitfPatch.RegisterItem(entry.Id, modId);
 
         // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
@@ -363,7 +367,6 @@ public static class ItemLoader
     }
 
     // ---- 纯液体 ----
-
     private static bool LoadLiquid(string json, string liquidId, string modId)
     {
         var def = JsonConvert.DeserializeObject<LiquidDef>(json);
@@ -372,12 +375,11 @@ public static class ItemLoader
 
         var info = BuildLiquidInfo(def, liquidId);
         LiquidRegistry.Register(liquidId, info);
+        WmitfPatch.RegisterLiquid(liquidId, modId);
         LogUtil.Info("items.liquid_registered", liquidId, modId);
         return true;
     }
-
-    // ---- Builder: 普通物品 ----
-
+    
     private static CustomItemInfo BuildItemInfo(ItemDef def, string itemId, string assetsDir)
     {
         var isWearable = def.Wearable != null;

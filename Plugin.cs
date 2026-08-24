@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Bark.Audio;
 using Bark.BetterCCL;
+using Bark.Compat.Wmitf;
 using Bark.Event;
 using Bark.Event.Listener;
 using Bark.Items;
@@ -22,6 +23,7 @@ namespace Bark;
 [BepInPlugin(Guid, Name, Version)]
 [BepInDependency("net.cucorelib", "1.0.4")]
 [BepInDependency("KrokoshaCasualtiesMP", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("com.jimmyking.whatmodisthisfrom", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
@@ -81,6 +83,7 @@ public class Plugin : BaseUnityPlugin
         // BetterOptions.Bool("bark", "test", Setting.SettingCategory.Game, false);
         BetterLocale.Flush();
         _harmony.PatchAll();
+        WmitfPatch.Apply(_harmony);
 
         DeployPuertsNativeFiles();
 
