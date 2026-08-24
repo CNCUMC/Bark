@@ -150,8 +150,9 @@ language: label + description.
 BetterLocale.Flush();
 ```
 
-Writes all `SetDefault` texts to `BepInEx/config/CUCoreLib/Locales/{language}.json`. **Option labels/descriptions won't
-appear in the game UI until flushed.**
+Writes all `SetDefault` texts to `BepInEx/config/CUCoreLib/Locales/{nameSpace}/{language}.json`, grouped by namespace so
+each mod's localization is kept in its own subdirectory for easy sharing. **Option labels/descriptions won't appear in
+the game UI until flushed.**
 
 ### Localization Lookup Priority
 

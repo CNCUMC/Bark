@@ -66,3 +66,7 @@ Create `Lang/EN.json` in your mod directory:
 ```
 
 Bark loads the matching language text automatically.
+
+Loaded locale entries are also forwarded through `BetterLocale.SetDefault` and, on `BetterLocale.Flush()`, exported to
+`BepInEx/config/CUCoreLib/Locales/{modId}/` so each script mod's localization is kept in its own namespace subdirectory
+for sharing.

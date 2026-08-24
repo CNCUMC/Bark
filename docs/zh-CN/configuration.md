@@ -147,8 +147,8 @@ internal class MyLangGen : ModLangGenMultiBase
 BetterLocale.Flush();
 ```
 
-将 `SetDefault` 注册的文本写入 `BepInEx/config/CUCoreLib/Locales/{语言}.json`。 **选项的标签/描述必须 Flush 后才会出现在游戏
-UI 中**。
+将 `SetDefault` 注册的文本写入 `BepInEx/config/CUCoreLib/Locales/{命名空间}/{语言}.json`，按命名空间分组，每个 mod
+的本地化文件独立放在各自的子目录中，方便分享。 **选项的标签/描述必须 Flush 后才会出现在游戏 UI 中**。
 
 ### 本地化查找优先级
 

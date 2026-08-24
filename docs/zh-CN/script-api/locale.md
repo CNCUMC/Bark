@@ -66,3 +66,6 @@ Log.ErrorF('critical_error', 42);  // GetFormatted + Error
 ```
 
 Bark 会自动加载对应语言的文本。
+
+加载的本地化条目也会通过 `BetterLocale.SetDefault` 转发，并在 `BetterLocale.Flush()` 时导出到
+`BepInEx/config/CUCoreLib/Locales/{模组ID}/` 子目录，让每个脚本模组的本地化文件按各自命名空间独立存放，方便分享。
