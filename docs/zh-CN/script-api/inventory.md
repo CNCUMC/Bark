@@ -116,7 +116,13 @@ if (Inventory.HasWearableItem()) {
 // 修理物品（耐久回满）
 Item.Repair('rifle');
 
-// 设置耐久（0-1）
+// 按指定量修复（累加到当前耐久）
+Item.Repair('rifle', 0.3);    // 修复 30%
+
+// 扣耐久（负值降低耐久）
+Item.Repair('battery', -0.1); // 放电 10%
+
+// 直接设置耐久（0-1）
 Item.SetCondition('sword', 0.8);
 
 // 标记/取消收藏
@@ -126,9 +132,9 @@ Item.SetFavourited('medkit', true);
 Item.Destroy('rotten_food');
 ```
 
-| 方法                          | 说明         |
-|-------------------------------|--------------|
-| `Repair(itemId)`              | 耐久回满到 1 |
-| `SetCondition(itemId, float)` | 设置耐久 0-1 |
-| `SetFavourited(itemId, bool)` | 标记收藏     |
-| `Destroy(itemId)`             | 销毁物品     |
+| 方法                          | 说明                                        |
+|-------------------------------|---------------------------------------------|
+| `Repair(itemId, amount? = 1)` | 按 amount 修复（默认 1 = 回满），负值扣耐久 |
+| `SetCondition(itemId, float)` | 直接设置耐久 0-1                            |
+| `SetFavourited(itemId, bool)` | 标记收藏                                    |
+| `Destroy(itemId)`             | 销毁物品                                    |
