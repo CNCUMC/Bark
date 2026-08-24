@@ -238,7 +238,7 @@ public static class ModCommand
         var mods = ScriptModLoader.ListMods();
         if (mods.Count == 0)
         {
-            LogUtil.Info("script_mod_loader.no_mods", Plugin.Logger);
+            LogUtil.Info("script_mod_loader.no_mods");
             return;
         }
 
@@ -254,7 +254,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.detail.usage", Plugin.Logger);
+            LogUtil.Info("script.detail.usage");
             return;
         }
 
@@ -343,7 +343,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.spawn.usage", Plugin.Logger);
+            LogUtil.Info("script.spawn.usage");
             return;
         }
 
@@ -379,7 +379,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.tile.usage", Plugin.Logger);
+            LogUtil.Info("script.tile.usage");
             return;
         }
 
@@ -418,7 +418,7 @@ public static class ModCommand
     {
         if (args.Length <= skip)
         {
-            LogUtil.Info("script.moodle.usage", Plugin.Logger);
+            LogUtil.Info("script.moodle.usage");
             return;
         }
 
@@ -450,21 +450,6 @@ public static class ModCommand
     }
 
     // 让 script 命令的自动补全按子命令类型切换候选，而不是把全部 ID 混在一起。
-    //
-    // 背景：CCL 的 Command.argAutofill 是按参数位置索引（int）补全的，
-    //      补全时只读取 command.argAutofill[key] 这个固定列表，无法根据 args[1] 的子命令值动态路由。
-    //      因此 script spawn / script tile / script moodle / script detail 共用同一个索引 1 列表时，
-    //      候选会混成一团（写 script tile 时也会补全物品/状态/脚本 ID）。
-    //
-    // 关键路径（来自 CCL ConsoleScript 反编译）：
-    //   Update() 每帧调用 HandleDescriptionText(args)，候选下拉列表由 HandleDescriptionText 读取
-    //   command.argAutofill[key] 展示；TryFinishCommandPart 仅在按 Tab 时调用（负责插入补全文本）。
-    //   所以必须在本帧、在 HandleDescriptionText 读取之前改写 argAutofill[1]，候选下拉才能正确切换。
-    //
-    // 方案：Harmony patch ConsoleScript.Update 的开头，根据当前输入框文本中的子命令（args[1]）
-    //      实时改写 script 命令的 argAutofill[1]，使补全候选与子命令类型严格对应。
-    // 这也顺带解决了 Bark 内容 ID 含下划线的问题——补全候选来自 Bark 自有列表，不再经过
-    // RunCommandString 的 '_'→' ' 替换。
     [HarmonyPatch(typeof(ConsoleScript))]
     [HarmonyPatch("Update")]
     private static class ConsoleAutofillPatch
@@ -475,11 +460,8 @@ public static class ModCommand
 
         public static void Prefix(ConsoleScript __instance)
         {
-            if (InputField is null)
-                return;
-
             // input 是 ConsoleScript 的私有 TMP_InputField 字段，反射读取当前输入文本
-            var inputField = InputField.GetValue(__instance);
+            var inputField = InputField?.GetValue(__instance);
             if (inputField is null)
                 return;
 
