@@ -11,7 +11,7 @@ internal static class WmitfPatch
 {
     // WMITF 是否已加载
     public static bool IsLoaded => Chainloader.PluginInfos.ContainsKey("com.jimmyking.whatmodisthisfrom");
-    
+
     // 物块 tileIndex → 脚本模组 ID 的覆盖映射（用于修正 CCL TileRegistry.TryGetOwnerModGuid 返回 Bark GUID 的问题）
     private static readonly Dictionary<ushort, string> TileOwnerOverrides = new();
 
@@ -23,110 +23,67 @@ internal static class WmitfPatch
             return;
         }
 
-        try
+        // (目标程序集类型名, 方法名, 前缀方法名, 后缀方法名, 参数类型)
+        var patches = new (string TypeName, string Method, string? Prefix, string? Postfix, Type[]? ParamTypes)[]
         {
-            var patchesType = AccessTools.TypeByName("WhatModIsThisFrom.Patches");
-            var getModName = patchesType is null
-                ? null
-                : AccessTools.Method(patchesType, "GetModName");
-            if (getModName is not null)
-            {
-                var prefix =
-                    new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), nameof(GetModNamePrefix)));
-                harmony.Patch(getModName, prefix: prefix);
-                LogUtil.Info("wmitf.patch.get_mod_name.applied");
-            }
-            else
-            {
-                LogUtil.Warning("wmitf.verify.method_not_found", "GetModName", patchesType?.FullName ?? "NULL");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogUtil.Error("wmitf.patch.get_mod_name.failed", ex.Message);
-        }
+            ("WhatModIsThisFrom.Patches", "GetModName", nameof(ScriptModNamePrefix), null, null),
+            ("WMITF.WMITF", "IsOwnerLoaded", nameof(IsOwnerLoadedPrefix), null, null),
+            ("WhatModIsThisFrom.InspectorOverlay", "PatchesName", nameof(ScriptModNamePrefix), null, null),
+            ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid", null,
+                nameof(TileRegistryTryGetOwnerPostfix), [typeof(ushort), typeof(string).MakeByRefType()]),
+        };
 
-        try
+        foreach (var (typeName, method, prefix, postfix, paramTypes) in patches)
         {
-            var wmitfType = AccessTools.TypeByName("WMITF.WMITF");
-            var isOwnerLoaded = wmitfType is null
-                ? null
-                : AccessTools.Method(wmitfType, "IsOwnerLoaded");
-            if (isOwnerLoaded is not null)
-            {
-                var prefix =
-                    new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), nameof(IsOwnerLoadedPrefix)));
-                harmony.Patch(isOwnerLoaded, prefix: prefix);
-                LogUtil.Info("wmitf.patch.is_owner_loaded.applied");
-            }
-            else
-            {
-                LogUtil.Warning("wmitf.verify.method_not_found", "IsOwnerLoaded", wmitfType?.FullName ?? "NULL");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogUtil.Error("wmitf.patch.is_owner_loaded.failed", ex.Message);
-        }
-
-        try
-        {
-            var overlayType = AccessTools.TypeByName("WhatModIsThisFrom.InspectorOverlay");
-            var patchesName = overlayType is null
-                ? null
-                : AccessTools.Method(overlayType, "PatchesName");
-            if (patchesName is not null)
-            {
-                var prefix =
-                    new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), nameof(PatchesNamePrefix)));
-                harmony.Patch(patchesName, prefix: prefix);
-                LogUtil.Info("wmitf.patch.patches_name.applied");
-            }
-            else
-            {
-                LogUtil.Warning("wmitf.verify.method_not_found", "PatchesName", overlayType?.FullName ?? "NULL");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogUtil.Error("wmitf.patch.patches_name.failed", ex.Message);
-        }
-
-        try
-        {
-            var tileRegistryType = AccessTools.TypeByName("CUCoreLib.Registries.TileRegistry");
-            var tryGetOwner = tileRegistryType is null
-                ? null
-                : AccessTools.Method(tileRegistryType, "TryGetOwnerModGuid",
-                    [typeof(ushort), typeof(string).MakeByRefType()]);
-            if (tryGetOwner is not null)
-            {
-                var postfix = new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch),
-                    nameof(TileRegistryTryGetOwnerPostfix)));
-                harmony.Patch(tryGetOwner, postfix: postfix);
-                LogUtil.Info("wmitf.patch.tile_owner_override.applied");
-            }
-            else
-            {
-                LogUtil.Warning("wmitf.verify.method_not_found", "TileRegistry.TryGetOwnerModGuid(ushort)",
-                    tileRegistryType?.FullName ?? "NULL");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogUtil.Error("wmitf.patch.tile_owner_override.failed", ex.Message);
+            TryPatch(harmony, typeName, method, prefix, postfix, paramTypes);
         }
     }
 
-    private static bool GetModNamePrefix(string guid, ref string __result)
+    // 统一的补丁应用辅助方法
+    private static void TryPatch(Harmony harmony, string typeName, string method,
+        string? prefix, string? postfix, Type[]? paramTypes)
+    {
+        var tag = $"{typeName}.{method}";
+        try
+        {
+            var type = AccessTools.TypeByName(typeName);
+            if (type is null)
+            {
+                LogUtil.Warning("wmitf.verify.type_not_found", typeName);
+                return;
+            }
+
+            var target = AccessTools.Method(type, method, paramTypes);
+            if (target is null)
+            {
+                if (type.FullName != null) LogUtil.Warning("wmitf.verify.method_not_found", method, type.FullName);
+                return;
+            }
+
+            var pre = prefix is not null
+                ? new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), prefix))
+                : null;
+            var post = postfix is not null
+                ? new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), postfix))
+                : null;
+
+            harmony.Patch(target, prefix: pre, postfix: post);
+            LogUtil.Info($"wmitf.patch.{tag}.applied");
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Error($"wmitf.patch.{tag}.failed", ex.Message);
+        }
+    }
+
+    // GetModName / PatchesName 共用前缀：按 GUID 查脚本模组显示名
+    private static bool ScriptModNamePrefix(string guid, ref string __result)
     {
         if (string.IsNullOrWhiteSpace(guid))
             return true;
 
         if (!ScriptModLoader.LoadedScriptMods.TryGetValue(guid, out var manifest))
-        {
             return true;
-        }
 
         __result = manifest.Name;
         return false;
@@ -142,18 +99,6 @@ internal static class WmitfPatch
             return true;
 
         __result = true;
-        return false;
-    }
-
-    private static bool PatchesNamePrefix(string guid, ref string __result)
-    {
-        if (string.IsNullOrWhiteSpace(guid))
-            return true;
-
-        if (!ScriptModLoader.LoadedScriptMods.TryGetValue(guid, out var manifest))
-            return true;
-
-        __result = manifest.Name;
         return false;
     }
 
