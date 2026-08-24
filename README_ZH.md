@@ -116,7 +116,7 @@ Other("feature.enabled", "Enable Feature");
 Other("feature.enabled", "启用功能");
 ```
 
-见 [Example/LangGenerator](Example/LangGenerator.cs) 示例生成器。
+见 [LangGenerator](LangGenerator.cs) 示例生成器。
 
 ### 3. 注册设置
 
@@ -258,7 +258,7 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 |-----------------|-------------------------|--------------------------------------------------|
 | `LogUtil`       | 日志输出 + 校验辅助     | [日志](docs/zh-CN/script-api/log.md)             |
 | `PlayerUtil`    | 玩家操作                | [玩家](docs/zh-CN/script-api/player.md)          |
-| `BodyUtil`      | 角色生理系统            | [生理系统](docs/zh-CN/script-api/body-system.md) |
+| `BodyUtil`      | 角色生理系统            | [生理系统](docs/zh-CN/script-api/body.md)        |
 | `LimbUtil`      | 肢体操作                | [肢体](docs/zh-CN/script-api/limbs.md)           |
 | `WorldUtil`     | 世界编辑                | [世界编辑](docs/zh-CN/script-api/world.md)       |
 | `SkillUtil`     | 技能经验/等级           | [技能](docs/zh-CN/script-api/skills.md)          |
@@ -274,11 +274,11 @@ UpdateUtil.Check("CNCUMC/Bark", "我的模组", "1.0.0", Logger);
 
 ## 常量参考
 
-### Blocks
+### Tiles
 
 ```csharp
-ushort blockId = Blocks.SteelTile;  // 隐式转换
-Blocks block = Blocks.FromId(6);
+ushort tileId = Tiles.SteelTile;  // 隐式转换
+Tiles tile = Tiles.FromId(6);
 ```
 
 ### Items
@@ -295,6 +295,16 @@ string bgId = Backgrounds.Rock;
 KeyCode key = Keys.Jump;
 int slotId = Slots.MainHand;
 ```
+
+---
+
+## 第三方声明
+
+Copyright (C) 2020 Tencent
+
+本软件根据 `BSD 3-Clause` 条款许可证条款分发。
+
+获取完整许可证文本，请查看[LICENSE](Puer/LICENSE)。
 
 ---
 

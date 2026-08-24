@@ -43,14 +43,14 @@ game utility tools.
 | [`PlayerUtil`](Tool/PlayerUtil.cs)            | Player: status/vitals/movement/drugs/inventory/recovery/alert/thresholds |
 | [`SkillUtil`](Tool/SkillUtil.cs)              | Skill level/XP manipulation                                              |
 | [`LimbUtil`](Tool/LimbUtil.cs)                | Limb operations: healing, damage, status checks                          |
-| [`WorldUtil`](Tool/WorldUtil.cs)              | World manipulation: blocks, items                                        |
+| [`WorldUtil`](Tool/WorldUtil.cs)              | World manipulation: tiles, items                                         |
 | [`InventoryUtil`](Tool/InventoryUtil.cs)      | Inventory operations                                                     |
 | [`ItemUtil`](Tool/ItemUtil.cs)                | Item utilities: FindNearby, Repair, SetCondition                         |
 | [`InputUtil`](Tool/InputUtil.cs)              | Input handling: mouse position, click waiting                            |
 | [`LogUtil`](Tool/LogUtil.cs)                  | Console logging + validation helpers                                     |
 | [`TextUtil`](Tool/TextUtil.cs)                | Rich text formatting: color, alpha, bold, italic, size                   |
 | [`ToolsUtil`](Tool/ToolsUtil.cs)              | Argument validation, float/int parsing                                   |
-| [`Blocks`](Constant/Blocks.cs)                | Strongly-typed block definitions                                         |
+| [`Tiles`](Constant/Tiles.cs)                  | Strongly-typed tile definitions                                          |
 | [`Items`](Constant/Items.cs)                  | Strongly-typed item definitions                                          |
 | [`Backgrounds`](Constant/Backgrounds.cs)      | Background ID string constants                                           |
 | [`Keys`](Constant/Keys.cs)                    | Key action constants                                                     |
@@ -122,7 +122,7 @@ Other("feature.enabled", "Enable Feature");
 Other("eature.enabled", "启用功能");
 ```
 
-See [Example/Lang/](Example/LangGenerator.cs) for sample generators.
+See [Lang](LangGenerator.cs) for sample generators.
 
 ### 3. Register a Setting
 
@@ -265,7 +265,7 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 |-----------------|--------------------------------------|---------------------------------------------------------|
 | `LogUtil`       | Logging + validation helpers         | [Log](docs/en-US/script-api/log.md)                     |
 | `PlayerUtil`    | Player operations                    | [Player](docs/en-US/script-api/player.md)               |
-| `BodyUtil`      | Body vitals system                   | [Body System](docs/en-US/script-api/body-system.md)     |
+| `BodyUtil`      | Body vitals system                   | [Body System](docs/en-US/script-api/body.md)            |
 | `LimbUtil`      | Limb operations                      | [Limbs](docs/en-US/script-api/limbs.md)                 |
 | `WorldUtil`     | World editing                        | [World](docs/en-US/script-api/world.md)                 |
 | `SkillUtil`     | Skill level/XP                       | [Skills](docs/en-US/script-api/skills.md)               |
@@ -281,11 +281,11 @@ Results are output to both the BepInEx log and the game console. Messages are lo
 
 ## Constants Reference
 
-### Blocks
+### Tiles
 
 ```csharp
-ushort blockId = Blocks.SteelTile;  // implicit conversion
-Blocks block = Blocks.FromId(6);
+ushort tileId = Tiles.SteelTile;  // implicit conversion
+Tiles tile = Tiles.FromId(6);
 ```
 
 ### Items
@@ -302,6 +302,16 @@ string bgId = Backgrounds.Rock;
 KeyCode key = Keys.Jump;
 int slotId = Slots.MainHand;
 ```
+
+---
+
+## Third-Party Notices
+
+Copyright © 2020 Tencent
+
+This software is distributed under the terms of the `BSD 3-Clause` License.
+
+For full license text, please see the [LICENSE](Puer/LICENSE).
 
 ---
 
