@@ -47,48 +47,34 @@ public static class WorldObjectEventListener
         AltHoverActive.Clear();
     }
 
-    // ============================================================
     // 可损坏物
-    // ============================================================
-
-    [HarmonyPatch(typeof(Damageable))]
-    [HarmonyPatch("Damage")]
-    public static class DamageableDamagedPatch
+    [HarmonyPatch(typeof(Damageable), "Damage")]
+    [HarmonyPostfix]
+    private static void DamageableDamagePostfix(Damageable __instance, float damage)
     {
-        private static void Postfix(Damageable __instance, float damage)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            EventUtil.Trigger(new DamageableDamagedEvent { Damageable = __instance, Damage = damage });
-        }
+        EventUtil.Trigger(new DamageableDamagedEvent { Damageable = __instance, Damage = damage });
     }
-
-    // ============================================================
+    
     // 伤害板条箱
-    // ============================================================
-
-    [HarmonyPatch(typeof(DamagingCrate))]
-    [HarmonyPatch("OnCollisionEnter2D")]
-    public static class DamagingCrateHitPatch
+    // 用 prefix：方法内会 Destroy(this)，prefix 时实例仍有效
+    [HarmonyPatch(typeof(DamagingCrate), "OnCollisionEnter2D")]
+    [HarmonyPrefix]
+    private static void DamagingCrateOnCollisionEnter2DPrefix(DamagingCrate __instance)
     {
-        // 用 prefix：方法内会 Destroy(this)，prefix 时实例仍有效
-        private static void Prefix(DamagingCrate __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            EventUtil.Trigger(new DamagingCrateHitEvent { Crate = __instance, Type = __instance.type });
-        }
+        EventUtil.Trigger(new DamagingCrateHitEvent { Crate = __instance, Type = __instance.type });
     }
 
-    // ============================================================
     // 钻探舱
-    // ============================================================
-
     [HarmonyPatch(typeof(DrillPod))]
-    [HarmonyPatch("OnUse")]
-    public static class DrillPodRepairPatch
+    public static class DrillPodPatch
     {
-        private static void Postfix(DrillPod __instance)
+        [HarmonyPatch("OnUse")]
+        [HarmonyPostfix]
+        private static void OnUsePostfix(DrillPod __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -97,13 +83,10 @@ public static class WorldObjectEventListener
 
             EventUtil.Trigger(new DrillPodRepairEvent { Pod = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(DrillPod))]
-    [HarmonyPatch("Update")]
-    public static class DrillPodUsePatch
-    {
-        private static void Postfix(DrillPod __instance)
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(DrillPod __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -116,16 +99,14 @@ public static class WorldObjectEventListener
             EventUtil.Trigger(new DrillPodUseEvent { Pod = __instance });
         }
     }
-
-    // ============================================================
+    
     // 脊背兽长老
-    // ============================================================
-
     [HarmonyPatch(typeof(ElderThornbackBehaviour))]
-    [HarmonyPatch("Update")]
-    public static class ThornbackUpdatePatch
+    public static class ElderThornbackPatch
     {
-        private static void Postfix(ElderThornbackBehaviour __instance)
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(ElderThornbackBehaviour __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -157,13 +138,10 @@ public static class WorldObjectEventListener
             if (dist < ElderThornbackBehaviour.maxDistance)
                 EventUtil.Trigger(new ThornbackNearEvent { Thornback = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(ElderThornbackBehaviour))]
-    [HarmonyPatch("OnDestroy")]
-    public static class ThornbackDeathPatch
-    {
-        private static void Postfix(ElderThornbackBehaviour __instance)
+        [HarmonyPatch("OnDestroy")]
+        [HarmonyPostfix]
+        private static void OnDestroyPostfix(ElderThornbackBehaviour __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -179,106 +157,81 @@ public static class WorldObjectEventListener
         }
     }
 
-    // ============================================================
     // PDA
-    // ============================================================
-
-    [HarmonyPatch(typeof(EPdaScript))]
-    [HarmonyPatch("Use")]
-    public static class PdaUsePatch
+    // 用 prefix：方法内会修改 hasBeenRead，prefix 时还是旧值
+    [HarmonyPatch(typeof(EPdaScript), "Use")]
+    [HarmonyPrefix]
+    private static void EPdaScriptUsePrefix(EPdaScript __instance)
     {
-        // 用 prefix：方法内会修改 hasBeenRead，prefix 时还是旧值
-        private static void Prefix(EPdaScript __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var item = __instance.GetComponent<Item>();
-            EventUtil.Trigger(new PdaUseEvent
-            {
-                Pda = item,
-                FirstRead = !__instance.hasBeenRead
-            });
-        }
+        var item = __instance.GetComponent<Item>();
+        EventUtil.Trigger(new PdaUseEvent
+        {
+            Pda = item,
+            FirstRead = !__instance.hasBeenRead
+        });
     }
 
-    // ============================================================
     // 间歇泉
-    // ============================================================
-
     [HarmonyPatch(typeof(GeyserScript))]
-    [HarmonyPatch("TryRumble")]
-    public static class GeyserRumblePatch
+    public static class GeyserScriptPatch
     {
-        private static void Postfix(GeyserScript __instance)
+        [HarmonyPatch("TryRumble")]
+        [HarmonyPostfix]
+        private static void TryRumblePostfix(GeyserScript __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new GeyserRumbleEvent { Geyser = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(GeyserScript))]
-    [HarmonyPatch("Activate")]
-    public static class GeyserActivatePatch
-    {
-        private static void Postfix(GeyserScript __instance)
+        [HarmonyPatch("Activate")]
+        [HarmonyPostfix]
+        private static void ActivatePostfix(GeyserScript __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new GeyserActivateEvent { Geyser = __instance });
         }
     }
 
-    // ============================================================
     // 全局暗幕
-    // ============================================================
-
-    [HarmonyPatch(typeof(GlobalDark))]
-    [HarmonyPatch("Darken")]
-    public static class GlobalDarkPatch
+    [HarmonyPatch(typeof(GlobalDark), "Darken")]
+    [HarmonyPostfix]
+    private static void GlobalDarkDarkenPostfix(GlobalDark __instance)
     {
-        private static void Postfix(GlobalDark __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new GlobalDarkEvent { Darkening = __instance.IsDarkening() });
-        }
+        if (__instance == null || !__instance) return;
+        EventUtil.Trigger(new GlobalDarkEvent { Darkening = __instance.IsDarkening() });
     }
 
-    // ============================================================
     // 捕抓植物
-    // ============================================================
-
-    [HarmonyPatch(typeof(GrabberPlant))]
-    [HarmonyPatch("Update")]
-    public static class GrabberPlantGrabPatch
+    [HarmonyPatch(typeof(GrabberPlant), "Update")]
+    [HarmonyPostfix]
+    private static void GrabberPlantUpdatePostfix(GrabberPlant __instance)
     {
-        private static void Postfix(GrabberPlant __instance)
+        if (__instance == null || !__instance) return;
+
+        var grabBody = Traverse.Create(__instance).Field("grabBody").GetValue();
+        var id = __instance.GetInstanceID();
+        var grabbed = grabBody != null;
+
+        switch (grabbed)
         {
-            if (__instance == null || !__instance) return;
-
-            var grabBody = Traverse.Create(__instance).Field("grabBody").GetValue();
-            var id = __instance.GetInstanceID();
-            var grabbed = grabBody != null;
-
-            switch (grabbed)
-            {
-                case true when GrabbedPlants.Add(id):
-                    EventUtil.Trigger(new GrabberPlantGrabEvent { Plant = __instance });
-                    break;
-                case false:
-                    GrabbedPlants.Remove(id);
-                    break;
-            }
+            case true when GrabbedPlants.Add(id):
+                EventUtil.Trigger(new GrabberPlantGrabEvent { Plant = __instance });
+                break;
+            case false:
+                GrabbedPlants.Remove(id);
+                break;
         }
     }
 
-    // ============================================================
     // 抓钩
-    // ============================================================
-
     [HarmonyPatch(typeof(GrapplingHook))]
-    [HarmonyPatch("Use")]
-    public static class GrapplingHookFirePatch
+    public static class GrapplingHookPatch
     {
-        private static void Postfix(GrapplingHook __instance)
+        [HarmonyPatch("Use")]
+        [HarmonyPostfix]
+        private static void UsePostfix(GrapplingHook __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -287,24 +240,18 @@ public static class WorldObjectEventListener
 
             EventUtil.Trigger(new GrapplingHookFireEvent { Hook = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(GrapplingHook))]
-    [HarmonyPatch("HookHit")]
-    public static class GrapplingHookHitPatch
-    {
-        private static void Postfix(GrapplingHook __instance)
+        [HarmonyPatch("HookHit")]
+        [HarmonyPostfix]
+        private static void HookHitPostfix(GrapplingHook __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new GrapplingHookHitEvent { Hook = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(GrapplingHook))]
-    [HarmonyPatch("Update")]
-    public static class GrapplingHookReturnPatch
-    {
-        private static void Postfix(GrapplingHook __instance)
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(GrapplingHook __instance)
         {
             if (__instance == null || !__instance) return;
 
@@ -321,267 +268,192 @@ public static class WorldObjectEventListener
         }
     }
 
-    // ============================================================
     // 物品销毁
-    // ============================================================
-
-    [HarmonyPatch(typeof(Item))]
-    [HarmonyPatch("OnDestroy")]
-    public static class ItemDestroyPatch
+    // OnDestroy 时 condition<=0 表示因耐久归零被销毁
+    [HarmonyPatch(typeof(Item), "OnDestroy")]
+    [HarmonyPostfix]
+    private static void ItemOnDestroyPostfix(Item __instance)
     {
-        // OnDestroy 时 condition<=0 表示因耐久归零被销毁
-        private static void Postfix(Item __instance)
-        {
-            if (__instance == null || !__instance) return;
-            if (__instance.condition > 0f) return;
+        if (__instance == null || !__instance) return;
+        if (__instance.condition > 0f) return;
 
-            EventUtil.Trigger(new ItemDestroyEvent
-            {
-                ItemId = __instance.id ?? string.Empty,
-                Item = __instance
-            });
-        }
+        EventUtil.Trigger(new ItemDestroyEvent
+        {
+            ItemId = __instance.id ?? string.Empty,
+            Item = __instance
+        });
     }
 
-    // ============================================================
     // 跳跃平台
-    // ============================================================
-
-    [HarmonyPatch(typeof(JumpPadScript))]
-    [HarmonyPatch("OnCollisionEnter2D")]
-    public static class JumpPadBouncePatch
+    [HarmonyPatch(typeof(JumpPadScript), "OnCollisionEnter2D")]
+    [HarmonyPostfix]
+    private static void JumpPadScriptOnCollisionEnter2DPostfix(JumpPadScript __instance)
     {
-        private static void Postfix(JumpPadScript __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var id = __instance.GetInstanceID();
-            var cooldown = Traverse.Create(__instance).Field("cooldown").GetValue<float>();
-            JumpPadActive.TryGetValue(id, out var prevCooldown);
-            JumpPadActive[id] = cooldown;
+        var id = __instance.GetInstanceID();
+        var cooldown = Traverse.Create(__instance).Field("cooldown").GetValue<float>();
+        JumpPadActive.TryGetValue(id, out var prevCooldown);
+        JumpPadActive[id] = cooldown;
 
-            // cooldown 从 <15 变为 >=15 → 刚弹跳
-            if (prevCooldown < 15f && cooldown >= 15f)
-                EventUtil.Trigger(new JumpPadBounceEvent { Pad = __instance });
-        }
+        // cooldown 从 <15 变为 >=15 → 刚弹跳
+        if (prevCooldown < 15f && cooldown >= 15f)
+            EventUtil.Trigger(new JumpPadBounceEvent { Pad = __instance });
     }
 
-    // ============================================================
     // 救生舱按钮
-    // ============================================================
-
-    [HarmonyPatch(typeof(LifepodButton))]
-    [HarmonyPatch("OnUse")]
-    public static class LifepodButtonPressPatch
+    [HarmonyPatch(typeof(LifepodButton), "OnUse")]
+    [HarmonyPostfix]
+    private static void LifepodButtonOnUsePostfix(LifepodButton __instance)
     {
-        private static void Postfix(LifepodButton __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new LifepodButtonPressEvent { Type = __instance.type });
-        }
+        if (__instance == null || !__instance) return;
+        EventUtil.Trigger(new LifepodButtonPressEvent { Type = __instance.type });
     }
 
-    // ============================================================
     // 救生舱淋浴
-    // ============================================================
-
-    [HarmonyPatch(typeof(LifepodShower))]
-    [HarmonyPatch("Activate")]
-    public static class LifepodShowerActivatePatch
+    [HarmonyPatch(typeof(LifepodShower), "Activate")]
+    [HarmonyPostfix]
+    private static void LifepodShowerActivatePostfix(LifepodShower __instance)
     {
-        private static void Postfix(LifepodShower __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new LifepodShowerActivateEvent { Shower = __instance });
-        }
+        if (__instance == null || !__instance) return;
+        EventUtil.Trigger(new LifepodShowerActivateEvent { Shower = __instance });
     }
 
-    // ============================================================
     // 医疗站
-    // ============================================================
-
-    [HarmonyPatch(typeof(MedStationScript))]
-    [HarmonyPatch("OnTriggerEnter2D")]
-    public static class MedStationHealPatch
+    [HarmonyPatch(typeof(MedStationScript), "OnTriggerEnter2D")]
+    [HarmonyPostfix]
+    private static void MedStationScriptOnTriggerEnter2DPostfix(MedStationScript __instance)
     {
-        private static void Postfix(MedStationScript __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var didHeal = Traverse.Create(__instance).Field("didHeal").GetValue<bool>();
-            if (!didHeal) return;
+        var didHeal = Traverse.Create(__instance).Field("didHeal").GetValue<bool>();
+        if (!didHeal) return;
 
-            EventUtil.Trigger(new MedStationHealEvent { Station = __instance });
-        }
+        EventUtil.Trigger(new MedStationHealEvent { Station = __instance });
     }
 
-    // ============================================================
     // 地雷
-    // ============================================================
-
-    [HarmonyPatch(typeof(MineScript))]
-    [HarmonyPatch("OnCollisionEnter2D")]
-    public static class MineTriggerPatch
+    [HarmonyPatch(typeof(MineScript), "OnCollisionEnter2D")]
+    [HarmonyPostfix]
+    private static void MineScriptOnCollisionEnter2DPostfix(MineScript __instance)
     {
-        private static void Postfix(MineScript __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var pressed = Traverse.Create(__instance).Field("pressed").GetValue<bool>();
-            if (!pressed) return;
+        var pressed = Traverse.Create(__instance).Field("pressed").GetValue<bool>();
+        if (!pressed) return;
 
-            EventUtil.Trigger(new MineTriggerEvent { Mine = __instance });
-        }
+        EventUtil.Trigger(new MineTriggerEvent { Mine = __instance });
     }
 
-    // ============================================================
-    // 观察者（邪神）
-    // ============================================================
-
+    // 观察者
     [HarmonyPatch(typeof(Observer))]
-    [HarmonyPatch("RolledLastStand")]
-    public static class ObserverLastStandPatch
+    public static class ObserverPatch
     {
-        private static void Postfix(Observer __instance)
+        [HarmonyPatch("RolledLastStand")]
+        [HarmonyPostfix]
+        private static void RolledLastStandPostfix(Observer __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new ObserverLastStandEvent { Observer = __instance });
         }
-    }
 
-    [HarmonyPatch(typeof(Observer))]
-    [HarmonyPatch("GunSuicide")]
-    public static class ObserverGunSuicidePatch
-    {
-        private static void Postfix(Observer __instance)
+        [HarmonyPatch("GunSuicide")]
+        [HarmonyPostfix]
+        private static void GunSuicidePostfix(Observer __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new ObserverGunSuicideEvent { Observer = __instance });
         }
     }
 
-    // ============================================================
     // 可开启物
-    // ============================================================
-
-    [HarmonyPatch(typeof(Openable))]
-    [HarmonyPatch("OnUse")]
-    public static class OpenableUsePatch
+    [HarmonyPatch(typeof(Openable), "OnUse")]
+    [HarmonyPostfix]
+    private static void OpenableOnUsePostfix(Openable __instance)
     {
-        private static void Postfix(Openable __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var mode = __instance.instantOpen ? "instant" : (__instance.isKeypad ? "keypad" : "lockpick");
-            EventUtil.Trigger(new OpenableUseEvent { Openable = __instance, Mode = mode });
-        }
+        var mode = __instance.instantOpen ? "instant" : (__instance.isKeypad ? "keypad" : "lockpick");
+        EventUtil.Trigger(new OpenableUseEvent { Openable = __instance, Mode = mode });
     }
 
-    // ============================================================
     // 毛绒玩具
-    // ============================================================
-
-    [HarmonyPatch(typeof(PlushScript))]
-    [HarmonyPatch("Squeak")]
-    public static class PlushSqueakPatch
+    [HarmonyPatch(typeof(PlushScript), "Squeak")]
+    [HarmonyPostfix]
+    private static void PlushScriptSqueakPostfix(PlushScript __instance)
     {
-        private static void Postfix(PlushScript __instance)
-        {
-            if (__instance == null || !__instance) return;
-            EventUtil.Trigger(new PlushSqueakEvent { Plush = __instance });
-        }
+        if (__instance == null || !__instance) return;
+        EventUtil.Trigger(new PlushSqueakEvent { Plush = __instance });
     }
 
-    // ============================================================
     // 开局前
-    // ============================================================
-
     [HarmonyPatch(typeof(PreRunScript))]
-    [HarmonyPatch("StartRun")]
-    public static class PreRunStartPatch
+    public static class PreRunScriptPatch
     {
-        private static void Postfix()
+        [HarmonyPatch("StartRun")]
+        [HarmonyPostfix]
+        private static void StartRunPostfix()
         {
             EventUtil.Trigger(new PreRunStartEvent());
         }
-    }
 
-    [HarmonyPatch(typeof(PreRunScript))]
-    [HarmonyPatch("LoadRun")]
-    public static class PreRunLoadPatch
-    {
-        private static void Postfix()
+        [HarmonyPatch("LoadRun")]
+        [HarmonyPostfix]
+        private static void LoadRunPostfix()
         {
             EventUtil.Trigger(new PreRunLoadEvent());
         }
-    }
 
-    [HarmonyPatch(typeof(PreRunScript))]
-    [HarmonyPatch("StartTutorial")]
-    public static class PreRunTutorialPatch
-    {
-        private static void Postfix()
+        [HarmonyPatch("StartTutorial")]
+        [HarmonyPostfix]
+        private static void StartTutorialPostfix()
         {
             EventUtil.Trigger(new PreRunTutorialEvent());
         }
     }
 
-    // ============================================================
     // 阿片类药物
-    // ============================================================
-
-    [HarmonyPatch(typeof(Painkillers))]
-    [HarmonyPatch("Update")]
-    public static class PainkillersOverdosePatch
+    [HarmonyPatch(typeof(Painkillers), "Update")]
+    [HarmonyPostfix]
+    private static void PainkillersUpdatePostfix(Painkillers __instance)
     {
-        private static void Postfix(Painkillers __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var reception = Traverse.Create(__instance).Field("opiateReception").GetValue<float>();
-            var id = __instance.GetInstanceID();
-            if (reception > 45f)
-            {
-                if (OpiateOverdosed.Add(id))
-                    EventUtil.Trigger(new OpiateOverdoseEvent());
-            }
-            else
-            {
-                OpiateOverdosed.Remove(id);
-            }
+        var reception = Traverse.Create(__instance).Field("opiateReception").GetValue<float>();
+        var id = __instance.GetInstanceID();
+        if (reception > 45f)
+        {
+            if (OpiateOverdosed.Add(id))
+                EventUtil.Trigger(new OpiateOverdoseEvent());
+        }
+        else
+        {
+            OpiateOverdosed.Remove(id);
         }
     }
 
-    // ============================================================
     // 玩家相机
-    // ============================================================
-
     [HarmonyPatch(typeof(PlayerCamera))]
-    [HarmonyPatch("StartSelfDestruct")]
-    public static class SelfDestructPatch
+    public static class PlayerCameraPatch
     {
-        private static void Postfix()
+        [HarmonyPatch("StartSelfDestruct")]
+        [HarmonyPostfix]
+        private static void StartSelfDestructPostfix()
         {
             EventUtil.Trigger(new SelfDestructEvent());
         }
-    }
 
-    [HarmonyPatch(typeof(PlayerCamera))]
-    [HarmonyPatch("ToggleWoundView")]
-    public static class WoundViewTogglePatch
-    {
-        private static void Postfix(PlayerCamera __instance)
+        [HarmonyPatch("ToggleWoundView")]
+        [HarmonyPostfix]
+        private static void ToggleWoundViewPostfix(PlayerCamera __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new WoundViewToggleEvent { Open = __instance.woundView != null && __instance.woundView.activeSelf });
         }
-    }
 
-    [HarmonyPatch(typeof(PlayerCamera))]
-    [HarmonyPatch("OpenCraftScreen")]
-    public static class CraftPanelTogglePatch
-    {
-        private static void Postfix(PlayerCamera __instance)
+        [HarmonyPatch("OpenCraftScreen")]
+        [HarmonyPostfix]
+        private static void OpenCraftScreenPostfix(PlayerCamera __instance)
         {
             if (__instance == null || !__instance) return;
             EventUtil.Trigger(new CraftPanelToggleEvent
@@ -591,28 +463,23 @@ public static class WorldObjectEventListener
         }
     }
 
-    // ============================================================
     // 弹药
-    // ============================================================
-
     [HarmonyPatch(typeof(AmmoScript))]
-    [HarmonyPatch("UnloadRound")]
-    public static class AmmoUnloadPatch
+    public static class AmmoScriptPatch
     {
-        private static void Postfix(AmmoScript __instance)
+        [HarmonyPatch("UnloadRound")]
+        [HarmonyPostfix]
+        private static void UnloadRoundPostfix(AmmoScript __instance)
         {
             if (__instance == null || !__instance) return;
             var magazine = __instance.GetComponent<Item>();
             if (!magazine) return;
             EventUtil.Trigger(new AmmoUnloadEvent { Magazine = magazine });
         }
-    }
 
-    [HarmonyPatch(typeof(AmmoScript))]
-    [HarmonyPatch("LoadRound")]
-    public static class AmmoLoadPatch
-    {
-        private static void Postfix(AmmoScript __instance)
+        [HarmonyPatch("LoadRound")]
+        [HarmonyPostfix]
+        private static void LoadRoundPostfix(AmmoScript __instance)
         {
             if (__instance == null || !__instance) return;
             var magazine = __instance.GetComponent<Item>();
@@ -621,26 +488,20 @@ public static class WorldObjectEventListener
         }
     }
 
-    // ============================================================
     // Alt 物品标签
-    // ============================================================
-
-    [HarmonyPatch(typeof(AltHoverScript))]
-    [HarmonyPatch("Update")]
-    public static class AltHoverTogglePatch
+    [HarmonyPatch(typeof(AltHoverScript), "Update")]
+    [HarmonyPostfix]
+    private static void AltHoverScriptUpdatePostfix(AltHoverScript __instance)
     {
-        private static void Postfix(AltHoverScript __instance)
-        {
-            if (__instance == null || !__instance) return;
+        if (__instance == null || !__instance) return;
 
-            var active = Traverse.Create(__instance).Field("active").GetValue<bool>();
-            var id = __instance.GetInstanceID();
+        var active = Traverse.Create(__instance).Field("active").GetValue<bool>();
+        var id = __instance.GetInstanceID();
 
-            AltHoverActive.TryGetValue(id, out var prevActive);
-            AltHoverActive[id] = active;
+        AltHoverActive.TryGetValue(id, out var prevActive);
+        AltHoverActive[id] = active;
 
-            if (active != prevActive)
-                EventUtil.Trigger(new AltHoverToggleEvent { Active = active });
-        }
+        if (active != prevActive)
+            EventUtil.Trigger(new AltHoverToggleEvent { Active = active });
     }
 }

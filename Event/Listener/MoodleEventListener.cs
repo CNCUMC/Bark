@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Bark.Events;
 using Bark.Moodle;
 using Bark.Tool;
@@ -31,22 +30,22 @@ public static class MoodleEventListener
         _runner = runner;
         _harmony = new Harmony("Bark.MoodleEventListener");
 
-        // 补丁 MoodleRegistry.AddMoodle（两个重载：string iconId / Sprite sprite）
-        var addMoodleMethods = typeof(MoodleRegistry)
-            .GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Where(m => m.Name == "AddMoodle")
-            .ToArray();
-
-        foreach (var method in addMoodleMethods)
-            _harmony.Patch(method,
-                new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodle)));
-
-        // 补丁 MoodleRegistry.AddAnimatedMoodle
-        var addAnimMethod = typeof(MoodleRegistry).GetMethod("AddAnimatedMoodle",
-            BindingFlags.Public | BindingFlags.Static);
-        if (addAnimMethod != null)
-            _harmony.Patch(addAnimMethod,
-                new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddAnimatedMoodle)));
+        // 两个 AddMoodle 重载（string iconId / Sprite sprite）参数结构一致，分别挂补丁
+        _harmony.Patch(
+            AccessTools.Method(typeof(MoodleRegistry), "AddMoodle",
+                [typeof(int), typeof(string), typeof(string), typeof(string),
+                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
+            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodleString)));
+        _harmony.Patch(
+            AccessTools.Method(typeof(MoodleRegistry), "AddMoodle",
+                [typeof(int), typeof(Sprite), typeof(string), typeof(string),
+                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
+            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddMoodleSprite)));
+        _harmony.Patch(
+            AccessTools.Method(typeof(MoodleRegistry), "AddAnimatedMoodle",
+                [typeof(int), typeof(string), typeof(string), typeof(string),
+                 typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(float)]),
+            new HarmonyMethod(typeof(MoodleEventListener), nameof(OnAddAnimatedMoodle)));
 
         _pollCoroutine = runner.StartCoroutine(PollMoodles());
     }
@@ -69,37 +68,26 @@ public static class MoodleEventListener
     // Harmony 前缀钩子
     // ============================================================
 
-    // 三个重载的参数结构一致：
-    //   0: int intensity
-    //   1: string iconId / Sprite sprite / string animationId
-    //   2: string name
-    //   3: string description
-    //   4: bool critical
-    //   5: bool chippedOnly
-    //   6: bool important
-    //   7: string key
-    //   8: float holdSeconds
-    private static void OnAddMoodle(object[] __args)
+    private static void OnAddMoodleString(int intensity, string iconId, string name, string description,
+        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
     {
-        TrackMoodle(__args);
+        TrackMoodle(intensity, name, critical, key, holdSeconds);
     }
 
-    private static void OnAddAnimatedMoodle(object[] __args)
+    private static void OnAddMoodleSprite(int intensity, Sprite sprite, string name, string description,
+        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
     {
-        TrackMoodle(__args);
+        TrackMoodle(intensity, name, critical, key, holdSeconds);
     }
 
-    private static void TrackMoodle(object[] args)
+    private static void OnAddAnimatedMoodle(int intensity, string animationId, string name, string description,
+        bool critical, bool chippedOnly, bool important, string key, float holdSeconds)
     {
-        if (args == null || args.Length < 9)
-            return;
+        TrackMoodle(intensity, name, critical, key, holdSeconds);
+    }
 
-        var intensity = args[0] is int i ? i : 0;
-        var name = args[2] as string ?? string.Empty;
-        var critical = args.Length > 5 && args[5] is true;
-        var key = args[7] as string ?? string.Empty;
-        var holdSeconds = args[8] is float f ? f : 0.75f;
-
+    private static void TrackMoodle(int intensity, string name, bool critical, string key, float holdSeconds)
+    {
         if (string.IsNullOrEmpty(key))
             return;
 

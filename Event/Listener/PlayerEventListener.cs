@@ -25,13 +25,6 @@ public static class PlayerEventListener
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
-
-        var harmony = new Harmony("Bark.PlayerEventListener");
-        harmony.Patch(
-            typeof(Body).GetMethod("Jump"),
-            new HarmonyMethod(typeof(PlayerEventListener), nameof(OnJump))
-        );
-
         _monitorCoroutine = runner.StartCoroutine(MonitorPlayer());
     }
 
@@ -54,7 +47,9 @@ public static class PlayerEventListener
     }
 
     // Body.Jump() 被调用时触发起跳事件（仅限玩家自身，带冷却防连发）
-    private static void OnJump(Body __instance)
+    [HarmonyPatch(typeof(Body), "Jump")]
+    [HarmonyPrefix]
+    private static void BodyJumpPrefix(Body __instance)
     {
         // 世界未就绪时忽略 Jump 调用（进入世界时游戏内部可能触发初始化跳越）
         if (!_worldReady) return;

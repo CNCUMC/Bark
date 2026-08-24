@@ -23,29 +23,6 @@ public static class LimbEventListener
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
-
-        var harmony = new Harmony("Bark.LimbEventListener");
-        harmony.Patch(
-            typeof(Limb).GetMethod("BreakBone"),
-            new HarmonyMethod(typeof(LimbEventListener), nameof(OnBreakBone))
-        );
-        harmony.Patch(
-            typeof(Limb).GetMethod("MendBone"),
-            new HarmonyMethod(typeof(LimbEventListener), nameof(OnMendBone))
-        );
-        harmony.Patch(
-            typeof(Limb).GetMethod("Dislocate"),
-            new HarmonyMethod(typeof(LimbEventListener), nameof(OnDislocate))
-        );
-        harmony.Patch(
-            typeof(Limb).GetMethod("UnDislocate"),
-            new HarmonyMethod(typeof(LimbEventListener), nameof(OnUnDislocate))
-        );
-        harmony.Patch(
-            typeof(Limb).GetMethod("Dismember"),
-            new HarmonyMethod(typeof(LimbEventListener), nameof(OnDismember))
-        );
-
         _infectionCoroutine = runner.StartCoroutine(MonitorInfection());
     }
 
@@ -61,74 +38,81 @@ public static class LimbEventListener
         _runner = null;
     }
 
-    // ============================================================
-    // Harmony 前缀钩子
-    // ============================================================
-
-    private static void OnBreakBone(Limb __instance)
+    [HarmonyPatch(typeof(Limb))]
+    public static class LimbPatch
     {
-        if (!IsPlayerLimb(__instance) || __instance.broken) return;
-        var idx = GetLimbIndex(__instance);
-        if (idx < 0) return;
-        EventUtil.Trigger(new LimbBrokenEvent
+        [HarmonyPatch("BreakBone")]
+        [HarmonyPrefix]
+        private static void BreakBonePrefix(Limb __instance)
         {
-            LimbIndex = idx,
-            LimbName = __instance.fullName ?? string.Empty
-        });
+            if (!IsPlayerLimb(__instance) || __instance.broken) return;
+            var idx = GetLimbIndex(__instance);
+            if (idx < 0) return;
+            EventUtil.Trigger(new LimbBrokenEvent
+            {
+                LimbIndex = idx,
+                LimbName = __instance.fullName ?? string.Empty
+            });
+        }
+
+        [HarmonyPatch("MendBone")]
+        [HarmonyPrefix]
+        private static void MendBonePrefix(Limb __instance)
+        {
+            if (!IsPlayerLimb(__instance) || !__instance.broken) return;
+            var idx = GetLimbIndex(__instance);
+            if (idx < 0) return;
+            EventUtil.Trigger(new LimbMendedEvent
+            {
+                LimbIndex = idx,
+                LimbName = __instance.fullName ?? string.Empty
+            });
+        }
+
+        [HarmonyPatch("Dislocate")]
+        [HarmonyPrefix]
+        private static void DislocatePrefix(Limb __instance)
+        {
+            if (!IsPlayerLimb(__instance) || __instance.dislocated) return;
+            var idx = GetLimbIndex(__instance);
+            if (idx < 0) return;
+            EventUtil.Trigger(new LimbDislocatedEvent
+            {
+                LimbIndex = idx,
+                LimbName = __instance.fullName ?? string.Empty
+            });
+        }
+
+        [HarmonyPatch("UnDislocate")]
+        [HarmonyPrefix]
+        private static void UnDislocatePrefix(Limb __instance)
+        {
+            if (!IsPlayerLimb(__instance) || !__instance.dislocated) return;
+            var idx = GetLimbIndex(__instance);
+            if (idx < 0) return;
+            EventUtil.Trigger(new LimbUnDislocatedEvent
+            {
+                LimbIndex = idx,
+                LimbName = __instance.fullName ?? string.Empty
+            });
+        }
+
+        [HarmonyPatch("Dismember")]
+        [HarmonyPrefix]
+        private static void DismemberPrefix(Limb __instance)
+        {
+            if (!IsPlayerLimb(__instance) || __instance.dismembered) return;
+            var idx = GetLimbIndex(__instance);
+            if (idx < 0) return;
+            EventUtil.Trigger(new LimbDismemberedEvent
+            {
+                LimbIndex = idx,
+                LimbName = __instance.fullName ?? string.Empty
+            });
+        }
     }
 
-    private static void OnMendBone(Limb __instance)
-    {
-        if (!IsPlayerLimb(__instance) || !__instance.broken) return;
-        var idx = GetLimbIndex(__instance);
-        if (idx < 0) return;
-        EventUtil.Trigger(new LimbMendedEvent
-        {
-            LimbIndex = idx,
-            LimbName = __instance.fullName ?? string.Empty
-        });
-    }
-
-    private static void OnDislocate(Limb __instance)
-    {
-        if (!IsPlayerLimb(__instance) || __instance.dislocated) return;
-        var idx = GetLimbIndex(__instance);
-        if (idx < 0) return;
-        EventUtil.Trigger(new LimbDislocatedEvent
-        {
-            LimbIndex = idx,
-            LimbName = __instance.fullName ?? string.Empty
-        });
-    }
-
-    private static void OnUnDislocate(Limb __instance)
-    {
-        if (!IsPlayerLimb(__instance) || !__instance.dislocated) return;
-        var idx = GetLimbIndex(__instance);
-        if (idx < 0) return;
-        EventUtil.Trigger(new LimbUnDislocatedEvent
-        {
-            LimbIndex = idx,
-            LimbName = __instance.fullName ?? string.Empty
-        });
-    }
-
-    private static void OnDismember(Limb __instance)
-    {
-        if (!IsPlayerLimb(__instance) || __instance.dismembered) return;
-        var idx = GetLimbIndex(__instance);
-        if (idx < 0) return;
-        EventUtil.Trigger(new LimbDismemberedEvent
-        {
-            LimbIndex = idx,
-            LimbName = __instance.fullName ?? string.Empty
-        });
-    }
-
-    // ============================================================
     // 感染轮询
-    // ============================================================
-
     private static IEnumerator MonitorInfection()
     {
         while (_infectionCoroutine != null)
@@ -161,10 +145,8 @@ public static class LimbEventListener
         }
     }
 
-    // ============================================================
+    
     // 辅助
-    // ============================================================
-
     private static bool IsPlayerLimb(Limb limb)
     {
         return limb != null && limb.body == BodyUtil.Body;

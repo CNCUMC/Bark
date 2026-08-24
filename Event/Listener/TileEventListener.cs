@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Bark.Event.Listener;
 
-// 物块事件监听器：通过 Harmony 补丁拦截 WorldGeneration.SetBlock 检测物块放置/破坏，
+// 物块事件监听器：通过 Harmony 补丁拦截 WorldGeneration.SetBlock / DamageBlock 检测物块放置/破坏/受击，
 // 通过轮询检测自定义物块的存在和健康变化。
 public static class TileEventListener
 {
@@ -34,7 +34,6 @@ public static class TileEventListener
     // WorldGeneration.GetBlock / blocks 字段缓存
     private static MethodInfo? _getBlockMethod;
     private static FieldInfo? _blocksField;
-    private static MethodInfo? _damageBlockMethod;
 
     internal static void Listen(MonoBehaviour runner)
     {
@@ -43,10 +42,7 @@ public static class TileEventListener
         // 快照当前已知的自定义物块索引
         RefreshKnownIndices();
 
-        // 尝试 Harmony 补丁 DamageBlock（SetBlock 已用 [HarmonyPatch] 注解声明）
-        TryPatchDamageBlock();
-
-        // 启动检测协程
+        // 启动检测协程（SetBlock / DamageBlock 已用 [HarmonyPatch] 注解声明）
         _existCoroutine ??= runner.StartCoroutine(PollExist());
         _damageCoroutine ??= runner.StartCoroutine(PollDamage());
     }
@@ -71,7 +67,6 @@ public static class TileEventListener
         DestroyTracker.Clear();
         _getBlockMethod = null;
         _blocksField = null;
-        _damageBlockMethod = null;
         _runner = null;
     }
 
@@ -140,60 +135,28 @@ public static class TileEventListener
     }
 
     // Harmony：DamageBlock 补丁（受击检测）
-    private static void TryPatchDamageBlock()
+    // 主重载 DamageBlock(Vector2Int, float, bool, bool, bool) 会被另一个
+    // DamageBlock(Vector2, float, bool, bool) 转发调用，所以只 patch 主重载即可覆盖。
+    [HarmonyPatch(typeof(WorldGeneration), "DamageBlock", typeof(Vector2Int), typeof(float))]
+    [HarmonyPostfix]
+    // 使用 ref 声明 pos，避免 Harmony003 误报（读取 pos.x/pos.y 字段）
+    private static void WorldGenerationDamageBlockPostfix(WorldGeneration __instance, ref Vector2Int pos, float dmg)
     {
-        // 尝试常见的伤害方法名。
-        // 部分方法可能存在重载，遍历所有匹配项逐一尝试。
-        foreach (var methodName in new[] { "DamageBlock", "HitBlock", "DamageTile", "BreakBlock" })
+        if (__instance == null || !WorldReady()) return;
+
+        var index = GetBlockAt(__instance, pos);
+        if (index < 36 || !IsCustomIndex(index)) return;
+
+        var tileId = FindTileIdByIndex(index);
+        if (tileId == null) return;
+
+        EventUtil.Trigger(new TileDamagingEvent
         {
-            var candidates = AccessTools.GetDeclaredMethods(typeof(WorldGeneration));
-            if (candidates == null) continue;
-
-            var patched = false;
-            foreach (var method in candidates.Where(method => method.Name == methodName))
-            {
-                try
-                {
-                    var postfix = new HarmonyMethod(typeof(TileEventListener), nameof(OnDamageBlockPostfix));
-                    var harmony = new Harmony("Bark.TileDamageListener");
-                    harmony.Patch(method, postfix: postfix);
-                    _damageBlockMethod = method;
-                    LogUtil.Info("item_event.patch_use_ok", $"{method.DeclaringType?.Name}.{methodName}");
-                    patched = true;
-                    break;
-                }
-                catch
-                {
-                    // ignored, try next overload
-                }
-            }
-
-            if (patched) break;
-        }
-    }
-
-    private static void OnDamageBlockPostfix()
-    {
-        // 通过反射获取原始方法的（可选位置）参数并触发事件。
-        // 位置信息可能在参数列表中，也可能需要从 __instance 推断。
-        try
-        {
-            if (!WorldReady()) return;
-            var parameters = _damageBlockMethod?.GetParameters();
-            if (parameters == null) return;
-
-            var world = WorldGeneration.world;
-            // ReSharper disable once RedundantJumpStatement
-            if (world == null) return;
-
-            // 在 parameters 中查找 Vector2Int 类型参数作为位置
-            // 注意：无法在此获取原始参数值，此方法仅记录已成功挂载补丁
-            // OnDamaging 的精确触发依赖 SetBlock 兜底 + 存在检测
-        }
-        catch
-        {
-            // ignored
-        }
+            TileId = tileId,
+            TileIndex = index,
+            PosX = pos.x,
+            PosY = pos.y
+        });
     }
 
     // 轮询：存在检测
