@@ -19,7 +19,6 @@ internal static class WmitfPatch
     {
         if (!IsLoaded)
         {
-            LogUtil.Info("wmitf.verify.not_loaded");
             return;
         }
 
@@ -43,20 +42,19 @@ internal static class WmitfPatch
     private static void TryPatch(Harmony harmony, string typeName, string method,
         string? prefix, string? postfix, Type[]? paramTypes)
     {
-        var tag = $"{typeName}.{method}";
         try
         {
             var type = AccessTools.TypeByName(typeName);
             if (type is null)
             {
-                LogUtil.Warning("wmitf.verify.type_not_found", typeName);
+                LogUtil.Warning("wmitf.patch.not_found", method, typeName);
                 return;
             }
 
             var target = AccessTools.Method(type, method, paramTypes);
             if (target is null)
             {
-                if (type.FullName != null) LogUtil.Warning("wmitf.verify.method_not_found", method, type.FullName);
+                if (type.FullName != null) LogUtil.Warning("wmitf.patch.not_found", method, type.FullName);
                 return;
             }
 
@@ -68,11 +66,11 @@ internal static class WmitfPatch
                 : null;
 
             harmony.Patch(target, prefix: pre, postfix: post);
-            LogUtil.Info($"wmitf.patch.{tag}.applied");
+            LogUtil.Info("wmitf.patch.applied", method);
         }
         catch (Exception ex)
         {
-            LogUtil.Error($"wmitf.patch.{tag}.failed", ex.Message);
+            LogUtil.Error("wmitf.patch.failed", method, ex);
         }
     }
 

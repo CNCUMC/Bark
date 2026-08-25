@@ -1313,50 +1313,20 @@ internal class LangGenerator : ModLangGenMultiBase
             "Инкрементальная синхронизация файлов завершена, перезагрузка модов...");
 
         // Log - WMITF (What Mod Is This From)
-        Log("wmitf.patch.get_mod_name.applied",
-            "WMITF patch applied: GetModName",
-            "WMITF 补丁已应用：GetModName",
-            "WMITF 補丁已套用：GetModName",
-            "WMITF патч применён: GetModName");
-        Log("wmitf.patch.is_owner_loaded.applied",
-            "WMITF patch applied: IsOwnerLoaded",
-            "WMITF 补丁已应用：IsOwnerLoaded",
-            "WMITF 補丁已套用：IsOwnerLoaded",
-            "WMITF патч применён: IsOwnerLoaded");
-        Log("wmitf.patch.patches_name.applied",
-            "WMITF patch applied: PatchesName",
-            "WMITF 补丁已应用：PatchesName",
-            "WMITF 補丁已套用：PatchesName",
-            "WMITF патч применён: PatchesName");
-        Log("wmitf.patch.tile_owner_override.applied",
-            "WMITF patch applied: TileRegistry.TryGetOwnerModGuid override",
-            "WMITF 补丁已应用：TileRegistry.TryGetOwnerModGuid 覆盖",
-            "WMITF 補丁已套用：TileRegistry.TryGetOwnerModGuid 覆蓋",
-            "WMITF патч применён: TileRegistry.TryGetOwnerModGuid override");
-        Log("wmitf.patch.tile_owner_override",
-            "WMITF tile owner override: tileIndex={0} → modId={1}",
-            "WMITF 物块 owner 覆盖：tileIndex={0} → modId={1}",
-            "WMITF 物塊 owner 覆蓋：tileIndex={0} → modId={1}",
-            "WMITF override owner物块а: tileIndex={0} → modId={1}");
-        Log("wmitf.verify.method_not_found",
-            "WMITF patch target method '{0}' not found in type '{1}'",
-            "WMITF 补丁目标方法 '{0}' 未在类型 '{1}' 中找到",
-            "WMITF 補丁目標方法 '{0}' 未在類型 '{1}' 中找到",
-            "WMITF метод патча '{0}' не найден в типе '{1}'");
-        Log("wmitf.patch.get_mod_name.failed",
-            "WMITF patch failed for GetModName: {0}",
-            "WMITF GetModName 补丁失败：{0}",
-            "WMITF GetModName 補丁失敗：{0}",
-            "WMITF патч GetModName не удался: {0}");
-        Log("wmitf.patch.is_owner_loaded.failed",
-            "WMITF patch failed for IsOwnerLoaded: {0}",
-            "WMITF IsOwnerLoaded 补丁失败：{0}",
-            "WMITF IsOwnerLoaded 補丁失敗：{0}",
-            "WMITF патч IsOwnerLoaded не удался: {0}");
-        Log("wmitf.patch.patches_name.failed",
-            "WMITF patch failed for PatchesName: {0}",
-            "WMITF PatchesName 补丁失败：{0}",
-            "WMITF PatchesName 補丁失敗：{0}",
-            "WMITF патч PatchesName не удался: {0}");
+        Log("wmitf.patch.not_found",
+            "WMITF patch target '{0}' not found in type '{1}'",
+            "WMITF 补丁目标 '{0}' 未在类型 '{1}' 中找到",
+            "WMITF 補丁目標 '{0}' 未在類型 '{1}' 中找到",
+            "WMITF патча '{0}' не найден в типе '{1}'");
+        Log("wmitf.patch.applied",
+            "WMITF patch applied: {0}",
+            "WMITF 补丁已应用：{0}",
+            "WMITF 補丁已套用：{0}",
+            "WMITF патч применён: {0}");
+        Log("wmitf.patch.failed",
+            "WMITF patch {0} failed for: {1}",
+            "WMITF 补丁 {0} 失败：{1}",
+            "WMITF 補丁 {0} 失敗：{1}",
+            "WMITF патч {0} не удался: {1}");
     }
 }
