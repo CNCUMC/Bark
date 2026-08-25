@@ -7,8 +7,8 @@ to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## v2.4.1
+## v2.
 
 ### Fixed
 
-- Have I always written `Tile` as `Title`?
+- Reduced WMITF compatibility logging
