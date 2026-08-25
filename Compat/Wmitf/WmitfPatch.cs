@@ -25,11 +25,14 @@ internal static class WmitfPatch
         // (目标程序集类型名, 方法名, 前缀方法名, 后缀方法名, 参数类型)
         var patches = new (string TypeName, string Method, string? Prefix, string? Postfix, Type[]? ParamTypes)[]
         {
-            ("WhatModIsThisFrom.Patches", "GetModName", nameof(ScriptModNamePrefix), null, null),
-            ("WMITF.WMITF", "IsOwnerLoaded", nameof(IsOwnerLoadedPrefix), null, null),
-            ("WhatModIsThisFrom.InspectorOverlay", "PatchesName", nameof(ScriptModNamePrefix), null, null),
-            ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid", null,
-                nameof(TileRegistryTryGetOwnerPostfix), [typeof(ushort), typeof(string).MakeByRefType()]),
+            ("WhatModIsThisFrom.Patches", "GetModName",
+                nameof(ScriptModNamePrefix), null, null),
+            ("WMITF.WMITF", "IsOwnerLoaded",
+                nameof(IsOwnerLoadedPrefix), null, null),
+            ("WhatModIsThisFrom.InspectorOverlay", "PatchesName",
+                nameof(ScriptModNamePrefix), null, null),
+            ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid",
+                null, nameof(TileRegistryTryGetOwnerPostfix), [typeof(ushort), typeof(string).MakeByRefType()]),
         };
 
         foreach (var (typeName, method, prefix, postfix, paramTypes) in patches)
