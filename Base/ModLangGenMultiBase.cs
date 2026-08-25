@@ -78,9 +78,9 @@ public abstract class ModLangGenMultiBase
         AddPaired("liquid", key, values);
     }
 
-    protected void Title(string key, params string[] values)
+    protected void Tile(string key, params string[] values)
     {
-        AddPaired("title", key, values);
+        AddPaired("tile", key, values);
     }
 
     private void AddPaired(string category, string key, params string?[] values)

@@ -68,9 +68,9 @@ public static class BetterLocale
         return HasKey("liquid", key);
     }
 
-    public static bool HasKeyTitle(string key)
+    public static bool HasKeyTile(string key)
     {
-        return HasKey("title", key);
+        return HasKey("tile", key);
     }
 
     public static string GetItem(string key, params object[]? args)
@@ -113,9 +113,9 @@ public static class BetterLocale
         return Get("liquid", key, args);
     }
 
-    public static string GetTitle(string key, params object[]? args)
+    public static string GetTile(string key, params object[]? args)
     {
-        return Get("title", key, args);
+        return Get("tile", key, args);
     }
 
     private static string Get(string category, string key, params object[]? args)

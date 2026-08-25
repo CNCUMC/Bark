@@ -75,9 +75,9 @@ public abstract class ModLangGenBase
         Add("liquid", key + "dsc", description);
     }
 
-    protected void Title(string key, string value, string description)
+    protected void Tile(string key, string value, string description)
     {
-        Add("title", key, value);
-        Add("title", key + "dsc", description);
+        Add("tile", key, value);
+        Add("tile", key + "dsc", description);
     }
 }
