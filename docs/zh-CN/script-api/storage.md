@@ -21,15 +21,15 @@ Storage.SetString('my_mod.player_note', 'hello');
 var note = Storage.GetString('my_mod.player_note', '');
 ```
 
-| 方法                               | 返回      | 说明                             |
-|------------------------------------|-----------|----------------------------------|
-| `GetBool(key, defaultValue?)`      | `bool`    | 读取布尔值，未写入时返回默认值   |
-| `SetBool(key, value)`              | —         | 写入布尔值                       |
-| `GetInt(key, defaultValue?)`       | `int`     | 读取整数，未写入时返回默认值     |
-| `SetInt(key, value)`               | —         | 写入整数                         |
-| `GetFloat(key, defaultValue?)`     | `float`   | 读取浮点，未写入时返回默认值     |
-| `SetFloat(key, value)`             | —         | 写入浮点                         |
-| `GetString(key, defaultValue?)`    | `string`  | 读取字符串，未写入时返回默认值   |
-| `SetString(key, value)`            | —         | 写入字符串                       |
+| 方法                            | 返回     | 说明                           |
+|---------------------------------|----------|--------------------------------|
+| `GetBool(key, defaultValue?)`   | `bool`   | 读取布尔值，未写入时返回默认值 |
+| `SetBool(key, value)`           | —        | 写入布尔值                     |
+| `GetInt(key, defaultValue?)`    | `int`    | 读取整数，未写入时返回默认值   |
+| `SetInt(key, value)`            | —        | 写入整数                       |
+| `GetFloat(key, defaultValue?)`  | `float`  | 读取浮点，未写入时返回默认值   |
+| `SetFloat(key, value)`          | —        | 写入浮点                       |
+| `GetString(key, defaultValue?)` | `string` | 读取字符串，未写入时返回默认值 |
+| `SetString(key, value)`         | —        | 写入字符串                     |
 
 > 当 key 从未写入时返回默认值。请使用带命名空间的 key（如 `my_mod.*`）避免与其他模组冲突。

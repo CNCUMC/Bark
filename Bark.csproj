@@ -110,7 +110,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Compat\" />
+        <Folder Include="Compat\"/>
         <Folder Include="docs\en-US\"/>
         <Folder Include="docs\zh-CN\csharp-api\"/>
     </ItemGroup>

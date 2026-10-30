@@ -13,13 +13,13 @@ public enum SkillType
 [ScriptApi]
 public static class SkillUtil
 {
-    // 全局经验倍率
     public static float XpMultiplier
     {
         get => Skills.xpGainMult;
         set
         {
-            if (WorldGeneration.runSettings != null) WorldGeneration.runSettings["xpgain"] = Mathf.Max(0f, value);
+            if (WorldGeneration.runSettings != null)
+                WorldGeneration.runSettings["xpgain"] = Mathf.Max(0f, value);
         }
     }
 
@@ -31,7 +31,11 @@ public static class SkillUtil
     public static int GetLevel(SkillType skillType)
     {
         return GetSkills() is { } skill
-            ? skillType switch { SkillType.Strength => skill.STR, SkillType.Resilience => skill.RES, _ => skill.INT }
+            ? skillType switch
+            {
+                SkillType.Strength => skill.STR, SkillType.Resilience => skill.RES,
+                _ => skill.INT
+            }
             : 0;
     }
 
@@ -40,7 +44,8 @@ public static class SkillUtil
         return GetSkills() is { } skill
             ? skillType switch
             {
-                SkillType.Strength => skill.expSTR, SkillType.Resilience => skill.expRES, _ => skill.expINT
+                SkillType.Strength => skill.expSTR, SkillType.Resilience => skill.expRES,
+                _ => skill.expINT
             }
             : 0f;
     }
@@ -50,8 +55,10 @@ public static class SkillUtil
         return GetSkills() is { } skill
             ? skillType switch
             {
-                SkillType.Strength => skill.ToNextNormalized(skill.expSTR, skill.minSTR, skill.maxSTR),
-                SkillType.Resilience => skill.ToNextNormalized(skill.expRES, skill.minRES, skill.maxRES),
+                SkillType.Strength => skill.ToNextNormalized(skill.expSTR, skill.minSTR,
+                    skill.maxSTR),
+                SkillType.Resilience => skill.ToNextNormalized(skill.expRES, skill.minRES,
+                    skill.maxRES),
                 _ => skill.ToNextNormalized(skill.expINT, skill.minINT, skill.maxINT)
             }
             : 0f;
@@ -62,7 +69,8 @@ public static class SkillUtil
         return GetSkills() is { } skill
             ? skillType switch
             {
-                SkillType.Strength => skill.expSTR - skill.minSTR, SkillType.Resilience => skill.expRES - skill.minRES,
+                SkillType.Strength => skill.expSTR - skill.minSTR,
+                SkillType.Resilience => skill.expRES - skill.minRES,
                 _ => skill.expINT - skill.minINT
             }
             : 0f;
@@ -73,7 +81,8 @@ public static class SkillUtil
         return GetSkills() is { } skill
             ? skillType switch
             {
-                SkillType.Strength => skill.maxSTR - skill.minSTR, SkillType.Resilience => skill.maxRES - skill.minRES,
+                SkillType.Strength => skill.maxSTR - skill.minSTR,
+                SkillType.Resilience => skill.maxRES - skill.minRES,
                 _ => skill.maxINT - skill.minINT
             }
             : 0f;

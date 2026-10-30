@@ -94,21 +94,25 @@ public static class GunEventListener
 
     [HarmonyPatch("LoadMag")]
     [HarmonyPostfix]
-    private static void LoadMagPostfix(GunScript __instance, AmmoScript ammo, GunLoadState __state)
+    private static void LoadMagPostfix(GunScript __instance, AmmoScript ammo,
+        GunLoadState __state)
     {
         if (ammo == null) return;
 
         var stateChanged = __instance.hasMag != __state.HadMag
-                           || __instance.roundsInMag != __state.RoundsInMag
-                           || __instance.roundInChamber != __state.RoundInChamber;
+            || __instance.roundsInMag != __state.RoundsInMag
+            || __instance.roundInChamber != __state.RoundInChamber;
 
         if (!stateChanged) return;
 
         var item = __instance.GetComponent<Item>();
         if (item == null) return;
 
-        var roundsDelta = __instance.roundsInMag - __state.RoundsInMag
-                          + (__instance.roundInChamber != __state.RoundInChamber ? 1 : 0);
+        var roundsDelta = __instance.roundsInMag
+            - __state.RoundsInMag
+            + (__instance.roundInChamber != __state.RoundInChamber
+                ? 1
+                : 0);
 
         EventUtil.Trigger(new GunLoadAmmoEvent
         {
@@ -116,7 +120,9 @@ public static class GunEventListener
             AmmoItemId = ammo.itemType == AmmoScript.AmmoItemType.Magazine
                 ? AmmoScript.AmmoTypeToMagazine(ammo.ammoType)
                 : AmmoScript.AmmoTypeToItem(ammo.ammoType),
-            Rounds = roundsDelta > 0 ? roundsDelta : ammo.rounds
+            Rounds = roundsDelta > 0
+                ? roundsDelta
+                : ammo.rounds
         });
     }
 
@@ -169,15 +175,16 @@ public static class GunEventListener
 
         switch (prev.Racked)
         {
-            case false when current.Racked && prev.RoundInChamber == current.RoundInChamber:
+            case false
+                when current.Racked && prev.RoundInChamber == current.RoundInChamber:
             {
                 if (prev.RoundInChamber != GunScript.RoundInChamber.None) TriggerJam(gun);
 
                 break;
             }
             case true when current is { Racked: false, HasMag: true, RoundsInMag: > 0 }
-                           && prev.RoundInChamber == GunScript.RoundInChamber.None
-                           && current.RoundInChamber == GunScript.RoundInChamber.None:
+                && prev.RoundInChamber == GunScript.RoundInChamber.None
+                && current.RoundInChamber == GunScript.RoundInChamber.None:
                 TriggerJam(gun);
                 break;
         }

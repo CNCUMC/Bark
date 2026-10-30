@@ -119,9 +119,9 @@ suffix). Use them directly.
 | `OptionsApi` | Read mod config options                                                             | [Options](script-api/options.md)             |
 | `Log`        | Logging: `Log.info()` / `Log.warning()` / `Log.error()`                             | [Logging](script-api/log.md)                 |
 | `Locale`     | Localized text: `Locale.Get("key")`                                                 | [Localization](script-api/locale.md)         |
-| `Input`      | Mouse position, friendly key names                                                   | [Input](script-api/input.md)                 |
-| `Storage`    | Persisted values via PlayerPrefs                                                     | [Storage](script-api/storage.md)             |
-| `Compress`   | GZip / Deflate data compression                                                      | [Compress](script-api/compress.md)           |
+| `Input`      | Mouse position, friendly key names                                                  | [Input](script-api/input.md)                 |
+| `Storage`    | Persisted values via PlayerPrefs                                                    | [Storage](script-api/storage.md)             |
+| `Compress`   | GZip / Deflate data compression                                                     | [Compress](script-api/compress.md)           |
 | `ScriptInfo` | Current script metadata: `ScriptInfo.Id` / `ScriptInfo.Name` / `ScriptInfo.Version` | —                                            |
 
 ## Naming Conventions
@@ -129,18 +129,18 @@ suffix). Use them directly.
 All tool methods follow consistent prefixes. Once you know the prefix, you know what the method does. **No need to
 memorize — let IDE autocomplete do the work.**
 
-| Prefix                                             | Meaning       | Example                                    |
-|----------------------------------------------------|---------------|--------------------------------------------|
-| `Get*`                                             | Read a value  | `Body.GetHunger()` → hunger level          |
-| `Set*`                                             | Set a value   | `Body.SetHunger(50)`                       |
-| `Is*`                                              | Is it...?     | `Body.IsAlive()` → alive?                  |
-| `Has*`                                             | Has...?       | `Inventory.HasItem("axe")`                 |
-| `Can*`                                             | Can do...?    | `Body.CanTakeNap()`                        |
-| `Add*`                                             | Increment     | `Skill.AddXP(100)`                         |
-| `Remove*`                                          | Remove        | `Body.RemovePainkillers()`                 |
+| Prefix                                             | Meaning       | Example                                   |
+|----------------------------------------------------|---------------|-------------------------------------------|
+| `Get*`                                             | Read a value  | `Body.GetHunger()` → hunger level         |
+| `Set*`                                             | Set a value   | `Body.SetHunger(50)`                      |
+| `Is*`                                              | Is it...?     | `Body.IsAlive()` → alive?                 |
+| `Has*`                                             | Has...?       | `Inventory.HasItem("axe")`                |
+| `Can*`                                             | Can do...?    | `Body.CanTakeNap()`                       |
+| `Add*`                                             | Increment     | `Skill.AddXP(100)`                        |
+| `Remove*`                                          | Remove        | `Body.RemovePainkillers()`                |
 | `Place*`                                           | Place         | `World.PlaceTile("marble", 10, 5)`        |
 | `Fill*`                                            | Fill area     | `World.FillTiles(0, 0, 10, 10, "marble")` |
-| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | Obvious verbs | `Limb.Break(0)`                            |
+| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | Obvious verbs | `Limb.Break(0)`                           |
 
 **Get/Set pairs**: Everything with a Get usually has a matching Set — same name, just one more parameter.
 

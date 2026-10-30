@@ -9,32 +9,32 @@ namespace Bark.Compat.Wmitf;
 
 internal static class WmitfPatch
 {
-    public static bool IsLoaded => Chainloader.PluginInfos.ContainsKey("com.jimmyking.whatmodisthisfrom");
+    public static bool IsLoaded =>
+        Chainloader.PluginInfos.ContainsKey("com.jimmyking.whatmodisthisfrom");
+
     private static readonly Dictionary<ushort, string> TileOwnerOverrides = new();
 
     public static void Apply(Harmony harmony)
     {
-        if (!IsLoaded)
-        {
-            return;
-        }
+        if (!IsLoaded) return;
 
-        var patches = new (string TypeName, string Method, string? Prefix, string? Postfix, Type[]? ParamTypes)[]
-        {
-            ("WhatModIsThisFrom.Patches", "GetModName",
-                nameof(ScriptModNamePrefix), null, null),
-            ("WMITF.WMITF", "IsOwnerLoaded",
-                nameof(IsOwnerLoadedPrefix), null, null),
-            ("WhatModIsThisFrom.InspectorOverlay", "PatchesName",
-                nameof(ScriptModNamePrefix), null, null),
-            ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid",
-                null, nameof(TileRegistryTryGetOwnerPostfix), [typeof(ushort), typeof(string).MakeByRefType()]),
-        };
+        var patches =
+            new (string TypeName, string Method, string? Prefix, string? Postfix, Type[]?
+                ParamTypes)[]
+                {
+                    ("WhatModIsThisFrom.Patches", "GetModName",
+                        nameof(ScriptModNamePrefix), null, null),
+                    ("WMITF.WMITF", "IsOwnerLoaded",
+                        nameof(IsOwnerLoadedPrefix), null, null),
+                    ("WhatModIsThisFrom.InspectorOverlay", "PatchesName",
+                        nameof(ScriptModNamePrefix), null, null),
+                    ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid",
+                        null, nameof(TileRegistryTryGetOwnerPostfix),
+                        [typeof(ushort), typeof(string).MakeByRefType()])
+                };
 
         foreach (var (typeName, method, prefix, postfix, paramTypes) in patches)
-        {
             TryPatch(harmony, typeName, method, prefix, postfix, paramTypes);
-        }
     }
 
     private static void TryPatch(Harmony harmony, string typeName, string method,
@@ -52,18 +52,21 @@ internal static class WmitfPatch
             var target = AccessTools.Method(type, method, paramTypes);
             if (target is null)
             {
-                if (type.FullName != null) LogUtil.Warning("wmitf.patch.not_found", method, type.FullName);
+                if (type.FullName != null)
+                    LogUtil.Warning("wmitf.patch.not_found", method, type.FullName);
                 return;
             }
 
             var pre = prefix is not null
-                ? new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), prefix))
+                ? new HarmonyMethod(
+                    AccessTools.DeclaredMethod(typeof(WmitfPatch), prefix))
                 : null;
             var post = postfix is not null
-                ? new HarmonyMethod(AccessTools.DeclaredMethod(typeof(WmitfPatch), postfix))
+                ? new HarmonyMethod(
+                    AccessTools.DeclaredMethod(typeof(WmitfPatch), postfix))
                 : null;
 
-            harmony.Patch(target, prefix: pre, postfix: post);
+            harmony.Patch(target, pre, post);
             LogUtil.Info("wmitf.patch.applied", method);
         }
         catch (Exception ex)

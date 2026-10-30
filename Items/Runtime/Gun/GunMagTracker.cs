@@ -33,7 +33,10 @@ public static class GunMagTracker
 
     public static void CleanupDestroyed()
     {
-        var toRemove = (from kv in States where kv.Key == null || kv.Key.gameObject == null select kv.Key!).ToList();
+        var toRemove = (
+            from kv in States
+            where kv.Key == null || kv.Key.gameObject == null
+            select kv.Key!).ToList();
 
         foreach (var item in toRemove)
             States.Remove(item);

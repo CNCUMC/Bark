@@ -96,7 +96,8 @@ public abstract class ModLangGenMultiBase
                 var label = values[labelIdx];
                 if (label != null)
                 {
-                    BetterLocale.SetDefault(langCodes[langIdx], NameSpace, category, key, label);
+                    BetterLocale.SetDefault(langCodes[langIdx], NameSpace, category, key,
+                        label);
                     Count++;
                 }
             }
@@ -104,7 +105,8 @@ public abstract class ModLangGenMultiBase
             if (descIdx >= values.Length) continue;
             var desc = values[descIdx];
             if (desc == null) continue;
-            BetterLocale.SetDefault(langCodes[langIdx], NameSpace, category, key + "dsc", desc);
+            BetterLocale.SetDefault(langCodes[langIdx], NameSpace, category, key + "dsc",
+                desc);
             Count++;
         }
     }

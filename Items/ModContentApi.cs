@@ -34,7 +34,8 @@ public static class ModContentApi
     public static LoadResult LoadFromPluginDirectory(string assemblyLocation)
     {
         if (string.IsNullOrWhiteSpace(assemblyLocation))
-            throw new ArgumentException("assemblyLocation must not be empty", nameof(assemblyLocation));
+            throw new ArgumentException("assemblyLocation must not be empty",
+                nameof(assemblyLocation));
 
         var dir = Path.GetDirectoryName(assemblyLocation);
         if (string.IsNullOrEmpty(dir))
@@ -91,12 +92,17 @@ public static class ModContentApi
         };
 
         RecipeLoader.RegisterFromDirectory(modId, modDir);
-        result.Recipes = RecipeLoader.LoadedRecipes.TryGetValue(modId, out var recipes) ? recipes.Count : 0;
+        result.Recipes = RecipeLoader.LoadedRecipes.TryGetValue(modId, out var recipes)
+            ? recipes.Count
+            : 0;
         MoodleLoader.RegisterFromDirectory(modId, modDir, false);
-        result.Moodles = MoodleLoader.LoadedMoodles.TryGetValue(modId, out var moodles) ? moodles.Count : 0;
+        result.Moodles = MoodleLoader.LoadedMoodles.TryGetValue(modId, out var moodles)
+            ? moodles.Count
+            : 0;
 
         if (result.Total > 0)
-            LogUtil.Info("mod_content.loaded", modId, result.Items, result.Tiles, result.Recipes, result.Moodles);
+            LogUtil.Info("mod_content.loaded", modId, result.Items, result.Tiles,
+                result.Recipes, result.Moodles);
 
         return result;
     }

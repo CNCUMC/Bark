@@ -123,7 +123,9 @@ public class BatteryDef
 
 public class ContainerDef
 {
-    [JsonProperty("capacity_trigger")] public List<ConditionTriggerDef> CapacityTrigger = [];
+    [JsonProperty("capacity_trigger")]
+    public List<ConditionTriggerDef> CapacityTrigger = [];
+
     [JsonProperty("encumbrance_mult")] public float EncumbranceMult;
 
     [JsonProperty("items_visible")] public bool ItemsVisible;
@@ -277,7 +279,8 @@ public class BandageDef
 
     [JsonProperty("wrap_sprite_color")] public string WrapSpriteColor = "#FFFFFF";
 
-    [JsonProperty("wrap_sprite_path")] public string WrapSpritePath = "Special/bandageWrap";
+    [JsonProperty("wrap_sprite_path")]
+    public string WrapSpritePath = "Special/bandageWrap";
 }
 
 public class SyringeDef
@@ -331,7 +334,6 @@ public class ToolDef
     [JsonProperty("volume")] public float Volume = 0.5f;
 }
 
-
 public class LegacyItemDef
 {
     [JsonProperty("battery_data")] public ItemBatteryDef? BatteryData;
@@ -356,7 +358,10 @@ public class LegacyItemDef
 
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
     [JsonProperty("inventory_icon_scale")] public float InventoryIconScale = 4f;
-    [JsonProperty("multi_worn")] public Dictionary<string, LegacyWornSpriteOffset>? MultiWorn;
+
+    [JsonProperty("multi_worn")]
+    public Dictionary<string, LegacyWornSpriteOffset>? MultiWorn;
+
     [JsonProperty("only_hold_in_hands")] public bool OnlyHoldInHands;
     [JsonProperty("origin_prefab")] public string OriginPrefab = "geofruit";
     [JsonProperty("qualities")] public List<QualitiesDef>? Qualities;

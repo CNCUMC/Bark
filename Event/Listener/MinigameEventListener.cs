@@ -96,7 +96,8 @@ public static class MinigameEventListener
                     });
                     break;
                 case 5 when prev != 5:
-                    EventUtil.Trigger(new AEDMinigameFailEvent { Limb = __instance.limb });
+                    EventUtil.Trigger(new AEDMinigameFailEvent
+                        { Limb = __instance.limb });
                     break;
             }
         }
@@ -160,7 +161,8 @@ public static class MinigameEventListener
             {
                 case true when _lastDislocationReset != id:
                     _lastDislocationReset = id;
-                    EventUtil.Trigger(new DislocationMinigameSuccessEvent { Limb = limb });
+                    EventUtil.Trigger(new DislocationMinigameSuccessEvent
+                        { Limb = limb });
                     break;
                 case false:
                     _lastDislocationReset = -1;
@@ -194,7 +196,9 @@ public static class MinigameEventListener
         [HarmonyPrefix]
         private static void UpdatePrefix()
         {
-            if (Minigame.game != null && Minigame.game.body != null && Minigame.game.body.stamina < 15f)
+            if (Minigame.game != null
+                && Minigame.game.body != null
+                && Minigame.game.body.stamina < 15f)
                 EventUtil.Trigger(new HandCrankMinigameEndEvent());
         }
     }
@@ -207,7 +211,8 @@ public static class MinigameEventListener
         private static void StartPostfix(KeypadMinigame __instance)
         {
             if (__instance.toDestroy == null) return;
-            EventUtil.Trigger(new KeypadMinigameStartEvent { ToDestroy = __instance.toDestroy });
+            EventUtil.Trigger(new KeypadMinigameStartEvent
+                { ToDestroy = __instance.toDestroy });
         }
 
         [HarmonyPatch("Update")]
@@ -217,7 +222,8 @@ public static class MinigameEventListener
             if (__instance.toDestroy == null) return;
 
             if (__instance.current == __instance.match)
-                EventUtil.Trigger(new KeypadMinigameSuccessEvent { ToDestroy = __instance.toDestroy });
+                EventUtil.Trigger(new KeypadMinigameSuccessEvent
+                    { ToDestroy = __instance.toDestroy });
         }
     }
 
@@ -249,16 +255,19 @@ public static class MinigameEventListener
             {
                 if (_lockpickDone) return;
                 _lockpickDone = true;
-                EventUtil.Trigger(new LockpingMinigameSuccessEvent { ToDestroy = __instance.toDestroy });
+                EventUtil.Trigger(new LockpingMinigameSuccessEvent
+                    { ToDestroy = __instance.toDestroy });
                 return;
             }
 
-            var stuck = Traverse.Create(__instance).Field("timeWasStuck").GetValue<float>();
+            var stuck = Traverse.Create(__instance).Field("timeWasStuck")
+                .GetValue<float>();
             if (stuck > 0.5f)
             {
                 if (_lockpickStuck) return;
                 _lockpickStuck = true;
-                EventUtil.Trigger(new LockpingMinigameStuckEvent { ToDestroy = __instance.toDestroy });
+                EventUtil.Trigger(new LockpingMinigameStuckEvent
+                    { ToDestroy = __instance.toDestroy });
             }
             else
             {
@@ -290,11 +299,14 @@ public static class MinigameEventListener
         {
             if (__instance.limb == null) return;
 
-            var shockCount = Traverse.Create(__instance).Field("shockCount").GetValue<int>();
+            var shockCount = Traverse.Create(__instance).Field("shockCount")
+                .GetValue<int>();
             if (shockCount <= _lastManualDefibShocks) return;
             _lastManualDefibShocks = shockCount;
-            var charge = Traverse.Create(__instance).Field("currentCharge").GetValue<float>();
-            EventUtil.Trigger(new ManualDefibMinigameShockEvent { Limb = __instance.limb, Charge = charge });
+            var charge = Traverse.Create(__instance).Field("currentCharge")
+                .GetValue<float>();
+            EventUtil.Trigger(new ManualDefibMinigameShockEvent
+                { Limb = __instance.limb, Charge = charge });
         }
 
         [HarmonyPatch("PhysicsUpdate")]
@@ -375,7 +387,8 @@ public static class MinigameEventListener
             var limb = GetSyringeLimb(__instance);
             if (limb == null) return;
 
-            var injecting = Traverse.Create(__instance).Field("wasInjectingBefore").GetValue<bool>();
+            var injecting = Traverse.Create(__instance).Field("wasInjectingBefore")
+                .GetValue<bool>();
             if (injecting && !_syringeDone)
             {
                 _syringeDone = true;
@@ -397,7 +410,8 @@ public static class MinigameEventListener
             if (__instance.limb == null) return;
 
             _amputationDone = false;
-            EventUtil.Trigger(new AmputationMinigameStartEvent { Limb = __instance.limb });
+            EventUtil.Trigger(new AmputationMinigameStartEvent
+                { Limb = __instance.limb });
         }
 
         [HarmonyPatch("Update")]
@@ -408,7 +422,8 @@ public static class MinigameEventListener
 
             if (!(__instance.cutProgress >= 1f) || _amputationDone) return;
             _amputationDone = true;
-            EventUtil.Trigger(new AmputationMinigameSuccessEvent { Limb = __instance.limb });
+            EventUtil.Trigger(new AmputationMinigameSuccessEvent
+                { Limb = __instance.limb });
         }
     }
 }

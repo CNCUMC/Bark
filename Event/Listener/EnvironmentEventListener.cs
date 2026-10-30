@@ -32,7 +32,8 @@ public static class EnvironmentEventListener
         var id = __instance.GetInstanceID();
         if (!SpawnedTickSpawners.Add(id)) return;
 
-        EventUtil.Trigger(new CaveTickSpawnEvent { Position = __instance.transform.position });
+        EventUtil.Trigger(new CaveTickSpawnEvent
+            { Position = __instance.transform.position });
     }
 
 
@@ -71,7 +72,8 @@ public static class EnvironmentEventListener
         var id = __instance.GetInstanceID();
         if (!CommentedCorpses.Add(id)) return;
 
-        EventUtil.Trigger(new CorpseSeenEvent { Corpse = __instance, AnimalCorpse = false });
+        EventUtil.Trigger(new CorpseSeenEvent
+            { Corpse = __instance, AnimalCorpse = false });
     }
 
     [HarmonyPatch(typeof(CorpseScript), "OnDestroy")]

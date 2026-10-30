@@ -22,16 +22,16 @@ Storage.SetString('my_mod.player_note', 'hello');
 var note = Storage.GetString('my_mod.player_note', '');
 ```
 
-| Method                               | Returns  | Description                              |
-|--------------------------------------|----------|------------------------------------------|
-| `GetBool(key, defaultValue?)`        | `bool`   | Read a boolean, fallback to default      |
-| `SetBool(key, value)`                | —        | Write a boolean                          |
-| `GetInt(key, defaultValue?)`         | `int`    | Read an integer, fallback to default     |
-| `SetInt(key, value)`                 | —        | Write an integer                         |
-| `GetFloat(key, defaultValue?)`       | `float`  | Read a float, fallback to default        |
-| `SetFloat(key, value)`               | —        | Write a float                            |
-| `GetString(key, defaultValue?)`      | `string` | Read a string, fallback to default       |
-| `SetString(key, value)`              | —        | Write a string                           |
+| Method                          | Returns  | Description                          |
+|---------------------------------|----------|--------------------------------------|
+| `GetBool(key, defaultValue?)`   | `bool`   | Read a boolean, fallback to default  |
+| `SetBool(key, value)`           | —        | Write a boolean                      |
+| `GetInt(key, defaultValue?)`    | `int`    | Read an integer, fallback to default |
+| `SetInt(key, value)`            | —        | Write an integer                     |
+| `GetFloat(key, defaultValue?)`  | `float`  | Read a float, fallback to default    |
+| `SetFloat(key, value)`          | —        | Write a float                        |
+| `GetString(key, defaultValue?)` | `string` | Read a string, fallback to default   |
+| `SetString(key, value)`         | —        | Write a string                       |
 
 > Default values are returned when the key has never been written. Use namespaced keys (e.g. `my_mod.*`) to avoid
 > collisions with other mods.

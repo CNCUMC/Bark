@@ -16,8 +16,8 @@ World.PlaceTile(50, 30, 18);   // 18 = Marble block
 World.FillTiles(0, 0, 10, 5, 3);  // fill (0,0) to (10,5) with block #3
 ```
 
-| Method                                            | Description                                           |
-|---------------------------------------------------|-------------------------------------------------------|
+| Method                                           | Description                                           |
+|--------------------------------------------------|-------------------------------------------------------|
 | `PlaceTile(x, y, blockId)`                       | Place one block at coordinates                        |
 | `FillTiles(startX, startY, endX, endY, blockId)` | Batch-fill a rectangle, coords auto-clamped to bounds |
 

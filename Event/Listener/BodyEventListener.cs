@@ -46,7 +46,8 @@ public static class BodyEventListener
     private static void StartClimbingPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
-        EventUtil.Trigger(new BodyClimbStartEvent { Body = __instance, Camera = PlayerCamera.main });
+        EventUtil.Trigger(new BodyClimbStartEvent
+            { Body = __instance, Camera = PlayerCamera.main });
     }
 
     [HarmonyPatch("StopClimbing")]
@@ -54,7 +55,8 @@ public static class BodyEventListener
     private static void StopClimbingPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
-        EventUtil.Trigger(new BodyClimbEndEvent { Body = __instance, Camera = PlayerCamera.main });
+        EventUtil.Trigger(new BodyClimbEndEvent
+            { Body = __instance, Camera = PlayerCamera.main });
     }
 
     [HarmonyPatch("SwitchHands")]
@@ -62,7 +64,8 @@ public static class BodyEventListener
     private static void SwitchHandsPrefix(Body __instance)
     {
         if (!IsPlayerBody(__instance)) return;
-        EventUtil.Trigger(new BodySwitchHandsEvent { Body = __instance, Camera = PlayerCamera.main });
+        EventUtil.Trigger(new BodySwitchHandsEvent
+            { Body = __instance, Camera = PlayerCamera.main });
     }
 
     [HarmonyPatch("PickUpItem")]
@@ -112,14 +115,16 @@ public static class BodyEventListener
     private static void DisfigurePostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance) || !__instance.disfigured) return;
-        EventUtil.Trigger(new BodyDisfigureEvent { Body = __instance, Camera = PlayerCamera.main });
+        EventUtil.Trigger(new BodyDisfigureEvent
+            { Body = __instance, Camera = PlayerCamera.main });
     }
 
     [HarmonyPatch("RemoveEye")]
     [HarmonyPostfix]
     private static void RemoveEyePostfix(Body __instance)
     {
-        if (!IsPlayerBody(__instance) || __instance is { eyeGone: false, bothEyesGone: false }) return;
+        if (!IsPlayerBody(__instance)
+            || __instance is { eyeGone: false, bothEyesGone: false }) return;
         EventUtil.Trigger(new BodyRemoveEyeEvent
         {
             Body = __instance,
@@ -133,7 +138,8 @@ public static class BodyEventListener
     private static void TryLastStandPostfix(Body __instance)
     {
         if (!IsPlayerBody(__instance) || !__instance.succesfullyRolledLastStand) return;
-        EventUtil.Trigger(new BodyLastStandEvent { Body = __instance, Camera = PlayerCamera.main });
+        EventUtil.Trigger(new BodyLastStandEvent
+            { Body = __instance, Camera = PlayerCamera.main });
     }
 
     private static IEnumerator MonitorBody()
@@ -174,10 +180,12 @@ public static class BodyEventListener
         switch (fibrillating)
         {
             case true when !_wasFibrillating:
-                EventUtil.Trigger(new BodyFibrillationStartEvent { Body = body, Camera = cam });
+                EventUtil.Trigger(new BodyFibrillationStartEvent
+                    { Body = body, Camera = cam });
                 break;
             case false when _wasFibrillating:
-                EventUtil.Trigger(new BodyFibrillationEndEvent { Body = body, Camera = cam });
+                EventUtil.Trigger(new BodyFibrillationEndEvent
+                    { Body = body, Camera = cam });
                 break;
         }
 
@@ -185,28 +193,32 @@ public static class BodyEventListener
 
         if (body.breathing != _wasBreathing)
         {
-            EventUtil.Trigger(new BodyBreathChangeEvent { Body = body, Camera = cam, IsBreathing = body.breathing });
+            EventUtil.Trigger(new BodyBreathChangeEvent
+                { Body = body, Camera = cam, IsBreathing = body.breathing });
             _wasBreathing = body.breathing;
         }
 
         var conscious = body.conscious;
         if (conscious != _wasConscious)
         {
-            EventUtil.Trigger(new BodyConsciousnessChangeEvent { Body = body, Camera = cam, IsConscious = conscious });
+            EventUtil.Trigger(new BodyConsciousnessChangeEvent
+                { Body = body, Camera = cam, IsConscious = conscious });
             _wasConscious = conscious;
         }
 
         var brainDying = body.brainDying;
         if (brainDying != _wasBrainDying)
         {
-            EventUtil.Trigger(new BodyBrainDyingEvent { Body = body, Camera = cam, IsBrainDying = brainDying });
+            EventUtil.Trigger(new BodyBrainDyingEvent
+                { Body = body, Camera = cam, IsBrainDying = brainDying });
             _wasBrainDying = brainDying;
         }
 
         if (body.exercising != _wasExercising)
         {
             if (body.exercising)
-                EventUtil.Trigger(new BodyExerciseStartEvent { Body = body, Camera = cam });
+                EventUtil.Trigger(
+                    new BodyExerciseStartEvent { Body = body, Camera = cam });
             else
                 EventUtil.Trigger(new BodyExerciseEndEvent { Body = body, Camera = cam });
             _wasExercising = body.exercising;
@@ -214,13 +226,15 @@ public static class BodyEventListener
 
         if (body.crouching != _wasCrouching)
         {
-            EventUtil.Trigger(new BodyCrouchChangeEvent { Body = body, Camera = cam, IsCrouching = body.crouching });
+            EventUtil.Trigger(new BodyCrouchChangeEvent
+                { Body = body, Camera = cam, IsCrouching = body.crouching });
             _wasCrouching = body.crouching;
         }
 
         if (body.sleeping != _wasSleeping)
         {
-            EventUtil.Trigger(new BodySleepChangeEvent { Body = body, Camera = cam, IsSleeping = body.sleeping });
+            EventUtil.Trigger(new BodySleepChangeEvent
+                { Body = body, Camera = cam, IsSleeping = body.sleeping });
             _wasSleeping = body.sleeping;
         }
     }

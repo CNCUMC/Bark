@@ -110,7 +110,8 @@ public class GunSoundProfile
             var clip = GetCachedClip(entry);
             if (clip == null) return;
 
-            if (Math.Abs(entry.Volume - 1f) < 0.001f && Math.Abs(entry.Pitch - 1f) < 0.001f)
+            if (Math.Abs(entry.Volume - 1f) < 0.001f
+                && Math.Abs(entry.Pitch - 1f) < 0.001f)
                 Sound.Play(clip, position, true, false);
             else
                 PlayWithSource(clip, position, entry.Volume, entry.Pitch);
@@ -155,7 +156,9 @@ public class GunSoundProfile
         var seen = new HashSet<string>();
         foreach (var entry in allEntries)
         {
-            if (entry is not { File: var file } || string.IsNullOrEmpty(file) || !seen.Add(file))
+            if (entry is not { File: var file }
+                || string.IsNullOrEmpty(file)
+                || !seen.Add(file))
                 continue;
 
             var path = Path.Combine(modDir, "Assets", "Audio", file);
@@ -167,7 +170,8 @@ public class GunSoundProfile
         }
     }
 
-    private static void CollectEntries(List<SoundEntry>? entries, List<SoundEntry?> target)
+    private static void CollectEntries(List<SoundEntry>? entries,
+        List<SoundEntry?> target)
     {
         if (entries == null) return;
         target.AddRange(entries);
@@ -191,7 +195,8 @@ public class GunSoundProfile
             PlayWithSource(clip, position, entry.Volume, entry.Pitch);
     }
 
-    private static void PlayWithSource(AudioClip clip, Vector2 position, float volume, float pitch)
+    private static void PlayWithSource(AudioClip clip, Vector2 position, float volume,
+        float pitch)
     {
         var go = new GameObject("Bark_TempAudio")
         {

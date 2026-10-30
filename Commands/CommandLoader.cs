@@ -14,7 +14,8 @@ public static class CommandLoader
 {
     public static readonly Dictionary<string, CommandEntry> RegisteredCommands = new();
 
-    private static readonly Dictionary<string, Dictionary<string, (ScriptManifest manifest, CommandDef def)>>
+    private static readonly Dictionary<string,
+            Dictionary<string, (ScriptManifest manifest, CommandDef def)>>
         PendingCommands = new();
 
     public static void RegisterFromMod(ScriptManifest manifest)
@@ -26,7 +27,8 @@ public static class CommandLoader
         if (!Directory.Exists(commandsDir))
             return;
 
-        var jsonFiles = Directory.GetFiles(commandsDir, "*.json", SearchOption.AllDirectories);
+        var jsonFiles =
+            Directory.GetFiles(commandsDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return;
 
@@ -74,7 +76,8 @@ public static class CommandLoader
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
 
-        if (!PendingCommands.Remove(manifest.Id, out var modCommands) || modCommands.Count == 0)
+        if (!PendingCommands.Remove(manifest.Id, out var modCommands)
+            || modCommands.Count == 0)
             return;
 
         var registeredCount = 0;
@@ -98,7 +101,8 @@ public static class CommandLoader
                 argAutofill,
                 argDescriptions);
 
-            RegisteredCommands[name] = new CommandEntry(name, def.Description ?? string.Empty);
+            RegisteredCommands[name] =
+                new CommandEntry(name, def.Description ?? string.Empty);
             registeredCount++;
         }
 
@@ -122,7 +126,8 @@ public static class CommandLoader
         return result;
     }
 
-    private static (string shortDesc, string longDesc)[] BuildArgDescriptions(CommandDef def)
+    private static (string shortDesc, string longDesc)[] BuildArgDescriptions(
+        CommandDef def)
     {
         if (def.Args is not { Length: > 0 })
             return [];

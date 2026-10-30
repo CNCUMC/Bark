@@ -17,11 +17,11 @@ var packed2 = Compress.CompressDeflate('some data');
 var original2 = Compress.DecompressDeflate(packed2);
 ```
 
-| Method                             | Returns  | Description                        |
-|------------------------------------|----------|------------------------------------|
-| `CompressGZip(text)`               | `string` | GZip compress, returns base64      |
-| `DecompressGZip(base64)`           | `string` | GZip decompress, returns text      |
-| `CompressDeflate(text)`            | `string` | Deflate compress, returns base64   |
-| `DecompressDeflate(base64)`        | `string` | Deflate decompress, returns text   |
+| Method                      | Returns  | Description                      |
+|-----------------------------|----------|----------------------------------|
+| `CompressGZip(text)`        | `string` | GZip compress, returns base64    |
+| `DecompressGZip(base64)`    | `string` | GZip decompress, returns text    |
+| `CompressDeflate(text)`     | `string` | Deflate compress, returns base64 |
+| `DecompressDeflate(base64)` | `string` | Deflate decompress, returns text |
 
 > The compressed output is a base64 string. An empty/null input returns an empty string.

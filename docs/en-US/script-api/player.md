@@ -66,11 +66,11 @@ Player.TalkElectronic('Searching for signal...');
 Player.TalkElectronic('Analyzing sample...', 'watch');
 ```
 
-| Method                              | Description                                   |
-|-------------------------------------|-----------------------------------------------|
-| `Talk(dialogue)`                    | Player speaks a dialogue bubble               |
-| `TalkElectronic(dialogue)`          | Speak via the generic electronic talker proxy |
-| `TalkElectronic(dialogue, itemId)`  | Speak via a specific electronic item          |
+| Method                             | Description                                   |
+|------------------------------------|-----------------------------------------------|
+| `Talk(dialogue)`                   | Player speaks a dialogue bubble               |
+| `TalkElectronic(dialogue)`         | Speak via the generic electronic talker proxy |
+| `TalkElectronic(dialogue, itemId)` | Speak via a specific electronic item          |
 
 > The `itemId` parameter of `TalkElectronic` is optional and resolves through the same mod-id prefixing rules as item
 > IDs elsewhere.

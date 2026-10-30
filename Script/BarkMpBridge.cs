@@ -77,6 +77,6 @@ public static class BarkMpBridge
 
     public static bool BroadcastToClients(string channel, object? payload)
     {
-        return MultiplayerApi.Broadcast(channel, payload, includeHost: false);
+        return MultiplayerApi.Broadcast(channel, payload, false);
     }
 }

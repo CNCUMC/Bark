@@ -105,12 +105,14 @@ public static class MoodleEventListener
     }
 
 
-    private static void TrackMoodle(int intensity, string name, bool critical, string key, float holdSeconds)
+    private static void TrackMoodle(int intensity, string name, bool critical, string key,
+        float holdSeconds)
     {
         if (string.IsNullOrEmpty(key))
             return;
 
-        var canHeal = MoodleLoader.LoadedMoodleDefs.TryGetValue(key, out var def) && def.CanHeal;
+        var canHeal = MoodleLoader.LoadedMoodleDefs.TryGetValue(key, out var def)
+            && def.CanHeal;
 
         var expireTime = Time.time + holdSeconds;
         ActiveMoodles[key] = new MoodleTracker(key, name, expireTime, canHeal);

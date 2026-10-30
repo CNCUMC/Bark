@@ -16,11 +16,11 @@ var packed2 = Compress.CompressDeflate('some data');
 var original2 = Compress.DecompressDeflate(packed2);
 ```
 
-| 方法                              | 返回      | 说明                       |
-|-----------------------------------|-----------|----------------------------|
-| `CompressGZip(text)`              | `string`  | GZip 压缩，返回 base64     |
-| `DecompressGZip(base64)`          | `string`  | GZip 解压，返回原始文本    |
-| `CompressDeflate(text)`           | `string`  | Deflate 压缩，返回 base64  |
-| `DecompressDeflate(base64)`       | `string`  | Deflate 解压，返回原始文本 |
+| 方法                        | 返回     | 说明                       |
+|-----------------------------|----------|----------------------------|
+| `CompressGZip(text)`        | `string` | GZip 压缩，返回 base64     |
+| `DecompressGZip(base64)`    | `string` | GZip 解压，返回原始文本    |
+| `CompressDeflate(text)`     | `string` | Deflate 压缩，返回 base64  |
+| `DecompressDeflate(base64)` | `string` | Deflate 解压，返回原始文本 |
 
 > 压缩输出为 base64 字符串。空/null 输入返回空字符串。

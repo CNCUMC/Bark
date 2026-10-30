@@ -19,9 +19,11 @@ public abstract class ScriptEngine
 
     public abstract void CallTriggerEvent(string eventName, BarkEvent? eventData = null);
 
-    public abstract void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null);
+    public abstract void ExecuteItemFile(string filePath, string? itemId,
+        Item? item = null, string? action = null);
 
-    public abstract void ExecuteTileFile(string filePath, string? tileId, TileScriptContext? context = null,
+    public abstract void ExecuteTileFile(string filePath, string? tileId,
+        TileScriptContext? context = null,
         string? action = null);
 
     public abstract void CallUpdate();

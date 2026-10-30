@@ -130,9 +130,9 @@ Sever a limb using the player's currently held item as the cutting tool. No-op i
 Limb.DoAmputate(0);
 ```
 
-| Method               | Description                                      |
-|----------------------|--------------------------------------------------|
-| `DoAmputate(index)`  | Sever the limb using the currently held item     |
+| Method              | Description                                  |
+|---------------------|----------------------------------------------|
+| `DoAmputate(index)` | Sever the limb using the currently held item |
 
 > The player must hold an item that supports amputation (e.g. a saw or scalpel). Doing nothing otherwise.
 

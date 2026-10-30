@@ -77,7 +77,8 @@ public static class SystemEventListener
 
     [HarmonyPatch(typeof(WorldGeneration), "RegenerateWorld", typeof(bool))]
     [HarmonyPrefix]
-    private static void WorldGenerationRegenerateWorldPrefix(WorldGeneration __instance, bool twice)
+    private static void WorldGenerationRegenerateWorldPrefix(WorldGeneration __instance,
+        bool twice)
     {
         if (__instance == null || !__instance) return;
         EventUtil.Trigger(new WorldRegenerateEvent { Twice = twice });

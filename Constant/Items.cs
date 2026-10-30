@@ -5,23 +5,38 @@ public sealed class Items
     public static readonly Items _12Gauge = new("12gauge", "custom", 0.05f, 0);
     public static readonly Items _556Round = new("556round", "custom", 0.02f, 0);
     public static readonly Items _9MmRound = new("9mmround", "custom", 0.02f, 0);
-    public static readonly Items AdhesiveBandage = new("adhesivebandage", "medical", 0.1f, 12, 6);
+
+    public static readonly Items AdhesiveBandage =
+        new("adhesivebandage", "medical", 0.1f, 12, 6);
+
     public static readonly Items Aed = new("aed", "medical", 0.3f, 36, 10);
     public static readonly Items Alcohol = new("alcohol", "water", 0.6f, 5, 3);
     public static readonly Items Alginate = new("alginate", "medical", 0.1f, 8, 5);
     public static readonly Items Amiodarone = new("amiodarone", "medical", 0.15f, 35, 9);
-    public static readonly Items AnalgesicGauze = new("analgesicgauze", "medical", 0.1f, 8, 4);
+
+    public static readonly Items AnalgesicGauze =
+        new("analgesicgauze", "medical", 0.1f, 8, 4);
+
     public static readonly Items AnimalFlesh = new("animalflesh", "food", 0.3f, 3, 3);
     public static readonly Items Antibiotics = new("antibiotics", "medical", 0.1f, 20, 6);
-    public static readonly Items Antidepressants = new("antidepressants", "drug", 0.1f, 8, 4);
+
+    public static readonly Items Antidepressants =
+        new("antidepressants", "drug", 0.1f, 8, 4);
+
     public static readonly Items AntiRad = new("antirad", "medical", 0.1f, 6, 5);
     public static readonly Items AntiSerum = new("antiserum", "medical", 0.1f, 16, 7);
-    public static readonly Items AntisepticMush = new("antisepticmush", "medical", 0.1f, 12, 6);
+
+    public static readonly Items AntisepticMush =
+        new("antisepticmush", "medical", 0.1f, 12, 6);
+
     public static readonly Items AppleJuice = new("applejuice", "water", 0.6f, 3, 2);
     public static readonly Items ArmWarmers = new("armwarmers", "utility", 0.1f, 12);
     public static readonly Items AutoInjector = new("autoinjector", "custom", 0.1f, 4, 9);
     public static readonly Items AutoPump = new("autopump", "medical", 0.2f, 30, 9);
-    public static readonly Items AutoZoomGoggles = new("autozoomgoggles", "utility", 0.2f, 20, 8);
+
+    public static readonly Items AutoZoomGoggles =
+        new("autozoomgoggles", "utility", 0.2f, 20, 8);
+
     public static readonly Items Balaclava = new("balaclava", "utility", 0.1f, 10);
     public static readonly Items Banana = new("banana", "food", 0.2f, 2, 2);
     public static readonly Items Bandage = new("bandage", "medical", 0.1f, 4, 1);
@@ -34,12 +49,22 @@ public sealed class Items
     public static readonly Items Blindfold = new("blindfold", "utility", 0.1f, 8, 1);
     public static readonly Items BlobFlesh = new("blobflesh", "food", 0.3f, 7, 5);
     public static readonly Items BloodBag = new("bloodbag", "medical", 0.5f, 4, 3);
-    public static readonly Items BloodBagHuman = new("bloodbaghuman", "medical", 0.6f, 8, 5);
-    public static readonly Items BloodCoagulant = new("bloodcoagulant", "medical", 0.1f, 8, 3);
-    public static readonly Items BloodCrystalShard = new("bloodcrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items BloodBagHuman =
+        new("bloodbaghuman", "medical", 0.6f, 8, 5);
+
+    public static readonly Items BloodCoagulant =
+        new("bloodcoagulant", "medical", 0.1f, 8, 3);
+
+    public static readonly Items BloodCrystalShard =
+        new("bloodcrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items BloodSac = new("bloodsac", "medical", 0.3f, 0, 2);
     public static readonly Items Blueprint = new("blueprint", "custom", 0.1f, 6, 4);
-    public static readonly Items BoneWeldingTool = new("boneweldingtool", "medical", 0.5f, 20, 10);
+
+    public static readonly Items BoneWeldingTool =
+        new("boneweldingtool", "medical", 0.5f, 20, 10);
+
     public static readonly Items BowlOfCereal = new("bowlofcereal", "food", 0.3f, 3, 2);
     public static readonly Items Box = new("box", "container", 0.3f, 3, 2);
     public static readonly Items BoxOf12Gauge = new("boxof12gauge", "custom", 0.3f, 8, 5);
@@ -48,11 +73,19 @@ public sealed class Items
     public static readonly Items BrokenBag = new("brokenbag", "trash", 0.1f, 0);
     public static readonly Items BrownCap = new("browncap", "food", 0.1f, 1, 1);
     public static readonly Items BruiseKit = new("bruisekit", "medical", 0.2f, 8, 4);
-    public static readonly Items BucketOfChicken = new("bucketofchicken", "food", 0.5f, 8, 3);
-    public static readonly Items BucketOfNoChicken = new("bucketofnochicken", "food", 0.3f, 4, 2);
+
+    public static readonly Items BucketOfChicken =
+        new("bucketofchicken", "food", 0.5f, 8, 3);
+
+    public static readonly Items BucketOfNoChicken =
+        new("bucketofnochicken", "food", 0.3f, 4, 2);
+
     public static readonly Items BulkSkin = new("bulkskin", "food", 1f, 4, 3);
     public static readonly Items BunChunk = new("bunchunk", "medical", 0.15f, 5, 5);
-    public static readonly Items BundleOfWires = new("bundleofwires", "custom", 0.03f, 1, 6);
+
+    public static readonly Items BundleOfWires =
+        new("bundleofwires", "custom", 0.03f, 1, 6);
+
     public static readonly Items Burger = new("burger", "food", 0.3f, 4, 2);
     public static readonly Items CactusFlesh = new("cactusflesh", "food", 0.2f, 3, 3);
     public static readonly Items Cake = new("cake", "food", 0.3f, 4, 2);
@@ -62,7 +95,10 @@ public sealed class Items
     public static readonly Items Canvas = new("canvas", "custom", 0.1f, 1, 1);
     public static readonly Items Carapace = new("carapace", "utility", 1f, 20, 7);
     public static readonly Items Carcass = new("carcass", "trash", 0.5f, 0);
-    public static readonly Items CarcassSplint = new("carcasssplint", "medical", 0.25f, 0, 2);
+
+    public static readonly Items CarcassSplint =
+        new("carcasssplint", "medical", 0.25f, 0, 2);
+
     public static readonly Items Casing = new("casing", "custom", 0.01f, 0);
     public static readonly Items Ceftriaxone = new("ceftriaxone", "medical", 0.1f, 30, 9);
     public static readonly Items Cereal = new("cereal", "food", 0.3f, 2, 1);
@@ -70,36 +106,69 @@ public sealed class Items
     public static readonly Items ChestDrain = new("chestdrain", "medical", 0.1f, 6, 6);
     public static readonly Items Chips = new("chips", "food", 0.1f, 1, 1);
     public static readonly Items ChocolateBar = new("chocolatebar", "food", 0.1f, 3, 2);
-    public static readonly Items ChocolateMilk = new("chocolatemilk", "water", 0.6f, 4, 2);
-    public static readonly Items CircuitBoard = new("circuitboard", "custom", 0.05f, 2, 1);
+
+    public static readonly Items
+        ChocolateMilk = new("chocolatemilk", "water", 0.6f, 4, 2);
+
+    public static readonly Items
+        CircuitBoard = new("circuitboard", "custom", 0.05f, 2, 1);
+
     public static readonly Items Claws = new("claws", "tool", 0.2f, 8, 5);
-    public static readonly Items ClimbingClaws = new("climbingclaws", "utility", 0.6f, 28, 9);
+
+    public static readonly Items ClimbingClaws =
+        new("climbingclaws", "utility", 0.6f, 28, 9);
+
     public static readonly Items ClimbingRope = new("climbingrope", "custom", 1f, 4, 3);
-    public static readonly Items ClottingMush = new("clottingmush", "medical", 0.1f, 1, 3);
+
+    public static readonly Items
+        ClottingMush = new("clottingmush", "medical", 0.1f, 1, 3);
+
     public static readonly Items Coffee = new("coffee", "water", 0.3f, 3, 2);
     public static readonly Items CombatPen = new("combatpen", "medical", 0.1f, 3, 3);
     public static readonly Items Cookies = new("cookies", "food", 0.15f, 2, 2);
-    public static readonly Items CraftingBottle = new("craftingbottle", "unobtainable", 1f, 0);
+
+    public static readonly Items CraftingBottle =
+        new("craftingbottle", "unobtainable", 1f, 0);
+
     public static readonly Items CrudeClaver = new("crudeclaver", "tool", 0.8f, 4, 2);
-    public static readonly Items DigestionCrystalShard = new("digestioncrystalshard", "custom", 0.5f, 8, 3);
-    public static readonly Items Disinfectant = new("disinfectant", "medical", 0.15f, 3, 2);
+
+    public static readonly Items DigestionCrystalShard =
+        new("digestioncrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items Disinfectant =
+        new("disinfectant", "medical", 0.15f, 3, 2);
+
     public static readonly Items DogFood = new("dogfood", "food", 0.3f, 1, 1);
-    public static readonly Items DrillRepairKit = new("drillrepairkit", "custom", 0.8f, 10, 8);
+
+    public static readonly Items DrillRepairKit =
+        new("drillrepairkit", "custom", 0.8f, 10, 8);
+
     public static readonly Items Droppings = new("droppings", "trash", 0.05f, 0);
     public static readonly Items DryFoliage = new("dryfoliage", "custom", 0.1f, 0);
     public static readonly Items DuffelBag = new("duffelbag", "container", 0.4f, 12, 4);
     public static readonly Items DustMask = new("dustmask", "utility", 0.1f, 10, 3);
     public static readonly Items Dynamite = new("dynamite", "utility", 1f, 15, 8);
-    public static readonly Items EmergencyLight = new("emergencylight", "utility", 0.5f, 4, 2);
-    public static readonly Items EmissiveCrystalShard = new("emissivecrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items EmergencyLight =
+        new("emergencylight", "utility", 0.5f, 4, 2);
+
+    public static readonly Items EmissiveCrystalShard =
+        new("emissivecrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items EnergyDrink = new("energydrink", "water", 0.3f, 4, 3);
     public static readonly Items Epda = new("epda", "utility", 0.5f, 20, 8);
-    public static readonly Items ExperimentFlesh = new("experimentflesh", "food", 0.6f, 5, 4);
+
+    public static readonly Items ExperimentFlesh =
+        new("experimentflesh", "food", 0.6f, 5, 4);
+
     public static readonly Items FannyPack = new("fannypack", "container", 0.15f, 20, 3);
     public static readonly Items Fentanyl = new("fentanyl", "drug", 0.1f, 20, 8);
     public static readonly Items FilterStraw = new("filterstraw", "utility", 0.1f, 1, 5);
     public static readonly Items FireStarter = new("firestarter", "custom", 0.3f, 5, 8);
-    public static readonly Items FlammablePowder = new("flammablepowder", "custom", 0.1f, 1, 2);
+
+    public static readonly Items FlammablePowder =
+        new("flammablepowder", "custom", 0.1f, 1, 2);
+
     public static readonly Items Flashlight = new("flashlight", "utility", 0.2f, 8, 4);
     public static readonly Items FleshChunk = new("fleshchunk", "food", 0.2f, 1, 1);
     public static readonly Items FlexiGlass = new("flexiglass", "custom", 0.1f, 1, 4);
@@ -111,8 +180,13 @@ public sealed class Items
     public static readonly Items FungusChunk = new("funguschunk", "food", 0.2f, 2, 2);
     public static readonly Items GeigeFruit = new("geigefruit", "food", 0.5f, 4, 2);
     public static readonly Items GeoFruit = new("geofruit", "food", 1.5f, 5, 2);
-    public static readonly Items GlowPlantFruit = new("glowplantfruit", "food", 0.3f, 3, 4);
-    public static readonly Items GrapplingHook = new("grapplinghook", "utility", 2.2f, 32, 10);
+
+    public static readonly Items GlowPlantFruit =
+        new("glowplantfruit", "food", 0.3f, 3, 4);
+
+    public static readonly Items GrapplingHook =
+        new("grapplinghook", "utility", 2.2f, 32, 10);
+
     public static readonly Items GravBag = new("gravbag", "container", 1.5f, 8, 10);
     public static readonly Items HardCandy = new("hardcandy", "food", 0.05f, 1);
     public static readonly Items Headlamp = new("headlamp", "utility", 0.3f, 12, 6);
@@ -122,14 +196,25 @@ public sealed class Items
     public static readonly Items Hoodie = new("hoodie", "utility", 0.8f, 14);
     public static readonly Items IcePack = new("icepack", "medical", 0.15f, 2, 3);
     public static readonly Items IceTea = new("icetea", "water", 0.6f, 3, 2);
-    public static readonly Items IlmeniteChunk = new("ilmenitechunk", "custom", 1.5f, 2, 10);
-    public static readonly Items InternalOrgans = new("internalorgans", "food", 0.2f, 3, 6);
+
+    public static readonly Items IlmeniteChunk =
+        new("ilmenitechunk", "custom", 1.5f, 2, 10);
+
+    public static readonly Items InternalOrgans =
+        new("internalorgans", "food", 0.2f, 3, 6);
+
     public static readonly Items Jetpack = new("jetpack", "utility", 2.5f, 28, 10);
-    public static readonly Items KeratinBooster = new("keratinbooster", "medical", 0.2f, 12, 4);
+
+    public static readonly Items KeratinBooster =
+        new("keratinbooster", "medical", 0.2f, 12, 4);
+
     public static readonly Items Ketchup = new("ketchup", "food", 0.3f, 1, 1);
     public static readonly Items KneePads = new("kneepads", "utility", 0.4f, 12, 5);
     public static readonly Items Lantern = new("lantern", "utility", 0.5f, 9, 5);
-    public static readonly Items LargeBattery = new("largebattery", "custom", 0.3f, 12, 5);
+
+    public static readonly Items
+        LargeBattery = new("largebattery", "custom", 0.3f, 12, 5);
+
     public static readonly Items LargeCarcass = new("largecarcass", "trash", 1f, 0);
     public static readonly Items LatexGloves = new("latexgloves", "utility", 0.1f, 8);
     public static readonly Items LcdScreen = new("lcdscreen", "custom", 0.1f, 2, 7);
@@ -138,27 +223,55 @@ public sealed class Items
     public static readonly Items LightBulb = new("lightbulb", "custom", 0.05f, 2, 2);
     public static readonly Items Lighter = new("lighter", "utility", 0.1f, 12, 5);
     public static readonly Items LimbWraps = new("limbwraps", "utility", 0.1f, 12, 5);
-    public static readonly Items LiquidCentrifuge = new("liquidcentrifuge", "utility", 1f, 14, 7);
-    public static readonly Items LiquidPouch = new("liquidpouch", "container", 0.1f, 6, 3);
-    public static readonly Items LockPickingKit = new("lockpickingkit", "medical", 0.01f, 4, 5);
+
+    public static readonly Items LiquidCentrifuge =
+        new("liquidcentrifuge", "utility", 1f, 14, 7);
+
+    public static readonly Items
+        LiquidPouch = new("liquidpouch", "container", 0.1f, 6, 3);
+
+    public static readonly Items LockPickingKit =
+        new("lockpickingkit", "medical", 0.01f, 4, 5);
+
     public static readonly Items Lrd = new("lrd", "medical", 0.2f, 2, 1);
     public static readonly Items Machete = new("machete", "tool", 0.6f, 10, 4);
     public static readonly Items MagazineBase = new("magazinebase", "custom", 0.3f, 4, 3);
-    public static readonly Items MakeshiftDiggingTool = new("makeshiftdiggingtool", "tool", 0.6f, 2, 1);
-    public static readonly Items MakeshiftHeadlamp = new("makeshiftheadlamp", "custom", 1.25f, 5, 1);
-    public static readonly Items MakeshiftHelmet = new("makeshifthelmet", "utility", 0.4f, 2, 1);
+
+    public static readonly Items MakeshiftDiggingTool =
+        new("makeshiftdiggingtool", "tool", 0.6f, 2, 1);
+
+    public static readonly Items MakeshiftHeadlamp =
+        new("makeshiftheadlamp", "custom", 1.25f, 5, 1);
+
+    public static readonly Items MakeshiftHelmet =
+        new("makeshifthelmet", "utility", 0.4f, 2, 1);
+
     public static readonly Items MakeshiftRd = new("makeshiftrd", "medical", 0.2f, 0);
     public static readonly Items MakeshiftRifle = new("makeshiftrifle", "tool", 1f, 8, 4);
-    public static readonly Items MakeshiftWrench = new("makeshiftrwrench", "tool", 0.8f, 2, 1);
-    public static readonly Items ManualDefibrillator = new("manualdefibrillator", "medical", 0.25f, 50, 10);
-    public static readonly Items MaterialPouch = new("materialpouch", "container", 0.1f, 6, 3);
-    public static readonly Items MedicalSuture = new("medicalsuture", "medical", 0.15f, 6, 5);
-    public static readonly Items MediumBattery = new("mediumbattery", "custom", 0.1f, 6, 3);
+
+    public static readonly Items MakeshiftWrench =
+        new("makeshiftrwrench", "tool", 0.8f, 2, 1);
+
+    public static readonly Items ManualDefibrillator =
+        new("manualdefibrillator", "medical", 0.25f, 50, 10);
+
+    public static readonly Items MaterialPouch =
+        new("materialpouch", "container", 0.1f, 6, 3);
+
+    public static readonly Items MedicalSuture =
+        new("medicalsuture", "medical", 0.15f, 6, 5);
+
+    public static readonly Items MediumBattery =
+        new("mediumbattery", "custom", 0.1f, 6, 3);
+
     public static readonly Items Medkit = new("medkit", "container", 0.5f, 15, 8);
     public static readonly Items Milk = new("milk", "water", 0.6f, 3, 2);
     public static readonly Items MindWipe = new("mindwipe", "medical", 0.1f, 30, 7);
     public static readonly Items MiniBarrel = new("minibarrel", "water", 1f, 5, 4);
-    public static readonly Items MiniLaserDrill = new("minilaserdrill", "tool", 2.2f, 28, 10);
+
+    public static readonly Items MiniLaserDrill =
+        new("minilaserdrill", "tool", 2.2f, 28, 10);
+
     public static readonly Items Morphine = new("morphine", "drug", 0.1f, 15, 8);
     public static readonly Items Mp3Player = new("mp3player", "utility", 0.2f, 8, 4);
     public static readonly Items MushArm = new("musharm", "medical", 0.1f, 1, 2);
@@ -168,12 +281,20 @@ public sealed class Items
     public static readonly Items Nails = new("nails", "custom", 0.1f, 0, 2);
     public static readonly Items Naloxone = new("naloxone", "medical", 0.1f, 24, 9);
     public static readonly Items Naltrexone = new("naltrexone", "medical", 0.1f, 24, 9);
-    public static readonly Items NeuralBooster = new("neuralbooster", "medical", 0.2f, 22, 8);
-    public static readonly Items NonDescriptCan = new("nondescriptcan", "food", 0.3f, 2, 2);
+
+    public static readonly Items NeuralBooster =
+        new("neuralbooster", "medical", 0.2f, 22, 8);
+
+    public static readonly Items NonDescriptCan =
+        new("nondescriptcan", "food", 0.3f, 2, 2);
+
     public static readonly Items NoPopcorn = new("nopopcorn", "food", 0.1f, 0);
     public static readonly Items NutrientBar = new("nutrientbar", "food", 0.3f, 5, 4);
     public static readonly Items Opium = new("opium", "drug", 0.1f, 10, 7);
-    public static readonly Items OxygenCrystalShard = new("oxygencrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items OxygenCrystalShard =
+        new("oxygencrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items PainCream = new("paincream", "medical", 0.3f, 6, 4);
     public static readonly Items Painkillers = new("painkillers", "drug", 0.1f, 10, 6);
     public static readonly Items Pancake = new("pancake", "food", 0.2f, 2, 1);
@@ -184,40 +305,67 @@ public sealed class Items
     public static readonly Items Pitchfork = new("pitchfork", "tool", 1f, 6, 3);
     public static readonly Items PizzaSlice = new("pizzaslice", "food", 0.2f, 3, 1);
     public static readonly Items PlasticBag = new("plasticbag", "container", 0.05f, 0);
-    public static readonly Items PlasticBandage = new("plasticbandage", "medical", 0.1f, 6, 3);
+
+    public static readonly Items PlasticBandage =
+        new("plasticbandage", "medical", 0.1f, 6, 3);
+
     public static readonly Items PlasticChunk = new("plasticchunk", "custom", 0.3f, 0, 1);
     public static readonly Items PlasmaCutter = new("plasmacutter", "tool", 2f, 24, 8);
     public static readonly Items Plushie = new("plushie", "custom", 0.1f, 2, 1);
     public static readonly Items Popcorn = new("popcorn", "food", 0.15f, 1, 1);
     public static readonly Items Pouch = new("pouch", "container", 0.1f, 2, 1);
     public static readonly Items Present = new("present", "custom", 0.6f, 5, 4);
-    public static readonly Items PrimitiveDiggingTool = new("primitivediggingtool", "tool", 0.5f, 0);
-    public static readonly Items ProcessedCopper = new("processedcopper", "custom", 0.8f, 5, 6);
+
+    public static readonly Items PrimitiveDiggingTool =
+        new("primitivediggingtool", "tool", 0.5f, 0);
+
+    public static readonly Items ProcessedCopper =
+        new("processedcopper", "custom", 0.8f, 5, 6);
+
     public static readonly Items PurpleHerb = new("purpleherb", "food", 0.1f, 2, 2);
     public static readonly Items Purse = new("purse", "container", 0.15f, 4, 3);
     public static readonly Items Rag = new("rag", "medical", 0.1f, 0);
     public static readonly Items Rake = new("rake", "tool", 0.8f, 4, 2);
     public static readonly Items RangeFinder = new("rangefinder", "utility", 0.4f, 14, 6);
     public static readonly Items RawCopper = new("rawcopper", "custom", 1.2f, 1, 6);
-    public static readonly Items ReliefCrystalShard = new("reliefcrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items ReliefCrystalShard =
+        new("reliefcrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items Rifle = new("rifle", "tool", 1.2f, 18, 6);
-    public static readonly Items RifleMagazine = new("riflemagazine", "custom", 0.5f, 8, 5);
-    public static readonly Items RingerSolution = new("ringersolution", "medical", 0.6f, 10, 6);
-    public static readonly Items RippedDressing = new("rippeddressing", "medical", 0.05f, 0);
+
+    public static readonly Items RifleMagazine =
+        new("riflemagazine", "custom", 0.5f, 8, 5);
+
+    public static readonly Items RingerSolution =
+        new("ringersolution", "medical", 0.6f, 10, 6);
+
+    public static readonly Items RippedDressing =
+        new("rippeddressing", "medical", 0.05f, 0);
+
     public static readonly Items Rope = new("rope", "custom", 0.3f, 2, 2);
     public static readonly Items RoseLight = new("roselight", "medical", 0.15f, 6, 7);
     public static readonly Items RosePod = new("rosepod", "medical", 0.1f, 1, 2);
     public static readonly Items RyeBulb = new("ryebulb", "custom", 1f, 0, 5);
     public static readonly Items RyeFlour = new("ryeflour", "custom", 0.5f, 2, 7);
-    public static readonly Items SafetyGlasses = new("safetyglasses", "utility", 0.1f, 8, 3);
+
+    public static readonly Items SafetyGlasses =
+        new("safetyglasses", "utility", 0.1f, 8, 3);
+
     public static readonly Items Saline = new("saline", "medical", 0.6f, 8, 4);
-    public static readonly Items ScaffoldingPack = new("scaffoldingpack", "custom", 3f, 6, 5);
+
+    public static readonly Items ScaffoldingPack =
+        new("scaffoldingpack", "custom", 3f, 6, 5);
+
     public static readonly Items Scarf = new("scarf", "utility", 0.1f, 10);
     public static readonly Items ScrapCube = new("scrapcube", "custom", 0.5f, 6);
     public static readonly Items ScrapMetal = new("scrapmetal", "custom", 0.5f, 2);
     public static readonly Items ScrapPanel = new("scrappanel", "custom", 0.1f, 1);
     public static readonly Items ScrapTube = new("scraptube", "custom", 0.2f, 3);
-    public static readonly Items ScubaDivingGear = new("scubadivinggear", "utility", 1.5f, 30, 9);
+
+    public static readonly Items ScubaDivingGear =
+        new("scubadivinggear", "utility", 1.5f, 30, 9);
+
     public static readonly Items Shotgun = new("shotgun", "tool", 1.8f, 22, 7);
     public static readonly Items Shovel = new("shovel", "tool", 0.8f, 6, 2);
     public static readonly Items Sickle = new("sickle", "tool", 0.5f, 6, 3);
@@ -225,33 +373,65 @@ public sealed class Items
     public static readonly Items SleepingBag = new("sleepingbag", "utility", 0.8f, 6, 3);
     public static readonly Items SleepingPills = new("sleepingpills", "drug", 0.1f, 6, 5);
     public static readonly Items SlingBag = new("slingbag", "container", 0.2f, 4, 2);
-    public static readonly Items SmallBattery = new("smallbattery", "custom", 0.05f, 3, 2);
-    public static readonly Items SmallMagazine = new("smallmagazine", "custom", 0.3f, 6, 5);
+
+    public static readonly Items
+        SmallBattery = new("smallbattery", "custom", 0.05f, 3, 2);
+
+    public static readonly Items SmallMagazine =
+        new("smallmagazine", "custom", 0.3f, 6, 5);
+
     public static readonly Items SmallPack = new("smallpack", "container", 0.3f, 6, 2);
     public static readonly Items Sneakers = new("sneakers", "utility", 0.6f, 15);
     public static readonly Items SodaBottle = new("sodabottle", "water", 0.6f, 3, 1);
     public static readonly Items SodaCan = new("sodacan", "water", 0.3f, 2, 1);
-    public static readonly Items SodiumNitroprusside = new("sodiumnitroprusside", "medical", 0.15f, 30, 9);
-    public static readonly Items SoothingCrystalShard = new("soothingcrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items SodiumNitroprusside =
+        new("sodiumnitroprusside", "medical", 0.15f, 30, 9);
+
+    public static readonly Items SoothingCrystalShard =
+        new("soothingcrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items Soup = new("soup", "food", 0.3f, 2, 1);
     public static readonly Items SpaceDrain = new("spacedrain", "medical", 0.1f, 6, 6);
     public static readonly Items Splint = new("splint", "medical", 0.15f, 3, 4);
     public static readonly Items SprayBottle = new("spraybottle", "utility", 0.05f, 0, 1);
     public static readonly Items Steak = new("steak", "food", 0.3f, 5, 3);
-    public static readonly Items SterilizedBandage = new("sterilizedbandage", "medical", 0.1f, 12, 7);
+
+    public static readonly Items SterilizedBandage =
+        new("sterilizedbandage", "medical", 0.1f, 12, 7);
+
     public static readonly Items Stick = new("stick", "custom", 0.1f, 1);
-    public static readonly Items StoneFruitClosed = new("stonefruitclosed", "food", 0.3f, 0);
-    public static readonly Items StoneFruitOpen = new("stonefruitopen", "food", 0.2f, 2, 2);
-    public static readonly Items Streptokinase = new("streptokinase", "medical", 0.1f, 30, 9);
+
+    public static readonly Items StoneFruitClosed =
+        new("stonefruitclosed", "food", 0.3f, 0);
+
+    public static readonly Items StoneFruitOpen =
+        new("stonefruitopen", "food", 0.2f, 2, 2);
+
+    public static readonly Items Streptokinase =
+        new("streptokinase", "medical", 0.1f, 30, 9);
+
     public static readonly Items StriderPelt = new("striderpelt", "custom", 0.8f, 10, 4);
     public static readonly Items String = new("string", "custom", 0.1f, 0, 1);
     public static readonly Items Syringe = new("syringe", "medical", 0.1f, 5, 5);
-    public static readonly Items TerrainScanner = new("terrainscanner", "utility", 0.5f, 12, 6);
-    public static readonly Items TitaniumMachete = new("titaniummachete", "tool", 0.6f, 16, 7);
-    public static readonly Items TitaniumMultitool = new("titaniummultitool", "tool", 0.8f, 25, 8);
-    public static readonly Items TitaniumPickaxe = new("titaniumpickaxe", "tool", 1f, 12, 5);
+
+    public static readonly Items TerrainScanner =
+        new("terrainscanner", "utility", 0.5f, 12, 6);
+
+    public static readonly Items TitaniumMachete =
+        new("titaniummachete", "tool", 0.6f, 16, 7);
+
+    public static readonly Items TitaniumMultitool =
+        new("titaniummultitool", "tool", 0.8f, 25, 8);
+
+    public static readonly Items TitaniumPickaxe =
+        new("titaniumpickaxe", "tool", 1f, 12, 5);
+
     public static readonly Items TitaniumRod = new("titaniumrod", "custom", 0.4f, 4, 10);
-    public static readonly Items TitaniumSheet = new("titaniumsheet", "custom", 0.2f, 2, 10);
+
+    public static readonly Items TitaniumSheet =
+        new("titaniumsheet", "custom", 0.2f, 2, 10);
+
     public static readonly Items TitaniumSlab = new("titaniumslab", "custom", 1f, 8, 10);
     public static readonly Items Toolbox = new("toolbox", "container", 1f, 10, 6);
     public static readonly Items Torch = new("torch", "utility", 0.8f, 6, 3);
@@ -259,15 +439,24 @@ public sealed class Items
     public static readonly Items Tourniquet = new("tourniquet", "medical", 0.25f, 2, 3);
     public static readonly Items TrashBag = new("trashbag", "container", 0.05f, 1, 1);
     public static readonly Items Trowel = new("trowel", "tool", 0.3f, 6, 3);
-    public static readonly Items TurbulentCrystalShard = new("turbulentcrystalshard", "custom", 0.5f, 8, 3);
+
+    public static readonly Items TurbulentCrystalShard =
+        new("turbulentcrystalshard", "custom", 0.5f, 8, 3);
+
     public static readonly Items Tweezers = new("tweezers", "medical", 0.05f, 2, 3);
-    public static readonly Items Vasopressin = new("vasopressin", "medical", 0.15f, 25, 9);
+
+    public static readonly Items
+        Vasopressin = new("vasopressin", "medical", 0.15f, 25, 9);
+
     public static readonly Items VenomGland = new("venongland", "medical", 0.2f, 4, 7);
     public static readonly Items Watch = new("watch", "utility", 0.1f, 10, 6);
     public static readonly Items WaterBottle = new("waterbottle", "water", 0.6f, 1, 1);
     public static readonly Items WaterJug = new("waterjug", "water", 3f, 5, 3);
     public static readonly Items WoodCube = new("woodcube", "custom", 0.3f, 2);
-    public static readonly Items WoodDiggingTool = new("wooddiggingtool", "tool", 0.5f, 1, 1);
+
+    public static readonly Items WoodDiggingTool =
+        new("wooddiggingtool", "tool", 0.5f, 1, 1);
+
     public static readonly Items WoodPanel = new("woodpanel", "custom", 0.1f, 0);
     public static readonly Items WoodPickaxe = new("woodpickaxe", "tool", 0.8f, 1, 1);
     public static readonly Items WoodPitchfork = new("woodpitchfork", "tool", 0.8f, 1, 1);

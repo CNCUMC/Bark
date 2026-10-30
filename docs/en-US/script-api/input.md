@@ -14,9 +14,9 @@ var pos = Input.GetMousePosition();
 Log.Info('Mouse at: ' + pos.x + ', ' + pos.y);
 ```
 
-| Method               | Returns   | Description                              |
-|----------------------|-----------|------------------------------------------|
-| `GetMousePosition()` | `Vector2` | Mouse position in world coordinates      |
+| Method               | Returns   | Description                         |
+|----------------------|-----------|-------------------------------------|
+| `GetMousePosition()` | `Vector2` | Mouse position in world coordinates |
 
 ## Friendly Key Names
 
@@ -28,6 +28,6 @@ var name = Input.GetFriendlyKeyName(KeyCode.Mouse0);
 Log.Info('Bound to: ' + name);
 ```
 
-| Method                        | Returns | Description                                   |
-|-------------------------------|---------|-----------------------------------------------|
-| `GetFriendlyKeyName(KeyCode)` | `string`| Readable name, e.g. `Mouse0` → `Left Click`    |
+| Method                        | Returns  | Description                                 |
+|-------------------------------|----------|---------------------------------------------|
+| `GetFriendlyKeyName(KeyCode)` | `string` | Readable name, e.g. `Mouse0` → `Left Click` |

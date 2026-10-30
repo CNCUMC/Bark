@@ -56,15 +56,10 @@ public static class PlayerEventListener
         if (cam == null) return;
         if (cam.body != __instance) return;
 
-        if (_isJumping)
+        if (_isJumping || Time.time - _lastJumpTime < JumpCooldown)
         {
-            _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
-            return;
-        }
-
-        if (Time.time - _lastJumpTime < JumpCooldown)
-        {
-            _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
+            _jumpMonitorCoroutine ??=
+                _runner!.StartCoroutine(MonitorJump(__instance, cam));
             return;
         }
 

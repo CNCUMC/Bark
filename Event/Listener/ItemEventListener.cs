@@ -105,28 +105,33 @@ public static class ItemEventListener
 
             var handSlot = body.handSlot;
             var handItem = body.GetItem(handSlot);
-            var currentHandItemId = handItem && !string.IsNullOrEmpty(handItem.id) ? handItem.id : null;
+            var currentHandItemId = handItem && !string.IsNullOrEmpty(handItem.id)
+                ? handItem.id
+                : null;
 
             if (_lastHandItemId == currentHandItemId) continue;
             if (!string.IsNullOrEmpty(_lastHandItemId))
             {
                 var oldEntry = ItemScriptRegistry.GetEntry(_lastHandItemId);
                 if (oldEntry?.NotInHand is { Count: > 0 })
-                    ExecutePassiveScripts(oldEntry, _lastHandItemId, "not_in_hand", oldEntry.NotInHand);
+                    ExecutePassiveScripts(oldEntry, _lastHandItemId, "not_in_hand",
+                        oldEntry.NotInHand);
             }
 
             if (!string.IsNullOrEmpty(currentHandItemId))
             {
                 var newEntry = ItemScriptRegistry.GetEntry(currentHandItemId);
                 if (newEntry?.InHand is { Count: > 0 })
-                    ExecutePassiveScripts(newEntry, currentHandItemId, "in_hand", newEntry.InHand);
+                    ExecutePassiveScripts(newEntry, currentHandItemId, "in_hand",
+                        newEntry.InHand);
             }
 
             _lastHandItemId = currentHandItemId;
         }
     }
 
-    private static void ExecutePassiveScripts(ItemScriptEntry entry, string itemId, string action,
+    private static void ExecutePassiveScripts(ItemScriptEntry entry, string itemId,
+        string action,
         List<string> scripts)
     {
         foreach (var relativePath in scripts.Where(p => !string.IsNullOrEmpty(p)))
@@ -185,7 +190,8 @@ public static class ItemEventListener
             KnownWearableIds[kv.Key] = kv.Value.Id;
         }
 
-        var toRemove = KnownWearableIds.Where(kv => !currentIds.ContainsKey(kv.Key)).ToList();
+        var toRemove = KnownWearableIds.Where(kv => !currentIds.ContainsKey(kv.Key))
+            .ToList();
         foreach (var kv in toRemove)
         {
             EventUtil.Trigger(new ItemUnequipEvent { ItemId = kv.Value, Item = null });
@@ -255,7 +261,9 @@ public static class ItemEventListener
                 continue;
             }
 
-            if (prevScore > currentScore + 0.1f && handItem && !string.IsNullOrEmpty(handItem.id))
+            if (prevScore > currentScore + 0.1f
+                && handItem
+                && !string.IsNullOrEmpty(handItem.id))
                 EventUtil.Trigger(new ItemLimbUseEvent
                 {
                     ItemId = handItem.id,
@@ -272,9 +280,9 @@ public static class ItemEventListener
     {
         if (!limb) return 0f;
         return limb.bleedAmount
-               + limb.infectionAmount
-               + limb.boneHealTimer
-               + limb.dislocationTimer;
+            + limb.infectionAmount
+            + limb.boneHealTimer
+            + limb.dislocationTimer;
     }
 
     private static IEnumerator PollItemAttack()
@@ -300,7 +308,8 @@ public static class ItemEventListener
                 && _lastHandCondition - currentCondition > 0.01f)
             {
                 _lastAttackFrame = Time.frameCount;
-                EventUtil.Trigger(new ItemAttackEvent { ItemId = handItem.id, Item = handItem });
+                EventUtil.Trigger(new ItemAttackEvent
+                    { ItemId = handItem.id, Item = handItem });
             }
 
             _lastHandCondition = currentCondition;
@@ -318,19 +327,22 @@ public static class ItemEventListener
             var body = BodyUtil.Body;
             if (!body) continue;
 
-            foreach (var entry in GetTrackedEntriesWithTrigger(e => e.Durability.Count > 0))
+            foreach (var entry in
+                GetTrackedEntriesWithTrigger(e => e.Durability.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
                 if (item is null) continue;
 
                 var currentValue = item.condition / 100f;
 
-                CheckAndFireTriggers(entry.Key, item, entry.Value.Durability, currentValue,
-                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(new ItemDurabilityEvent
-                    {
-                        ItemId = itemId, Item = it,
-                        Operator = op, ThresholdValue = threshold, CurrentValue = cv
-                    }));
+                CheckAndFireTriggers(entry.Key, item, entry.Value.Durability,
+                    currentValue,
+                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(
+                        new ItemDurabilityEvent
+                        {
+                            ItemId = itemId, Item = it,
+                            Operator = op, ThresholdValue = threshold, CurrentValue = cv
+                        }));
             }
         }
     }
@@ -346,7 +358,8 @@ public static class ItemEventListener
             var body = BodyUtil.Body;
             if (!body) continue;
 
-            foreach (var entry in GetTrackedEntriesWithTrigger(e => e.CapacityTrigger.Count > 0))
+            foreach (var entry in GetTrackedEntriesWithTrigger(e =>
+                e.CapacityTrigger.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
                 if (!item) continue;
@@ -362,12 +375,14 @@ public static class ItemEventListener
                     ? Mathf.Clamp01(currentWeight / maxWeight)
                     : 0f;
 
-                CheckAndFireTriggers(entry.Key, item, entry.Value.CapacityTrigger, currentValue,
-                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(new ItemCapacityEvent
-                    {
-                        ItemId = itemId, Item = it,
-                        Operator = op, ThresholdValue = threshold, CurrentValue = cv
-                    }), "c");
+                CheckAndFireTriggers(entry.Key, item, entry.Value.CapacityTrigger,
+                    currentValue,
+                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(
+                        new ItemCapacityEvent
+                        {
+                            ItemId = itemId, Item = it,
+                            Operator = op, ThresholdValue = threshold, CurrentValue = cv
+                        }), "c");
             }
         }
     }
@@ -383,7 +398,8 @@ public static class ItemEventListener
             var body = BodyUtil.Body;
             if (!body) continue;
 
-            foreach (var entry in GetTrackedEntriesWithTrigger(e => e.ChargeTrigger.Count > 0))
+            foreach (var entry in GetTrackedEntriesWithTrigger(e =>
+                e.ChargeTrigger.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
                 if (!item) continue;
@@ -392,18 +408,22 @@ public static class ItemEventListener
                     .Property("Battery").GetValue();
                 if (battery == null) continue;
 
-                var currentCharge = Traverse.Create(battery).Property("CurrentCharge").GetValue<float>();
-                var maxCharge = Traverse.Create(battery).Property("MaxCharge").GetValue<float>();
+                var currentCharge = Traverse.Create(battery).Property("CurrentCharge")
+                    .GetValue<float>();
+                var maxCharge = Traverse.Create(battery).Property("MaxCharge")
+                    .GetValue<float>();
                 var currentValue = maxCharge > 0f
                     ? Mathf.Clamp01(currentCharge / maxCharge)
                     : 0f;
 
-                CheckAndFireTriggers(entry.Key, item, entry.Value.ChargeTrigger, currentValue,
-                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(new ItemChargeEvent
-                    {
-                        ItemId = itemId, Item = it,
-                        Operator = op, ThresholdValue = threshold, CurrentValue = cv
-                    }), "chr");
+                CheckAndFireTriggers(entry.Key, item, entry.Value.ChargeTrigger,
+                    currentValue,
+                    (itemId, it, op, threshold, cv) => EventUtil.Trigger(
+                        new ItemChargeEvent
+                        {
+                            ItemId = itemId, Item = it,
+                            Operator = op, ThresholdValue = threshold, CurrentValue = cv
+                        }), "chr");
             }
         }
     }
@@ -450,8 +470,9 @@ public static class ItemEventListener
         }
     }
 
-    private static IEnumerable<KeyValuePair<string, ItemScriptEntry>> GetTrackedEntriesWithTrigger(
-        Func<ItemScriptEntry, bool> hasTrigger)
+    private static IEnumerable<KeyValuePair<string, ItemScriptEntry>>
+        GetTrackedEntriesWithTrigger(
+            Func<ItemScriptEntry, bool> hasTrigger)
     {
         foreach (var (_, itemId) in KnownWearableIds)
         {
@@ -483,9 +504,10 @@ public static class ItemEventListener
             var key = $"{itemId}_{triggerType}{i}";
             var hasPrevious = TriggerLastValues.TryGetValue(key, out var previousValue);
 
-            var triggeredNow = EvaluateTrigger(trigger.Operator, trigger.Value, currentValue);
+            var triggeredNow =
+                EvaluateTrigger(trigger.Operator, trigger.Value, currentValue);
             var triggeredBefore = hasPrevious
-                                  && EvaluateTrigger(trigger.Operator, trigger.Value, previousValue);
+                && EvaluateTrigger(trigger.Operator, trigger.Value, previousValue);
 
             TriggerLastValues[key] = currentValue;
 
@@ -510,9 +532,9 @@ public static class ItemEventListener
     private static bool IsPlayerItem(Item item)
     {
         return item != null
-               && item.transform != null
-               && BodyUtil.Body != null
-               && item.transform.IsChildOf(BodyUtil.Body.transform);
+            && item.transform != null
+            && BodyUtil.Body != null
+            && item.transform.IsChildOf(BodyUtil.Body.transform);
     }
 
     [HarmonyPatch(typeof(Body))]

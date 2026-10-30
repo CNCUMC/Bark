@@ -10,7 +10,9 @@ public sealed class Backgrounds
     public static readonly Backgrounds Soil = new("soilBackground", "soil");
     public static readonly Backgrounds Steel = new("steelBackground", "steel");
     public static readonly Backgrounds Vents = new("ventsBackground", "vents");
-    public static readonly Backgrounds Wasteland = new("wastelandBackground", "wasteland");
+
+    public static readonly Backgrounds
+        Wasteland = new("wastelandBackground", "wasteland");
 
     private Backgrounds(string id, string localeKey)
     {

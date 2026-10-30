@@ -14,9 +14,9 @@ var pos = Input.GetMousePosition();
 Log.Info('鼠标位置: ' + pos.x + ', ' + pos.y);
 ```
 
-| 方法                  | 返回      | 说明                 |
-|-----------------------|-----------|----------------------|
-| `GetMousePosition()`  | `Vector2` | 鼠标世界坐标         |
+| 方法                 | 返回      | 说明         |
+|----------------------|-----------|--------------|
+| `GetMousePosition()` | `Vector2` | 鼠标世界坐标 |
 
 ## 按键友好名称
 
@@ -28,6 +28,6 @@ var name = Input.GetFriendlyKeyName(KeyCode.Mouse0);
 Log.Info('绑定按键: ' + name);
 ```
 
-| 方法                               | 返回      | 说明                                 |
-|------------------------------------|-----------|--------------------------------------|
-| `GetFriendlyKeyName(KeyCode)`      | `string`  | 可读名称，如 `Mouse0` → `Left Click` |
+| 方法                          | 返回     | 说明                                 |
+|-------------------------------|----------|--------------------------------------|
+| `GetFriendlyKeyName(KeyCode)` | `string` | 可读名称，如 `Mouse0` → `Left Click` |

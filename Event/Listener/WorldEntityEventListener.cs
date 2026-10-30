@@ -65,9 +65,9 @@ public static class WorldEntityEventListener
     {
         var body = BodyUtil.Body;
         return item != null
-               && body != null
-               && item.transform != null
-               && item.transform.IsChildOf(body.transform);
+            && body != null
+            && item.transform != null
+            && item.transform.IsChildOf(body.transform);
     }
 
     [HarmonyPatch(typeof(AutoPump), "Update")]
@@ -82,10 +82,10 @@ public static class WorldEntityEventListener
             ? PlayerCamera.main.body
             : null;
         var active = body != null
-                     && item.battery != null
-                     && item.battery.hasCharge
-                     && body.HasWearable(item)
-                     && body.bloodPressure < 85f;
+            && item.battery != null
+            && item.battery.hasCharge
+            && body.HasWearable(item)
+            && body.bloodPressure < 85f;
 
         var id = __instance.GetInstanceID();
         var wasActive = ActiveAutoPumps.Contains(id);
@@ -117,7 +117,8 @@ public static class WorldEntityEventListener
     {
         if (__instance == null || !__instance) return;
         var building = __instance.GetComponent<BuildingEntity>();
-        EventUtil.Trigger(new BioTerminalUseEvent { Terminal = building, Success = building != null });
+        EventUtil.Trigger(new BioTerminalUseEvent
+            { Terminal = building, Success = building != null });
     }
 
     [HarmonyPatch(typeof(BleedParticle), "Update")]
@@ -262,7 +263,8 @@ public static class WorldEntityEventListener
             var id = __instance.GetInstanceID();
             if (!TriggeredTraps.Add(id)) return;
 
-            EventUtil.Trigger(new BearTrapTriggerEvent { Trap = __instance, Limb = __instance.caughtLimb });
+            EventUtil.Trigger(new BearTrapTriggerEvent
+                { Trap = __instance, Limb = __instance.caughtLimb });
         }
 
         [HarmonyPatch("Update")]

@@ -65,11 +65,11 @@ Player.TalkElectronic('正在搜索信号...');
 Player.TalkElectronic('正在分析样本...', 'watch');
 ```
 
-| 方法                                  | 说明                                     |
-|---------------------------------------|------------------------------------------|
-| `Talk(dialogue)`                      | 玩家说出对话气泡                         |
-| `TalkElectronic(dialogue)`            | 通过通用电子发声代理说话                 |
-| `TalkElectronic(dialogue, itemId)`    | 通过指定电子物品说话                     |
+| 方法                               | 说明                     |
+|------------------------------------|--------------------------|
+| `Talk(dialogue)`                   | 玩家说出对话气泡         |
+| `TalkElectronic(dialogue)`         | 通过通用电子发声代理说话 |
+| `TalkElectronic(dialogue, itemId)` | 通过指定电子物品说话     |
 
 > `TalkElectronic` 的 `itemId` 参数可省略，遵循与其他物品 ID 相同的模组 id 前缀补全规则。
 

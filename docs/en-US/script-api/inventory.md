@@ -132,9 +132,9 @@ Item.SetFavourited('medkit', true);
 Item.Destroy('rotten_food');
 ```
 
-| Method                              | Description                                            |
-|-------------------------------------|--------------------------------------------------------|
-| `Repair(itemId, amount? = 1)`       | Repair by amount (default 1 = full). Negative damages  |
-| `SetCondition(itemId, float)`       | Set durability 0-1                                     |
-| `SetFavourited(itemId, bool)`       | Mark as favorite                                       |
-| `Destroy(itemId)`                   | Destroy the item                                       |
+| Method                        | Description                                           |
+|-------------------------------|-------------------------------------------------------|
+| `Repair(itemId, amount? = 1)` | Repair by amount (default 1 = full). Negative damages |
+| `SetCondition(itemId, float)` | Set durability 0-1                                    |
+| `SetFavourited(itemId, bool)` | Mark as favorite                                      |
+| `Destroy(itemId)`             | Destroy the item                                      |

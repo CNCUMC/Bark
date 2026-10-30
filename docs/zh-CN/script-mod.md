@@ -125,18 +125,18 @@ Bark 把工具类注入为全局变量，名字为 C# 类名去掉 `Util` 后缀
 
 所有工具类的方法遵循统一前缀，看懂前缀就知道方法是干嘛的。 **不需要查表，靠 IDE 补全就够了。**
 
-| 前缀                                               | 含义           | 例子                                       |
-|----------------------------------------------------|----------------|--------------------------------------------|
-| `Get*`                                             | 读取数值       | `Body.GetHunger()` → 饥饿度                |
-| `Set*`                                             | 设置数值       | `Body.SetHunger(50)`                       |
-| `Is*`                                              | 问「是不是」   | `Body.IsAlive()` → 还活着吗                |
-| `Has*`                                             | 问「有没有」   | `Inventory.HasItem("axe")`                 |
-| `Can*`                                             | 问「能不能」   | `Body.CanTakeNap()`                        |
-| `Add*`                                             | 增减           | `Skill.AddXP(100)`                         |
-| `Remove*`                                          | 移除           | `Body.RemovePainkillers()`                 |
+| 前缀                                               | 含义           | 例子                                      |
+|----------------------------------------------------|----------------|-------------------------------------------|
+| `Get*`                                             | 读取数值       | `Body.GetHunger()` → 饥饿度               |
+| `Set*`                                             | 设置数值       | `Body.SetHunger(50)`                      |
+| `Is*`                                              | 问「是不是」   | `Body.IsAlive()` → 还活着吗               |
+| `Has*`                                             | 问「有没有」   | `Inventory.HasItem("axe")`                |
+| `Can*`                                             | 问「能不能」   | `Body.CanTakeNap()`                       |
+| `Add*`                                             | 增减           | `Skill.AddXP(100)`                        |
+| `Remove*`                                          | 移除           | `Body.RemovePainkillers()`                |
 | `Place*`                                           | 放置           | `World.PlaceTile("marble", 10, 5)`        |
 | `Fill*`                                            | 填充区域       | `World.FillTiles(0, 0, 10, 10, "marble")` |
-| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | 一眼就懂的动词 | `Limb.Break(0)`                            |
+| `Kill` / `Resurrect` / `Break` / `Mend` / `Repair` | 一眼就懂的动词 | `Limb.Break(0)`                           |
 
 **Get/Set 对应**：能 Get 的基本都能 Set，名字一模一样，只是 Set 多一个参数。
 

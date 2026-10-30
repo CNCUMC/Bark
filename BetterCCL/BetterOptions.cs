@@ -22,7 +22,8 @@ public static class BetterOptions
         return $"{ns}.{customCategory.ToLowerInvariant().Replace(" ", "_")}.{key}";
     }
 
-    private static string LabelText(string ns, Setting.SettingCategory category, string key)
+    private static string LabelText(string ns, Setting.SettingCategory category,
+        string key)
     {
         return MakeId(ns, category, key);
     }
@@ -32,14 +33,16 @@ public static class BetterOptions
         return MakeId(ns, customCategory.ToLowerInvariant().Replace(" ", "_"), key);
     }
 
-    private static string DescriptionText(string ns, Setting.SettingCategory category, string key)
+    private static string DescriptionText(string ns, Setting.SettingCategory category,
+        string key)
     {
         return $"{MakeId(ns, category, key)}dsc";
     }
 
     private static string DescriptionText(string ns, string customCategory, string key)
     {
-        return $"{MakeId(ns, customCategory.ToLowerInvariant().Replace(" ", "_"), key)}dsc";
+        return
+            $"{MakeId(ns, customCategory.ToLowerInvariant().Replace(" ", "_"), key)}dsc";
     }
 
     public static void Float(string ns, string key, Setting.SettingCategory category,
@@ -47,7 +50,8 @@ public static class BetterOptions
         Action<float>? apply = null, Func<float, string>? formatValue = null)
     {
         ModOptionsRegistry.Register(ModOptionDefinition.Float(
-            MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
+            MakeId(ns, category, key), LabelText(ns, category, key),
+            DescriptionText(ns, category, key),
             category, defaultValue, min, max, apply, formatValue));
     }
 
@@ -55,7 +59,8 @@ public static class BetterOptions
         int defaultValue, int min, int max, Action<int>? apply = null)
     {
         ModOptionsRegistry.Register(ModOptionDefinition.Int(
-            MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
+            MakeId(ns, category, key), LabelText(ns, category, key),
+            DescriptionText(ns, category, key),
             category, defaultValue, min, max, apply));
     }
 
@@ -63,7 +68,8 @@ public static class BetterOptions
         bool defaultValue, Action<bool>? apply = null)
     {
         ModOptionsRegistry.Register(ModOptionDefinition.Bool(
-            MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
+            MakeId(ns, category, key), LabelText(ns, category, key),
+            DescriptionText(ns, category, key),
             category, defaultValue, apply));
     }
 
@@ -71,7 +77,8 @@ public static class BetterOptions
         int defaultValue, ModDropdownChoice[] choices, Action<int>? apply = null)
     {
         ModOptionsRegistry.Register(ModOptionDefinition.Dropdown(
-            MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
+            MakeId(ns, category, key), LabelText(ns, category, key),
+            DescriptionText(ns, category, key),
             category, defaultValue, choices, apply));
     }
 
@@ -79,7 +86,8 @@ public static class BetterOptions
         KeyCode defaultValue, Action<KeyCode>? apply = null)
     {
         ModOptionsRegistry.Register(ModOptionDefinition.Keybind(
-            MakeId(ns, category, key), LabelText(ns, category, key), DescriptionText(ns, category, key),
+            MakeId(ns, category, key), LabelText(ns, category, key),
+            DescriptionText(ns, category, key),
             category, defaultValue, apply));
     }
 
