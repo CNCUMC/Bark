@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Bark.Events;
 using Bark.Tile;
 using Bark.Tool;
+using CUCoreLib.Registries;
 using HarmonyLib;
 using UnityEngine;
 
@@ -21,9 +21,6 @@ public static class TileEventListener
     private static Coroutine? _existCoroutine;
     private static Coroutine? _damageCoroutine;
     private static MonoBehaviour? _runner;
-
-    private static MethodInfo? _getBlockMethod;
-    private static FieldInfo? _blocksField;
 
     internal static void Listen(MonoBehaviour runner)
     {
@@ -53,8 +50,6 @@ public static class TileEventListener
 
         KnownCustomIndices.Clear();
         DestroyTracker.Clear();
-        _getBlockMethod = null;
-        _blocksField = null;
         _runner = null;
     }
 
@@ -77,7 +72,7 @@ public static class TileEventListener
 
         var oldIndex = GetBlockAt(__instance, pos);
 
-        if (oldIndex >= 36 && oldIndex != index)
+        if (oldIndex >= TileRegistry.FirstCustomTileIndex && oldIndex != index)
         {
             var tileId = FindTileIdByIndex(oldIndex);
             if (tileId != null)
@@ -95,7 +90,7 @@ public static class TileEventListener
             }
         }
 
-        if (index < 36 || !IsCustomIndex(index)) return;
+        if (index < TileRegistry.FirstCustomTileIndex || !IsCustomIndex(index)) return;
         {
             var tileId = FindTileIdByIndex(index);
             if (tileId == null) return;
@@ -121,7 +116,7 @@ public static class TileEventListener
         if (__instance == null || !WorldReady()) return;
 
         var index = GetBlockAt(__instance, pos);
-        if (index < 36 || !IsCustomIndex(index)) return;
+        if (index < TileRegistry.FirstCustomTileIndex || !IsCustomIndex(index)) return;
 
         var tileId = FindTileIdByIndex(index);
         if (tileId == null) return;
@@ -159,7 +154,8 @@ public static class TileEventListener
                 for (var y = py - ScanRadius; y <= py + ScanRadius; y++)
                 {
                     var blockIndex = GetBlockAt(world, new Vector2Int(x, y));
-                    if (blockIndex < 36 || !IsCustomIndex(blockIndex)) continue;
+                    if (blockIndex < TileRegistry.FirstCustomTileIndex
+                        || !IsCustomIndex(blockIndex)) continue;
 
                     var tileId = FindTileIdByIndex(blockIndex);
                     if (tileId == null) continue;
@@ -234,43 +230,10 @@ public static class TileEventListener
 
     private static int GetBlockAt(WorldGeneration world, Vector2Int pos)
     {
-        try
-        {
-            _getBlockMethod ??= AccessTools.Method(typeof(WorldGeneration), "GetBlock");
-            if (_getBlockMethod != null)
-                return (int)(_getBlockMethod.Invoke(world, [pos]) ?? 0);
+        if (pos.x < 0 || pos.y < 0 || pos.x >= world.width || pos.y >= world.height)
+            return 0;
 
-            _blocksField ??= AccessTools.Field(typeof(WorldGeneration), "blocks");
-            if (_blocksField != null)
-            {
-                var blocks = _blocksField.GetValue(world);
-                if (blocks is Array blockArray)
-                    if (pos.x >= 0
-                        && pos.x < blockArray.GetLength(0)
-                        && pos.y >= 0
-                        && pos.y < blockArray.GetLength(1))
-                    {
-                        var block = blockArray.GetValue(pos.x, pos.y);
-                        if (block == null) return 0;
-
-                        var blockType = block.GetType();
-                        var indexField = AccessTools.Field(blockType, "index")
-                            ?? AccessTools.Field(blockType, "blockIndex")
-                            ?? AccessTools.Field(blockType, "tileIndex");
-                        if (indexField != null)
-                            return Convert.ToInt32(indexField.GetValue(block));
-
-                        if (block is int blockIndex)
-                            return blockIndex;
-                    }
-            }
-        }
-        catch
-        {
-            // ignored
-        }
-
-        return 0;
+        return world.GetBlock(pos);
     }
 
     private static bool IsCustomIndex(int index)
