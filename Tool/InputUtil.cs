@@ -9,14 +9,12 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class InputUtil
 {
-    // 鼠标当前世界坐标
     [ScriptMethod]
     public static Vector2 GetMousePosition()
     {
         return CUCoreUtils.GetMousePosition();
     }
 
-    // 按键 → 友好名称（如 KeyCode.Mouse0 → "Left Click"）
     [ScriptMethod]
     public static string GetFriendlyKeyName(KeyCode key)
     {
@@ -25,12 +23,16 @@ public static class InputUtil
 
     public static Vector2 LeftClickPosition()
     {
-        return Input.GetKeyDown(Action.LeftClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
+        return Input.GetKeyDown(Action.LeftClick)
+            ? CUCoreUtils.GetMousePosition()
+            : Vector2.zero;
     }
 
     public static Vector2 RightClickPosition()
     {
-        return Input.GetKeyDown(Action.RightClick) ? CUCoreUtils.GetMousePosition() : Vector2.zero;
+        return Input.GetKeyDown(Action.RightClick)
+            ? CUCoreUtils.GetMousePosition()
+            : Vector2.zero;
     }
 
     public static IEnumerator WaitForLeftClick(Action<Vector2> callback)

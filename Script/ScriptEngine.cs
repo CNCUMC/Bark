@@ -3,10 +3,8 @@ using Bark.Tile;
 
 namespace Bark.Script;
 
-// 脚本引擎抽象基类：不依赖 Unity GameObject，由 ScriptModLoader 直接管理生命周期
 public abstract class ScriptEngine
 {
-    // 当前加载的模组清单（Load 时赋值）
     protected ScriptManifest Manifest { get; private set; } = null!;
 
     public virtual bool Load(ScriptManifest manifest)
@@ -19,20 +17,13 @@ public abstract class ScriptEngine
     public abstract void Disable();
     public abstract void Unload();
 
-    // 向脚本侧发送事件：调用全局钩子函数（如 onPlayerJumpStart），
-    // 传入事件数据供脚本侧 onItemUse(event) 等访问 event.ItemId / event.Item
     public abstract void CallTriggerEvent(string eventName, BarkEvent? eventData = null);
 
-    // 执行单个物品脚本文件（如物品动作脚本），失败时静默吞异常。
-    // itemId: 物品 ID；item: 物品实例（可为 null）；action: 触发动作名，如 "use"/"attack"
     public abstract void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null);
 
-    // 执行单个物块脚本文件，注入 tileId / tileContext / action 到脚本全局，
-    // 脚本可定义 function main(tileId, context, action)
     public abstract void ExecuteTileFile(string filePath, string? tileId, TileScriptContext? context = null,
         string? action = null);
 
-    // 每帧调用脚本侧的 onUpdate() 函数（脚本侧可选定义，未定义则跳过）
     public abstract void CallUpdate();
 
     public abstract void Dispose();

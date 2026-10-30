@@ -17,44 +17,30 @@ using GunRuntimeManager = Bark.Items.Runtime.Gun.GunRuntimeManager;
 
 namespace Bark.Items;
 
-// 已加载物品的记录项
 public class ItemEntry(string id)
 {
-    // 物品 ID（即 JSON 文件名）
     public string Id = id;
 }
 
-// 自定义物品加载器：递归扫描 ModDir/Item/**/*.json 注册物品，
-// 图片等资产从 ModDir/Assets/Item/ 读取（平铺，不跟随 JSON 子目录）。
-// 物品 ID 始终为 {modId}.{文件名}，不拼接子目录路径。
-// 脚本映射分两阶段：RegisterFromMod 先注册物品与暂存脚本定义，
-// RegisterScripts 在引擎就绪后写入 ItemScriptRegistry。
 public static class ItemLoader
 {
-    // 模组已加载的物品列表（modId → 物品记录），供外部查询
     public static readonly Dictionary<string, List<ItemEntry>> LoadedItems = new();
-
-    // 已注册为 wearable 但缺少穿戴贴图的物品 ID 集合，供热 Harmony 守卫跳过装备防止 NRE
     public static readonly HashSet<string> WearableWithoutWornSprite = [];
-
-    // 物品光源旋转表（itemId → rotation 角度）。
-    // CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，Bark 在注册时记录该值，
-    // 并在 ApplyLight 创建 CustomLight 子物体后按此值旋转其 transform。
     public static readonly Dictionary<string, float> LightRotations = new();
 
-    // 暂存的脚本映射（modId → itemId → (itemDef, modDir)），待引擎创建后注册
-    private static readonly Dictionary<string, Dictionary<string, (ItemDef def, string modDir)>> PendingScripts =
-        new();
+    private static readonly
+        Dictionary<string, Dictionary<string, (ItemDef def, string modDir)>>
+        PendingScripts =
+            new();
 
-    // ClearOwnerEntries 是 internal，缓存 MethodInfo 供热重载时清除旧物品
-    private static readonly MethodInfo? s_clearItemOwnerEntries = typeof(ItemRegistry).GetMethod(
-        "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo? s_clearItemOwnerEntries =
+        typeof(ItemRegistry).GetMethod(
+            "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
 
-    private static readonly MethodInfo? s_clearLiquidOwnerEntries = typeof(LiquidRegistry).GetMethod(
-        "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo? s_clearLiquidOwnerEntries =
+        typeof(LiquidRegistry).GetMethod(
+            "ClearOwnerEntries", BindingFlags.NonPublic | BindingFlags.Static);
 
-    // 从脚本模组目录加载所有自定义物品（脚本模组入口）。
-    // 内部委托 RegisterFromDirectory；脚本引用类由后续 RegisterScripts 在引擎就绪后绑定。
     public static void RegisterFromMod(ScriptManifest manifest)
     {
         if (manifest is null)
@@ -63,14 +49,8 @@ public static class ItemLoader
         RegisterFromDirectory(manifest.Id, manifest.Directory);
     }
 
-    // 从任意模组目录加载所有自定义物品，供脚本模组与 C# 模组共用。
-    // modId    - 物品命名空间前缀，物品 ID = {modId}.{文件名}（递归扫描子目录，ID 不含子目录路径）
-    // modDir   - 模组根目录，递归扫描 {modDir}/Item/**/*.json，资产目录为 {modDir}/Assets/Item/
-    // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。
-    //                      脚本模组传 true（后续由 RegisterScripts 绑定引擎）；
-    //                      C# 模组传 false（无脚本引擎，JSON 不应含 script 字段，若有则警告并跳过）。
-    // 返回：成功加载的物品数量。
-    public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
+    public static int RegisterFromDirectory(string modId, string modDir,
+        bool allowPendingScripts = true)
     {
         if (modId is null) throw new ArgumentNullException(nameof(modId));
         if (modDir is null) throw new ArgumentNullException(nameof(modDir));
@@ -78,24 +58,22 @@ public static class ItemLoader
         if (string.IsNullOrWhiteSpace(modId))
             throw new ArgumentException("modId must not be empty", nameof(modId));
 
-        // 重载时先清除该模组之前注册的物品与液体
         ClearModItems(modId);
 
         var itemsDir = Path.Combine(modDir, "Item");
         if (!Directory.Exists(itemsDir))
             return 0;
 
-        var jsonFiles = Directory.GetFiles(itemsDir, "*.json", SearchOption.AllDirectories);
+        var jsonFiles =
+            Directory.GetFiles(itemsDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return 0;
 
-        // 资产目录：ModDir/Assets/Item/
         var assetsItemDir = Path.Combine(modDir, "Assets", "Item");
 
         var loadedList = new List<ItemEntry>();
         var loadedCount = 0;
 
-        // 标记物品与液体所有权，以便热重载时清除
         using (ItemRegistry.BeginOwnerRegistration(modId))
         using (LiquidRegistry.BeginOwnerRegistration(modId))
         {
@@ -118,7 +96,6 @@ public static class ItemLoader
         foreach (var entry in loadedList)
             WmitfPatch.RegisterItem(entry.Id, modId);
 
-        // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
         {
             if (allowPendingScripts)
@@ -127,7 +104,6 @@ public static class ItemLoader
             }
             else
             {
-                // C# 模组无脚本引擎，JSON 不应包含 script 字段；若有则警告并丢弃暂存
                 LogUtil.Warning("items.csharp.scripts_ignored", modId, existing.Count);
                 PendingScripts.Remove(modId);
             }
@@ -136,20 +112,17 @@ public static class ItemLoader
         if (loadedCount > 0)
             LogUtil.Info("items.loaded_count", modId, loadedCount);
 
-        // 热重载完成后刷新所有已存在枪械的枪口位置（barrel_offset 变更即时生效）
         GunRuntimeManager.RefreshAllBarrelOffsets();
 
         return loadedCount;
     }
 
-    // 清除指定模组此前注册的所有物品与液体（C# 端热重载 / 卸载时调用）
     public static void UnregisterOwner(string modId)
     {
         if (modId is null) throw new ArgumentNullException(nameof(modId));
         ClearModItems(modId);
     }
 
-    // 在引擎就绪后，将暂存的物品脚本映射写入 ItemScriptRegistry
     public static void RegisterScripts(ScriptManifest manifest)
     {
         if (manifest is null)
@@ -157,21 +130,21 @@ public static class ItemLoader
         if (manifest.Engine is null)
             return;
 
-        if (!PendingScripts.TryGetValue(manifest.Id, out var itemScripts) || itemScripts.Count == 0)
+        if (!PendingScripts.TryGetValue(manifest.Id, out var itemScripts)
+            || itemScripts.Count == 0)
             return;
 
         foreach (var (itemId, (itemDef, modDir)) in itemScripts)
-            ItemScriptRegistry.Register(itemId, itemDef, manifest.Engine, manifest.Id, modDir);
+            ItemScriptRegistry.Register(itemId, itemDef, manifest.Engine, manifest.Id,
+                modDir);
 
         var count = itemScripts.Count;
         PendingScripts.Remove(manifest.Id);
         LogUtil.Info("items.scripts_registered", manifest.Id, count);
     }
 
-    // 加载单个 JSON 文件，自动检测类型并注册。物品 ID = {modId}.{文件名} 命名空间格式。
-    // assetsDir: ModDir/Assets/Item/，用于加载图片等资产。
-    // 成功时返回记录项并暂存脚本映射（如有），失败返回 null。
-    private static ItemEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId, string modDir)
+    private static ItemEntry? LoadAndRegister(string jsonFile, string assetsDir,
+        string modId, string modDir)
     {
         var itemId = $"{modId}.{Path.GetFileNameWithoutExtension(jsonFile)}";
 
@@ -197,14 +170,12 @@ public static class ItemLoader
             return null;
         }
 
-        // 模板解析：合并 template 引用的预设模板后再进行类型检测
         var templateNode = obj["template"];
         if (templateNode is JObject templateObj)
         {
             var merged = TemplateLoader.ResolveAndMerge(obj, templateObj);
             if (merged != null)
             {
-                // 缓存模板数据：直接从 merged.template JObject 读取，不与 custom_data 混合
                 var template = merged["template"] as JObject;
                 GunTemplate.CacheGunItem(itemId, template, modDir);
                 MagTemplate.CacheMagItem(itemId, template);
@@ -219,24 +190,27 @@ public static class ItemLoader
             }
         }
 
-        // 自动检测类型：capacity → 液体容器, color 且无 weight → 纯液体, 否则 → 普通物品
         if (obj["capacity"] != null)
         {
             var ok = LoadLiquidItem(json, itemId, assetsDir, modId, modDir, jsonFile);
-            return ok ? new ItemEntry(itemId) : null;
+            return ok
+                ? new ItemEntry(itemId)
+                : null;
         }
 
         if (obj["color"] != null && obj["weight"] == null)
         {
             var ok = LoadLiquid(json, itemId, modId);
-            return ok ? new ItemEntry(itemId) : null;
+            return ok
+                ? new ItemEntry(itemId)
+                : null;
         }
 
         var ok2 = LoadItem(json, itemId, assetsDir, modId, modDir, jsonFile);
-        return ok2 ? new ItemEntry(itemId) : null;
+        return ok2
+            ? new ItemEntry(itemId)
+            : null;
     }
-
-    // ---- 普通物品 ----
 
     private static bool LoadItem(string json, string itemId, string assetsDir,
         string modId, string modDir, string jsonFilePath)
@@ -246,14 +220,13 @@ public static class ItemLoader
             return false;
 
         var info = BuildItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteDef?.ImportScale ?? 6f);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir,
+            def.SpriteDef?.ImportScale ?? 6f);
 
         ItemRegistry.Register(itemId, info, sprite);
 
-        // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 ItemScriptRegistry
         StashScript(itemId, def, modId, modDir);
 
-        // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
             MigrateJsonToNewFormat(jsonFilePath, def);
 
@@ -261,15 +234,11 @@ public static class ItemLoader
         return true;
     }
 
-    // ---- 格式检测与转换 ----
-
-    // 检测 JSON 并返回 ItemDef（支持新旧格式），wasLegacy 表示是否从旧格式转换而来
     private static ItemDef? ParseItemDef(string json, out bool wasLegacy)
     {
         wasLegacy = false;
         var obj = JObject.Parse(json);
 
-        // 新版格式：wearable 是对象、或 battery/container 无 _data 后缀
         if (IsNewFormat(obj))
         {
             var def = obj.ToObject<ItemDef>();
@@ -277,20 +246,17 @@ public static class ItemLoader
                 return def;
         }
 
-        // 旧版格式：flat 字段 + _data 后缀
         wasLegacy = true;
         var legacy = obj.ToObject<LegacyItemDef>();
 
         return legacy?.ToItemDef();
     }
 
-    // 将旧格式 ItemDef 序列化为新格式 JSON 并覆写文件
     private static void MigrateJsonToNewFormat(string jsonFilePath, object def)
     {
         try
         {
             var newJson = JsonConvert.SerializeObject(def, Formatting.Indented);
-            // 备份原文件为 .backup
             var backupPath = jsonFilePath + ".backup";
             if (!File.Exists(backupPath))
                 File.Copy(jsonFilePath, backupPath);
@@ -303,31 +269,22 @@ public static class ItemLoader
         }
     }
 
-    // 判断 JSON 是否使用新版分组格式
     private static bool IsNewFormat(JObject obj)
     {
-        // wearable 是对象（非 bool）→ 新版
         if (obj["wearable"] is JObject)
             return true;
-        // battery 代替 battery_data → 新版
         if (obj["battery"] is JObject)
             return true;
-        // container 代替 container_data → 新版
         if (obj["container"] is JObject)
             return true;
-        // sprite 是对象 → 新版（旧版 sprite 字段均为顶层 flat）
         if (obj["sprite"] is JObject)
             return true;
-        // decay 是对象 → 新版
         if (obj["decay"] is JObject)
             return true;
-        // template 是对象 → 模板物品，一定是新版（避免如 Casing 被误判为旧格式后触发迁移丢失模板字段）
         if (obj["template"] is JObject)
             return true;
         return false;
     }
-
-    // ---- 液体容器 ----
 
     private static bool LoadLiquidItem(string json, string itemId, string assetsDir,
         string modId, string modDir, string jsonFilePath)
@@ -351,14 +308,13 @@ public static class ItemLoader
             return false;
 
         var info = BuildLiquidItemInfo(def, itemId, assetsDir);
-        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir, def.SpriteDef?.ImportScale ?? 6f);
+        var sprite = LoadItemSprite(def.OriginPrefab, itemId, assetsDir,
+            def.SpriteDef?.ImportScale ?? 6f);
 
         ItemRegistry.Register(itemId, info, sprite);
 
-        // 暂存脚本映射
         StashScript(itemId, def, modId, modDir);
 
-        // 旧格式自动迁移为新格式并覆写 JSON
         if (wasLegacy)
             MigrateJsonToNewFormat(jsonFilePath, def);
 
@@ -366,7 +322,6 @@ public static class ItemLoader
         return true;
     }
 
-    // ---- 纯液体 ----
     private static bool LoadLiquid(string json, string liquidId, string modId)
     {
         var def = JsonConvert.DeserializeObject<LiquidDef>(json);
@@ -379,8 +334,9 @@ public static class ItemLoader
         LogUtil.Info("items.liquid_registered", liquidId, modId);
         return true;
     }
-    
-    private static CustomItemInfo BuildItemInfo(ItemDef def, string itemId, string assetsDir)
+
+    private static CustomItemInfo BuildItemInfo(ItemDef def, string itemId,
+        string assetsDir)
     {
         var isWearable = def.Wearable != null;
         var w = def.Wearable;
@@ -421,11 +377,11 @@ public static class ItemLoader
             CustomData = def.CustomData ?? new Dictionary<string, object>()
         };
 
-        // Sprite 缩放维度：优先用 JSON 配置，未配置则回退到 prefab 精灵尺寸
         if (spriteDef.ScaleDimensions is { Width: > 0f, Height: > 0f })
         {
             var ssd = spriteDef.ScaleDimensions;
-            info.SpriteScaleDimensions = new SpriteScaleDimensions(ssd.Width, ssd.Height, ssd.ExpandToFirstMet);
+            info.SpriteScaleDimensions =
+                new SpriteScaleDimensions(ssd.Width, ssd.Height, ssd.ExpandToFirstMet);
         }
         else
         {
@@ -437,25 +393,25 @@ public static class ItemLoader
                     var prefabSprite = prefab.GetComponent<SpriteRenderer>()?.sprite;
                     if (prefabSprite != null)
                         info.SpriteScaleDimensions =
-                            new SpriteScaleDimensions(prefabSprite.rect.width, prefabSprite.rect.height, true);
+                            new SpriteScaleDimensions(prefabSprite.rect.width,
+                                prefabSprite.rect.height, true);
                 }
             }
             catch
             {
-                // prefab 不存在时忽略
+                // ignored
             }
         }
 
-        // 穿戴贴图: Assets/Item/{itemId}_worn.png，缺失则回退到主贴图
         var importScale = spriteDef.ImportScale;
-        info.WornSprite = LoadSpriteWithFallback(assetsDir, itemId, "_worn.png", importScale);
+        info.WornSprite =
+            LoadSpriteWithFallback(assetsDir, itemId, "_worn.png", importScale);
         if (isWearable && info.WornSprite == null)
         {
-            // 回退：使用主贴图作为穿戴贴图
-            info.WornSprite = LoadSpriteWithFallback(assetsDir, itemId, ".png", importScale);
+            info.WornSprite =
+                LoadSpriteWithFallback(assetsDir, itemId, ".png", importScale);
             if (info.WornSprite == null)
             {
-                // 两者都不存在 → 加入黑名单，阻止装备
                 WearableWithoutWornSprite.Add(itemId);
                 LogUtil.Warning("item_loader.wearable_no_worn_sprite",
                     def.FullName,
@@ -464,13 +420,14 @@ public static class ItemLoader
             }
         }
 
-        info.WornSpriteOffset = new Vector2(w?.SpriteOffsetX ?? 0f, w?.SpriteOffsetY ?? 0f);
+        info.WornSpriteOffset =
+            new Vector2(w?.SpriteOffsetX ?? 0f, w?.SpriteOffsetY ?? 0f);
 
-        // MultiWorn: Assets/Item/{itemId}_mw_{key}.png
         if (w?.Multi != null)
             foreach (var kv in w.Multi)
             {
-                var multiSprite = LoadSpriteWithFallback(assetsDir, itemId, "_mw_" + kv.Key + ".png",
+                var multiSprite = LoadSpriteWithFallback(assetsDir, itemId,
+                    "_mw_" + kv.Key + ".png",
                     importScale);
                 if (multiSprite == null) continue;
                 info.MultiWornSprites[kv.Key] = multiSprite;
@@ -478,24 +435,22 @@ public static class ItemLoader
                     kv.Value.SpriteOffsetX, kv.Value.SpriteOffsetY);
             }
 
-        // DropPool
         if (spawn.DropPool is { Length: > 0 })
             try
             {
-                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool), string.Join(",", spawn.DropPool));
+                info.DropPool = (DropPool)Enum.Parse(typeof(DropPool),
+                    string.Join(",", spawn.DropPool));
             }
             catch
             {
-                // 无效的 DropPool 值忽略
+                // ignored
             }
 
-        // 腐烂速度
         if (decay.RotSpeed.HasValue)
             info.rotSpeed = decay.RotSpeed.Value;
         else if (decay.Minutes > 0)
             info.rotSpeed = 1f / decay.Minutes;
 
-        // 制作特性
         if (def.Qualities != null)
             info.qualities =
             [
@@ -504,7 +459,6 @@ public static class ItemLoader
                     .Select(q => new CraftingQuality(q.Id.ToLowerInvariant(), q.Amount))
             ];
 
-        // 容器
         if (def.Container != null)
         {
             var cd = def.Container;
@@ -518,7 +472,6 @@ public static class ItemLoader
             };
         }
 
-        // 电池
         if (def.Battery != null)
         {
             var bd = def.Battery;
@@ -552,20 +505,17 @@ public static class ItemLoader
             }
         }
 
-        // 图标 / 穿戴动画 ID
         if (!string.IsNullOrEmpty(def.IconAnimationId))
             info.IconAnimationId = def.IconAnimationId;
         if (!string.IsNullOrEmpty(def.WornSpriteAnimationId))
             info.WornSpriteAnimationId = def.WornSpriteAnimationId;
 
-        // 手持精灵偏移
         if (def.HeldSpriteOffset != null)
         {
             var hs = def.HeldSpriteOffset;
             info.HeldSpriteOffset = new Vector2(hs.X, hs.Y);
         }
 
-        // 光源
         if (def.Light != null)
         {
             var ld = def.Light;
@@ -580,16 +530,12 @@ public static class ItemLoader
                 PointLightOuterRadius = ld.PointLightOuterRadius
             };
 
-            // light_type: 字符串 → CustomLightType 枚举，无效值回退 Point
             if (Enum.TryParse<CustomLightType>(ld.LightType, true, out var lightType))
                 info.Light.LightType = lightType;
 
-            // 光源旋转：CUCoreLib 1.0.3 的 LightProperties 无 Rotation 字段，
-            // Bark 记录该值，ApplyLight postfix 会按此旋转 CustomLight 子物体。
             LightRotations[itemId] = ld.Rotation;
         }
 
-        // 绷带
         if (def.Bandage != null)
         {
             var bd = def.Bandage;
@@ -608,7 +554,6 @@ public static class ItemLoader
             };
         }
 
-        // 注射器
         if (def.Syringe != null)
         {
             var sd = def.Syringe;
@@ -622,7 +567,6 @@ public static class ItemLoader
             };
         }
 
-        // 工具 / 近战
         if (def.Tool != null)
         {
             var td = def.Tool;
@@ -647,20 +591,14 @@ public static class ItemLoader
             };
         }
 
-        // 生成组件
         if (def.SpawnComponents is { Count: > 0 })
-            info.SpawnComponents = new List<string>(def.SpawnComponents);
+            info.SpawnComponents = [.. def.SpawnComponents];
 
-        // 模板物品的 useAction：枪械按下扳机，弹匣退出一发子弹
         if (GunTemplate.IsGun(itemId))
         {
             info.usable = true;
-            // usableWithLMB + autoAttack 是手持枪械手动开枪和渲染 HUD 的必要条件。
-            // 缺少这两个标志时，物品栏"使用"可开火（useAction 绕过状态检查），
-            // 但手持时 GunScript.Update() 不处理击发输入也不渲染 HUD。
             info.usableWithLMB = true;
             info.autoAttack = true;
-            // 将 "gun" 追加到 tags，避免覆盖用户在 JSON 中自定义的标签。
             info.tags = string.IsNullOrEmpty(def.Tags)
                 ? "gun"
                 : def.Tags.Contains("gun")
@@ -685,7 +623,6 @@ public static class ItemLoader
         }
         else if (FoodTemplate.IsFood(itemId))
         {
-            // usable 已由模板默认值设为 true，此处确保不被覆盖
             info.usable = true;
             info.useAction = (body, item) =>
             {
@@ -707,19 +644,15 @@ public static class ItemLoader
         return FinalizeItemInfo(info, def);
     }
 
-    // 根据脚本配置自动推断 usable / usableOnLimb，wearable 与 use 互斥
     private static CustomItemInfo FinalizeItemInfo(CustomItemInfo info, ItemDef def)
     {
-        // use 字段非空 → usable
         var hasUse = def.Use is { Count: > 0 } list
-                     && list.Any(e => e.Script.Count > 0);
+            && list.Any(e => e.Script.Count > 0);
 
-        // use_on_limb 仍在 script 内
         var hasUseOnLimb = def.Script?.UseOnLimb is { Count: > 0 };
 
         if (def.Wearable != null)
         {
-            // wearable 优先，忽略 use
             info.wearable = true;
             if (hasUse)
                 LogUtil.Warning("items.use_wearable_conflict", def.FullName);
@@ -733,10 +666,8 @@ public static class ItemLoader
         if (hasUseOnLimb)
             info.usableOnLimb = true;
 
-        // 校验 wearable 字段
         if (def.Wearable == null) return info;
 
-        // wear_slot_id 是装备槽位标识（如 "back", "head"），为空则无法装备
         if (string.IsNullOrEmpty(def.Wearable.SlotId))
         {
             LogUtil.Warning("item_event.wear_slot_invalid",
@@ -746,7 +677,6 @@ public static class ItemLoader
             LogUtil.Warning("items.wearable_disabled", def.FullName);
         }
 
-        // desired_wear_limb 是 CCL 穿戴贴图的目标肢体，为空则无法装备
         if (string.IsNullOrEmpty(def.Wearable.DesiredLimb))
         {
             LogUtil.Warning("item_event.wear_slot_invalid",
@@ -765,20 +695,18 @@ public static class ItemLoader
         return info;
     }
 
-    // ---- Builder: 液体容器 ----
-
-    private static CustomItemInfo BuildLiquidItemInfo(LiquidItemDef def, string itemId, string assetsDir)
+    private static CustomItemInfo BuildLiquidItemInfo(LiquidItemDef def, string itemId,
+        string assetsDir)
     {
         var info = BuildItemInfo(def, itemId, assetsDir);
 
         info.capacity = def.Capacity;
         info.autoFill = def.AutoFill;
 
-        // 液体填充贴图: Assets/Item/{itemId}_fill.png
         var importScale = def.SpriteDef?.ImportScale ?? 6f;
-        info.LiquidMask = LoadSpriteWithFallback(assetsDir, itemId, "_fill.png", importScale);
+        info.LiquidMask =
+            LoadSpriteWithFallback(assetsDir, itemId, "_fill.png", importScale);
 
-        // 默认液体
         if (def.DefaultLiquid is { Count: > 0 })
         {
             info.defaultContents = [];
@@ -792,8 +720,6 @@ public static class ItemLoader
 
         return info;
     }
-
-    // ---- Builder: 纯液体 ----
 
     private static CustomLiquidInfo BuildLiquidInfo(LiquidDef def, string liquidId)
     {
@@ -809,7 +735,6 @@ public static class ItemLoader
             localeFromItem = def.LocaleFromItem
         };
 
-        // 制作特性
         if (def.Qualities == null) return info;
         foreach (var kv in def.Qualities)
             info.qualities.Add(new CraftingQuality(kv.Key.ToLowerInvariant(), kv.Value));
@@ -817,25 +742,23 @@ public static class ItemLoader
         return info;
     }
 
-    // 从 Assets/Item/ 加载精灵：先查 {itemId}{suffix}，回退到裸名 {name}{suffix}
-    // ID 重构（v2.2.0）后 itemId 为 {modId}.{name}，但 PNG 文件通常仍以裸名命名
-    private static Sprite? LoadSpriteWithFallback(string assetsDir, string itemId, string suffix, float importScale)
+    private static Sprite? LoadSpriteWithFallback(string assetsDir, string itemId,
+        string suffix, float importScale)
     {
-        // 1. 命名空间路径: {modId}.{name}{suffix}
         var path = Path.Combine(assetsDir, itemId + suffix);
         var sprite = ItemUtil.LoadSprite(path, importScale);
         if (sprite != null) return sprite;
 
-        // 2. 回退到裸名: {name}{suffix}
         var dotIndex = itemId.IndexOf('.');
         if (dotIndex > 0 && dotIndex < itemId.Length - 1)
-            sprite = ItemUtil.LoadSprite(Path.Combine(assetsDir, itemId[(dotIndex + 1)..] + suffix), importScale);
+            sprite = ItemUtil.LoadSprite(
+                Path.Combine(assetsDir, itemId[(dotIndex + 1)..] + suffix), importScale);
 
         return sprite;
     }
 
-    // 从 Assets/Item/ 加载物品精灵图：先查 {itemId}.png，回退到 originPrefab 的 SpriteRenderer
-    private static Sprite? LoadItemSprite(string originPrefab, string itemId, string assetsDir, float importScale = 1f)
+    private static Sprite? LoadItemSprite(string originPrefab, string itemId,
+        string assetsDir, float importScale = 1f)
     {
         var sprite = LoadSpriteWithFallback(assetsDir, itemId, ".png", importScale);
         if (sprite != null)
@@ -849,16 +772,14 @@ public static class ItemLoader
         }
         catch
         {
-            // 忽略
+            // ignored
         }
 
         return sprite;
     }
 
-    // 清除指定模组之前注册的物品与液体（内部调 ItemRegistry / LiquidRegistry 的 ClearOwnerEntries）
     private static void ClearModItems(string ownerId)
     {
-        // 清除该 owner 在 WearableWithoutWornSprite 中的条目及模板缓存
         if (LoadedItems.TryGetValue(ownerId, out var items))
             foreach (var entry in items)
             {
@@ -879,35 +800,39 @@ public static class ItemLoader
         PendingScripts.Remove(ownerId);
     }
 
-    // 暂存物品脚本映射，待引擎就绪后注册。检查 ItemDef 所有脚本来源。
-    private static void StashScript(string itemId, ItemDef def, string modId, string modDir)
+    private static void StashScript(string itemId, ItemDef def, string modId,
+        string modDir)
     {
-        // 检查是否有任何脚本需要暂存（复用 ItemScriptRegistry.IsEmpty 逻辑较复杂，
-        // 但这里 ItemScriptRegistry.Register 会内部判断；只要 def 有脚本相关字段就暂存）
-        var hasScript = def.Script != null && (
-            def.Script.Attack.Count > 0 ||
-            def.Script.UseOnLimb.Count > 0 ||
-            def.Script.Has.Count > 0 ||
-            def.Script.InHand.Count > 0 ||
-            def.Script.NotInHand.Count > 0 ||
-            def.Script.Durability.Count > 0);
+        var hasScript = def.Script != null
+            && (
+                def.Script.Attack.Count > 0
+                || def.Script.UseOnLimb.Count > 0
+                || def.Script.Has.Count > 0
+                || def.Script.InHand.Count > 0
+                || def.Script.NotInHand.Count > 0
+                || def.Script.Durability.Count > 0);
 
         var hasUse = def.Use is { Count: > 0 } ul && ul.Any(e => e.Script.Count > 0);
 
-        var hasWearableScripts = def.Wearable != null && (
-            def.Wearable.Equip.Count > 0 ||
-            def.Wearable.Unequip.Count > 0 ||
-            def.Wearable.Attack.Count > 0 ||
-            def.Wearable.Damage.Count > 0 ||
-            def.Wearable.Wearing.Count > 0);
+        var hasWearableScripts = def.Wearable != null
+            && (
+                def.Wearable.Equip.Count > 0
+                || def.Wearable.Unequip.Count > 0
+                || def.Wearable.Attack.Count > 0
+                || def.Wearable.Damage.Count > 0
+                || def.Wearable.Wearing.Count > 0);
 
-        var hasContainerTrigger = def.Container?.CapacityTrigger is { Count: > 0 } ct &&
-                                  ct.Any(t => t.Script.Count > 0);
+        var hasContainerTrigger = def.Container?.CapacityTrigger is { Count: > 0 } ct
+            && ct.Any(t => t.Script.Count > 0);
 
-        var hasBatteryTrigger = def.Battery?.ChargeTrigger is { Count: > 0 } bt &&
-                                bt.Any(t => t.Script.Count > 0);
+        var hasBatteryTrigger = def.Battery?.ChargeTrigger is { Count: > 0 } bt
+            && bt.Any(t => t.Script.Count > 0);
 
-        if (!hasScript && !hasUse && !hasWearableScripts && !hasContainerTrigger && !hasBatteryTrigger)
+        if (!hasScript
+            && !hasUse
+            && !hasWearableScripts
+            && !hasContainerTrigger
+            && !hasBatteryTrigger)
             return;
 
         if (!PendingScripts.TryGetValue(modId, out var itemScripts))

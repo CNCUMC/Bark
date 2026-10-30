@@ -9,7 +9,6 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class InventoryUtil
 {
-    // 手部物品查询
     [ScriptMethod]
     public static int GetHandSlot()
     {
@@ -67,7 +66,6 @@ public static class InventoryUtil
         return info != null && info.category == category;
     }
 
-    // 背包槽位查询
     [ScriptMethod]
     public static int GetSlotCount()
     {
@@ -108,14 +106,13 @@ public static class InventoryUtil
         return BodyUtil.Body.FirstEmptySlot() ?? -1;
     }
 
-    // 物品查询 - By id / tag / category
     [ScriptMethod]
     public static bool HasItem(string id)
     {
         CheckUtil.CheckNotNullOrEmpty(id, nameof(id));
         var resolved = ScriptCallContext.ResolveItemId(id);
         return BodyUtil.Body.HoldingItem(resolved)
-               || (resolved != id && BodyUtil.Body.HoldingItem(id));
+            || (resolved != id && BodyUtil.Body.HoldingItem(id));
     }
 
     public static bool HasItem(Predicate<ItemInfo> predicate)
@@ -140,7 +137,8 @@ public static class InventoryUtil
     [ScriptMethod]
     public static bool HasItemByCategory(string category)
     {
-        return !string.IsNullOrWhiteSpace(category) && HasItem(info => info.category == category);
+        return !string.IsNullOrWhiteSpace(category)
+            && HasItem(info => info.category == category);
     }
 
     [ScriptMethod]
@@ -172,7 +170,6 @@ public static class InventoryUtil
         return c;
     }
 
-    // 全部物品收集
     public static List<Item> GetAllItems()
     {
         return BodyUtil.Body.GetAllItems() ?? [];
@@ -182,8 +179,6 @@ public static class InventoryUtil
     {
         return [.. GetAllItems().Select(i => i.Stats).Where(i => i != null)];
     }
-
-    // -- [ScriptMethod] 数组返回包装（PuerTS 对 T[] 的支持优于 List<T>） --
 
     [ScriptMethod]
     public static string[] GetAllItemIds()
@@ -196,7 +191,11 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.HasTag(tag)).Select(i => i.id)];
+            :
+            [
+                .. GetAllItems().Where(i => i.Stats != null && i.Stats.HasTag(tag))
+                    .Select(i => i.id)
+            ];
     }
 
     [ScriptMethod]
@@ -204,7 +203,12 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.category == category).Select(i => i.id)];
+            :
+            [
+                .. GetAllItems()
+                    .Where(i => i.Stats != null && i.Stats.category == category)
+                    .Select(i => i.id)
+            ];
     }
 
     public static List<Item> GetItemsByTag(string tag)
@@ -218,7 +222,11 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : [.. GetAllItems().Where(i => i.Stats != null && i.Stats.category == category)];
+            :
+            [
+                .. GetAllItems()
+                    .Where(i => i.Stats != null && i.Stats.category == category)
+            ];
     }
 
     public static List<ItemInfo> GetItemInfosByTag(string tag)
@@ -242,10 +250,9 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdSurface(resolved, out item)
-               || (resolved != id && body.FindByIdSurface(id, out item));
+            || (resolved != id && body.FindByIdSurface(id, out item));
     }
 
-    // 穿戴装备查询
     public static List<Item> GetWearables()
     {
         return BodyUtil.Body.GetAllWearables() ?? [];
@@ -264,15 +271,15 @@ public static class InventoryUtil
 
     public static bool HasWearableByTag(string tag)
     {
-        return !string.IsNullOrWhiteSpace(tag) && GetWearableInfos().Any(i => i.HasTag(tag));
+        return !string.IsNullOrWhiteSpace(tag)
+            && GetWearableInfos().Any(i => i.HasTag(tag));
     }
 
     public static bool HasWearableByCategory(string category)
     {
-        return !string.IsNullOrWhiteSpace(category) && GetWearableInfos().Any(i => i.category == category);
+        return !string.IsNullOrWhiteSpace(category)
+            && GetWearableInfos().Any(i => i.category == category);
     }
-
-    // -- [ScriptMethod] 穿戴装备数组返回包装 --
 
     [ScriptMethod]
     public static string[] GetWearableItemIds()
@@ -285,7 +292,11 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.HasTag(tag)).Select(i => i.id)];
+            :
+            [
+                .. GetWearables().Where(i => i.Stats != null && i.Stats.HasTag(tag))
+                    .Select(i => i.id)
+            ];
     }
 
     [ScriptMethod]
@@ -293,7 +304,12 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.category == category).Select(i => i.id)];
+            :
+            [
+                .. GetWearables()
+                    .Where(i => i.Stats != null && i.Stats.category == category)
+                    .Select(i => i.id)
+            ];
     }
 
     public static List<Item> GetWearablesByTag(string tag)
@@ -307,7 +323,11 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : [.. GetWearables().Where(i => i.Stats != null && i.Stats.category == category)];
+            :
+            [
+                .. GetWearables()
+                    .Where(i => i.Stats != null && i.Stats.category == category)
+            ];
     }
 
     public static List<ItemInfo> GetWearableInfosByTag(string tag)
@@ -324,7 +344,6 @@ public static class InventoryUtil
             : [.. GetWearableInfos().Where(i => i.category == category)];
     }
 
-    // Thorough 查询（深度搜索，包括容器内物品）
     [ScriptMethod]
     public static bool HasItemThorough(string id)
     {
@@ -332,17 +351,19 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdThorough(resolved, out _)
-               || (resolved != id && body.FindByIdThorough(id, out _));
+            || (resolved != id && body.FindByIdThorough(id, out _));
     }
 
     public static bool HasItemThoroughByTag(string tag)
     {
-        return !string.IsNullOrWhiteSpace(tag) && GetAllItemInfosThorough().Any(i => i.HasTag(tag));
+        return !string.IsNullOrWhiteSpace(tag)
+            && GetAllItemInfosThorough().Any(i => i.HasTag(tag));
     }
 
     public static bool HasItemThoroughByCategory(string category)
     {
-        return !string.IsNullOrWhiteSpace(category) && GetAllItemInfosThorough().Any(i => i.category == category);
+        return !string.IsNullOrWhiteSpace(category)
+            && GetAllItemInfosThorough().Any(i => i.category == category);
     }
 
     public static List<Item> GetAllItemsThorough()
@@ -359,14 +380,22 @@ public static class InventoryUtil
     {
         return string.IsNullOrWhiteSpace(tag)
             ? []
-            : [.. GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.HasTag(tag))];
+            :
+            [
+                .. GetAllItemsThorough()
+                    .Where(i => i.Stats != null && i.Stats.HasTag(tag))
+            ];
     }
 
     public static List<Item> GetItemsThoroughByCategory(string category)
     {
         return string.IsNullOrWhiteSpace(category)
             ? []
-            : [.. GetAllItemsThorough().Where(i => i.Stats != null && i.Stats.category == category)];
+            :
+            [
+                .. GetAllItemsThorough()
+                    .Where(i => i.Stats != null && i.Stats.category == category)
+            ];
     }
 
     public static List<ItemInfo> GetItemInfosThoroughByTag(string tag)
@@ -390,10 +419,9 @@ public static class InventoryUtil
         if (BodyUtil.Body is not { } body) return false;
         var resolved = ScriptCallContext.ResolveItemId(id);
         return body.FindByIdThorough(resolved, out item)
-               || (resolved != id && body.FindByIdThorough(id, out item));
+            || (resolved != id && body.FindByIdThorough(id, out item));
     }
 
-    // 聚合查询（手部 + 背包 + 装备 + 容器内，去重）
     public static List<Item> GetAllItemsAll()
     {
         if (BodyUtil.Body is not { } body) return [];

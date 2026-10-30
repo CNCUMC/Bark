@@ -46,29 +46,24 @@ public static class PlayerEventListener
         _runner = null;
     }
 
-    // Body.Jump() 被调用时触发起跳事件（仅限玩家自身，带冷却防连发）
     [HarmonyPatch(typeof(Body), "Jump")]
     [HarmonyPrefix]
     private static void BodyJumpPrefix(Body __instance)
     {
-        // 世界未就绪时忽略 Jump 调用（进入世界时游戏内部可能触发初始化跳越）
         if (!_worldReady) return;
 
         var cam = PlayerCamera.main;
         if (cam == null) return;
         if (cam.body != __instance) return;
 
-        // 已有未完成的跳跃，不重复触发 start
         if (_isJumping)
         {
-            // 无协程追踪则补启动（极端情况下协程丢失的兜底）
             _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
             return;
         }
 
         if (Time.time - _lastJumpTime < JumpCooldown)
         {
-            // 冷却期内起跳，不发 start 但仍需保证有协程追踪落地
             _jumpMonitorCoroutine ??= _runner!.StartCoroutine(MonitorJump(__instance, cam));
             return;
         }
@@ -85,8 +80,6 @@ public static class PlayerEventListener
         });
     }
 
-    // 通过 transform.position.y 检测完整跳跃：
-    // Y 上升 -> Y 开始下降 -> Y 不再下降（触地）
     private static IEnumerator MonitorJump(Body body, PlayerCamera camera)
     {
         var startTime = Time.time;
@@ -103,13 +96,11 @@ public static class PlayerEventListener
 
             if (!falling)
             {
-                // Y 开始下降 -> 已过最高点，进入下落阶段
                 if (deltaY < 0f)
                     falling = true;
             }
             else
             {
-                // 下落阶段中 Y 趋于稳定 -> 落地
                 if (Mathf.Abs(deltaY) < LandStableThreshold)
                 {
                     stableFrames++;
@@ -141,7 +132,6 @@ public static class PlayerEventListener
         });
     }
 
-    // 世界生成后持续轮询：死亡检测
     private static IEnumerator MonitorPlayer()
     {
         yield return CUCoreUtils.AwaitWorldGeneration();

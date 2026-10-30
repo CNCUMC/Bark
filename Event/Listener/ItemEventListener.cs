@@ -10,19 +10,13 @@ using UnityEngine;
 
 namespace Bark.Event.Listener;
 
-// 物品动作事件监听器：通过 Harmony 补丁拦截游戏物品相关方法，
-// 触发 ItemUseEvent / ItemEquipEvent / ItemUnequipEvent / ItemLimbUseEvent / ItemAttackEvent。
-// 新增被动状态（in_hand/not_in_hand/has/wearing）、耐久/容量/电量条件触发器的轮询检测。
 public static class ItemEventListener
 {
-    // 轮询间隔（秒）
     private const float PollInterval = 0.5f;
 
-    // instanceId → itemId 映射，用于卸下时传递物品 ID
     private static readonly Dictionary<int, string> KnownWearableIds = new();
     private static readonly Dictionary<int, float> LimbConditionTracker = new();
 
-    // 条件触发器上次值缓存：(itemId, triggerIndex) → lastValue
     private static readonly Dictionary<string, float> TriggerLastValues = new();
 
     private static Coroutine? _equipCoroutine;
@@ -38,11 +32,9 @@ public static class ItemEventListener
 
     private static string? _lastHandItemId;
 
-    // 攻击检测：追踪手部物品 condition
     private static float _lastHandCondition = 1f;
     private static int _lastAttackFrame;
 
-    // 穿戴攻击：追踪被穿戴物品的 condition
     private static readonly Dictionary<string, float> LastWearCondition = new();
 
     internal static void Listen(MonoBehaviour runner)
@@ -88,21 +80,18 @@ public static class ItemEventListener
         coroutine = null;
     }
 
-    // 检查物品是否有 use 背包脚本
     private static bool HasUseBackpackScript(string itemId)
     {
         var entry = ItemScriptRegistry.GetEntry(itemId);
         return entry != null && entry.GetUseScriptsForBackpack().Count > 0;
     }
 
-    // 检查物品是否有 use 手持脚本
     private static bool HasUseHandScript(string itemId)
     {
         var entry = ItemScriptRegistry.GetEntry(itemId);
         return entry != null && entry.GetUseScriptsForHand().Count > 0;
     }
 
-    // 轮询：被动状态检测（in_hand / not_in_hand）
     private static IEnumerator PollPassiveStates()
     {
         yield return new WaitForSeconds(1f);
@@ -118,9 +107,7 @@ public static class ItemEventListener
             var handItem = body.GetItem(handSlot);
             var currentHandItemId = handItem && !string.IsNullOrEmpty(handItem.id) ? handItem.id : null;
 
-            // in_hand / not_in_hand 状态变化
             if (_lastHandItemId == currentHandItemId) continue;
-            // 旧物品：not_in_hand
             if (!string.IsNullOrEmpty(_lastHandItemId))
             {
                 var oldEntry = ItemScriptRegistry.GetEntry(_lastHandItemId);
@@ -128,7 +115,6 @@ public static class ItemEventListener
                     ExecutePassiveScripts(oldEntry, _lastHandItemId, "not_in_hand", oldEntry.NotInHand);
             }
 
-            // 新物品：in_hand
             if (!string.IsNullOrEmpty(currentHandItemId))
             {
                 var newEntry = ItemScriptRegistry.GetEntry(currentHandItemId);
@@ -147,7 +133,6 @@ public static class ItemEventListener
             ScriptUtil.Execute(entry.ModId, relativePath, itemId, null, action);
     }
 
-    // 轮询：装备变化检测
     private static IEnumerator PollEquipChange()
     {
         yield return new WaitForSeconds(1f);
@@ -190,7 +175,6 @@ public static class ItemEventListener
             currentIds[item.GetInstanceID()] = (item.id, item);
         }
 
-        // 检测新装备 + 合并到已知集合
         foreach (var kv in currentIds.Where(kv => !KnownWearableIds.ContainsKey(kv.Key)))
         {
             EventUtil.Trigger(new ItemEquipEvent
@@ -201,7 +185,6 @@ public static class ItemEventListener
             KnownWearableIds[kv.Key] = kv.Value.Id;
         }
 
-        // 检测卸下装备
         var toRemove = KnownWearableIds.Where(kv => !currentIds.ContainsKey(kv.Key)).ToList();
         foreach (var kv in toRemove)
         {
@@ -209,7 +192,6 @@ public static class ItemEventListener
             KnownWearableIds.Remove(kv.Key);
         }
 
-        // 穿戴攻击检测：检查穿戴物品 condition 下降
         foreach (var kv in currentIds)
         {
             var item = kv.Value.Item;
@@ -227,7 +209,6 @@ public static class ItemEventListener
         }
     }
 
-    // 轮询：肢体使用物品检测
     private static IEnumerator PollLimbUse()
     {
         yield return new WaitForSeconds(1f);
@@ -296,7 +277,6 @@ public static class ItemEventListener
                + limb.dislocationTimer;
     }
 
-    // 攻击检测
     private static IEnumerator PollItemAttack()
     {
         yield return new WaitForSeconds(1f);
@@ -327,7 +307,6 @@ public static class ItemEventListener
         }
     }
 
-    // 轮询：耐久条件触发器
     private static IEnumerator PollDurability()
     {
         yield return new WaitForSeconds(2f);
@@ -339,7 +318,6 @@ public static class ItemEventListener
             var body = BodyUtil.Body;
             if (!body) continue;
 
-            // 遍历所有已注册 durability 触发器的物品
             foreach (var entry in GetTrackedEntriesWithTrigger(e => e.Durability.Count > 0))
             {
                 var item = FindItemOnBody(body, entry.Key);
@@ -357,7 +335,6 @@ public static class ItemEventListener
         }
     }
 
-    // 轮询：容器容量条件触发器
     private static IEnumerator PollCapacity()
     {
         yield return new WaitForSeconds(2f);
@@ -395,7 +372,6 @@ public static class ItemEventListener
         }
     }
 
-    // 轮询：电池电量条件触发器
     private static IEnumerator PollCharge()
     {
         yield return new WaitForSeconds(2f);
@@ -432,7 +408,6 @@ public static class ItemEventListener
         }
     }
 
-    // 持有状态轮询（has）：检测背包中物品，每周期触发 ItemHasEvent
     private static IEnumerator PollHasItems()
     {
         yield return new WaitForSeconds(1f);
@@ -451,7 +426,6 @@ public static class ItemEventListener
         }
     }
 
-    // 穿戴被动轮询（wearing）：检测已穿戴且有 wearing 脚本的物品
     private static IEnumerator PollWearPassive()
     {
         yield return new WaitForSeconds(1f);
@@ -476,12 +450,9 @@ public static class ItemEventListener
         }
     }
 
-    // 条件触发器通用检测逻辑
-    // 获取已注册且有指定类型触发器的物品条目
     private static IEnumerable<KeyValuePair<string, ItemScriptEntry>> GetTrackedEntriesWithTrigger(
         Func<ItemScriptEntry, bool> hasTrigger)
     {
-        // 简化：遍历 KnownWearableIds 中的物品
         foreach (var (_, itemId) in KnownWearableIds)
         {
             var entry = ItemScriptRegistry.GetEntry(itemId);
@@ -490,14 +461,12 @@ public static class ItemEventListener
         }
     }
 
-    // 在 body 上查找物品（先查装备再查 inventory）
     private static Item? FindItemOnBody(Body body, string itemId)
     {
         var wearables = body.GetAllWearables();
         return wearables?.FirstOrDefault(item => item.id == itemId);
     }
 
-    // 检查条件触发器并触发（边沿检测）
     private static void CheckAndFireTriggers(
         string itemId,
         Item? item,
@@ -520,13 +489,11 @@ public static class ItemEventListener
 
             TriggerLastValues[key] = currentValue;
 
-            // 只在上一次不满足、当前满足时触发（边沿触发）
             if (triggeredNow && !triggeredBefore)
                 fireEvent(itemId, item, trigger.Operator, trigger.Value, currentValue);
         }
     }
 
-    // 比较 currentValue 与 threshold 是否满足 operator
     private static bool EvaluateTrigger(string op, float threshold, float current)
     {
         return op switch
@@ -540,7 +507,6 @@ public static class ItemEventListener
         };
     }
 
-    // 辅助
     private static bool IsPlayerItem(Item item)
     {
         return item != null

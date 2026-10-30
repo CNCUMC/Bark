@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace Bark.Tool;
 
-// 玩家通用操作：传送、物品、警告
 [ScriptApi]
 public static class PlayerUtil
 {
@@ -41,27 +40,27 @@ public static class PlayerUtil
             throw new ArgumentOutOfRangeException(nameof(slot), slot,
                 LocaleLog("player.slot.out_of_range", MaxInventorySlots));
 
-        // 从脚本调用时自动补全为 {modId}.{itemId}；原版物品或无上下文时原样使用
         var resolved = ScriptCallContext.ResolveItemId(item);
         var pos = BodyUtil.Body.transform.position;
         var go = Utils.Create(resolved, pos, 0f)
-                 ?? (resolved != item
-                     ? Utils.Create(item, pos, 0f)
-                     : null)
-                 ?? throw new InvalidOperationException(LocaleLog("player.load_item.fail", item));
+            ?? (resolved != item
+                ? Utils.Create(item, pos, 0f)
+                : null)
+            ?? throw new InvalidOperationException(LocaleLog("player.load_item.fail",
+                item));
         var cmp = go.GetComponent<Item>()
-                  ?? throw new InvalidOperationException(LocaleLog("player.load_item.missing_component", item));
+            ?? throw new InvalidOperationException(
+                LocaleLog("player.load_item.missing_component", item));
         BodyUtil.Body.PickUpItem(cmp, slot, force);
     }
-    
-    
-    // 在玩家脚下生成物品，自动捡起。count 为 0 时不限。
+
+
     [ScriptMethod]
     public static void AutoPickUpItem(string itemId, int count = 1)
     {
-        if (string.IsNullOrEmpty(itemId) || BodyUtil.Body is not { transform: var t } body) return;
+        if (string.IsNullOrEmpty(itemId)
+            || BodyUtil.Body is not { transform: var t } body) return;
 
-        // 从脚本调用时自动补全为 {modId}.{itemId}；原版物品或无上下文时原样使用
         var resolved = ScriptCallContext.ResolveItemId(itemId);
         var pos = t.position;
         var actual = count > 0
@@ -70,9 +69,9 @@ public static class PlayerUtil
         for (var i = 0; i < actual; i++)
         {
             var go = Utils.Create(resolved, pos, 0f)
-                     ?? (resolved != itemId
-                         ? Utils.Create(itemId, pos, 0f)
-                         : null);
+                ?? (resolved != itemId
+                    ? Utils.Create(itemId, pos, 0f)
+                    : null);
             if (go == null) continue;
             var cmp = go.GetComponent<Item>();
             if (cmp != null) body.AutoPickUpItem(cmp);
@@ -88,18 +87,18 @@ public static class PlayerUtil
             CUCoreUtils.Alert(text, important, delay);
     }
 
-    // 播放指定音效。默认在玩家位置播放。
     [ScriptMethod]
-    public static void PlaySound(string soundName, float x = float.NaN, float y = float.NaN)
+    public static void PlaySound(string soundName, float x = float.NaN,
+        float y = float.NaN)
     {
-        if (string.IsNullOrEmpty(soundName) || BodyUtil.Body is not { transform: var t }) return;
+        if (string.IsNullOrEmpty(soundName)
+            || BodyUtil.Body is not { transform: var t }) return;
         var pos = float.IsNaN(x) || float.IsNaN(y)
             ? (Vector2)t.position
             : new Vector2(x, y);
         Sound.Play(soundName, pos);
     }
 
-    // 让玩家说出对话文本（头顶冒泡）。dialogue 为空或身体未就绪时无操作。
     [ScriptMethod]
     public static void Talk(string dialogue)
     {
@@ -107,7 +106,6 @@ public static class PlayerUtil
         CUCoreUtils.Talk(dialogue);
     }
 
-    // 通过电子设备（如手表）说出对话文本。itemId 为空时使用通用电子代理。
     [ScriptMethod]
     public static void TalkElectronic(string dialogue, string itemId = "")
     {

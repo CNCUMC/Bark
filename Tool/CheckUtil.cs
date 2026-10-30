@@ -27,7 +27,8 @@ public static class CheckUtil
         if (logger != null) throw Fail("check.console_not_initialized", logger);
     }
 
-    public static void CheckArgumentCount(string[] args, int minCount, ManualLogSource? logger = null)
+    public static void CheckArgumentCount(string[] args, int minCount,
+        ManualLogSource? logger = null)
     {
         if (args == null) throw new ArgumentNullException(nameof(args));
         if (args.Length >= minCount) return;
@@ -38,7 +39,8 @@ public static class CheckUtil
     public static void CheckNotNullOrEmpty(string value, string paramName)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException(BetterLocale.GetLog("check.string.null_or_empty"), paramName);
+            throw new ArgumentException(BetterLocale.GetLog("check.string.null_or_empty"),
+                paramName);
     }
 
     public static float CheckParseFloat(string parse, ManualLogSource? logger = null)
@@ -51,7 +53,7 @@ public static class CheckUtil
         }
 
         if (float.TryParse(parse, NumberStyles.Float | NumberStyles.AllowThousands,
-                CultureInfo.InvariantCulture, out var result))
+            CultureInfo.InvariantCulture, out var result))
             return result;
 
         if (logger != null)
@@ -68,7 +70,8 @@ public static class CheckUtil
             return 0;
         }
 
-        if (int.TryParse(parse, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
+        if (int.TryParse(parse, NumberStyles.Integer, CultureInfo.InvariantCulture,
+            out var result))
             return result;
 
         if (logger != null)
@@ -76,7 +79,8 @@ public static class CheckUtil
         return 0;
     }
 
-    private static Exception Fail(string key, ManualLogSource logger, params object[] args)
+    private static Exception Fail(string key, ManualLogSource logger,
+        params object[] args)
     {
         var msg = BetterLocale.GetLog(key, args);
         LogUtil.Error(msg, logger);

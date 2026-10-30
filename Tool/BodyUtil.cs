@@ -4,21 +4,16 @@ using Object = UnityEngine.Object;
 
 namespace Bark.Tool;
 
-// 玩家身体：状态检测、生理数值、药物、恢复、医疗阈值
-// 方法加 [ScriptMethod] 后自动暴露给 Lua/JS 脚本
 [ScriptApi]
 public static class BodyUtil
 {
-    // 保留公开属性以兼容外部调用；PlayerCamera.main 在未进入场景时为 null
     public static Body Body => PlayerCamera.main?.body!;
 
-    // 内部辅助 - 统一 Body 获取入口
     private static Body? GetBody()
     {
         return PlayerCamera.main?.body;
     }
 
-    // 状态检测 - bool 查询（Body 为 null 时统一返回 false）
     [ScriptMethod]
     public static bool IsAlive()
     {
@@ -181,7 +176,6 @@ public static class BodyUtil
         return GetBody() is { succesfullyRolledLastStand: true };
     }
 
-    // 生理数值查询 - float getter（Body 为 null 时返回 0f）
     [ScriptMethod]
     public static float GetFocusedLevel()
     {
@@ -470,7 +464,6 @@ public static class BodyUtil
         return GetBody()?.clawRegrowTime ?? 0f;
     }
 
-    // 基础生理数值设置 - 核心字段 Setter
     [ScriptMethod]
     public static void SetHunger(float value)
     {
@@ -555,7 +548,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.internalBleeding = Mathf.Clamp(value, 0f, 100f);
     }
 
-    // 扩展数值设置 - 补全字段 Setter
     [ScriptMethod]
     public static void SetFocusedLevel(float value)
     {
@@ -685,10 +677,10 @@ public static class BodyUtil
     [ScriptMethod]
     public static void SetAntibioticImmunityTime(float value)
     {
-        if (GetBody() is { } b) b.antibioticImmunityTime = Mathf.Clamp(value, 0f, float.MaxValue);
+        if (GetBody() is { } b)
+            b.antibioticImmunityTime = Mathf.Clamp(value, 0f, float.MaxValue);
     }
 
-    // 卫生/环境数值设置
     [ScriptMethod]
     public static void SetDirtyness(float value)
     {
@@ -719,7 +711,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.happiness = Mathf.Clamp(value, -100f, 100f);
     }
 
-    // 药物效果 - 查询、修改、移除
     [ScriptMethod]
     public static bool HasPainkillers()
     {
@@ -759,19 +750,22 @@ public static class BodyUtil
     [ScriptMethod]
     public static void RemovePainkillers()
     {
-        if (GetBody() is { } body && body.TryGetComponent<Painkillers>(out var c)) Object.Destroy(c);
+        if (GetBody() is { } body && body.TryGetComponent<Painkillers>(out var c))
+            Object.Destroy(c);
     }
 
     [ScriptMethod]
     public static void RemoveAntidepressants()
     {
-        if (GetBody() is { } body && body.TryGetComponent<Antidepressants>(out var c)) Object.Destroy(c);
+        if (GetBody() is { } body && body.TryGetComponent<Antidepressants>(out var c))
+            Object.Destroy(c);
     }
 
     [ScriptMethod]
     public static void RemoveSleepingPills()
     {
-        if (GetBody() is { } body && body.TryGetComponent<SleepingPills>(out var c)) Object.Destroy(c);
+        if (GetBody() is { } body && body.TryGetComponent<SleepingPills>(out var c))
+            Object.Destroy(c);
     }
 
     [ScriptMethod]
@@ -792,7 +786,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.caffeinated = Mathf.Clamp(value, 0f, 100f);
     }
 
-    // 心理状态
     [ScriptMethod]
     public static int GetCorpsesSeen()
     {
@@ -805,7 +798,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.corpsesSeen = Mathf.Max(0, count);
     }
 
-    // 补全 bodyNature 缺失的字段 setter
     [ScriptMethod]
     public static void SetBrainGrowSickness(float value)
     {
@@ -842,8 +834,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.clawRegrowTime = Mathf.Max(0f, value);
     }
 
-    // -- bool 状态 setter（服务于 bodyNature 中不可逆状态） --
-
     [ScriptMethod]
     public static void SetHasPulmonaryEmbolism(bool value)
     {
@@ -874,7 +864,6 @@ public static class BodyUtil
         if (GetBody() is { } b) b.fibrillationForced = value;
     }
 
-    // 复合操作 - 修改/恢复/治疗
     [ScriptMethod]
     public static void Feed(float amount)
     {
@@ -899,21 +888,18 @@ public static class BodyUtil
         if (GetBody() is { } b) b.energy = Mathf.Clamp(b.energy + amount, 0f, 100f);
     }
 
-    // Eat 是游戏内置的进食方法，同时处理饥饿和体重
     [ScriptMethod]
     public static void Eat(float hungerAmount, float weightOffset)
     {
         if (GetBody() is { } b) b.Eat(hungerAmount, weightOffset);
     }
 
-    // Drink 是游戏内置的饮水方法
     [ScriptMethod]
     public static void Drink(float thirstAmount)
     {
         if (GetBody() is { } b) b.Drink(thirstAmount);
     }
 
-    // 触发呕吐
     [ScriptMethod]
     public static void Vomit()
     {
@@ -925,7 +911,6 @@ public static class BodyUtil
     {
         if (GetBody() is not { } body) return;
 
-        // 治疗所有肢体
         foreach (var limb in body.limbs)
         {
             if (limb == null) continue;
@@ -936,7 +921,6 @@ public static class BodyUtil
             limb.infected = false;
         }
 
-        // 恢复全身数值
         body.brainHealth = body.bloodVolume =
             body.bloodOxygen = body.consciousness = body.stamina = body.energy = 100f;
         body.bloodPressure = 120f;
@@ -949,20 +933,20 @@ public static class BodyUtil
         body.hunger = body.thirst = 100f;
         body.septicShock = body.sicknessAmount = 0f;
         body.temperature = 37f;
-        body.happiness = body.radiationSickness = body.internalBleeding = body.hemothorax = body.traumaAmount = 0f;
+        body.happiness = body.radiationSickness =
+            body.internalBleeding = body.hemothorax = body.traumaAmount = 0f;
         body.dirtyness = body.wetness = body.badSleepAmount = body.hearingLoss = 0f;
-        body.antidepressantHappiness = body.opiateHappiness = body.antibioticImmunityTime = 0f;
+        body.antidepressantHappiness =
+            body.opiateHappiness = body.antibioticImmunityTime = 0f;
         body.adrenaline = body.curAdrenaline = body.venomCurrent = body.venomTotal = 0f;
         body.clawHealth = 100f;
         body.focusedLevel = body.horrifiedLevel = body.snowAmount = 0f;
         body.hasPulmonaryEmbolism = false;
 
-        // 移除药物组件
         if (body.TryGetComponent<Painkillers>(out var pk)) Object.Destroy(pk);
         if (body.TryGetComponent<SleepingPills>(out var sp)) Object.Destroy(sp);
         if (body.TryGetComponent<Antidepressants>(out var ad)) Object.Destroy(ad);
 
-        // 清除所有 can_heal=false 的自定义 Moodle（can_heal=true 的状态保留）
         MoodleUtil.ClearMoodlesOnHeal();
     }
 }

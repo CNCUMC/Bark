@@ -34,7 +34,6 @@ public static class LimbEventListener
         _runner = null;
     }
 
-    // 感染轮询
     private static IEnumerator MonitorInfection()
     {
         while (_infectionCoroutine != null)
@@ -67,8 +66,6 @@ public static class LimbEventListener
         }
     }
 
-
-    // 辅助
     private static bool IsPlayerLimb(Limb limb)
     {
         return limb != null && limb.body == BodyUtil.Body;

@@ -6,13 +6,10 @@ using Bark.Tool;
 
 namespace Bark.Tile;
 
-// 物块脚本运行器：监听物块事件，通过 ScriptUtil 触发对应的脚本文件。
-// 在 Plugin.Awake() 中调用 Listen() 注册事件处理器。
 public static class TileScriptRunner
 {
     private const string Guid = Plugin.Guid + ".tiles";
 
-    // 注册事件处理器（应在所有模组加载完成后调用）
     public static void Listen()
     {
         EventUtil.On<TilePlaceEvent>(OnTilePlace, Guid);
@@ -21,7 +18,6 @@ public static class TileScriptRunner
         EventUtil.On<TileDestroyedEvent>(OnTileDestroyed, Guid);
     }
 
-    // 停止监听（卸载时调用）
     public static void Stop()
     {
         EventUtil.UnregisterAll(Guid);
@@ -51,7 +47,6 @@ public static class TileScriptRunner
             "on_destroyed", e => e.OnDestroyed);
     }
 
-    // 从 TileScriptRegistry 查找物块脚本，通过 ScriptUtil 按顺序执行
     private static void ExecuteScripts(string tileId, int tileIndex, int posX, int posY,
         string action, Func<TileScriptEntry, List<string>> getScriptList)
     {
@@ -66,10 +61,10 @@ public static class TileScriptRunner
         if (scripts.Count == 0)
             return;
 
-        // 构建上下文
         var context = new TileScriptContext(tileIndex, posX, posY);
 
-        foreach (var relativePath in scripts.Where(relativePath => !string.IsNullOrEmpty(relativePath)))
+        foreach (var relativePath in scripts.Where(relativePath =>
+            !string.IsNullOrEmpty(relativePath)))
             ScriptUtil.ExecuteTile(entry.ModId, relativePath, tileId, context, action);
     }
 }

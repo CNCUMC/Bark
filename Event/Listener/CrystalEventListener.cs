@@ -4,9 +4,6 @@ using HarmonyLib;
 
 namespace Bark.Event.Listener;
 
-// 水晶事件监听器：通过 Harmony 补丁拦截水晶效果基类声明的虚方法 Touched/Hit，
-// 以及水晶敌人的攻击/死亡方法，触发水晶相关事件。
-// 只 patch 基类声明的虚方法一次，所有 internal 子类共享此补丁。
 public static class CrystalEventListener
 {
     internal static void Listen()

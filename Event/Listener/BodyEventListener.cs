@@ -7,9 +7,6 @@ using UnityEngine;
 
 namespace Bark.Event.Listener;
 
-// Body 状态/行为事件监听：
-// - 行为动作（攀爬/锻炼/切换手持/切换朝向/拾取/丢弃/毁容/失去眼睛/最后坚持）用 Harmony patch 触发
-// - 生命体征临界（心脏骤停/心室颤动/呼吸/意识/濒死）与睡眠、下蹲用协程轮询检测状态翻转触发
 [HarmonyPatch(typeof(Body))]
 public static class BodyEventListener
 {
@@ -18,7 +15,6 @@ public static class BodyEventListener
     private static MonoBehaviour? _runner;
     private static Coroutine? _monitorCoroutine;
 
-    // 轮询状态的上次值
     private static bool _wasCardiacArrest;
     private static bool _wasFibrillating;
     private static bool _wasBreathing = true;
@@ -45,7 +41,6 @@ public static class BodyEventListener
         _runner = null;
     }
 
-    // Harmony 前缀：行为动作
     [HarmonyPatch("StartClimbing")]
     [HarmonyPrefix]
     private static void StartClimbingPrefix(Body __instance)
@@ -99,7 +94,6 @@ public static class BodyEventListener
     }
 
 
-    // Harmony 后缀：特殊状态
     [HarmonyPatch("SwitchDir")]
     [HarmonyPostfix]
     private static void SwitchDirPostfix(Body __instance)
@@ -142,7 +136,6 @@ public static class BodyEventListener
         EventUtil.Trigger(new BodyLastStandEvent { Body = __instance, Camera = PlayerCamera.main });
     }
 
-    // 状态轮询：生命体征临界 / 意识 / 睡眠 / 下蹲 / 锻炼
     private static IEnumerator MonitorBody()
     {
         yield return CUCoreUtils.AwaitWorldGeneration();
@@ -169,7 +162,6 @@ public static class BodyEventListener
         var cam = PlayerCamera.main;
         if (!cam || cam.body != body) return;
 
-        // 心脏骤停
         var cardiacArrest = body.inCardiacArrest;
         if (cardiacArrest != _wasCardiacArrest)
         {
@@ -178,7 +170,6 @@ public static class BodyEventListener
             _wasCardiacArrest = cardiacArrest;
         }
 
-        // 心室颤动
         var fibrillating = body.fibrillationProgress > 0f;
         switch (fibrillating)
         {
@@ -192,14 +183,12 @@ public static class BodyEventListener
 
         _wasFibrillating = fibrillating;
 
-        // 呼吸
         if (body.breathing != _wasBreathing)
         {
             EventUtil.Trigger(new BodyBreathChangeEvent { Body = body, Camera = cam, IsBreathing = body.breathing });
             _wasBreathing = body.breathing;
         }
 
-        // 意识
         var conscious = body.conscious;
         if (conscious != _wasConscious)
         {
@@ -207,7 +196,6 @@ public static class BodyEventListener
             _wasConscious = conscious;
         }
 
-        // 濒死
         var brainDying = body.brainDying;
         if (brainDying != _wasBrainDying)
         {
@@ -215,7 +203,6 @@ public static class BodyEventListener
             _wasBrainDying = brainDying;
         }
 
-        // 锻炼
         if (body.exercising != _wasExercising)
         {
             if (body.exercising)
@@ -225,14 +212,12 @@ public static class BodyEventListener
             _wasExercising = body.exercising;
         }
 
-        // 下蹲
         if (body.crouching != _wasCrouching)
         {
             EventUtil.Trigger(new BodyCrouchChangeEvent { Body = body, Camera = cam, IsCrouching = body.crouching });
             _wasCrouching = body.crouching;
         }
 
-        // 睡眠
         if (body.sleeping != _wasSleeping)
         {
             EventUtil.Trigger(new BodySleepChangeEvent { Body = body, Camera = cam, IsSleeping = body.sleeping });

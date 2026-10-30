@@ -4,58 +4,39 @@ using Newtonsoft.Json.Linq;
 
 namespace Bark.Items;
 
-// ---- 新版分组模型（当前格式） ----
-// JSON 字段一律使用 snake_case。分组原则：
-//   "属性": { "子属性": "值" }  ← 新标准
-//   不再使用 flat bool "属性": true 或 "属性_data": { ... } 后缀
-
-// 物品模板引用定义。
-// type 指定模板名（如 "gun"），其余任意键值对作为模板参数（如 ammo_type、recoil）。
-// 合并时模板参数优先级高于模板默认值，低于物品顶层字段。
 public class TemplateDef
 {
-    // 模板的其他参数（如 ammo_type、recoil、clip_size）由 JsonExtensionData 捕获
     [JsonExtensionData] public Dictionary<string, JToken>? ExtraParams;
-
     [JsonProperty("type")] public string Type = string.Empty;
 }
 
 public class ItemDef
 {
-    // 绷带 / 注射器 / 工具行为
     [JsonProperty("bandage")] public BandageDef? Bandage;
 
-    // 电池/电力（替代旧 battery_data）
     [JsonProperty("battery")] public BatteryDef? Battery;
     [JsonProperty("category")] public string Category = string.Empty;
 
-    // ---- 布尔标记（顶层） ----
     [JsonProperty("combinable")] public bool Combinable;
 
-    // 容器（替代旧 container_data）
     [JsonProperty("container")] public ContainerDef? Container;
 
     [JsonProperty("custom_data")] public Dictionary<string, object>? CustomData;
 
-    // 腐烂
     [JsonProperty("decay")] public DecayDef? Decay;
     [JsonProperty("description")] public string Description = string.Empty;
 
     [JsonProperty("destroy_at_zero_condition")]
     public bool DestroyAtZeroCondition = true;
 
-    // ---- 基础字段（顶层） ----
     [JsonProperty("full_name")] public string FullName = string.Empty;
 
-    // 手持精灵偏移
     [JsonProperty("held_sprite_offset")] public Vector2Def? HeldSpriteOffset;
 
-    // 图标 / 穿戴精灵动画 ID
     [JsonProperty("icon_animation_id")] public string? IconAnimationId;
 
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
 
-    // 光源（替代旧 light 顶层字段）
     [JsonProperty("light")] public LightItemDef? Light;
     [JsonProperty("only_hold_in_hands")] public bool OnlyHoldInHands;
     [JsonProperty("origin_prefab")] public string OriginPrefab = "geofruit";
@@ -65,28 +46,21 @@ public class ItemDef
     [JsonProperty("scale_weight_with_condition")]
     public bool ScaleWeightWithCondition;
 
-    // ---- 已嵌套字段（无需迁移） ----
     [JsonProperty("script")] public ItemScriptDef? Script;
 
-    // 生成 / 掉落
     [JsonProperty("spawn")] public SpawnDef? Spawn;
 
-    // 生成时附加的组件类型名列表
     [JsonProperty("spawn_components")] public List<string>? SpawnComponents;
 
-    // 精灵图 / 显示
     [JsonProperty("sprite")] public SpriteDef? SpriteDef;
     [JsonProperty("syringe")] public SyringeDef? Syringe;
     [JsonProperty("tags")] public string Tags = string.Empty;
 
-    // 模板引用：引用已注册模板，自动继承预设字段。额外键值对作为模板参数覆盖默认值
     [JsonProperty("template")] public TemplateDef? Template;
     [JsonProperty("tool")] public ToolDef? Tool;
     [JsonProperty("use")] public List<UseEntryDef>? Use;
     [JsonProperty("value")] public int Value;
 
-    // ---- 分组字段 ----
-    // 可装备（出现此对象即视为 wearable=true）
     [JsonProperty("wearable")] public WearableDef? Wearable;
     [JsonProperty("weight")] public float Weight;
 
@@ -94,24 +68,18 @@ public class ItemDef
     public string? WornSpriteAnimationId;
 }
 
-// ---- 分组子模型 ----
-
 public class WearableDef
 {
     [JsonProperty("armor")] public float Armor;
     [JsonProperty("attack")] public List<string> Attack = [];
 
-    // 装备后是否仍可手持
     [JsonProperty("can_be_held")] public bool CanBeHeld;
     [JsonProperty("damage")] public List<string> Damage = [];
 
-    // 装备到哪个肢体（必须为已知肢体名）
     [JsonProperty("desired_limb")] public string DesiredLimb = string.Empty;
 
-    // 是否可双持（仅 weapon 槽位生效）
     [JsonProperty("dual_wielded")] public bool DualWielded;
 
-    // 穿戴脚本
     [JsonProperty("equip")] public List<string> Equip = [];
 
     [JsonProperty("hit_durability_loss_multiplier")]
@@ -119,10 +87,8 @@ public class WearableDef
 
     [JsonProperty("isolation")] public float Isolation;
 
-    // 额外肢体已装备贴图（替代旧 multi_worn）
     [JsonProperty("multi")] public Dictionary<string, WornSpriteOffset>? Multi;
 
-    // 装备到哪个槽位（必须为游戏已知 15 个肢体之一）
     [JsonProperty("slot_id")] public string SlotId = string.Empty;
 
     [JsonProperty("sorting_order")] public int? SortingOrder;
@@ -171,18 +137,14 @@ public class ContainerDef
 
 public class SpriteDef
 {
-    // 精灵图导入放大倍数，默认 6.0
     [JsonProperty("import_scale")] public float ImportScale = 6f;
 
-    // 物品栏图标缩放
     [JsonProperty("inventory_icon_scale")] public float InventoryIconScale = 2f;
 
     [JsonProperty("scale")] public float Scale;
 
-    // 物品栏精灵目标缩放尺寸，宽高是像素数，expand_to_first_met 碰边即停
     [JsonProperty("scale_dimensions")] public SpriteScaleDimensionsDef? ScaleDimensions;
 
-    // 物品栏格子旋转
     [JsonProperty("slot_rotation")] public float SlotRotation;
 }
 
@@ -203,7 +165,6 @@ public class SpawnDef
     [JsonProperty("world_per_chunk")] public float? WorldPerChunk;
 }
 
-// 额外部位已装备贴图偏移
 public class WornSpriteOffset
 {
     [JsonProperty("sprite_offset_x")] public float SpriteOffsetX;
@@ -211,7 +172,6 @@ public class WornSpriteOffset
     [JsonProperty("sprite_offset_y")] public float SpriteOffsetY;
 }
 
-// 二维向量（手持偏移等）
 public class Vector2Def
 {
     [JsonProperty("x")] public float X;
@@ -219,7 +179,6 @@ public class Vector2Def
     [JsonProperty("y")] public float Y;
 }
 
-// 物品栏精灵目标缩放尺寸
 public class SpriteScaleDimensionsDef
 {
     [JsonProperty("expand_to_first_met")] public bool ExpandToFirstMet;
@@ -229,7 +188,6 @@ public class SpriteScaleDimensionsDef
     [JsonProperty("width")] public float Width;
 }
 
-// 条件触发器：复用于 durability / capacity_trigger / charge_trigger
 public class ConditionTriggerDef
 {
     [JsonProperty("operator")] public string Operator = "==";
@@ -237,7 +195,6 @@ public class ConditionTriggerDef
     [JsonProperty("value")] public float Value;
 }
 
-// use 数组中的每项
 public class UseEntryDef
 {
     [JsonProperty("limb_slot")] public List<string>? LimbSlot;
@@ -245,7 +202,6 @@ public class UseEntryDef
     [JsonProperty("slot")] public List<object>? Slot;
 }
 
-// 物品被动脚本 + 条件触发器（被动状态检测）
 public class ItemScriptDef
 {
     [JsonProperty("attack")] public List<string> Attack = [];
@@ -256,14 +212,12 @@ public class ItemScriptDef
     [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
 }
 
-// 制作特性数据
 public class QualitiesDef
 {
     [JsonProperty("amount")] public float Amount;
     [JsonProperty("id")] public string Id = string.Empty;
 }
 
-// 物品光源配置
 public class LightItemDef
 {
     [JsonProperty("color")] public string Color = "#FFFFFF";
@@ -292,18 +246,15 @@ public class LightItemDef
     [JsonProperty("y_offset")] public float YOffset;
 }
 
-// 液体容器物品 JSON 数据模型，继承 ItemDef 并增加液体相关字段。
 public class LiquidItemDef : ItemDef
 {
     [JsonProperty("auto_fill")] public bool AutoFill = true;
 
     [JsonProperty("capacity")] public float Capacity;
 
-    // liquidId -> amount (ml)
     [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
 }
 
-// 绷带行为配置
 public class BandageDef
 {
     [JsonProperty("bandage_slow_amount")] public float BandageSlowAmount = 18f;
@@ -329,7 +280,6 @@ public class BandageDef
     [JsonProperty("wrap_sprite_path")] public string WrapSpritePath = "Special/bandageWrap";
 }
 
-// 注射器行为配置
 public class SyringeDef
 {
     [JsonProperty("amount_per_full_use")] public float AmountPerFullUse = 100f;
@@ -337,7 +287,6 @@ public class SyringeDef
     [JsonProperty("auto_fill")] public bool AutoFill;
     [JsonProperty("capacity")] public float Capacity = 100f;
 
-    // liquidId -> amount (ml)
     [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
 
     [JsonProperty("minigame_color")] public string MinigameColor = "#FFFFFF";
@@ -345,7 +294,6 @@ public class SyringeDef
     [JsonProperty("use_average_color")] public bool UseAverageColor = true;
 }
 
-// 工具 / 近战行为配置
 public class ToolDef
 {
     [JsonProperty("attack_animation")] public string AttackAnimation = "SwingAnim";
@@ -383,7 +331,6 @@ public class ToolDef
     [JsonProperty("volume")] public float Volume = 0.5f;
 }
 
-// ---- 旧版模型（向后兼容，仅在 JSON 检测为旧格式时使用） ----
 
 public class LegacyItemDef
 {
@@ -403,10 +350,8 @@ public class LegacyItemDef
     [JsonProperty("drop_pool")] public string[]? DropPool;
     [JsonProperty("full_name")] public string FullName = string.Empty;
 
-    // 手持精灵偏移
     [JsonProperty("held_sprite_offset")] public Vector2Def? HeldSpriteOffset;
 
-    // 图标 / 穿戴精灵动画 ID
     [JsonProperty("icon_animation_id")] public string? IconAnimationId;
 
     [JsonProperty("ignore_depression")] public bool IgnoreDepression;
@@ -460,7 +405,6 @@ public class LegacyItemDef
     [JsonProperty("worn_sprite_offset_x")] public float WornSpriteOffsetX;
     [JsonProperty("worn_sprite_offset_y")] public float WornSpriteOffsetY;
 
-    // 转换旧格式 → 新格式
     public ItemDef ToItemDef()
     {
         var def = new ItemDef
@@ -483,10 +427,8 @@ public class LegacyItemDef
             Template = Template
         };
 
-        // 脚本迁移：旧 ItemScriptDef → 新的三层结构
         MigrateLegacyScripts(def, Script);
 
-        // 可装备
         if (Wearable)
             def.Wearable = new WearableDef
             {
@@ -505,7 +447,6 @@ public class LegacyItemDef
                 Unequip = Script?.Unequip ?? []
             };
 
-        // 电池
         if (BatteryData != null)
             def.Battery = new BatteryDef
             {
@@ -518,7 +459,6 @@ public class LegacyItemDef
                 WeightReduction = BatteryData.WeightReduction
             };
 
-        // 容器
         if (ContainerData != null)
             def.Container = new ContainerDef
             {
@@ -529,7 +469,6 @@ public class LegacyItemDef
                 TagRestriction = ContainerData.TagRestriction
             };
 
-        // 精灵图
         def.SpriteDef = new SpriteDef
         {
             ImportScale = SpriteImportScale,
@@ -539,7 +478,6 @@ public class LegacyItemDef
             SlotRotation = SlotRotation
         };
 
-        // 腐烂
         def.Decay = new DecayDef
         {
             Info = DecayInfo,
@@ -547,7 +485,6 @@ public class LegacyItemDef
             RotSpeed = RotSpeed
         };
 
-        // 生成
         def.Spawn = new SpawnDef
         {
             Frequency = SpawnFrequency,
@@ -572,13 +509,10 @@ public class LegacyItemDef
         return result;
     }
 
-    // 将旧 ItemScriptDef 迁移到新三层结构（Script / Use / Wearable）
     private static void MigrateLegacyScripts(ItemDef def, LegacyScriptDef? old)
     {
         if (old is null) return;
 
-        // script.attack → script.attack（保留）
-        // script.use_on_limb → script.use_on_limb（保留）
         var hasPassive = old.Attack.Count > 0 || old.UseOnLimb.Count > 0;
         if (hasPassive)
             def.Script = new ItemScriptDef
@@ -587,20 +521,15 @@ public class LegacyItemDef
                 UseOnLimb = old.UseOnLimb
             };
 
-        // script.use → use[{slot: ["*"], script:[...]}]
-        // script.use_in_hand → use[{slot: ["hand"], script:[...]}]
         var useList = new List<UseEntryDef>();
         if (old.Use.Count > 0)
-            useList.Add(new UseEntryDef { Script = old.Use }); // null slot = *
+            useList.Add(new UseEntryDef { Script = old.Use });
         if (old.UseInHand.Count > 0)
             useList.Add(new UseEntryDef { Slot = ["hand"], Script = old.UseInHand });
         if (useList.Count > 0)
             def.Use = useList;
-
-        // script.equip / script.unequip → 交由 ToItemDef 调用方写入 Wearable.Equip/Unequip
     }
 
-    // 旧格式的脚本定义（保留 Equip/Unequip/Use/UseInHand 等已移除字段）
     public class LegacyScriptDef
     {
         [JsonProperty("attack")] public List<string> Attack = [];
@@ -611,8 +540,6 @@ public class LegacyItemDef
         [JsonProperty("use_on_limb")] public List<string> UseOnLimb = [];
     }
 }
-
-// Legacy 子模型
 
 public class ItemBatteryDef
 {
@@ -640,13 +567,11 @@ public class LegacyWornSpriteOffset
     [JsonProperty("worn_sprite_offset_y")] public float WornSpriteOffsetY;
 }
 
-// 旧版液体容器物品（继承旧版 ItemDef 的 flat 字段 + 液体字段）
 public class LegacyLiquidItemDef : LegacyItemDef
 {
     [JsonProperty("auto_fill")] public bool AutoFill = true;
     [JsonProperty("capacity")] public float Capacity;
 
-    // liquidId -> amount (ml)
     [JsonProperty("default_liquid")] public Dictionary<string, float>? DefaultLiquid;
 
     public LiquidItemDef ToLiquidItemDef()

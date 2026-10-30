@@ -10,7 +10,6 @@ public enum SkillType
     Intelligence = 2
 }
 
-// 技能操作：等级、经验、进度读取/设置
 [ScriptApi]
 public static class SkillUtil
 {
@@ -24,13 +23,11 @@ public static class SkillUtil
         }
     }
 
-    // 内部辅助 - 统一 Skills 获取入口
     private static Skills? GetSkills()
     {
         return PlayerCamera.main?.body?.skills;
     }
 
-    // 技能查询（SkillType 枚举版）
     public static int GetLevel(SkillType skillType)
     {
         return GetSkills() is { } skill
@@ -114,7 +111,6 @@ public static class SkillUtil
         }
     }
 
-    // [ScriptMethod] string 重载：脚本侧用 "str" / "res" / "int"
     [ScriptMethod]
     public static int GetLevel(string skill)
     {
@@ -151,7 +147,6 @@ public static class SkillUtil
         return GetExperienceForNextLevel(Parse(skill));
     }
 
-    // 内部辅助 - 字符串到 SkillType 解析
     private static SkillType Parse(string skill)
     {
         return skill.ToLowerInvariant() switch

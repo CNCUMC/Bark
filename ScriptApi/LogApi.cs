@@ -2,10 +2,8 @@ using Bark.Tool;
 
 namespace Bark.ScriptApi;
 
-// 脚本侧 Log 全局变量：封装 LogUtil，自动添加 [模组名] 前缀
 public class LogApi(string modName, string modId)
 {
-    // 本地化访问器
     public LocaleApi Locale { get; } = new(modId, modName);
 
     public void NewLine()
@@ -43,7 +41,6 @@ public class LogApi(string modName, string modId)
         LogUtil.Message(Format(msg), Plugin.Logger);
     }
 
-    // 便捷方法：日志 + 本地化一步完成
     public void InfoF(string key, params object[] args)
     {
         Info(Locale.GetFormatted(key, args));

@@ -7,28 +7,14 @@ using UnityEngine;
 
 namespace Bark.Event.Listener;
 
-// 世界物品/实体事件监听器：通过 Harmony 补丁拦截游戏中散落的物品与实体组件方法，
-// 触发电池、自动泵、充电器、捕兽夹、生物终端、血迹、方块伤害、蓝图、已购物品、
-// 弹跳蘑菇、建筑破坏等事件。
-// 对 Update 类方法采用状态翻转检测，避免每帧重复触发。
 public static class WorldEntityEventListener
 {
-    // 自动泵激活实例缓存（instanceId → 运作中）
     private static readonly HashSet<int> ActiveAutoPumps = [];
-
-    // 捕兽夹已捕获实例（instanceId → 已夹住）
     private static readonly HashSet<int> TriggeredTraps = [];
-
-    // 已购物品到期标记
     private static readonly HashSet<int> ExpiredBoughtItems = [];
-
-    // 建筑破坏标记（instanceId → 已触发破坏）
     private static readonly HashSet<int> DestroyedBuildings = [];
-
-    // 血迹生成计数缓存（instanceId → 上次 spawned）
     private static readonly Dictionary<int, byte> BloodSpawnCounts = new();
 
-    // BleedParticle.spawned 私有字段反射缓存（避免每次 Traverse 反射开销）
     private static FieldInfo? s_spawnedField;
 
     internal static void Listen()
@@ -75,7 +61,6 @@ public static class WorldEntityEventListener
         }
     }
 
-    // 辅助
     private static bool IsPlayerRelated(Item item)
     {
         var body = BodyUtil.Body;
@@ -85,7 +70,6 @@ public static class WorldEntityEventListener
                && item.transform.IsChildOf(body.transform);
     }
 
-    // 自动泵
     [HarmonyPatch(typeof(AutoPump), "Update")]
     [HarmonyPostfix]
     private static void AutoPumpUpdatePostfix(AutoPump __instance)
@@ -118,7 +102,6 @@ public static class WorldEntityEventListener
         }
     }
 
-    // 手摇充电器
     [HarmonyPatch(typeof(BatteryRecharger), "OnUse")]
     [HarmonyPostfix]
     private static void BatteryRechargerOnUsePostfix(BatteryRecharger __instance)
@@ -128,7 +111,6 @@ public static class WorldEntityEventListener
         EventUtil.Trigger(new BatteryRechargeEvent { Charger = building });
     }
 
-    // 生物终端
     [HarmonyPatch(typeof(BioTerminalScript), "OnUse")]
     [HarmonyPostfix]
     private static void BioTerminalScriptOnUsePostfix(BioTerminalScript __instance)
@@ -138,14 +120,12 @@ public static class WorldEntityEventListener
         EventUtil.Trigger(new BioTerminalUseEvent { Terminal = building, Success = building != null });
     }
 
-    // 流血粒子（地面血迹）
     [HarmonyPatch(typeof(BleedParticle), "Update")]
     [HarmonyPostfix]
     private static void BleedParticleUpdatePostfix(BleedParticle __instance)
     {
         if (__instance == null || !__instance) return;
 
-        // 读取私有 spawned 字段：spawned 归零表示刚生成了血迹（spawned>=every 时重置为 0）
         var spawned = GetSpawnedCount(__instance);
         if (spawned == null) return;
 
@@ -155,7 +135,6 @@ public static class WorldEntityEventListener
         BloodSpawnCounts.TryGetValue(id, out var prev);
         BloodSpawnCounts[id] = value;
 
-        // 从非 0 变为 0 → 刚生成血迹；首次无记录且为 0 不触发
         if (prev != 0 && value == 0)
             EventUtil.Trigger(new GroundBloodEvent
             {
@@ -165,7 +144,6 @@ public static class WorldEntityEventListener
     }
 
 
-    // 方块伤害
     [HarmonyPatch(typeof(BlockDamage), "UpdateSprite")]
     [HarmonyPostfix]
     private static void BlockDamageUpdateSpritePostfix(BlockDamage __instance)
@@ -182,7 +160,6 @@ public static class WorldEntityEventListener
     }
 
 
-    // 蓝图
     [HarmonyPatch(typeof(BlueprintScript), "Awake")]
     private static void BlueprintScriptAwakePostfix(BlueprintScript __instance)
     {
@@ -197,7 +174,6 @@ public static class WorldEntityEventListener
         });
     }
 
-    // 已购物品到期
     [HarmonyPatch(typeof(BoughtItem), "Update")]
     [HarmonyPostfix]
     private static void BoughtItemUpdatePostfix(BoughtItem __instance)
@@ -213,7 +189,6 @@ public static class WorldEntityEventListener
             EventUtil.Trigger(new BoughtItemExpireEvent { Item = item });
     }
 
-    // 弹跳蘑菇
     [HarmonyPatch(typeof(BounceShroom), "OnTriggerEnter2D")]
     [HarmonyPostfix]
     private static void BounceShroomOnTriggerEnter2DPostfix(BounceShroom __instance)
@@ -222,13 +197,11 @@ public static class WorldEntityEventListener
         EventUtil.Trigger(new BounceShroomBounceEvent { Mushroom = __instance });
     }
 
-    // 建筑实体破坏
     [HarmonyPatch(typeof(BuildingEntity), "Update")]
     [HarmonyPostfix]
     private static void BuildingEntityUpdatePostfix(BuildingEntity __instance)
     {
         if (__instance == null || !__instance) return;
-        // health < 0.5 时方法内执行破坏逻辑
         if (__instance.health >= 0.5f) return;
 
         var id = __instance.GetInstanceID();
@@ -241,7 +214,6 @@ public static class WorldEntityEventListener
         });
     }
 
-    // 电池物品
     [HarmonyPatch(typeof(BatteryItem))]
     public static class BatteryItemPatch
     {
@@ -277,7 +249,6 @@ public static class WorldEntityEventListener
         }
     }
 
-    // 捕兽夹
     [HarmonyPatch(typeof(BearTrap))]
     public static class BearTrapPatch
     {

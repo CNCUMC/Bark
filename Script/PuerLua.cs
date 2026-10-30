@@ -10,32 +10,27 @@ using Puerts;
 
 namespace Bark.Script;
 
-// PuerTS Lua 引擎包装器，管理脚本模组的生命周期
-// 不依赖 Unity GameObject，避免场景切换时被意外销毁
 public class PuerLua : ScriptEngine
 {
     private bool _isLoaded;
     private ScriptEnv? _scriptEnv;
 
-    // 加载并执行 Lua 脚本，返回是否成功
     public override bool Load(ScriptManifest manifest)
     {
         base.Load(manifest);
 
         try
         {
-            // 创建 Lua 引擎实例
             _scriptEnv = new ScriptEnv(new BackendLua());
 
-            // 注入 API 到全局作用域（无 bark. 前缀）
             InjectBarkApi();
 
-            // 执行入口脚本（设置上下文以便入口脚本调用 API 时自动补全物品 ID）
             var script = File.ReadAllText(Manifest.EntryFile);
 
-            // 运行前检查：脚本是否覆盖了 Bark 保留的全局 API 名（如 playerUtil / Log / CS）
-            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
-                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script,
+                ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name,
+                    line);
 
             ScriptCallContext.CurrentModId = Manifest.Id;
             try
@@ -49,7 +44,6 @@ public class PuerLua : ScriptEngine
 
             _isLoaded = true;
 
-            // 调用 onLoad 生命周期钩子
             CallLifecycleHook("onLoad");
         }
         catch (Exception ex)
@@ -73,20 +67,19 @@ public class PuerLua : ScriptEngine
         var sb = new StringBuilder();
         sb.AppendLine("CS = require('csharp')");
 
-        // AutoApi 生成的代理：类型名 PascalCase 作为全局变量
         foreach (var (name, _) in ApiRegistry.Proxies)
             sb.AppendLine($"{name} = CS.Bark.ScriptApi.ApiRegistry.GetProxy('{name}')");
 
-        // 特殊 API：Log / Locale / ScriptInfo
-        sb.AppendLine($"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{id}')");
+        sb.AppendLine(
+            $"local _logApi = CS.Bark.ScriptApi.LogApi('{scriptName}', '{id}')");
         sb.AppendLine("Log = _logApi");
         sb.AppendLine("Locale = _logApi.Locale");
-        sb.AppendLine($"ScriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");
+        sb.AppendLine(
+            $"ScriptInfo = {{ Id = '{id}', Version = '{version}', Name = '{scriptName}' }}");
 
         _scriptEnv.Eval(sb.ToString());
     }
 
-    // 调用生命周期钩子
     private void CallLifecycleHook(string hookName)
     {
         if (_scriptEnv == null) return;
@@ -98,7 +91,8 @@ public class PuerLua : ScriptEngine
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, hookName, ex.Message);
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, hookName,
+                ex.Message);
         }
         finally
         {
@@ -106,21 +100,18 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 激活模组（调用 onEnable）
     public override void Enable()
     {
         if (!_isLoaded) return;
         CallLifecycleHook("onEnable");
     }
 
-    // 停用模组（调用 onDisable）
     public override void Disable()
     {
         if (!_isLoaded) return;
         CallLifecycleHook("onDisable");
     }
 
-    // 卸载模组（调用 onUnload）
     public override void Unload()
     {
         if (!_isLoaded) return;
@@ -128,8 +119,6 @@ public class PuerLua : ScriptEngine
         Dispose();
     }
 
-    // 向脚本侧发送事件通知：调用全局钩子函数（如 onPlayerJumpStart），
-    // 传入事件数据供脚本侧 onItemUse(event) 等访问 event.ItemId / event.Item
     public override void CallTriggerEvent(string eventName, BarkEvent? eventData = null)
     {
         if (_scriptEnv == null) return;
@@ -137,11 +126,11 @@ public class PuerLua : ScriptEngine
         ScriptCallContext.CurrentModId = Manifest.Id;
         try
         {
-            // 注入事件数据，供脚本侧通过 __barkEvent 或传参访问
             if (eventData != null)
             {
                 EventScriptContext.CurrentEvent = eventData;
-                _scriptEnv.Eval("__barkEvent = CS.Bark.Script.EventScriptContext.CurrentEvent");
+                _scriptEnv.Eval(
+                    "__barkEvent = CS.Bark.Script.EventScriptContext.CurrentEvent");
             }
             else
             {
@@ -153,7 +142,8 @@ public class PuerLua : ScriptEngine
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName, ex.Message);
+            LogUtil.Warning("script_mod_loader.hook_failed", Manifest.Id, eventName,
+                ex.Message);
         }
         finally
         {
@@ -162,48 +152,46 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 执行单个物品脚本文件，执行前注入上下文全局变量，
-    // 脚本可定义 function main(itemId, item, action, currentValue, thresholdValue, operator) 接收参数
-    // 后三个参数仅在条件触发器（durability/capacity/charge）场景有值，其余场景为 nil
-    public override void ExecuteItemFile(string filePath, string? itemId, Item? item = null, string? action = null)
+    public override void ExecuteItemFile(string filePath, string? itemId,
+        Item? item = null, string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
-        // 暂存上下文供 Lua 侧通过 CS.Bark.Items.ItemScriptContext 访问
         ItemScriptContext.CurrentItem = item;
         ItemScriptContext.CurrentAction = action;
         ScriptCallContext.CurrentModId = Manifest.Id;
 
         try
         {
-            // 注入上下文全局变量
-            var escapedId = itemId != null ? EscapeString(itemId) : "nil";
+            var escapedId = itemId != null
+                ? EscapeString(itemId)
+                : "nil";
             _scriptEnv.Eval($"__barkItemId = '{escapedId}'");
             _scriptEnv.Eval("__barkItem = CS.Bark.Items.ItemScriptContext.CurrentItem");
-            _scriptEnv.Eval("__barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction");
-
-            // 注入条件触发器值（全局变量，非触发器场景为 nil）
-            _scriptEnv.Eval("__barkTriggerValue = CS.Bark.Items.ItemScriptContext.CurrentTriggerValue");
-            _scriptEnv.Eval("__barkTriggerThreshold = CS.Bark.Items.ItemScriptContext.CurrentTriggerThreshold");
-            _scriptEnv.Eval("__barkTriggerOperator = CS.Bark.Items.ItemScriptContext.CurrentTriggerOperator");
-
-            // 执行脚本文件（注册 main 函数等定义）
+            _scriptEnv.Eval(
+                "__barkAction = CS.Bark.Items.ItemScriptContext.CurrentAction");
+            _scriptEnv.Eval(
+                "__barkTriggerValue = CS.Bark.Items.ItemScriptContext.CurrentTriggerValue");
+            _scriptEnv.Eval(
+                "__barkTriggerThreshold = CS.Bark.Items.ItemScriptContext.CurrentTriggerThreshold");
+            _scriptEnv.Eval(
+                "__barkTriggerOperator = CS.Bark.Items.ItemScriptContext.CurrentTriggerOperator");
             var script = File.ReadAllText(filePath);
 
-            // 运行前检查：物品脚本是否覆盖了 Bark 保留的全局 API 名
-            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
-                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script,
+                ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name,
+                    line);
 
             _scriptEnv.Eval(script);
 
-            // 调用 main(itemId, item, action, currentValue, thresholdValue, operator)
-            // Lua 自动忽略多余参数，向后兼容旧版只接收 3 个参数的脚本
             _scriptEnv.Eval(
                 "if type(main) == 'function' then main(__barkItemId, __barkItem, __barkAction, __barkTriggerValue, __barkTriggerThreshold, __barkTriggerOperator) end");
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath, ex.Message);
+            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath,
+                ex.Message);
         }
         finally
         {
@@ -213,29 +201,33 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 执行单个物块脚本文件，注入 tileId / tileContext / action 到脚本全局
-    public override void ExecuteTileFile(string filePath, string? tileId, TileScriptContext? context = null,
+    public override void ExecuteTileFile(string filePath, string? tileId,
+        TileScriptContext? context = null,
         string? action = null)
     {
         if (_scriptEnv == null || !File.Exists(filePath)) return;
 
-        // 暂存上下文供 Lua 侧通过 CS.Bark.Tile.TileScriptContext 访问
         TileScriptContext.CurrentContext = context;
         TileScriptContext.CurrentAction = action;
         ScriptCallContext.CurrentModId = Manifest.Id;
 
         try
         {
-            var escapedId = tileId != null ? EscapeString(tileId) : "nil";
+            var escapedId = tileId != null
+                ? EscapeString(tileId)
+                : "nil";
             _scriptEnv.Eval($"__barkTileId = '{escapedId}'");
-            _scriptEnv.Eval("__barkTileContext = CS.Bark.Tile.TileScriptContext.CurrentContext");
-            _scriptEnv.Eval("__barkAction = CS.Bark.Tile.TileScriptContext.CurrentAction");
+            _scriptEnv.Eval(
+                "__barkTileContext = CS.Bark.Tile.TileScriptContext.CurrentContext");
+            _scriptEnv.Eval(
+                "__barkAction = CS.Bark.Tile.TileScriptContext.CurrentAction");
 
             var script = File.ReadAllText(filePath);
 
-            // 运行前检查：物块脚本是否覆盖了 Bark 保留的全局 API 名
-            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script, ScriptLanguage.Lua))
-                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name, line);
+            foreach (var (name, line) in ScriptApiGuard.FindReservedOverrides(script,
+                ScriptLanguage.Lua))
+                LogUtil.Warning("script_engine.reserved_override", Manifest.Id, name,
+                    line);
 
             _scriptEnv.Eval(script);
 
@@ -244,7 +236,8 @@ public class PuerLua : ScriptEngine
         }
         catch (Exception ex)
         {
-            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath, ex.Message);
+            LogUtil.Warning("script_engine.lua_exec_file_failed", Manifest.Id, filePath,
+                ex.Message);
         }
         finally
         {
@@ -254,7 +247,6 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 每帧调用脚本侧的 onUpdate() 函数（静默，不记录错误日志避免刷屏）
     public override void CallUpdate()
     {
         if (_scriptEnv == null || !_isLoaded) return;
@@ -266,7 +258,7 @@ public class PuerLua : ScriptEngine
         }
         catch
         {
-            // 静默跳过：onUpdate 无需日志，避免每帧刷屏
+            // ignored
         }
         finally
         {
@@ -274,7 +266,6 @@ public class PuerLua : ScriptEngine
         }
     }
 
-    // 释放引擎资源
     public override void Dispose()
     {
         if (_scriptEnv != null)
@@ -285,7 +276,8 @@ public class PuerLua : ScriptEngine
             }
             catch (Exception ex)
             {
-                LogUtil.Warning("script_engine.lua_dispose_error", Manifest.Id, ex.Message);
+                LogUtil.Warning("script_engine.lua_dispose_error", Manifest.Id,
+                    ex.Message);
             }
 
             _scriptEnv = null;
@@ -294,7 +286,6 @@ public class PuerLua : ScriptEngine
         _isLoaded = false;
     }
 
-    // 转义字符串中的特殊字符（用于 PuerTS Eval 注入）
     private static string EscapeString(string value)
     {
         return value

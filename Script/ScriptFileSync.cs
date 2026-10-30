@@ -10,24 +10,17 @@ using Newtonsoft.Json.Linq;
 
 namespace Bark.Script;
 
-// 主机 sr 重载触发的增量文件同步：
-// 主机向所有已连接客户端广播同步请求；客户端上报自己已加载模组的文件 hash 清单；
-// 主机以本地（主机）文件为准对比，只把 hash 不同的文件（客户端缺失或与主机不一致）推给客户端；
-// 客户端逐文件分片拉取并覆盖到本地模组目录，全部完成后重载。
-// 未修改的文件（hash 一致）不传输，实现"修改过的同步、没修改的不同步"。
 public static class ScriptFileSync
 {
-    private const string SyncChannel = "bark.modsync.files.sync"; // 主机 -> 客户端：广播同步请求
-    private const string ReportChannel = "bark.modsync.files.report"; // 客户端 -> 主机：上报文件 hash 清单
-    private const string FetchChannel = "bark.modsync.files.fetch"; // 客户端 -> 主机：分片拉取单个文件
+    private const string SyncChannel = "bark.modsync.files.sync";
+    private const string ReportChannel = "bark.modsync.files.report";
+    private const string FetchChannel = "bark.modsync.files.fetch";
 
-    // 单分片原始字节上限（与 HostModFetcher 一致，经 JSON+GZip+base64 封装后单包不超底层消息上限）
     private const int ChunkSize = 8 * 1024;
 
     private static bool _initialized;
     private static string _modsPath = string.Empty;
 
-    // 注册网络 handler（客户端上报 + 主机对比 + 主机文件分片）。网络不可用时注册无害。
     public static void Initialize(string modsPath)
     {
         if (_initialized)
@@ -36,21 +29,21 @@ public static class ScriptFileSync
         _initialized = true;
         _modsPath = modsPath;
 
-        BarkKrokBridge.RegisterClientHandler(SyncChannel, OnSyncRequested);
-        BarkKrokBridge.RegisterServerHandler(ReportChannel, OnFilesReported);
-        BarkKrokBridge.RegisterServerHandler(FetchChannel, OnFileFetchRequested);
+        BarkMpBridge.RegisterClientHandler(SyncChannel, OnSyncRequested);
+        BarkMpBridge.RegisterServerHandler(ReportChannel, OnFilesReported);
+        BarkMpBridge.RegisterServerHandler(FetchChannel, OnFileFetchRequested);
     }
 
-    // 主机侧入口：sr 重载后调用，向所有客户端广播增量同步请求（携带可同步模组列表）
     public static void TriggerSync()
     {
-        if (!BarkKrokBridge.IsAvailable || !(BarkKrokBridge.IsServer || BarkKrokBridge.IsHost))
+        if (!BarkMpBridge.IsAvailable || !(BarkMpBridge.IsServer || BarkMpBridge.IsHost))
             return;
 
         var mods = new JArray();
         foreach (var manifest in ScriptModLoader.LoadedScriptMods.Values)
         {
-            if (string.Equals(manifest.NetworkSync, NetworkModSync.SyncServerOnly, StringComparison.Ordinal))
+            if (string.Equals(manifest.NetworkSync, NetworkModSync.SyncServerOnly,
+                StringComparison.Ordinal))
                 continue;
             mods.Add(manifest.Id);
         }
@@ -59,13 +52,12 @@ public static class ScriptFileSync
             return;
 
         LogUtil.Info("script_file_sync.broadcasting", mods.Count);
-        BarkKrokBridge.BroadcastToClients(SyncChannel, new JObject { ["mods"] = mods });
+        BarkMpBridge.BroadcastToClients(SyncChannel, new JObject { ["mods"] = mods });
     }
 
-    // 客户端：收到主机广播，枚举本地已加载模组的文件 hash 并上报给主机
     private static void OnSyncRequested(JToken payload)
     {
-        if (!BarkKrokBridge.IsAvailable || !BarkKrokBridge.IsClient)
+        if (!BarkMpBridge.IsAvailable || !BarkMpBridge.IsClient)
             return;
 
         var report = new JObject();
@@ -78,7 +70,6 @@ public static class ScriptFileSync
             if (string.IsNullOrWhiteSpace(modId))
                 continue;
 
-            // 已加载模组：上报文件 hash（增量对比）
             if (ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest)
                 && !string.IsNullOrEmpty(manifest.Directory)
                 && Directory.Exists(manifest.Directory))
@@ -97,7 +88,6 @@ public static class ScriptFileSync
             }
             else
             {
-                // 未加载模组：报 null，主机视为整个模组缺失，返回全部文件全量推送
                 report[modId] = null;
             }
         }
@@ -105,10 +95,10 @@ public static class ScriptFileSync
         if (report.Count == 0)
             return;
 
-        BarkKrokBridge.RequestServer(ReportChannel, new JObject { ["mods"] = report }, ProcessDiffResponse);
+        BarkMpBridge.RequestServer(ReportChannel, new JObject { ["mods"] = report },
+            ProcessDiffResponse);
     }
 
-    // 主机：对比客户端上报的文件 hash 与主机本地文件，返回 hash 不同的文件路径列表
     private static JToken OnFilesReported(JToken request)
     {
         if (request["mods"] is not JObject reported)
@@ -124,8 +114,8 @@ public static class ScriptFileSync
                 || !Directory.Exists(manifest.Directory))
                 continue;
 
-            // 主机本地文件 hash（以主机为准）
-            var hostHashes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var hostHashes =
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var filePath in EnumerateFiles(manifest.Directory))
             {
                 var rel = GetRelativePath(manifest.Directory, filePath);
@@ -136,14 +126,14 @@ public static class ScriptFileSync
 
             var diff = new JArray();
             if (value is JObject clientFiles)
-                // 客户端已加载：只推送 hash 不同（修改过）的文件
-                foreach (var kv in from kv in hostHashes
-                         let clientHash = clientFiles[kv.Key]?.Value<string>()
-                         where !string.Equals(clientHash, kv.Value, StringComparison.OrdinalIgnoreCase)
-                         select kv)
+                foreach (var kv in
+                    from kv in hostHashes
+                    let clientHash = clientFiles[kv.Key]?.Value<string>()
+                    where !string.Equals(clientHash, kv.Value,
+                        StringComparison.OrdinalIgnoreCase)
+                    select kv)
                     diff.Add(kv.Key);
             else
-                // 客户端未加载该模组（上报 null）：推送全部文件（全量）
                 foreach (var rel in hostHashes.Keys)
                     diff.Add(rel);
 
@@ -154,7 +144,6 @@ public static class ScriptFileSync
         return result;
     }
 
-    // 客户端：解析差异列表并启动协程逐文件分片拉取
     private static void ProcessDiffResponse(JToken response)
     {
         if (response["mods"] is not JObject mods)
@@ -192,7 +181,6 @@ public static class ScriptFileSync
         Plugin._scriptModLoader?.ReloadAll();
     }
 
-    // 客户端：分片拉取单个文件内容并落地到本地模组目录
     private static IEnumerator DownloadFileCoroutine(string modId, string rel)
     {
         var buffer = new List<byte>(ChunkSize * 8);
@@ -205,8 +193,9 @@ public static class ScriptFileSync
             complete = false;
             errorMsg = string.Empty;
 
-            var request = new JObject { ["modId"] = modId, ["path"] = rel, ["offset"] = buffer.Count };
-            var sent = BarkKrokBridge.RequestServer(FetchChannel, request, response =>
+            var request = new JObject
+                { ["modId"] = modId, ["path"] = rel, ["offset"] = buffer.Count };
+            var sent = BarkMpBridge.RequestServer(FetchChannel, request, response =>
             {
                 complete = true;
                 ParseFileChunk(response, buffer, out errorMsg, out isDone);
@@ -214,7 +203,8 @@ public static class ScriptFileSync
 
             if (!sent)
             {
-                LogUtil.Warning("script_file_sync.fetch_failed", modId, rel, "send failed");
+                LogUtil.Warning("script_file_sync.fetch_failed", modId, rel,
+                    "send failed");
                 yield break;
             }
 
@@ -226,11 +216,10 @@ public static class ScriptFileSync
             yield break;
         }
 
-        // 落地目录：已加载模组写回其目录；未加载模组写到 {modsPath}/Mods/{modId}（全量下载的新模组）
-        var modDir = ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest) &&
-                     !string.IsNullOrEmpty(manifest.Directory)
-            ? manifest.Directory
-            : Path.Combine(_modsPath, "Mods", modId);
+        var modDir = ScriptModLoader.LoadedScriptMods.TryGetValue(modId, out var manifest)
+            && !string.IsNullOrEmpty(manifest.Directory)
+                ? manifest.Directory
+                : Path.Combine(_modsPath, "Mods", modId);
 
         try
         {
@@ -246,9 +235,11 @@ public static class ScriptFileSync
         }
     }
 
-    // 解析单个文件分片响应，追加到 buffer
     private static void ParseFileChunk(
-        JToken response, List<byte> buffer, out string errorMsg, out bool isDone)
+        JToken response,
+        List<byte> buffer,
+        out string errorMsg,
+        out bool isDone)
     {
         errorMsg = string.Empty;
         isDone = false;
@@ -269,7 +260,6 @@ public static class ScriptFileSync
         var done = obj["done"]?.Value<bool>() ?? false;
         var chunkBase64 = obj["chunk"]?.Value<string>();
 
-        // 空 chunk 且 done=true：表示 offset 已到文件末尾（最后一个分片边界），属正常结束，不视为错误
         if (string.IsNullOrEmpty(chunkBase64))
         {
             if (done)
@@ -295,7 +285,6 @@ public static class ScriptFileSync
         isDone = done;
     }
 
-    // 主机：返回单个文件指定偏移的分片
     private static JToken OnFileFetchRequested(JToken request)
     {
         var modId = request["modId"]?.Value<string>();
@@ -325,7 +314,6 @@ public static class ScriptFileSync
             using (var fs = File.OpenRead(fullPath))
             {
                 fs.Seek(offset, SeekOrigin.Begin);
-                // 循环读满 chunk，确保不因单次 Read 返回值被忽略而漏读
                 var read = 0;
                 while (read < (int)length)
                 {
@@ -358,13 +346,11 @@ public static class ScriptFileSync
         return new JObject { ["error"] = message };
     }
 
-    // 递归枚举目录下所有文件
     private static IEnumerable<string> EnumerateFiles(string directory)
     {
         return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
     }
 
-    // 计算文件 SHA256（hex 小写）；netstandard2.1 无 Convert.ToHexString，用 BitConverter 兼容
     private static string? ComputeFileHash(string path)
     {
         try
@@ -372,7 +358,8 @@ public static class ScriptFileSync
             using var stream = File.OpenRead(path);
             using var sha = SHA256.Create();
             var bytes = sha.ComputeHash(stream);
-            return BitConverter.ToString(bytes).Replace("-", string.Empty).ToLowerInvariant();
+            return BitConverter.ToString(bytes).Replace("-", string.Empty)
+                .ToLowerInvariant();
         }
         catch (Exception)
         {
@@ -380,11 +367,11 @@ public static class ScriptFileSync
         }
     }
 
-    // 计算相对路径（兼容 .NET Standard 2.1 无 Path.GetRelativePath）
     private static string GetRelativePath(string basePath, string fullPath)
     {
-        var baseDir = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) +
-                      Path.DirectorySeparatorChar;
+        var baseDir =
+            basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
         if (fullPath.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase))
             return fullPath[baseDir.Length..].Replace(Path.DirectorySeparatorChar, '/');
         return fullPath.Replace(Path.DirectorySeparatorChar, '/');

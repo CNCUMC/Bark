@@ -13,10 +13,7 @@ namespace Bark.Script;
 public static class ScriptLocaleManager
 {
     private static readonly Dictionary<string, string> LocaleData = new();
-
     private static string _currentLang = "EN";
-
-    // (modDir, modId) 配对，用于 Reload
     private static readonly List<(string ModDir, string ModId)> LoadedMods = [];
 
     public static void Initialize()
@@ -33,13 +30,11 @@ public static class ScriptLocaleManager
         LoadedMods.Clear();
         LocaleData.Clear();
 
-        // 注册桥接委托，使 ScriptApi/LocaleApi 通过委托访问本管理器
         LocaleBridge.Getter = Get;
         LocaleBridge.FormattedGetter = GetFormatted;
         LocaleBridge.KeyChecker = HasKey;
     }
 
-    // 加载单个模组的语言文件（使用 manifest 中声明的真实 modId）
     public static void LoadModLocale(string modDir, string modId)
     {
         if (modDir is null) throw new ArgumentNullException(nameof(modDir));
@@ -63,7 +58,10 @@ public static class ScriptLocaleManager
         try
         {
             var json = File.ReadAllText(langFile);
-            var data = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(json);
+            var data =
+                JsonConvert
+                    .DeserializeObject<Dictionary<string, Dictionary<string, string>>>(
+                        json);
             if (data == null) return;
 
             foreach (var (category, dictionary) in data)
@@ -72,20 +70,19 @@ public static class ScriptLocaleManager
 
                 foreach (var (key, value) in dictionary)
                 {
-                    // key 自带命名空间，如 "hello_world_js.loaded" → ns="hello_world_js", rest="loaded"
-                    // 也支持跨模组本地化，如 "quantum.auto_rack" → ns="quantum", rest="auto_rack"
-                    // 无点号则回退用当前 modId 做命名空间
                     var dotIndex = key.IndexOf('.');
-                    var localeNs = dotIndex > 0 ? key.Substring(0, dotIndex) : modId;
-                    var localeKey = dotIndex > 0 ? key.Substring(dotIndex + 1) : key;
+                    var localeNs = dotIndex > 0
+                        ? key[..dotIndex]
+                        : modId;
+                    var localeKey = dotIndex > 0
+                        ? key[(dotIndex + 1)..]
+                        : key;
 
-                    // 存入本地 LocaleData，格式为 "{category}.{ns}.{localeKey}"
-                    // 与 LocaleApi.ExpandKey() 的查询格式一致
                     var flatKey = $"{category}.{localeNs}.{localeKey}";
                     LocaleData[flatKey] = value;
 
-                    // 同步推入 CCL 本地化
-                    BetterLocale.SetDefault(langCode, localeNs, category, localeKey, value);
+                    BetterLocale.SetDefault(langCode, localeNs, category, localeKey,
+                        value);
                 }
             }
         }

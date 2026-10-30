@@ -7,15 +7,10 @@ using UnityEngine;
 
 namespace Bark.Event.Listener;
 
-// 枪械事件监听器：通过 Harmony 补丁拦截 GunScript 方法，
-// 触发 GunFireEvent / GunRackEvent / GunSafetyToggleEvent / GunLoadAmmoEvent / GunUnloadEvent / GunJamEvent。
 [HarmonyPatch(typeof(GunScript))]
 public static class GunEventListener
 {
-    // 轮询间隔（秒）
     private const float PollInterval = 0.2f;
-
-    // 卡壳检测：追踪每个 GunScript 实例的上一帧 racked, roundInChamber, roundsInMag 状态
     private static readonly Dictionary<GunScript, GunStateSnapshot> GunStates = new();
 
     private static Coroutine? _jamCoroutine;
@@ -41,7 +36,6 @@ public static class GunEventListener
         _runner = null;
     }
 
-    // 开火
     [HarmonyPatch("Fire")]
     [HarmonyPostfix]
     private static void FirePostfix(GunScript __instance, bool suicide)
@@ -56,7 +50,6 @@ public static class GunEventListener
         });
     }
 
-    // 拉栓
     [HarmonyPatch("TryRack")]
     [HarmonyPostfix]
     private static void TryRackPostfix(GunScript __instance)
@@ -65,7 +58,6 @@ public static class GunEventListener
         var item = __instance.GetComponent<Item>();
         if (item == null) return;
 
-        // TryRack() 只是 toggle racked，实际拉栓 / 复位在 Update 中处理
         EventUtil.Trigger(new GunRackEvent
         {
             GunItem = item,
@@ -73,7 +65,6 @@ public static class GunEventListener
         });
     }
 
-    // 保险
     [HarmonyPatch("ToggleSafety")]
     private static void ToggleSafetyPostfix(GunScript __instance)
     {
@@ -88,7 +79,6 @@ public static class GunEventListener
         });
     }
 
-    // 装弹（prefix 捕获 ammo 信息，postfix 判断是否成功）
     [HarmonyPatch("LoadMag")]
     [HarmonyPrefix]
     private static void LoadMagPrefix(GunScript __instance, out GunLoadState __state)
@@ -108,7 +98,6 @@ public static class GunEventListener
     {
         if (ammo == null) return;
 
-        // 判断是否成功装填：弹药物品已被销毁（== null）或者状态发生了变化
         var stateChanged = __instance.hasMag != __state.HadMag
                            || __instance.roundsInMag != __state.RoundsInMag
                            || __instance.roundInChamber != __state.RoundInChamber;
@@ -131,7 +120,6 @@ public static class GunEventListener
         });
     }
 
-    // 卸弹
     [HarmonyPatch("UnloadMag")]
     [HarmonyPostfix]
     private static void UnloadMagPostfix(GunScript __instance)
@@ -140,9 +128,6 @@ public static class GunEventListener
         var item = __instance.GetComponent<Item>();
         if (item == null) return;
 
-        // UnloadMag() 中 Sound.Play("gununloadmag") 在弹匣卸下之前调用，
-        // 此时 roundsInMag 还未归零 → 用 prefix 在调用前就已触发
-        // 所以这里 roundsInMag 仍保持卸弹前的值
         var roundsToUnload = __instance.roundsInMag;
         if (roundsToUnload <= 0) return;
 
@@ -153,7 +138,6 @@ public static class GunEventListener
         });
     }
 
-    // 卡壳轮询：检测 racked / roundInChamber 是否按预期变化
     private static IEnumerator PollGunJam()
     {
         yield return new WaitForSeconds(1f);
@@ -185,17 +169,12 @@ public static class GunEventListener
 
         switch (prev.Racked)
         {
-            // racked 从 false → true：拉栓动作，弹膛中的弹药应被抛出
-            // 若拉栓后 roundInChamber 没变化 → 卡壳
             case false when current.Racked && prev.RoundInChamber == current.RoundInChamber:
             {
-                // 拉栓时弹膛非空但未抛出 → 卡壳
                 if (prev.RoundInChamber != GunScript.RoundInChamber.None) TriggerJam(gun);
 
                 break;
             }
-            // racked 从 true → false：枪栓复位，应从弹匣推入一发
-            // 若有弹匣且有子弹但弹膛仍为空 → 卡壳
             case true when current is { Racked: false, HasMag: true, RoundsInMag: > 0 }
                            && prev.RoundInChamber == GunScript.RoundInChamber.None
                            && current.RoundInChamber == GunScript.RoundInChamber.None:
@@ -217,7 +196,6 @@ public static class GunEventListener
         });
     }
 
-    // 装弹状态快照（prefix → postfix）
     private class GunLoadState
     {
         public bool HadMag;
@@ -225,7 +203,6 @@ public static class GunEventListener
         public int RoundsInMag;
     }
 
-    // 枪械状态快照（每帧比较用）
     private class GunStateSnapshot(GunScript gun)
     {
         public readonly bool HasMag = gun.hasMag;

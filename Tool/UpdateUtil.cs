@@ -9,9 +9,11 @@ namespace Bark.Tool;
 
 public static class UpdateUtil
 {
-    private const string GitHubApiUrl = "https://api.github.com/repos/{0}/releases/latest";
+    private const string GitHubApiUrl =
+        "https://api.github.com/repos/{0}/releases/latest";
 
-    public static void Check(string githubRepo, string modName, string currentVersion, ManualLogSource logger)
+    public static void Check(string githubRepo, string modName, string currentVersion,
+        ManualLogSource logger)
     {
         if (string.IsNullOrWhiteSpace(githubRepo))
         {
@@ -19,7 +21,8 @@ public static class UpdateUtil
             return;
         }
 
-        CUCoreUtils.StartCoroutine(CheckRoutine(githubRepo, modName, currentVersion, logger));
+        CUCoreUtils.StartCoroutine(CheckRoutine(githubRepo, modName, currentVersion,
+            logger));
     }
 
     private static IEnumerator CheckRoutine(
@@ -45,7 +48,9 @@ public static class UpdateUtil
         }
 
         if (IsNewer(currentVersion, latestTag))
-            LogUtil.Warning(LocaleLog("update.available", modName, currentVersion, latestTag), logger);
+            LogUtil.Warning(
+                LocaleLog("update.available", modName, currentVersion, latestTag),
+                logger);
         else
             LogUtil.Info(LocaleLog("update.up_to_date", modName, currentVersion), logger);
     }
@@ -63,16 +68,18 @@ public static class UpdateUtil
 
         start += key.Length;
         var end = json.IndexOf('"', start);
-        return end <= start ? null : json.Substring(start, end - start);
+        return end <= start
+            ? null
+            : json.Substring(start, end - start);
     }
 
     private static bool IsNewer(string current, string latest)
     {
         var cur = NormalizeVersion(current);
         var lat = NormalizeVersion(latest);
-        return Version.TryParse(cur, out var cv) &&
-               Version.TryParse(lat, out var lv) &&
-               lv > cv;
+        return Version.TryParse(cur, out var cv)
+            && Version.TryParse(lat, out var lv)
+            && lv > cv;
     }
 
     private static string NormalizeVersion(string version)

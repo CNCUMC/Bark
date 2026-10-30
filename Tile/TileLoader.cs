@@ -13,49 +13,40 @@ using UnityEngine.Tilemaps;
 
 namespace Bark.Tile;
 
-// 已加载物块的记录项
 public class TileEntry(int tileIndex, string tileId, string fileName)
 {
-    // 来源文件名（如 "marble.json"）
     public string FileName = fileName;
-
-    // 物块 ID
     public string TileId = tileId;
-
-    // 物块索引（与 CustomTileDefinition 绑定的 int 索引）
     public int TileIndex = tileIndex;
 }
 
-// 自定义物块加载器：递归扫描 ModDir/Tile/**/*.json，
-// 构建 CustomTileDefinition 并调用 TileRegistry.Register。
-// 物块索引自动分配（>= 36），模组无需在 mod.json 中声明 tiles 映射。
-// 物块 ID 为文件名（不含扩展名），不拼接子目录路径；精灵图从 Assets/Tile/ 平铺读取。
 public static class TileLoader
 {
-    // 模组已加载的物块列表（modId → 物块记录）
     public static readonly Dictionary<string, List<TileEntry>> LoadedTiles = new();
 
-    // 暂存的脚本映射（modId → tileId → (scriptDef, modDir)），待引擎创建后注册
-    private static readonly Dictionary<string, Dictionary<string, (TileScriptDef def, string modDir)>> PendingScripts =
-        new();
+    private static readonly
+        Dictionary<string, Dictionary<string, (TileScriptDef def, string modDir)>>
+        PendingScripts =
+            new();
 
-    // 下一个可用物块索引（>= 36，0~35 为原版保留）
     private static ushort _nextTileIndex = 36;
 
-    // TileRegistry 内部字典缓存：直接操作以支持热重载（ClearOwnerEntries 在当前 CUCoreLib 版本中不存在）
-    private static readonly FieldInfo? s_registeredDefinitionsField = typeof(TileRegistry).GetField(
-        "RegisteredDefinitions", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly FieldInfo? s_registeredDefinitionsField =
+        typeof(TileRegistry).GetField(
+            "RegisteredDefinitions", BindingFlags.NonPublic | BindingFlags.Static);
 
-    private static readonly FieldInfo? s_registeredTilesField = typeof(TileRegistry).GetField(
-        "RegisteredTiles", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly FieldInfo? s_registeredTilesField =
+        typeof(TileRegistry).GetField(
+            "RegisteredTiles", BindingFlags.NonPublic | BindingFlags.Static);
 
-    private static readonly FieldInfo? s_registeredDefinitionIdsField = typeof(TileRegistry).GetField(
-        "RegisteredDefinitionIds", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly FieldInfo? s_registeredDefinitionIdsField =
+        typeof(TileRegistry).GetField(
+            "RegisteredDefinitionIds", BindingFlags.NonPublic | BindingFlags.Static);
 
-    private static readonly FieldInfo? s_resolvedHitSoundsField = typeof(TileRegistry).GetField(
-        "ResolvedHitSounds", BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly FieldInfo? s_resolvedHitSoundsField =
+        typeof(TileRegistry).GetField(
+            "ResolvedHitSounds", BindingFlags.NonPublic | BindingFlags.Static);
 
-    // 从脚本模组目录加载所有自定义物块（脚本模组入口）
     public static void RegisterFromMod(ScriptManifest manifest)
     {
         if (manifest is null)
@@ -64,11 +55,8 @@ public static class TileLoader
         RegisterFromDirectory(manifest.Id, manifest.Directory);
     }
 
-    // 从任意模组目录加载所有自定义物块，供脚本模组与 C# 模组共用。
-    // modId    - 物块所有权标记（通常取 mod.json 的 id）
-    // modDir   - 模组根目录，递归扫描 {modDir}/Tile/**/*.json，资产目录为 {modDir}/Assets/Tile/
-    // allowPendingScripts - 是否允许暂存脚本映射待引擎绑定。脚本模组传 true；C# 模组传 false。
-    public static int RegisterFromDirectory(string modId, string modDir, bool allowPendingScripts = true)
+    public static int RegisterFromDirectory(string modId, string modDir,
+        bool allowPendingScripts = true)
     {
         if (modId is null)
             throw new ArgumentNullException(nameof(modId));
@@ -79,25 +67,22 @@ public static class TileLoader
         if (!Directory.Exists(tilesDir))
             return 0;
 
-        var jsonFiles = Directory.GetFiles(tilesDir, "*.json", SearchOption.AllDirectories);
+        var jsonFiles =
+            Directory.GetFiles(tilesDir, "*.json", SearchOption.AllDirectories);
         if (jsonFiles.Length == 0)
             return 0;
 
-        // 热重载：保存旧索引映射以便复用
         var oldIndices = LoadedTiles.TryGetValue(modId, out var oldTiles)
             ? oldTiles.ToDictionary(e => e.TileId, e => e.TileIndex)
             : null;
 
-        // 清除该模组之前注册的物块
         ClearModTiles(modId);
 
-        // 资产目录：ModDir/Assets/Tile/
         var assetsTileDir = Path.Combine(modDir, "Assets", "Tile");
 
         var loadedList = new List<TileEntry>();
         var loadedCount = 0;
 
-        // 按文件名排序，保证索引分配确定性
         Array.Sort(jsonFiles);
 
         foreach (var jsonFile in jsonFiles)
@@ -105,14 +90,15 @@ public static class TileLoader
             {
                 var tileId = Path.GetFileNameWithoutExtension(jsonFile);
 
-                // 自动分配索引：热重载复用旧索引，否则使用下一个可用索引
                 ushort tileIndex;
-                if (oldIndices != null && oldIndices.TryGetValue(tileId, out var oldIndex))
+                if (oldIndices != null
+                    && oldIndices.TryGetValue(tileId, out var oldIndex))
                     tileIndex = (ushort)oldIndex;
                 else
                     tileIndex = _nextTileIndex++;
 
-                var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, modDir, tileId, tileIndex);
+                var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, modDir,
+                    tileId, tileIndex);
                 if (entry == null) continue;
                 loadedCount++;
                 loadedList.Add(entry);
@@ -127,7 +113,6 @@ public static class TileLoader
         foreach (var entry in loadedList)
             WmitfPatch.RegisterTile((ushort)entry.TileIndex, modId);
 
-        // 暂存脚本映射，待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
         if (PendingScripts.TryGetValue(modId, out var existing) && existing.Count > 0)
         {
             if (allowPendingScripts)
@@ -147,7 +132,6 @@ public static class TileLoader
         return loadedCount;
     }
 
-    // 清除指定模组此前注册的所有物块（C# 端热重载 / 卸载时调用）
     public static void UnregisterOwner(string modId)
     {
         if (modId is null)
@@ -155,7 +139,6 @@ public static class TileLoader
         ClearModTiles(modId);
     }
 
-    // 在引擎就绪后，将暂存的物块脚本映射写入 TileScriptRegistry
     public static void RegisterScripts(ScriptManifest manifest)
     {
         if (manifest is null)
@@ -163,19 +146,21 @@ public static class TileLoader
         if (manifest.Engine is null)
             return;
 
-        if (!PendingScripts.TryGetValue(manifest.Id, out var tileScripts) || tileScripts.Count == 0)
+        if (!PendingScripts.TryGetValue(manifest.Id, out var tileScripts)
+            || tileScripts.Count == 0)
             return;
 
         foreach (var (tileId, (scriptDef, modDir)) in tileScripts)
-            TileScriptRegistry.Register(tileId, scriptDef, manifest.Engine, manifest.Id, modDir);
+            TileScriptRegistry.Register(tileId, scriptDef, manifest.Engine, manifest.Id,
+                modDir);
 
         var count = tileScripts.Count;
         PendingScripts.Remove(manifest.Id);
         LogUtil.Info("tiles.scripts_registered", manifest.Id, count);
     }
 
-    // 加载并注册单个物块 JSON，成功时返回记录项，失败返回 null
-    private static TileEntry? LoadAndRegister(string jsonFile, string assetsDir, string modId,
+    private static TileEntry? LoadAndRegister(string jsonFile, string assetsDir,
+        string modId,
         string modDir, string tileId, ushort tileIndex)
     {
         TileDef? def;
@@ -195,7 +180,6 @@ public static class TileLoader
             return null;
         }
 
-        // 构建 CustomTileDefinition
         var tileDef = BuildTileDefinition(def, tileId, assetsDir);
         if (tileDef == null)
             return null;
@@ -203,18 +187,15 @@ public static class TileLoader
         TileRegistry.Register(tileIndex, tileDef);
         LogUtil.Info("tiles.registered", tileId, tileIndex, modId);
 
-        // 暂存脚本映射（如有），待引擎就绪后由 RegisterScripts 写入 TileScriptRegistry
         StashScript(tileId, def.Script, modId, modDir);
 
         var fileName = Path.GetFileName(jsonFile);
         return new TileEntry(tileIndex, tileId, fileName);
     }
 
-    // 将 JSON TileDef 转换为 CUCoreLib CustomTileDefinition
-    // tileId: 文件名（不含扩展名），作为物块的稳定 ID
-    private static CustomTileDefinition? BuildTileDefinition(TileDef def, string tileId, string assetsDir)
+    private static CustomTileDefinition? BuildTileDefinition(TileDef def, string tileId,
+        string assetsDir)
     {
-        // 精灵图加载：Assets/Tile/{tileId}.png
         var spritePath = Path.Combine(assetsDir, tileId + ".png");
         var sprite = ItemUtil.LoadSprite(spritePath, def.SpriteImportScale);
         if (sprite == null)
@@ -226,7 +207,9 @@ public static class TileLoader
         var result = new CustomTileDefinition
         {
             ID = tileId,
-            Name = string.IsNullOrWhiteSpace(def.Name) ? tileId : def.Name,
+            Name = string.IsNullOrWhiteSpace(def.Name)
+                ? tileId
+                : def.Name,
             Description = def.Description ?? string.Empty,
             Sprite = sprite,
             Health = def.Health,
@@ -243,43 +226,42 @@ public static class TileLoader
             result.Color = ItemUtil.HexToColor(def.Color);
 
         if (!string.IsNullOrWhiteSpace(def.ColliderType)
-            && Enum.TryParse<UnityEngine.Tilemaps.Tile.ColliderType>(def.ColliderType, true, out var colliderType))
+            && Enum.TryParse<UnityEngine.Tilemaps.Tile.ColliderType>(def.ColliderType,
+                true, out var colliderType))
             result.ColliderType = colliderType;
 
         if (!string.IsNullOrWhiteSpace(def.SleepQuality)
-            && Enum.TryParse<Body.SleepQuality>(def.SleepQuality, true, out var sleepQuality))
+            && Enum.TryParse<Body.SleepQuality>(def.SleepQuality, true,
+                out var sleepQuality))
             result.SleepQuality = sleepQuality;
 
-        // 生成层
         if (def.SpawnLayers is { Length: > 0 })
             result.SpawnLayers = TileRegistry.LayersToMask(def.SpawnLayers);
 
-        // 生成样式
         if (def.GenerationStyle is { Length: > 0 }
             && Enum.TryParse<TileGenerationStyle>(
                 string.Join(",", def.GenerationStyle), true, out var genStyle))
             result.GenerationStyle = genStyle;
 
-        // 掉落物品
         if (def.Drops is { Length: > 0 })
         {
-            var drops = (from drop in def.Drops
+            var drops = (
+                    from drop in def.Drops
                     where !string.IsNullOrWhiteSpace(drop.Id)
-                    select BuildingEntityRegistry.AddDrop(drop.Id, drop.Chance, drop.ConditionMin, drop.ConditionMax))
+                    select BuildingEntityRegistry.AddDrop(drop.Id, drop.Chance,
+                        drop.ConditionMin, drop.ConditionMax))
                 .ToList();
 
             if (drops.Count > 0)
                 result.Drops = [.. drops];
         }
 
-        // 自定义元数据
         if (def.CustomData is { Count: > 0 })
             result.CustomData = new Dictionary<string, object>(def.CustomData);
 
         return result;
     }
 
-    // 清除指定模组之前注册的物块（直接操作 TileRegistry 内部字典）
     private static void ClearModTiles(string ownerId)
     {
         if (!LoadedTiles.TryGetValue(ownerId, out var oldTiles))
@@ -289,7 +271,6 @@ public static class TileLoader
             return;
         }
 
-        // 收集该模组的物块索引和 ID
         var indicesToRemove = new HashSet<ushort>(oldTiles.Count);
         var idsToRemove = new HashSet<string>(oldTiles.Count);
         foreach (var entry in oldTiles)
@@ -298,8 +279,8 @@ public static class TileLoader
             idsToRemove.Add(entry.TileId);
         }
 
-        // 从 TileRegistry 内部字典逐个移除
-        if (s_registeredDefinitionsField?.GetValue(null) is Dictionary<ushort, CustomTileDefinition> defs)
+        if (s_registeredDefinitionsField?.GetValue(null) is
+            Dictionary<ushort, CustomTileDefinition> defs)
             foreach (var index in indicesToRemove)
                 defs.Remove(index);
 
@@ -307,11 +288,13 @@ public static class TileLoader
             foreach (var index in indicesToRemove)
                 tiles.Remove(index);
 
-        if (s_registeredDefinitionIdsField?.GetValue(null) is Dictionary<string, ushort> ids)
+        if (s_registeredDefinitionIdsField?.GetValue(null) is Dictionary<string, ushort>
+            ids)
             foreach (var id in idsToRemove)
                 ids.Remove(id);
 
-        if (s_resolvedHitSoundsField?.GetValue(null) is Dictionary<ushort, AudioClip> hitSounds)
+        if (s_resolvedHitSoundsField?.GetValue(null) is Dictionary<ushort, AudioClip>
+            hitSounds)
             foreach (var index in indicesToRemove)
                 hitSounds.Remove(index);
 
@@ -319,14 +302,14 @@ public static class TileLoader
         PendingScripts.Remove(ownerId);
     }
 
-    // 暂存物块脚本映射，待引擎就绪后注册
-    private static void StashScript(string tileId, TileScriptDef? scriptDef, string modId, string modDir)
+    private static void StashScript(string tileId, TileScriptDef? scriptDef, string modId,
+        string modDir)
     {
         if (scriptDef is null) return;
         var isEmpty = scriptDef.OnPlace.Count == 0
-                      && scriptDef.OnExist.Count == 0
-                      && scriptDef.OnDamaging.Count == 0
-                      && scriptDef.OnDestroyed.Count == 0;
+            && scriptDef.OnExist.Count == 0
+            && scriptDef.OnDamaging.Count == 0
+            && scriptDef.OnDestroyed.Count == 0;
         if (isEmpty) return;
 
         if (!PendingScripts.TryGetValue(modId, out var tileScripts))

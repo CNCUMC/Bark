@@ -58,8 +58,9 @@ public static class LogUtil
     {
         result = 0;
         if (string.IsNullOrWhiteSpace(s)) return false;
-        if (float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture,
-                out result)) return true;
+        if (float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands,
+            CultureInfo.InvariantCulture,
+            out result)) return true;
         Error(LocaleLog("utils.parse.float_invalid", s), logger);
         return false;
     }
@@ -68,12 +69,14 @@ public static class LogUtil
     {
         result = 0;
         if (string.IsNullOrWhiteSpace(s)) return false;
-        if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out result)) return true;
+        if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture,
+            out result)) return true;
         Error(LocaleLog("utils.parse.int_invalid", s), logger);
         return false;
     }
 
-    public static void PrintList(string header, IEnumerable<string> items, ManualLogSource logger,
+    public static void PrintList(string header, IEnumerable<string> items,
+        ManualLogSource logger,
         string itemPrefix = "    ")
     {
         Divider();
@@ -82,16 +85,19 @@ public static class LogUtil
         Divider();
     }
 
-    public static void PrintNumberedList(string header, IList<string> items, ManualLogSource logger,
+    public static void PrintNumberedList(string header, IList<string> items,
+        ManualLogSource logger,
         int startIndex = 1)
     {
         Divider();
         Info(header, logger);
-        for (var i = 0; i < items.Count; i++) Info($"    {startIndex + i}. {items[i]}", logger);
+        for (var i = 0; i < items.Count; i++)
+            Info($"    {startIndex + i}. {items[i]}", logger);
         Divider();
     }
 
-    public static void PrintKeyValueList(string header, IEnumerable<(string key, string value)> entries,
+    public static void PrintKeyValueList(string header,
+        IEnumerable<(string key, string value)> entries,
         ManualLogSource logger)
     {
         Divider();
@@ -102,7 +108,8 @@ public static class LogUtil
 
     public static void PrintGroupedList(string header,
         IEnumerable<(string groupName, IList<string> items)> groups,
-        ManualLogSource logger, string groupPrefix = "    ", string itemPrefix = "        ")
+        ManualLogSource logger, string groupPrefix = "    ",
+        string itemPrefix = "        ")
     {
         Divider();
         Info(header, logger);

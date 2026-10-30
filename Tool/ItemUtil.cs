@@ -9,9 +9,6 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class ItemUtil
 {
-    // 从 PNG 文件加载 Sprite，失败返回 null。
-    // importScale: 放大倍数，1.0=默认大小，2.0=两倍大，0.5=一半。
-    // 内部会将 16 PPU 作为基准值缩放。
     public static Sprite? LoadSprite(string path, float importScale = 1f)
     {
         if (!File.Exists(path))
@@ -22,16 +19,14 @@ public static class ItemUtil
         if (!texture.LoadImage(bytes))
             return null;
 
-        // Point 过滤避免像素风格精灵模糊
         texture.filterMode = FilterMode.Point;
 
-        // 基准 16 PPU，importScale 越大精灵越大
         var pixelsPerUnit = 16f / importScale;
         var pivot = new Vector2(0.5f, 0.5f);
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), pivot, pixelsPerUnit);
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+            pivot, pixelsPerUnit);
     }
 
-    // RGB(A) 颜色 → Unity Color
     public static Color HexToColor(string hex)
     {
         if (string.IsNullOrEmpty(hex))
@@ -56,7 +51,6 @@ public static class ItemUtil
         item?.SetCondition(Mathf.Clamp01(condition));
     }
 
-    // amount: 修复量（正值修复，负值扣耐久）。默认 1f 即完全修复。
     public static void Repair(Item? item, float amount = 1f)
     {
         if (item is null) return;

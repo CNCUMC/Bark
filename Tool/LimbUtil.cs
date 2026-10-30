@@ -11,26 +11,25 @@ namespace Bark.Tool;
 [ScriptApi]
 public static class LimbUtil
 {
-    // 游戏已知的全体 15 个肢体名，供校验、脚本查询等使用
-    // OrdinalIgnoreCase 避免大小写不一致导致的匹配问题
-    public static readonly HashSet<string> LimbNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "Head",
-        "UpTorso",
-        "DownTorso",
-        "UpArmF",
-        "DownArmF",
-        "HandF",
-        "UpArmB",
-        "DownArmB",
-        "HandB",
-        "ThighF",
-        "CrusF",
-        "FootF",
-        "ThighB",
-        "CrusB",
-        "FootB"
-    };
+    public static readonly HashSet<string> LimbNames =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Head",
+            "UpTorso",
+            "DownTorso",
+            "UpArmF",
+            "DownArmF",
+            "HandF",
+            "UpArmB",
+            "DownArmB",
+            "HandB",
+            "ThighF",
+            "CrusF",
+            "FootF",
+            "ThighB",
+            "CrusB",
+            "FootB"
+        };
 
     [ScriptMethod]
     public static bool IsValidLimbName(string name)
@@ -44,7 +43,6 @@ public static class LimbUtil
         return [.. LimbNames];
     }
 
-    // 底层逻辑 - Limb 对象级操作（内部实现，不暴露给脚本）
     private static Body GetBody()
     {
         var body = BodyUtil.Body;
@@ -85,9 +83,6 @@ public static class LimbUtil
         if (body.limbs == null) return [];
         return [.. body.limbs];
     }
-
-    // 内部辅助 - Limb 对象版（无 [ScriptMethod]，供 int-index 版复用）
-    // -- 基础状态查询 --
 
     private static bool IsBroken(Limb limb)
     {
@@ -199,8 +194,6 @@ public static class LimbUtil
         return limb.injuryHealTime;
     }
 
-    // -- 修改操作 --
-
     private static void HealLimb(Limb limb)
     {
         if (limb == null || limb.dismembered) return;
@@ -300,8 +293,6 @@ public static class LimbUtil
         limb.blockedBleeding = blocked;
     }
 
-    // -- bodyNature 补全字段（内部 Limb 对象版） --
-
     private static void SetBoneHealTimerRaw(Limb limb, float value)
     {
         if (limb == null || limb.dismembered) return;
@@ -326,7 +317,6 @@ public static class LimbUtil
         limb.skinHealAmount = Mathf.Max(0f, value);
     }
 
-    // 对肢体施加冷敷。chillTime 为持续时间（秒），chillMaxTime 为累计最大冷却时间。
     private static void SetChilled(Limb limb, float chillTime, float chillMaxTime)
     {
         if (limb == null || limb.dismembered || limb.gameObject == null) return;
@@ -337,7 +327,6 @@ public static class LimbUtil
         chilled.maxTime = Mathf.Max(chillMaxTime, chillTime);
     }
 
-    // 外部接口 [ScriptMethod] - 肢体状态查询（按 int index）
     [ScriptMethod]
     public static bool IsBroken(int index)
     {
@@ -422,8 +411,6 @@ public static class LimbUtil
         return GetLimbShortName(GetLimb(index));
     }
 
-    // -- 数值查询 --
-
     [ScriptMethod]
     public static float GetSkinHealth(int index)
     {
@@ -500,7 +487,6 @@ public static class LimbUtil
         return limb.skinHealAmount;
     }
 
-    // 外部接口 [ScriptMethod] - 肢体修改操作（按 int index）
     [ScriptMethod]
     public static void HealLimb(int index)
     {
@@ -567,8 +553,6 @@ public static class LimbUtil
         SetBlockedBleeding(GetLimb(index), blocked);
     }
 
-    // -- bodyNature 补全字段（[ScriptMethod] int index 版） --
-
     [ScriptMethod]
     public static void SetBoneHealTimer(int index, float value)
     {
@@ -599,8 +583,6 @@ public static class LimbUtil
         SetChilled(GetLimb(index), chillTime, chillMaxTime);
     }
 
-    // -- 骨折 / 脱臼 --
-
     [ScriptMethod]
     public static void DislocateLimb(int index)
     {
@@ -625,7 +607,6 @@ public static class LimbUtil
         MendBone(GetLimb(index));
     }
 
-    // 外部接口 [ScriptMethod] - 全局聚合查询（不含参数）
     [ScriptMethod]
     public static int GetLimbCount()
     {
@@ -762,7 +743,6 @@ public static class LimbUtil
         return BodyUtil.Body.bloodPressure;
     }
 
-    // 截断肢体。使用玩家当前手持物品作为截肢工具；未手持有效物品时无操作。
     [ScriptMethod]
     public static void DoAmputate(int limbIndex)
     {
@@ -773,7 +753,6 @@ public static class LimbUtil
         CUCoreUtils.DoAmputate(item, GetLimb(limbIndex));
     }
 
-    // 本地化辅助
     private static string LimbLog(string key, params object[] args)
     {
         return BetterLocale.GetLog($"limb.{key}", args);
