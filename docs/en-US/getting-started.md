@@ -8,8 +8,8 @@
 
 - Bark provides APIs for you to call. It does **not directly modify game logic**. Want to change game behavior? Write
   your own Harmony patches.
-- Bark depends on [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) — **versions must match**. Wrong
-  version will break things.
+- Bark depends on [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) (CCL) — **requires CCL ≥ 1.0.6** (the
+  Together v5 multiplayer stack). Older versions will break multiplayer script mod sync.
 - Something went wrong? Check in this order:
     1. Reloaded / restarted? → 2. Files in the right place? → 3. Saved? → 4. Typos / brackets / semicolons Still
        broken? → Ask others.

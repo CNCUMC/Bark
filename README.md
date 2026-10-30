@@ -82,7 +82,7 @@ Full documentation at [`docs/en-US/`](docs/en-US) (and [简体中文](docs/zh-CN
 ## Installation
 
 1. Install [BepInEx 5.x](https://github.com/BepInEx/BepInEx) for Casualties Unknown.
-2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.2 — place `CUCoreLib.dll` into
+2. Install [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib) ≥ 1.0.6 — place `CUCoreLib.dll` into
    `BepInEx/plugins/CUCoreLib/`.
 3. Install [Bark](https://www.nexusmods.com/scavprototype/mods/362) Extract it and place it in the `BepInEx/plugins/`
    folder.

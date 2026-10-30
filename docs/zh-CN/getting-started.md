@@ -7,7 +7,8 @@
 ## 开始之前
 
 - Bark 提供 API 给你调用， **不会直接修改游戏逻辑**。想改游戏行为？自己写 Harmony Patch。
-- Bark 依赖 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)（CCL）， **版本必须匹配**。装错了会炸。
+- Bark 依赖 [CUCoreLib](https://github.com/jimmyking9999999/CUCoreLib)（CCL）， **需要 CCL ≥ 1.0.6**（对应
+  Together v5 多人网络栈）。旧版本会导致多人脚本模组同步失效。
 - 出问题了？按这个顺序查：
     1. 重载/重启了没 → 2. 文件放对位置了没 → 3. 保存了没 → 4. 拼写/括号/分号 全排完还是不行 → 问别人。
 

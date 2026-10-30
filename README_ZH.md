@@ -79,7 +79,7 @@ _由 [Moss Lib](https://github.com/Explosive-Hydra/Moss-Lib) 演进而来。_
 ## 安装
 
 1. 为 Casualties Unknown 安装 [BepInEx 5.x](https://github.com/BepInEx/BepInEx)。
-2. 安装 [CUCoreLib](https://www.nexusmods.com/scavprototype/mods/341) — 将 `CUCoreLib.dll` 放入 `BepInEx/plugins/`。
+2. 安装 [CUCoreLib](https://www.nexusmods.com/scavprototype/mods/341) ≥ 1.0.6 — 将 `CUCoreLib.dll` 放入 `BepInEx/plugins/`。
 3. 安装 [Bark](https://www.nexusmods.com/scavprototype/mods/362)，解压并将其放入 `BepInEx/plugins/` 文件夹。
 
 > **可选：** 本模组支持 [WMITF（What Mod Is This From）](https://www.nexusmods.com/scavprototype/mods/552)。
