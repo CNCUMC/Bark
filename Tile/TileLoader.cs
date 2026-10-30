@@ -29,7 +29,7 @@ public static class TileLoader
         PendingScripts =
             new();
 
-    private static ushort _nextTileIndex = 36;
+    private static ushort _nextTileIndex = TileRegistry.FirstCustomTileIndex;
 
     private static readonly FieldInfo? s_registeredDefinitionsField =
         typeof(TileRegistry).GetField(
@@ -95,7 +95,7 @@ public static class TileLoader
                     && oldIndices.TryGetValue(tileId, out var oldIndex))
                     tileIndex = (ushort)oldIndex;
                 else
-                    tileIndex = _nextTileIndex++;
+                    tileIndex = AllocateTileIndex();
 
                 var entry = LoadAndRegister(jsonFile, assetsTileDir, modId, modDir,
                     tileId, tileIndex);
@@ -157,6 +157,17 @@ public static class TileLoader
         var count = tileScripts.Count;
         PendingScripts.Remove(manifest.Id);
         LogUtil.Info("tiles.scripts_registered", manifest.Id, count);
+    }
+
+    private static ushort AllocateTileIndex()
+    {
+        if (s_registeredDefinitionsField?.GetValue(null) is
+            Dictionary<ushort, CustomTileDefinition> defs)
+            while (_nextTileIndex <= byte.MaxValue
+                   && defs.ContainsKey(_nextTileIndex))
+                _nextTileIndex++;
+
+        return _nextTileIndex++;
     }
 
     private static TileEntry? LoadAndRegister(string jsonFile, string assetsDir,

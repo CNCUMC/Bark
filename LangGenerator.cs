@@ -1058,11 +1058,6 @@ internal class LangGenerator : ModLangGenMultiBase
             "解析物块 JSON '{0}' 失败：{1}",
             "解析物塊 JSON '{0}' 失敗：{1}",
             "Не удалось разобрать JSON тайла '{0}': {1}");
-        Log("tiles.index_too_low",
-            "Tile '{0}' auto-assigned index {1} is below 36, check _nextTileIndex",
-            "物块 '{0}' 自动分配的索引 {1} 低于 36，请检查 _nextTileIndex",
-            "物塊 '{0}' 自動分配的索引 {1} 低於 36，請檢查 _nextTileIndex",
-            "У тайла '{0}' автоматически назначенный индекс {1} меньше 36, проверьте _nextTileIndex");
         Log("tiles.sprite_not_found",
             "Tile sprite not found '{0}' for tile '{1}'",
             "未找到物块 '{1}' 的精灵图 '{0}'",
