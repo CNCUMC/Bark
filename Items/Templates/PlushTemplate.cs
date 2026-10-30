@@ -16,7 +16,7 @@ public class PlushData
 
 // "template": {
 //   "type": "plush",
-//   "squeak_sound": "Assets/Audio/plush_squeak.wav"   // 自定义吱吱音效（可省略，用游戏默认）
+//   "squeak_sound": "Assets/Audio/plush_squeak.wav"
 // }
 
 public class PlushTemplate : ItemTemplate

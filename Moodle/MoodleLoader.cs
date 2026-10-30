@@ -45,7 +45,6 @@ public static class MoodleLoader
         if (modDir is null)
             throw new ArgumentNullException(nameof(modDir));
 
-        // 热重载时清除旧记录
         LoadedMoodles.Remove(modId);
         PendingScripts.Remove(modId);
 
@@ -169,7 +168,6 @@ public static class MoodleLoader
         }
         else if (!string.IsNullOrWhiteSpace(def.IconAsset))
         {
-            // 自定义精灵图：Assets/Moodle/{icon_asset}
             var spritePath = Path.Combine(assetsDir, def.IconAsset);
             if (!Path.IsPathRooted(def.IconAsset))
                 spritePath = Path.Combine(assetsDir, def.IconAsset);

@@ -34,7 +34,6 @@ public class ModDependency
     [JsonProperty("version")] public string Version { get; set; } = string.Empty;
 }
 
-// 脚本语言类型
 public enum ScriptLanguage
 {
     None,

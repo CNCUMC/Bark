@@ -5,7 +5,6 @@ namespace Bark.Tool;
 
 public static class EventUtil
 {
-    // 触发事件
     public static void Trigger<T>() where T : BarkEvent, new()
     {
         EventRegistry.Trigger(new T());

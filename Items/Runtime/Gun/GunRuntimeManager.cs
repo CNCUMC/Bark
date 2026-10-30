@@ -51,7 +51,6 @@ public static partial class GunRuntimeManager
             TinnitusMultiplierOverrides.Remove(gunItemId);
     }
 
-    // 安装所有 Harmony 补丁。幂等：多次调用不会重复 Patch。
     public static void Apply()
     {
         if (_harmony != null) return;

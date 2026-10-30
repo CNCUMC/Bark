@@ -46,7 +46,6 @@ public class BearTrapTriggerEvent : BarkEvent
 [ScriptEvent("onBearTrapRelease")]
 public class BearTrapReleaseEvent : BarkEvent
 {
-    // 捕兽夹
     public BearTrap Trap { get; set; } = null!;
 }
 
