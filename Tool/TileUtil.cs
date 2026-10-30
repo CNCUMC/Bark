@@ -43,6 +43,26 @@ public static class TileUtil
         return false;
     }
 
+    public static bool TryResolveId(ushort index, out string? tileId)
+    {
+        if (index < TileRegistry.FirstCustomTileIndex)
+        {
+            tileId = Tiles.FromId(index)?.LocaleKey;
+            return !string.IsNullOrEmpty(tileId);
+        }
+
+        if (s_registeredIdsField?.GetValue(null) is Dictionary<string, ushort> customIds)
+            foreach (var (id, customIndex) in customIds)
+            {
+                if (customIndex != index) continue;
+                tileId = id;
+                return true;
+            }
+
+        tileId = null;
+        return false;
+    }
+
     private static Dictionary<string, ushort> BuildVanillaLookup()
     {
         var dict = new Dictionary<string, ushort>(StringComparer.OrdinalIgnoreCase);

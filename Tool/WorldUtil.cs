@@ -1,4 +1,5 @@
 using System;
+using Bark.Constant;
 using Bark.ScriptApi;
 using CUCoreLib.Registries;
 using UnityEngine;
@@ -21,6 +22,33 @@ public static class WorldUtil
     public static int GetHeight()
     {
         return (int)World.height;
+    }
+
+    [ScriptMethod]
+    public static string TileAt(int x, int y)
+    {
+        if (World == null || x < 0 || y < 0 || x >= GetWidth() || y >= GetHeight())
+            return Tiles.Air.LocaleKey;
+
+        var index = World.GetBlock(new Vector2Int(x, y));
+        return TileUtil.TryResolveId(index, out var tileId) && tileId != null
+            ? tileId
+            : Tiles.Air.LocaleKey;
+    }
+
+    [ScriptMethod]
+    public static Vector2Int ToTilePosition(float x, float y)
+    {
+        return World == null ? default : World.WorldToBlockPos(new Vector2(x, y));
+    }
+
+    [ScriptMethod]
+    public static Vector2 ToRelativePosition(float x, float y)
+    {
+        if (World == null) return Vector2.zero;
+
+        var tile = ToTilePosition(x, y);
+        return new Vector2(x - tile.x, y - tile.y);
     }
 
     [ScriptMethod]
