@@ -2,8 +2,8 @@
 
 # World — World Editing
 
-World provides block placement, area fill, item spawning, and tile queries. Only a few methods, but enough to reshape
-the world.
+World provides block placement, area fill, item spawning, tile queries, and explosions. Only a few methods, but enough
+to reshape the world.
 
 > ⚠️ All methods must be called after `onWorldGenerated`. The world doesn't exist during the main menu phase.
 
@@ -86,6 +86,54 @@ function tryDash(dirX, dirY, distance) {
 // Spawn items on the ground
 World.PlaceItem(100, 50, 'medkit');
 World.PlaceItem(102, 50, 'ammo_rifle');
+```
+
+## Explosions
+
+`Explode` takes **world coordinates** (same as `PlaceItem`, not tile coordinates) and detonates immediately.
+Defaults match the in-game dynamite: `range` 20, `velocity` 20, `structuralDamage` 1250, with zero body
+damage — so by default it only destroys terrain and throws bodies around with the shockwave, exactly like
+vanilla dynamite.
+
+```js
+// Default explosion (dynamite-sized)
+World.Explode(pos.x, pos.y);
+
+// Bigger blast, slower shockwave
+World.Explode(pos.x, pos.y, 40, 10);
+
+// Lethal to bodies: skin/muscle damage + shrapnel
+World.Explode(pos.x, pos.y, 12, 25, 800, 60, 60, 0.8);
+
+// Only cracks blocks, no terrain destruction
+World.Explode(pos.x, pos.y, 15, 5, 100);
+```
+
+| Parameter                          | Default | Description                                     |
+|------------------------------------|---------|-------------------------------------------------|
+| `range`                            | `20`    | Blast radius in world units                     |
+| `velocity`                         | `20`    | Shockwave push speed on bodies                  |
+| `structuralDamage`                 | `1250`  | Damage dealt to tiles (`0` leaves terrain intact) |
+| `skinDamage`                       | `0`     | Skin damage dealt to bodies in range            |
+| `muscleDamage`                     | `0`     | Muscle damage dealt to bodies in range          |
+| `shrapnelChance`                   | `0`     | Chance (0-1) of spawning shrapnel               |
+| `sound`                            | `null`  | Sound name, omit for the game default           |
+
+> Must be called on the main thread (i.e. from a script callback), and only after `onWorldGenerated`.
+
+### Remote-detonated mine example
+
+```js
+function onTileExist(e) {
+    if (e.tileId !== 'my_mine') return;
+    var pos = Player.GetPosition();
+    var dx = pos.x - (e.posX + 0.5);
+    var dy = pos.y - (e.posY + 0.5);
+    if (dx * dx + dy * dy < 4) {          // player stepped within 2 units
+        World.Explode(e.posX + 0.5, e.posY + 0.5, 10, 25, 600, 50, 50, 0.5);
+        World.PlaceTile(e.posX, e.posY, 'air');
+    }
+}
 ```
 
 ## World Size

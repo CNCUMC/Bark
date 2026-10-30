@@ -154,4 +154,32 @@ public static class WorldUtil
             LogUtil.Error("world.place_item", pos, item, ex.Message);
         }
     }
+
+    [ScriptMethod]
+    public static void Explode(float x, float y, float range = 20f, float velocity = 20f,
+        float structuralDamage = 1250f, float skinDamage = 0f, float muscleDamage = 0f,
+        float shrapnelChance = 0f, string? sound = null)
+    {
+        CheckUtil.CheckWorld(Plugin.Logger);
+
+        var pos = new Vector2(x, y);
+        try
+        {
+            WorldGeneration.CreateExplosion(new ExplosionParams
+            {
+                position = pos,
+                range = range,
+                velocity = velocity,
+                structuralDamage = structuralDamage,
+                skinDamage = new RangeF(skinDamage, skinDamage),
+                muscleDamage = new RangeF(muscleDamage, muscleDamage),
+                shrapnelChance = shrapnelChance,
+                sound = sound ?? string.Empty
+            });
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Error("world.explode", pos, ex.Message);
+        }
+    }
 }

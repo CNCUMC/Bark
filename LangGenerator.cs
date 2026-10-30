@@ -237,6 +237,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "在 {0} 生成物品 {1} 失败: {2}",
             "在 {0} 生成物品 {1} 失敗: {2}",
             "В {0} не удалось разместить предмет {1}: {2}");
+        Log("world.explode",
+            "At {0} explode failed: {1}",
+            "在 {0} 引发爆炸失败: {1}",
+            "在 {0} 引發爆炸失敗: {1}",
+            "Не удалось создать взрыв в {0}: {1}");
         Log("world.item_not_found",
             "Item resource '{0}' does not exist",
             "物品 '{0}' 的资源不存在",

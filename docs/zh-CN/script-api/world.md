@@ -2,7 +2,7 @@
 
 # World — 世界编辑
 
-World 提供方块放置、区域填充、物品生成和瓦片查询。方法不多，但够你改造世界了。
+World 提供方块放置、区域填充、物品生成、瓦片查询和爆炸。方法不多，但够你改造世界了。
 
 > ⚠️ 所有方法必须在 `onWorldGenerated` 之后调用，主菜单阶段世界不存在。
 
@@ -84,6 +84,53 @@ function tryDash(dirX, dirY, distance) {
 // 生成物品到地上
 World.PlaceItem(100, 50, 'medkit');
 World.PlaceItem(102, 50, 'ammo_rifle');
+```
+
+## 爆炸
+
+`Explode` 接收**世界坐标**（与 `PlaceItem` 一致，不是瓦片坐标），立即引爆。
+默认参数与游戏内炸药相同：`range` 20、`velocity` 20、`structuralDamage` 1250，身体伤害为 0——
+即默认只破坏地形、用冲击波推开身体，行为和原版炸药完全一致。
+
+```js
+// 默认爆炸（炸药规格）
+World.Explode(pos.x, pos.y);
+
+// 更大范围、更慢的冲击波
+World.Explode(pos.x, pos.y, 40, 10);
+
+// 致命爆炸：皮肤/肌肉伤害 + 破片
+World.Explode(pos.x, pos.y, 12, 25, 800, 60, 60, 0.8);
+
+// 只震裂方块，不破坏地形
+World.Explode(pos.x, pos.y, 15, 5, 100);
+```
+
+| 参数                              | 默认值    | 说明                          |
+|----------------------------------|-----------|-------------------------------|
+| `range`                          | `20`      | 爆炸半径（世界单位）           |
+| `velocity`                       | `20`      | 冲击波推开身体的速度           |
+| `structuralDamage`               | `1250`    | 对方块的结构伤害（`0` 不破坏地形） |
+| `skinDamage`                     | `0`       | 范围内身体受到的皮肤伤害       |
+| `muscleDamage`                   | `0`       | 范围内身体受到的肌肉伤害       |
+| `shrapnelChance`                 | `0`       | 产生破片的几率（0-1）          |
+| `sound`                          | `null`    | 音效名，省略则用游戏默认       |
+
+> 必须在主线程调用（即脚本回调内），且只能在 `onWorldGenerated` 之后。
+
+### 遥控地雷示例
+
+```js
+function onTileExist(e) {
+    if (e.tileId !== 'my_mine') return;
+    var pos = Player.GetPosition();
+    var dx = pos.x - (e.posX + 0.5);
+    var dy = pos.y - (e.posY + 0.5);
+    if (dx * dx + dy * dy < 4) {          // 玩家进入 2 格范围
+        World.Explode(e.posX + 0.5, e.posY + 0.5, 10, 25, 600, 50, 50, 0.5);
+        World.PlaceTile(e.posX, e.posY, 'air');
+    }
+}
 ```
 
 ## 世界尺寸
