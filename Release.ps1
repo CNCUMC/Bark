@@ -235,7 +235,7 @@ if (Test-Path $puertPath -PathType Container)
 }
 
 # 文档文件 (含更新日志)
-$docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "CHANGELOG.md", "CHANGELOG_ZH.md")
+$docFiles = @("README.md", "README_ZH.md", "LICENSE.md")
 foreach ($doc in $docFiles)
 {
     $docPath = Join-Path $scriptDir $doc
@@ -243,36 +243,6 @@ foreach ($doc in $docFiles)
     {
         Copy-Item $docPath $packageDir -Force
         Write-OK "已添加: $doc"
-    }
-}
-
-# 如果未指定 ReleaseNotes，自动从 CHANGELOG.md 读取
-if ( [string]::IsNullOrWhiteSpace($ReleaseNotes))
-{
-    $changelogPath = Join-Path $scriptDir "CHANGELOG.md"
-    if (Test-Path $changelogPath)
-    {
-        $changelogContent = Get-Content $changelogPath -Raw -Encoding UTF8
-        # 截取当前版本 (## vVersion 到下一个 ## 之间)
-        $pattern = "(##\s+v?$([regex]::Escape($ModVersion) )[\s\S]*?)(?=##\s+v|`$)"
-        if ($changelogContent -match $pattern)
-        {
-            $ReleaseNotes = $Matches[1].Trim()
-            Write-OK "从 CHANGELOG.md 读取发布说明"
-        }
-        else
-        {
-            # 取前 20 行
-            $ReleaseNotes = ($changelogContent -split "`n" | Select-Object -First 20) -join "`n"
-            Write-OK "从 CHANGELOG.md 读取发布说明 (前 20 行)"
-        }
-    }
-
-    # 转换为 NexusMods BBCode 格式
-    if ($ReleaseNotes)
-    {
-        $NexusDescription = Convert-MarkdownToNexusBBCode -Markdown $ReleaseNotes
-        Write-OK "已生成 NexusMods BBCode 发布说明"
     }
 }
 
