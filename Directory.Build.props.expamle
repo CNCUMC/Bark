@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
     <PropertyGroup>
-        <GameDir>F:/SteamLibrary/steamapps/common/Casualties Unknown Demo</GameDir>
+        <GameDir>F:/SteamLibrary/steamapps/common/Casualties Unknown</GameDir>
         <ManagedDir>$(GameDir)/CasualtiesUnknown_Data/Managed</ManagedDir>
         <CUCoreLibDll>$(GameDir)/BepInEx/plugins/CUCoreLib.dll</CUCoreLibDll>
         <WhatModIsThisFromDll>$(GameDir)/BepInEx/plugins/WhatModIsThisFrom.dll</WhatModIsThisFromDll>

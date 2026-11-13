@@ -1,5 +1,5 @@
 ﻿param(
-    [string]$GamePath = "F:/SteamLibrary/steamapps/common/Casualties Unknown Demo",
+    [string]$GamePath = "F:/SteamLibrary/steamapps/common/Casualties Unknown",
     [string]$ModNamespace = "Bark"
 )
 
