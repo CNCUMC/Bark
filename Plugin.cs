@@ -20,10 +20,9 @@ using HarmonyLib;
 namespace Bark;
 
 [BepInPlugin(Guid, Name, Version)]
-[BepInDependency("net.cucorelib", "1.0.6")]
+[BepInDependency("net.cucorelib", "1.0.7.1")]
 [BepInDependency("CasualtiesMP", BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("com.jimmyking.whatmodisthisfrom",
-    BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("com.jimmyking.whatmodisthisfrom", BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "org.cncumc.bark";
