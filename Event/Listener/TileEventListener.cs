@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Bark.Events;
 using Bark.Tile;
 using Bark.Tool;
@@ -15,18 +16,18 @@ public static class TileEventListener
 {
     private const float PollInterval = 1f;
     private const int ScanRadius = 10;
-    private static readonly HashSet<int> KnownCustomIndices = [];
     private static readonly Dictionary<long, int> DestroyTracker = new();
 
     private static Coroutine? _existCoroutine;
     private static Coroutine? _damageCoroutine;
     private static MonoBehaviour? _runner;
+    private static Harmony? _tileHarmony;
 
     internal static void Listen(MonoBehaviour runner)
     {
         _runner = runner;
 
-        RefreshKnownIndices();
+        ApplyPatches();
 
         _existCoroutine ??= runner.StartCoroutine(PollExist());
         _damageCoroutine ??= runner.StartCoroutine(PollDamage());
@@ -48,23 +49,101 @@ public static class TileEventListener
             _damageCoroutine = null;
         }
 
-        KnownCustomIndices.Clear();
         DestroyTracker.Clear();
         _runner = null;
     }
 
-    private static void RefreshKnownIndices()
+    private static void ApplyPatches()
     {
-        KnownCustomIndices.Clear();
-        foreach (var entry in TileLoader.LoadedTiles.Values.SelectMany(list => list))
-            KnownCustomIndices.Add(entry.TileIndex);
+        if (_tileHarmony == null)
+        {
+            _tileHarmony = new Harmony(Plugin.Guid + ".tile");
+
+            TryPatch(_tileHarmony, "set_block",
+                AccessTools.Method(typeof(WorldGeneration), "SetBlock",
+                    [typeof(Vector2Int), typeof(ushort)]),
+                AccessTools.Method(typeof(TileEventListener),
+                    nameof(WorldGenerationSetBlockPrefix)),
+                null);
+
+            TryPatch(_tileHarmony, "damage_block",
+                AccessTools.Method(typeof(WorldGeneration), "DamageBlock",
+                [
+                    typeof(Vector2Int), typeof(float), typeof(bool), typeof(bool),
+                    typeof(bool)
+                ]),
+                null,
+                AccessTools.Method(typeof(TileEventListener),
+                    nameof(WorldGenerationDamageBlockPostfix)));
+        }
+
+        LogPatchState();
     }
 
-    [HarmonyPatch(typeof(WorldGeneration), "SetBlock", typeof(Vector2Int),
-        typeof(ushort))]
-    [HarmonyPrefix]
-    private static void WorldGenerationSetBlockPrefix(WorldGeneration __instance,
-        ref Vector2Int pos, ushort block)
+    private static void TryPatch(
+        Harmony harmony,
+        string name,
+        MethodBase? target,
+        MethodInfo? prefix,
+        MethodInfo? postfix)
+    {
+        if (target == null)
+        {
+            LogUtil.Warning("tile_event.patch_target_missing", name);
+            return;
+        }
+
+        try
+        {
+            harmony.Patch(target,
+                prefix == null
+                    ? null
+                    : new HarmonyMethod(prefix),
+                postfix == null
+                    ? null
+                    : new HarmonyMethod(postfix));
+            LogUtil.Info("tile_event.patch_applied", name);
+        }
+        catch (Exception ex)
+        {
+            LogUtil.Error("tile_event.patch_failed", name, ex.Message);
+        }
+    }
+
+    private static void LogPatchState()
+    {
+        var setBlock = AccessTools.Method(
+            typeof(WorldGeneration),
+            "SetBlock",
+            [
+                typeof(Vector2Int),
+                typeof(ushort)
+            ]);
+        var damageBlock = AccessTools.Method(
+            typeof(WorldGeneration),
+            "DamageBlock",
+            [
+                typeof(Vector2Int),
+                typeof(float),
+                typeof(bool),
+                typeof(bool),
+                typeof(bool)
+            ]);
+
+        var setBlockPrefixes = setBlock == null
+            ? -1
+            : Harmony.GetPatchInfo(setBlock)?.Prefixes?.Count ?? 0;
+        var damageBlockPostfixes = damageBlock == null
+            ? -1
+            : Harmony.GetPatchInfo(damageBlock)?.Postfixes?.Count ?? 0;
+
+        LogUtil.Info("tile_event.patch_state", setBlockPrefixes, damageBlockPostfixes);
+    }
+
+    private static void WorldGenerationSetBlockPrefix(
+        WorldGeneration __instance,
+        ref Vector2Int pos,
+        ushort block)
     {
         if (__instance == null || !WorldReady()) return;
 
@@ -90,28 +169,28 @@ public static class TileEventListener
             }
         }
 
-        if (index < TileRegistry.FirstCustomTileIndex || !IsCustomIndex(index)) return;
+        if (!IsCustomIndex(index)) return;
+
         {
-            var tileId = FindTileIdByIndex(index);
-            if (tileId == null) return;
+            var placeTileId = FindTileIdByIndex(index);
+            if (placeTileId == null) return;
             EventUtil.Trigger(new TilePlaceEvent
             {
-                TileId = tileId,
+                TileId = placeTileId,
                 TileIndex = index,
                 PosX = pos.x,
                 PosY = pos.y
             });
 
-            var hash = PackPos(pos.x, pos.y);
-            DestroyTracker[hash] = index;
+            var placeHash = PackPos(pos.x, pos.y);
+            DestroyTracker[placeHash] = index;
         }
     }
 
-    [HarmonyPatch(typeof(WorldGeneration), "DamageBlock", typeof(Vector2Int),
-        typeof(float))]
-    [HarmonyPostfix]
-    private static void WorldGenerationDamageBlockPostfix(WorldGeneration __instance,
-        ref Vector2Int pos, float dmg)
+    private static void WorldGenerationDamageBlockPostfix(
+        WorldGeneration __instance,
+        Vector2Int pos,
+        float dmg)
     {
         if (__instance == null || !WorldReady()) return;
 
@@ -238,16 +317,23 @@ public static class TileEventListener
 
     private static bool IsCustomIndex(int index)
     {
-        return KnownCustomIndices.Contains(index);
+        return index >= TileRegistry.FirstCustomTileIndex
+            && TileRegistry.TryGetDefinition((ushort)index, out _);
     }
 
     private static string? FindTileIdByIndex(int tileIndex)
     {
-        return (
+        var fromLoader = (
             from list in TileLoader.LoadedTiles.Values
             from entry in list
             where entry.TileIndex == tileIndex
             select entry.TileId).FirstOrDefault();
+
+        if (fromLoader != null) return fromLoader;
+
+        return TileRegistry.TryGetDefinition((ushort)tileIndex, out var definition)
+            ? definition?.ID
+            : null;
     }
 
     private static long PackPos(int x, int y)

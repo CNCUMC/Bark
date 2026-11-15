@@ -1,0 +1,4 @@
+{
+  "description": "Print the Bark compatibility test report (event coverage + API smoke)",
+  "args": []
+}

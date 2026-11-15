@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Bark.Script;
 using Bark.Tool;
 using BepInEx.Bootstrap;
@@ -20,40 +22,39 @@ internal static class WmitfPatch
 
         var patches =
             new (string TypeName, string Method, string? Prefix, string? Postfix, Type[]?
-                ParamTypes)[]
+                ParamTypes, bool Optional)[]
                 {
                     ("WhatModIsThisFrom.Patches", "GetModName",
-                        nameof(ScriptModNamePrefix), null, null),
+                        nameof(ScriptModNamePrefix), null, null, false),
                     ("WMITF.WMITF", "IsOwnerLoaded",
-                        nameof(IsOwnerLoadedPrefix), null, null),
+                        nameof(IsOwnerLoadedPrefix), null, null, false),
                     ("WhatModIsThisFrom.InspectorOverlay", "PatchesName",
-                        nameof(ScriptModNamePrefix), null, null),
+                        nameof(ScriptModNamePrefix), null, null, true),
                     ("CUCoreLib.Registries.TileRegistry", "TryGetOwnerModGuid",
                         null, nameof(TileRegistryTryGetOwnerPostfix),
-                        [typeof(ushort), typeof(string).MakeByRefType()])
+                        [typeof(ushort), typeof(string).MakeByRefType()], false)
                 };
 
-        foreach (var (typeName, method, prefix, postfix, paramTypes) in patches)
-            TryPatch(harmony, typeName, method, prefix, postfix, paramTypes);
+        foreach (var (typeName, method, prefix, postfix, paramTypes, optional) in patches)
+            TryPatch(harmony, typeName, method, prefix, postfix, paramTypes, optional);
     }
 
     private static void TryPatch(Harmony harmony, string typeName, string method,
-        string? prefix, string? postfix, Type[]? paramTypes)
+        string? prefix, string? postfix, Type[]? paramTypes, bool optional = false)
     {
         try
         {
             var type = AccessTools.TypeByName(typeName);
             if (type is null)
             {
-                LogUtil.Warning("wmitf.patch.not_found", method, typeName);
+                ReportMissing(optional, method, typeName);
                 return;
             }
 
-            var target = AccessTools.Method(type, method, paramTypes);
+            var target = FindTarget(type, method, paramTypes, optional);
             if (target is null)
             {
-                if (type.FullName != null)
-                    LogUtil.Warning("wmitf.patch.not_found", method, type.FullName);
+                ReportMissing(optional, method, type.FullName ?? typeName);
                 return;
             }
 
@@ -73,6 +74,30 @@ internal static class WmitfPatch
         {
             LogUtil.Error("wmitf.patch.failed", method, ex);
         }
+    }
+
+    private static void ReportMissing(bool optional, string method, string typeName)
+    {
+        if (optional)
+            LogUtil.Debug("wmitf.patch.optional_skipped", method, typeName);
+        else
+            LogUtil.Warning("wmitf.patch.not_found", method, typeName);
+    }
+
+    private static MethodInfo? FindTarget(Type type, string method, Type[]? paramTypes,
+        bool optional)
+    {
+        if (!optional)
+            return AccessTools.Method(type, method, paramTypes);
+
+        const BindingFlags flags = BindingFlags.Public
+            | BindingFlags.NonPublic
+            | BindingFlags.Instance
+            | BindingFlags.Static
+            | BindingFlags.DeclaredOnly;
+
+        return type.GetMethods(flags)
+            .FirstOrDefault(candidate => candidate.Name == method);
     }
 
     private static bool ScriptModNamePrefix(string guid, ref string __result)

@@ -227,6 +227,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "ConsoleScript не инициализирован");
 
         // Log - World
+        Log("world.place_failed",
+            "Place tile {0} at ({1}, {2}) rejected: index not registered or world not ready",
+            "在 ({1}, {2}) 放置物块 {0} 被拒绝: 索引未注册或世界未就绪",
+            "在 ({1}, {2}) 放置物塊 {0} 被拒絕: 索引未註冊或世界未就緒",
+            "Размещение блока {0} в ({1}, {2}) отклонено: индекс не зарегистрирован");
         Log("world.place_tile",
             "At {0} place tile {1} failed: {2}",
             "在 {0} 生成物块 {1} 失败: {2}",
@@ -1073,6 +1078,26 @@ internal class LangGenerator : ModLangGenMultiBase
             "模组 '{0}' 加载了 {1} 个物块",
             "模組 '{0}' 載入了 {1} 個物塊",
             "Мод '{0}' загрузил {1} тайл(ов)");
+        Log("tile_event.patch_state",
+            "Tile patch state: SetBlock prefixes={0}, DamageBlock postfixes={1}",
+            "Tile 补丁状态: SetBlock 前缀={0}, DamageBlock 后缀={1}",
+            "Tile 補丁狀態: SetBlock 前綴={0}, DamageBlock 後綴={1}",
+            "Состояние патчей Tile: префиксов SetBlock={0}, постфиксов DamageBlock={1}");
+        Log("tile_event.patch_applied",
+            "Tile patch applied: {0}",
+            "Tile 补丁已挂载: {0}",
+            "Tile 補丁已掛載: {0}",
+            "Патч Tile применён: {0}");
+        Log("tile_event.patch_target_missing",
+            "Tile patch target not found: {0}",
+            "Tile 补丁目标不存在: {0}",
+            "Tile 補丁目標不存在: {0}",
+            "Цель патча Tile не найдена: {0}");
+        Log("tile_event.patch_failed",
+            "Tile patch failed: {0} ({1})",
+            "Tile 补丁挂载失败: {0} ({1})",
+            "Tile 補丁掛載失敗: {0} ({1})",
+            "Не удалось применить патч Tile: {0} ({1})");
         Log("tiles.no_index",
             "Tile '{0}' in mod '{1}' was not assigned an index (Bark auto-assignment skipped)",
             "物块 '{0}' 未分配索引 (模组 '{1}')，Bark 自动分配已跳过",
@@ -1318,6 +1343,11 @@ internal class LangGenerator : ModLangGenMultiBase
             "WMITF 补丁目标 '{0}' 未在类型 '{1}' 中找到",
             "WMITF 補丁目標 '{0}' 未在類型 '{1}' 中找到",
             "WMITF патча '{0}' не найден в типе '{1}'");
+        Log("wmitf.patch.optional_skipped",
+            "WMITF optional patch target '{0}' absent in '{1}' (removed in newer WMITF, skipped)",
+            "WMITF 可选补丁目标 '{0}' 不在 '{1}' 中（新版 WMITF 已移除，跳过）",
+            "WMITF 可選補丁目標 '{0}' 不在 '{1}' 中（新版 WMITF 已移除，跳過）",
+            "Необязательная цель патча WMITF '{0}' отсутствует в '{1}' (удалена в новой WMITF, пропущено)");
         Log("wmitf.patch.applied",
             "WMITF patch applied: {0}",
             "WMITF 补丁已应用：{0}",

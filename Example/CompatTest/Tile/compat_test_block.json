@@ -1,0 +1,9 @@
+{
+    "name":  "兼容测试块",
+    "spawn_amount":  0,
+    "health":  20,
+    "description":  "仅用于 Tile 事件链路验证，不会自然生成。",
+    "step_sound":  "Gravel",
+    "sprite_import_scale":  2,
+    "hit_sound":  "stone"
+}

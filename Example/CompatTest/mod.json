@@ -1,0 +1,12 @@
+{
+  "id": "bark_compat_test",
+  "name": "Bark Compat Test",
+  "version": "1.0.0",
+  "author": {
+    "code": "CNCUMC"
+  },
+  "description": "Formal-release compatibility harness: tracks all 152 script events and smokes the Bark script API.",
+  "bark_version": ">=0.1.0",
+  "game_version": ">=0.9.0",
+  "dependencies": []
+}

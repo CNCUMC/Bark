@@ -73,7 +73,8 @@ public static class WorldUtil
         CheckUtil.CheckWorld(Plugin.Logger);
         try
         {
-            TileRegistry.SetBlock(World, World.WorldToBlockPos(pos), block);
+            if (!TileRegistry.SetBlock(World, World.WorldToBlockPos(pos), block))
+                LogUtil.Warning("world.place_failed", block, pos.x, pos.y);
         }
         catch (Exception ex)
         {

@@ -1,0 +1,6 @@
+{
+    "args":  [
+
+             ],
+    "description":  "Place a custom test tile next to the player (verifies Tile event group)"
+}
